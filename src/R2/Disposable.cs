@@ -17,6 +17,11 @@ public static class Disposable
         builder.Add(disposable);
     }
 
+    public static CallbackDisposable<T> Callback<T>(Action<T> callback, T state)
+    {
+        return new CallbackDisposable<T>(callback, state);
+    }
+
     public static IDisposable Combine(IDisposable disposable1, IDisposable disposable2)
     {
         return new CombinedDisposable2(disposable1, disposable2);
