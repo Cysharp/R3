@@ -5,11 +5,11 @@ namespace R2;
 
 public sealed class Publisher<TMessage> : IEvent<TMessage>, ISubscriber<TMessage>, IDisposable
 {
-    CompactListCore<Subscription> list;
+    FreeListCore<Subscription> list;
 
     public Publisher()
     {
-        list = new CompactListCore<Subscription>(this);
+        list = new FreeListCore<Subscription>(this);
     }
 
     public void OnNext(TMessage message)
@@ -32,7 +32,7 @@ public sealed class Publisher<TMessage> : IEvent<TMessage>, ISubscriber<TMessage
 
     void Unsubscribe(Subscription subscription)
     {
-        list.Remove(subscription.removeKey, subscription);
+        list.Remove(subscription.removeKey);
     }
 
     public void Dispose()
@@ -63,11 +63,11 @@ public sealed class Publisher<TMessage> : IEvent<TMessage>, ISubscriber<TMessage
 public sealed class CompletablePublisher<TMessage, TComplete> : ICompletableEvent<TMessage, TComplete>, ISubscriber<TMessage, TComplete>, IDisposable
 {
     int calledCompleted = 0;
-    CompactListCore<Subscription> list;
+    FreeListCore<Subscription> list;
 
     public CompletablePublisher()
     {
-        list = new CompactListCore<Subscription>(this);
+        list = new FreeListCore<Subscription>(this);
     }
 
     public void OnNext(TMessage message)
@@ -106,7 +106,7 @@ public sealed class CompletablePublisher<TMessage, TComplete> : ICompletableEven
 
     void Unsubscribe(Subscription subscription)
     {
-        list.Remove(subscription.removeKey, subscription);
+        list.Remove(subscription.removeKey);
     }
 
     public void Dispose()

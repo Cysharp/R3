@@ -40,33 +40,102 @@ public static class FrameProviderExtensions
     }
 }
 
-public interface IThreadPoolWorkItem
+public interface IFrameTimerWorkItem
 {
-    //
-    // 概要:
-    //     Executes the work item on the thread pool.
-    void Execute();
+    // true, continue
+    bool Execute();
 }
 
-// Thread.Sleep(1)
-
-public sealed class ThreadSleepTimer : IFrameTimer
+public sealed class ThreadFrameProvider : FrameProvider
 {
+    public override int GetFrameCount()
+    {
+        return GlobalThreadSleepLoop.Instance.FrameCount;
+    }
 
+    public override IFrameTimer CreateTimer(TimerCallback callback, object? state, int initialFrame, int frameInterval)
+    {
+        var timer = new ThreadSleepFrameTimer(callback, state);
+        timer.Change(initialFrame, frameInterval);
+        return timer;
+    }
+}
 
+public sealed class ThreadSleepFrameTimer : IFrameTimer, IFrameTimerWorkItem
+{
+    readonly TimerCallback timerCallback;
+    readonly object? state;
+
+    int frameCount;
+    State runningState;
+    int initialFrame;
+    int frameInterval;
+
+    public ThreadSleepFrameTimer(TimerCallback timerCallback, object? state)
+    {
+        this.timerCallback = timerCallback;
+        this.state = state;
+    }
 
     public bool Change(int initialFrame, int frameInterval)
     {
-        // IThreadPoolWorkItem
-        //ThreadPool.UnsafeQueueUserWorkItem(
+        // TODO: lock.
+        this.initialFrame = initialFrame;
+        this.frameInterval = frameInterval;
 
-        // CompactListCore
+        if (initialFrame != -1 && runningState != State.Stop)
+        {
+            GlobalThreadSleepLoop.Instance.Register(this);
+        }
+        else
+        {
+            runningState = State.Stop;
+        }
 
-
-        throw new NotImplementedException();
+        return true;
     }
 
+    public bool Execute()
+    {
+        switch (runningState)
+        {
+            case State.Stop:
+                return false;
+            case State.Initial:
+                goto INITIAL;
+            case State.Interval:
+                goto INTERVAL;
+            default:
+                break;
+        }
 
+        frameCount = 0;
+
+    INITIAL:
+        if (frameCount++ == initialFrame)
+        {
+            timerCallback(state);
+            if (frameInterval == -1)
+            {
+                runningState = State.Stop;
+                return false;
+            }
+            else
+            {
+                frameCount = 0;
+                runningState = State.Interval;
+            }
+        }
+        return true;
+
+    INTERVAL:
+        if (frameCount++ == frameInterval)
+        {
+            timerCallback(state);
+            frameCount = 0;
+        }
+        return true;
+    }
 
 
 
@@ -74,65 +143,59 @@ public sealed class ThreadSleepTimer : IFrameTimer
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+        // TODO:...
     }
 
     public ValueTask DisposeAsync()
     {
-        throw new NotImplementedException();
+        return default;
+    }
+
+    enum State
+    {
+        Stop,
+        Initial,
+        Interval
     }
 }
 
 internal sealed class GlobalThreadSleepLoop
 {
+    public static readonly GlobalThreadSleepLoop Instance = new GlobalThreadSleepLoop();
+
     public int FrameCount;
+    FreeListCore<IFrameTimerWorkItem> list;
 
+    GlobalThreadSleepLoop()
+    {
+        list = new FreeListCore<IFrameTimerWorkItem>(this);
+        Run();
+    }
 
-    public void Run()
+    public void Register(IFrameTimerWorkItem callback)
+    {
+        list.Add(callback);
+    }
+
+    void Run()
     {
         while (true)
         {
-
-
-
-            Thread.Sleep(1);
-            FrameCount++;
-        }
-    }
-}
-
-
-
-
-internal sealed class TaskYieldFrameProvider
-{
-    List<(Func<object?, bool> callback, object? state)> list1 = new();
-    Task? loop;
-
-    public void Register(Func<object?, bool> callback, object? state)
-    {
-        list1.Add((callback, state));
-        if (loop == null)
-        {
-            loop = TaskLoop();
-        }
-    }
-
-    async Task TaskLoop()
-    {
-        while (true) // TODO: how stop?
-        {
-            // TODO: thread safety
-
-            foreach (var item in list1.ToArray()) // TODO: avoid ToArray()
+            var span = list.AsSpan();
+            for (int i = 0; i < span.Length; i++)
             {
-                if (!item.callback(item.state))
+                ref readonly var item = ref span[i];
+                if (item != null)
                 {
-                    list1.Remove(item); // TODO: slow Remove
+                    if (!item.Execute()) // TODO:try-catch
+                    {
+                        list.Remove(i);
+                    }
                 }
             }
 
-            await Task.Yield();
+            Thread.Sleep(1);
+            FrameCount++;
         }
     }
 }

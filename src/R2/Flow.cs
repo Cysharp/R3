@@ -17,7 +17,7 @@ public class Flow<T> : IFlow<T>, IDisposable
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
-    CompactListCore<Subscription> list;
+    FreeListCore<Subscription> list;
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
 
@@ -51,7 +51,7 @@ public class Flow<T> : IFlow<T>, IDisposable
     {
         this.value = value;
         this.equalityComparer = equalityComparer;
-        this.list = new CompactListCore<Subscription>(this);
+        this.list = new FreeListCore<Subscription>(this);
     }
 
     public IDisposable Subscribe(ISubscriber<T> subscriber)
@@ -69,7 +69,7 @@ public class Flow<T> : IFlow<T>, IDisposable
 
     void Unsubscribe(Subscription subscription)
     {
-        list.Remove(subscription.removeKey, subscription);
+        list.Remove(subscription.removeKey);
     }
 
     public void Dispose()

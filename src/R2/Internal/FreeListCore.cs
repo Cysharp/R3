@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace R2.Internal;
 
 [StructLayout(LayoutKind.Auto)]
-internal struct CompactListCore<T>
+internal struct FreeListCore<T>
     where T : class
 {
     const int InitialArraySize = 4;
@@ -13,7 +13,7 @@ internal struct CompactListCore<T>
     T?[]? values = null;
     int lastIndex;
 
-    public CompactListCore(object gate)
+    public FreeListCore(object gate)
     {
         this.gate = gate;
     }
@@ -31,7 +31,7 @@ internal struct CompactListCore<T>
     {
         lock (gate)
         {
-            ObjectDisposedException.ThrowIf(IsDisposed, typeof(CompactListCore<T>));
+            ObjectDisposedException.ThrowIf(IsDisposed, typeof(FreeListCore<T>));
 
             if (values == null)
             {
@@ -60,45 +60,23 @@ internal struct CompactListCore<T>
         }
     }
 
-    // first, try to find index of item.
-    public void Remove(int index, T item)
+    public void Remove(int index)
     {
         lock (gate)
         {
-            ObjectDisposedException.ThrowIf(IsDisposed, typeof(CompactListCore<T>));
+            ObjectDisposedException.ThrowIf(IsDisposed, typeof(FreeListCore<T>));
 
             if (values == null) return;
 
             if (index < values.Length)
             {
                 ref var v = ref values[index];
-                if (v != null)
+                if (v == null) throw new KeyNotFoundException($"key index {index} is not found.");
+
+                v = null;
+                if (index == lastIndex)
                 {
-                    if (v == item)
-                    {
-                        v = null;
-
-                        if (index == lastIndex)
-                        {
-                            Volatile.Write(ref lastIndex, FindLastNonNullIndex(values, index));
-                        }
-                        return;
-                    }
-                }
-            }
-
-            // fallback, when shrinked, index is broken.
-            for (int i = 0; i < values.Length; i++)
-            {
-                if (values[i] == item)
-                {
-                    values[i] = null;
-
-                    if (i == lastIndex)
-                    {
-                        Volatile.Write(ref lastIndex, FindLastNonNullIndex(values, i));
-                    }
-                    return;
+                    Volatile.Write(ref lastIndex, FindLastNonNullIndex(values, index));
                 }
             }
         }
