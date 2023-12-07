@@ -7,23 +7,25 @@ namespace R2.Internal;
 internal struct CompactListCore<T>
     where T : class
 {
-    const double ShrinkRate = 0.8;
     const int InitialArraySize = 4;
-    const int MinShrinkStartSize = 16;
 
     readonly object gate;
     T?[]? values = null;
-    int count;
+    int lastIndex;
 
     public CompactListCore(object gate)
     {
         this.gate = gate;
     }
 
-    public int Count => count;
-    public bool IsDisposed => count == -1;
+    public bool IsDisposed => lastIndex == -1;
 
-    public ReadOnlySpan<T?> AsSpan() => Volatile.Read(ref values); // thread safe in iterate
+    public ReadOnlySpan<T?> AsSpan()
+    {
+        var last = Volatile.Read(ref lastIndex);
+        var xs = Volatile.Read(ref values);
+        return xs.AsSpan(0, last + 1);
+    }
 
     public int Add(T item)
     {
@@ -42,12 +44,17 @@ internal struct CompactListCore<T>
             {
                 // full, resize(x1.5)
                 var len = values.Length;
-                Array.Resize(ref values, len + (len / 2));
+                var newValues = new T[len + (len / 2)];
+                Array.Copy(values, newValues, len);
+                Volatile.Write(ref values, newValues);
                 index = len;
             }
 
             values[index] = item;
-            count++;
+            if (lastIndex < index)
+            {
+                Volatile.Write(ref lastIndex, index);
+            }
 
             return index; // index is remove key.
         }
@@ -70,8 +77,11 @@ internal struct CompactListCore<T>
                     if (v == item)
                     {
                         v = null;
-                        count--;
-                        TryShrink();
+
+                        if (index == lastIndex)
+                        {
+                            Volatile.Write(ref lastIndex, FindLastNonNullIndex(values, index));
+                        }
                         return;
                     }
                 }
@@ -83,14 +93,14 @@ internal struct CompactListCore<T>
                 if (values[i] == item)
                 {
                     values[i] = null;
-                    count--;
 
-                    // when removed, do shrink.
-                    TryShrink();
+                    if (i == lastIndex)
+                    {
+                        Volatile.Write(ref lastIndex, FindLastNonNullIndex(values, i));
+                    }
                     return;
                 }
             }
-
         }
     }
 
@@ -99,36 +109,7 @@ internal struct CompactListCore<T>
         lock (gate)
         {
             values = null;
-            count = -1;
-        }
-    }
-
-    // this method must be called in lock
-    void TryShrink()
-    {
-        if (values == null) return;
-        if (values.Length < MinShrinkStartSize) return;
-
-        var rate = (double)(values.Length - count) / values.Length;
-        if (rate > ShrinkRate)
-        {
-            var size = count + (count / 2); // * 1.5
-            if (size < 16) size = 16;
-
-            var newArray = new T[size];
-            var i = 0;
-
-            // TODO:if can use same index, keep index.
-            foreach (var item in values)
-            {
-                if (item != null)
-                {
-                    newArray[i++] = item;
-                }
-            }
-
-            // set new.
-            this.values = newArray;
+            lastIndex = -1;
         }
     }
 
@@ -137,5 +118,13 @@ internal struct CompactListCore<T>
         var span = MemoryMarshal.CreateReadOnlySpan(
             ref Unsafe.As<T?, IntPtr>(ref MemoryMarshal.GetArrayDataReference(target)), target.Length);
         return span.IndexOf(IntPtr.Zero);
+    }
+
+    static int FindLastNonNullIndex(T?[] target, int lastIndex)
+    {
+        var span = MemoryMarshal.CreateReadOnlySpan(
+            ref Unsafe.As<T?, IntPtr>(ref MemoryMarshal.GetArrayDataReference(target)), lastIndex); // without lastIndexed value.
+        var index = span.LastIndexOfAnyExcept(IntPtr.Zero);
+        return (index == -1) ? 0 : index;
     }
 }
