@@ -25,7 +25,7 @@ internal struct CompactListCore<T>
 
     public ReadOnlySpan<T?> AsSpan() => Volatile.Read(ref values); // thread safe in iterate
 
-    public void Add(T item)
+    public int Add(T item)
     {
         lock (gate)
         {
@@ -38,28 +38,46 @@ internal struct CompactListCore<T>
 
             // try find blank
             var index = FindNullIndex(values);
-            if (index != -1)
-            {
-                values[index] = item;
-            }
-            else
+            if (index == -1)
             {
                 // full, resize(x1.5)
                 var len = values.Length;
                 Array.Resize(ref values, len + (len / 2));
-                values[len] = item;
+                index = len;
             }
+
+            values[index] = item;
             count++;
+
+            return index; // index is remove key.
         }
     }
 
-    public void Remove(T item)
+    // first, try to find index of item.
+    public void Remove(int index, T item)
     {
         lock (gate)
         {
             ObjectDisposedException.ThrowIf(IsDisposed, typeof(CompactListCore<T>));
 
             if (values == null) return;
+
+            if (index < values.Length)
+            {
+                ref var v = ref values[index];
+                if (v != null)
+                {
+                    if (v == item)
+                    {
+                        v = null;
+                        count--;
+                        TryShrink();
+                        return;
+                    }
+                }
+            }
+
+            // fallback, when shrinked, index is broken.
             for (int i = 0; i < values.Length; i++)
             {
                 if (values[i] == item)
@@ -72,6 +90,7 @@ internal struct CompactListCore<T>
                     return;
                 }
             }
+
         }
     }
 
@@ -98,6 +117,8 @@ internal struct CompactListCore<T>
 
             var newArray = new T[size];
             var i = 0;
+
+            // TODO:if can use same index, keep index.
             foreach (var item in values)
             {
                 if (item != null)

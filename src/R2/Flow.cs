@@ -63,13 +63,13 @@ public class Flow<T> : IFlow<T>, IDisposable
         subscriber.OnNext(value);
 
         var subscription = new Subscription(this, subscriber);
-        list.Add(subscription);
+        subscription.removeKey = list.Add(subscription);
         return subscription;
     }
 
     void Unsubscribe(Subscription subscription)
     {
-        list.Remove(subscription);
+        list.Remove(subscription.removeKey, subscription);
     }
 
     public void Dispose()
@@ -84,6 +84,8 @@ public class Flow<T> : IFlow<T>, IDisposable
 
     sealed class Subscription(Flow<T>? parent, ISubscriber<T> subscriber) : IDisposable
     {
+        public int removeKey;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnNext(T message)
         {

@@ -8,8 +8,14 @@ using System.Threading.Channels;
 //using System.Reactive.Subjects;
 //using System.Threading.Channels;
 
-//var s = new Subject<int>();
-// var s = new CompletablePublisher<int, Unit>();
+var s = new CompletablePublisher<int, Unit>();
+
+var d1 = s.Subscribe((x) => Console.WriteLine(x));
+var d2 = s.Subscribe((x) => Console.WriteLine(x));
+var d3 = s.Subscribe((x) => Console.WriteLine(x));
+
+d2.Dispose();
+
 
 //var gate = new object();
 //var list = new CompactListCore<object>(gate);

@@ -26,13 +26,13 @@ public sealed class Publisher<TMessage> : IEvent<TMessage>, ISubscriber<TMessage
     public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
     {
         var subscription = new Subscription(this, subscriber);
-        list.Add(subscription);
+        subscription.removeKey = list.Add(subscription);
         return subscription;
     }
 
     void Unsubscribe(Subscription subscription)
     {
-        list.Remove(subscription);
+        list.Remove(subscription.removeKey, subscription);
     }
 
     public void Dispose()
@@ -42,6 +42,8 @@ public sealed class Publisher<TMessage> : IEvent<TMessage>, ISubscriber<TMessage
 
     sealed class Subscription(Publisher<TMessage>? parent, ISubscriber<TMessage> subscriber) : IDisposable
     {
+        public int removeKey;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnNext(TMessage message)
         {
@@ -98,13 +100,13 @@ public sealed class CompletablePublisher<TMessage, TComplete> : ICompletableEven
     public IDisposable Subscribe(ISubscriber<TMessage, TComplete> subscriber)
     {
         var subscription = new Subscription(this, subscriber);
-        list.Add(subscription);
+        subscription.removeKey = list.Add(subscription);
         return subscription;
     }
 
     void Unsubscribe(Subscription subscription)
     {
-        list.Remove(subscription);
+        list.Remove(subscription.removeKey, subscription);
     }
 
     public void Dispose()
@@ -114,6 +116,8 @@ public sealed class CompletablePublisher<TMessage, TComplete> : ICompletableEven
 
     sealed class Subscription(CompletablePublisher<TMessage, TComplete>? parent, ISubscriber<TMessage, TComplete> subscriber) : IDisposable
     {
+        public int removeKey;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnNext(TMessage message)
         {
