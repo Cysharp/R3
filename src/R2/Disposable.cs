@@ -9,12 +9,7 @@ public static class Disposable
 
     public static DisposableBuilder CreateBuilder()
     {
-        return new DisposableBuilder(4);
-    }
-
-    public static DisposableBuilder CreateBuilder(int initialCapacity)
-    {
-        return new DisposableBuilder(initialCapacity);
+        return new DisposableBuilder();
     }
 
     public static void AddTo(this IDisposable disposable, ref DisposableBuilder builder)
@@ -269,40 +264,88 @@ internal sealed class CombinedDisposable(IDisposable[] disposables) : IDisposabl
 
 public ref struct DisposableBuilder()
 {
-    IDisposable[] disposables;
-    int count;
+    IDisposable? disposable1;
+    IDisposable? disposable2;
+    IDisposable? disposable3;
+    IDisposable? disposable4;
+    IDisposable? disposable5;
+    IDisposable? disposable6;
+    IDisposable? disposable7;
+    IDisposable? disposable8;
+    IDisposable[]? disposables;
 
-    public DisposableBuilder(int initialCapacity)
-        : this()
-    {
-        disposables = ArrayPool<IDisposable>.Shared.Rent(initialCapacity);
-    }
+    int count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(IDisposable disposable)
     {
-        ObjectDisposedException.ThrowIf(disposables == null, typeof(DisposableBuilder));
+        ArgumentNullException.ThrowIfNull(disposable);
+        ObjectDisposedException.ThrowIf(count == -1, typeof(DisposableBuilder));
 
-        if (count == disposables.Length)
+        switch (count)
         {
-            Grow();
+            case 0:
+                disposable1 = disposable;
+                break;
+            case 1:
+                disposable2 = disposable;
+                break;
+            case 2:
+                disposable3 = disposable;
+                break;
+            case 3:
+                disposable4 = disposable;
+                break;
+            case 4:
+                disposable5 = disposable;
+                break;
+            case 5:
+                disposable6 = disposable;
+                break;
+            case 6:
+                disposable7 = disposable;
+                break;
+            case 7:
+                disposable8 = disposable;
+                break;
+            default:
+                AddToArray(disposable);
+                break;
         }
 
-        disposables[disposables.Length] = disposable;
         count++;
     }
 
-    void Grow()
+    void AddToArray(IDisposable disposable)
     {
-        var newDisposables = ArrayPool<IDisposable>.Shared.Rent((disposables.Length == 0) ? 4 : disposables.Length * 2);
-        Array.Copy(disposables, newDisposables, disposables.Length);
-        ArrayPool<IDisposable>.Shared.Return(disposables);
-        disposables = newDisposables;
+        if (count == 8)
+        {
+            var newDisposables = ArrayPool<IDisposable>.Shared.Rent(16);
+            newDisposables[0] = disposable1!;
+            newDisposables[1] = disposable2!;
+            newDisposables[2] = disposable3!;
+            newDisposables[3] = disposable4!;
+            newDisposables[4] = disposable5!;
+            newDisposables[5] = disposable6!;
+            newDisposables[6] = disposable7!;
+            newDisposables[7] = disposable8!;
+            disposable1 = disposable2 = disposable3 = disposable4 = disposable5 = disposable6 = disposable7 = disposable8 = null;
+
+            newDisposables[8] = disposable;
+        }
+        else
+        {
+            var newDisposables = ArrayPool<IDisposable>.Shared.Rent(disposables!.Length * 2);
+            Array.Copy(disposables, newDisposables, disposables.Length);
+            ArrayPool<IDisposable>.Shared.Return(disposables, clearArray: true);
+            newDisposables[count] = disposable;
+            disposables = newDisposables;
+        }
     }
 
     public IDisposable Build()
     {
-        ObjectDisposedException.ThrowIf(disposables == null, typeof(DisposableBuilder));
+        ObjectDisposedException.ThrowIf(count == -1, typeof(DisposableBuilder));
 
         IDisposable result;
         switch (count)
@@ -311,86 +354,90 @@ public ref struct DisposableBuilder()
                 result = Disposable.Empty;
                 break;
             case 1:
-                result = disposables[0];
+                result = disposable1!;
                 break;
             case 2:
                 result = new CombinedDisposable2(
-                    disposables[0],
-                    disposables[1]
+                    disposable1!,
+                    disposable2!
                 );
                 break;
             case 3:
                 result = new CombinedDisposable3(
-                    disposables[0],
-                    disposables[1],
-                    disposables[2]
+                    disposable1!,
+                    disposable2!,
+                    disposable3!
                 );
                 break;
             case 4:
                 result = new CombinedDisposable4(
-                    disposables[0],
-                    disposables[1],
-                    disposables[2],
-                    disposables[3]
+                    disposable1!,
+                    disposable2!,
+                    disposable3!,
+                    disposable4!
                 );
                 break;
             case 5:
                 result = new CombinedDisposable5(
-                    disposables[0],
-                    disposables[1],
-                    disposables[2],
-                    disposables[3],
-                    disposables[4]
+                    disposable1!,
+                    disposable2!,
+                    disposable3!,
+                    disposable4!,
+                    disposable5!
                 );
                 break;
             case 6:
                 result = new CombinedDisposable6(
-                    disposables[0],
-                    disposables[1],
-                    disposables[2],
-                    disposables[3],
-                    disposables[4],
-                    disposables[5]
+                    disposable1!,
+                    disposable2!,
+                    disposable3!,
+                    disposable4!,
+                    disposable5!,
+                    disposable6!
                 );
                 break;
             case 7:
                 result = new CombinedDisposable7(
-                    disposables[0],
-                    disposables[1],
-                    disposables[2],
-                    disposables[3],
-                    disposables[4],
-                    disposables[5],
-                    disposables[6]
+                    disposable1!,
+                    disposable2!,
+                    disposable3!,
+                    disposable4!,
+                    disposable5!,
+                    disposable6!,
+                    disposable7!
                 );
                 break;
             case 8:
                 result = new CombinedDisposable8(
-                    disposables[0],
-                    disposables[1],
-                    disposables[2],
-                    disposables[3],
-                    disposables[4],
-                    disposables[5],
-                    disposables[6],
-                    disposables[7]
+                    disposable1!,
+                    disposable2!,
+                    disposable3!,
+                    disposable4!,
+                    disposable5!,
+                    disposable6!,
+                    disposable7!,
+                    disposable8!
                 );
                 break;
             default:
-                result = new CombinedDisposable(disposables);
+                result = new CombinedDisposable(disposables!);
                 break;
         }
 
-        disposables = null!;
+        Dispose();
         return result;
     }
 
     public void Dispose()
     {
-        if (disposables != null)
+        if (count != -1)
         {
-            ArrayPool<IDisposable>.Shared.Return(disposables);
-            disposables = null!;
+            disposable1 = disposable2 = disposable3 = disposable4 = disposable5 = disposable6 = disposable7 = disposable8 = null;
+            if (disposables != null)
+            {
+                ArrayPool<IDisposable>.Shared.Return(disposables, clearArray: true);
+            }
+            count = -1;
         }
     }
 }
