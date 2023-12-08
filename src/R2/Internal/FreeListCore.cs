@@ -24,6 +24,7 @@ internal struct FreeListCore<T>
     {
         var last = Volatile.Read(ref lastIndex);
         var xs = Volatile.Read(ref values);
+        if (xs == null) return ReadOnlySpan<T?>.Empty;
         return xs.AsSpan(0, last + 1);
     }
 

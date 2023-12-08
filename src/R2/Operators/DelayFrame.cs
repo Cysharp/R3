@@ -21,9 +21,8 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
         return Disposable.Combine(delaySubscription, sourceSubscription); // call delay's dispose first
     }
 
-    class _DelayFrame : ISubscriber<TMessage>
+    class _DelayFrame : ISubscriber<TMessage>, IFrameRunnerWorkItem
     {
-        static readonly TimerCallback timerCallback = DrainMessages;
         static readonly Action<_DelayFrame> disposeCallback = OnDisposed;
 
         public CallbackDisposable<_DelayFrame> Subscription { get; private set; }
@@ -31,17 +30,17 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
         readonly ISubscriber<TMessage> subscriber;
         readonly int delayFrameCount;
         readonly FrameProvider frameProvider;
-        readonly IFrameTimer timer;
-        readonly Queue<(int frameCount, TMessage message)> queue = new Queue<(int, TMessage)>(); // lock gate
+        readonly Queue<(long frameCount, TMessage message)> queue = new Queue<(long, TMessage)>(); // lock gate
 
         bool running;
+        long nextTick;
+        bool stopRunner;
 
         public _DelayFrame(ISubscriber<TMessage> subscriber, int delayFrameCount, FrameProvider frameProvider)
         {
             this.subscriber = subscriber;
             this.delayFrameCount = delayFrameCount;
             this.frameProvider = frameProvider;
-            this.timer = frameProvider.CreateStoppedTimer(timerCallback, this);
             this.Subscription = Disposable.Callback(disposeCallback, this);
         }
 
@@ -60,52 +59,60 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
                 {
                     // invoke timer
                     running = true;
-                    timer.InvokeOnce(delayFrameCount);
+                    nextTick = currentCount + delayFrameCount;
+                    frameProvider.Register(this); // start runner
                 }
             }
         }
 
-        static void DrainMessages(object? state)
+        public bool MoveNext(long framecount)
         {
-            var self = (_DelayFrame)state!;
-            var queue = self.queue;
+            if (stopRunner)
+            {
+                return false;
+            }
+
+            if (nextTick < framecount)
+            {
+                return true;
+            }
 
             TMessage message;
             while (true)
             {
                 lock (queue)
                 {
-                    if (self.Subscription.IsDisposed)
+                    if (Subscription.IsDisposed)
                     {
-                        self.running = false;
-                        return;
+                        running = false;
+                        return false;
                     }
 
                     if (queue.TryPeek(out var msg))
                     {
-                        var elapsed = self.frameProvider.GetElapsedFrameCount(msg.frameCount);
-                        if (self.delayFrameCount <= elapsed)
+                        var elapsed = framecount - msg.frameCount;
+                        if (delayFrameCount <= elapsed)
                         {
                             message = queue.Dequeue().message;
                         }
                         else
                         {
                             // invoke timer again
-                            self.timer.InvokeOnce(self.delayFrameCount - elapsed);
-                            return;
+                            nextTick = framecount + (delayFrameCount - elapsed);
+                            return true;
                         }
                     }
                     else
                     {
                         // queue is empty, stop timer
-                        self.running = false;
-                        return;
+                        running = false;
+                        return false;
                     }
                 }
 
                 try
                 {
-                    self.subscriber.OnNext(message);
+                    subscriber.OnNext(message);
                     continue; // loop to drain all messages
                 }
                 catch
@@ -114,15 +121,16 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
                     {
                         if (queue.Count != 0)
                         {
-                            self.timer.RestartImmediately(); // reserve next timer
+                            nextTick = queue.Peek().frameCount + delayFrameCount;
+                            frameProvider.Register(this); // register once more(this loop will be stopped soon)
                         }
                         else
                         {
-                            self.running = false;
+                            running = false;
                         }
                     }
 
-                    throw; // go to IFrameTimer UnhandledException handler
+                    throw; // go to IFrameTimer UnhandledException handler and will Remove this work item
                 }
             }
         }
@@ -131,7 +139,7 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
         {
             lock (self.queue)
             {
-                self.timer.Dispose();
+                self.stopRunner = true;
                 self.queue.Clear();
             }
         }

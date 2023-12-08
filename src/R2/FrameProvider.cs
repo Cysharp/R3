@@ -4,175 +4,66 @@ namespace R2;
 
 public abstract class FrameProvider
 {
-    public abstract int GetFrameCount();
-    public abstract IFrameTimer CreateTimer(TimerCallback callback, object? state, int initialFrame, int frameInterval);
+    protected event Action<Exception>? UnhandledException;
+    public abstract long GetFrameCount();
+    public abstract void Register(IFrameRunnerWorkItem callback);
 
-    public int GetElapsedFrameCount(int startingFrame) => GetElapsedFrameCount(startingFrame, GetFrameCount());
-
-    public int GetElapsedFrameCount(int startingFrame, int endingFrame)
+    protected void OnUnhandledException(Exception ex)
     {
-        // TODO: validate
-        var frameCount = GetFrameCount();
-        return endingFrame - startingFrame;
+        UnhandledException?.Invoke(ex);
     }
 }
 
-public interface IFrameTimer : IDisposable, IAsyncDisposable
-{
-    bool Change(int initialFrame, int frameInterval);
-}
-
-public static class FrameProviderExtensions
-{
-    public static IFrameTimer CreateStoppedTimer(this FrameProvider frameProvider, TimerCallback timerCallback, object? state)
-    {
-        return frameProvider.CreateTimer(timerCallback, state, -1, -1);
-    }
-
-    public static void RestartImmediately(this IFrameTimer timer)
-    {
-        timer.Change(0, -1);
-    }
-
-    public static void InvokeOnce(this IFrameTimer timer, int initialFrame)
-    {
-        timer.Change(initialFrame, -1);
-    }
-}
-
-public interface IFrameTimerWorkItem
+public interface IFrameRunnerWorkItem
 {
     // true, continue
-    bool Execute();
+    bool MoveNext(long frameCount);
 }
 
 public sealed class ThreadFrameProvider : FrameProvider
 {
-    public override int GetFrameCount()
+    public static readonly ThreadFrameProvider Instance = new ThreadFrameProvider();
+
+    ThreadFrameProvider()
     {
-        return GlobalThreadSleepLoop.Instance.FrameCount;
     }
 
-    public override IFrameTimer CreateTimer(TimerCallback callback, object? state, int initialFrame, int frameInterval)
+    // Start GlobalThreadSleepLoop after first touch.
+
+    public override long GetFrameCount()
     {
-        var timer = new ThreadSleepFrameTimer(callback, state);
-        timer.Change(initialFrame, frameInterval);
-        return timer;
-    }
-}
-
-public sealed class ThreadSleepFrameTimer : IFrameTimer, IFrameTimerWorkItem
-{
-    readonly TimerCallback timerCallback;
-    readonly object? state;
-
-    int frameCount;
-    State runningState;
-    int initialFrame;
-    int frameInterval;
-
-    public ThreadSleepFrameTimer(TimerCallback timerCallback, object? state)
-    {
-        this.timerCallback = timerCallback;
-        this.state = state;
+        return GlobalThreadSleepFrameRunner.Instance.FrameCount;
     }
 
-    public bool Change(int initialFrame, int frameInterval)
+    public override void Register(IFrameRunnerWorkItem callback)
     {
-        // TODO: lock.
-        this.initialFrame = initialFrame;
-        this.frameInterval = frameInterval;
-
-        if (initialFrame != -1 && runningState != State.Stop)
-        {
-            GlobalThreadSleepLoop.Instance.Register(this);
-        }
-        else
-        {
-            runningState = State.Stop;
-        }
-
-        return true;
+        GlobalThreadSleepFrameRunner.Instance.Register(callback);
     }
 
-    public bool Execute()
+    internal void RaiseUnhandledException(Exception ex)
     {
-        switch (runningState)
-        {
-            case State.Stop:
-                return false;
-            case State.Initial:
-                goto INITIAL;
-            case State.Interval:
-                goto INTERVAL;
-            default:
-                break;
-        }
-
-        frameCount = 0;
-
-    INITIAL:
-        if (frameCount++ == initialFrame)
-        {
-            timerCallback(state);
-            if (frameInterval == -1)
-            {
-                runningState = State.Stop;
-                return false;
-            }
-            else
-            {
-                frameCount = 0;
-                runningState = State.Interval;
-            }
-        }
-        return true;
-
-    INTERVAL:
-        if (frameCount++ == frameInterval)
-        {
-            timerCallback(state);
-            frameCount = 0;
-        }
-        return true;
-    }
-
-
-
-
-
-    public void Dispose()
-    {
-        // TODO:...
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        return default;
-    }
-
-    enum State
-    {
-        Stop,
-        Initial,
-        Interval
+        OnUnhandledException(ex);
     }
 }
 
-internal sealed class GlobalThreadSleepLoop
+internal sealed class GlobalThreadSleepFrameRunner
 {
-    public static readonly GlobalThreadSleepLoop Instance = new GlobalThreadSleepLoop();
+    public static readonly GlobalThreadSleepFrameRunner Instance = new GlobalThreadSleepFrameRunner();
 
-    public int FrameCount;
-    FreeListCore<IFrameTimerWorkItem> list;
+    long frameCount;
+    FreeListCore<IFrameRunnerWorkItem> list;
+    Thread thread;
 
-    GlobalThreadSleepLoop()
+    GlobalThreadSleepFrameRunner()
     {
-        list = new FreeListCore<IFrameTimerWorkItem>(this);
-        Run();
+        list = new FreeListCore<IFrameRunnerWorkItem>(this);
+        thread = new Thread(Run);
+        thread.Start();
     }
 
-    public void Register(IFrameTimerWorkItem callback)
+    public long FrameCount => frameCount;
+
+    public void Register(IFrameRunnerWorkItem callback)
     {
         list.Add(callback);
     }
@@ -187,15 +78,27 @@ internal sealed class GlobalThreadSleepLoop
                 ref readonly var item = ref span[i];
                 if (item != null)
                 {
-                    if (!item.Execute()) // TODO:try-catch
+                    try
+                    {
+                        if (!item.MoveNext(frameCount))
+                        {
+                            list.Remove(i);
+                        }
+                    }
+                    catch (Exception ex)
                     {
                         list.Remove(i);
+                        try
+                        {
+                            ThreadFrameProvider.Instance.RaiseUnhandledException(ex);
+                        }
+                        catch { }
                     }
                 }
             }
 
-            Thread.Sleep(1);
-            FrameCount++;
+            Thread.Sleep(1); // TODO: non-static, configurable?
+            frameCount++;
         }
     }
 }

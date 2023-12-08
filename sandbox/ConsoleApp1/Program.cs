@@ -8,23 +8,12 @@ using System.Threading.Channels;
 //using System.Reactive.Subjects;
 //using System.Threading.Channels;
 
-var s = new CompletablePublisher<int, Unit>();
+var s = new Publisher<int>();
 
-var d1 = s.Subscribe((x) => Console.WriteLine(x));
-var d2 = s.Subscribe((x) => Console.WriteLine(x));
-var d3 = s.Subscribe((x) => Console.WriteLine(x));
-var d4 = s.Subscribe((x) => Console.WriteLine(x));
-var d5 = s.Subscribe((x) => Console.WriteLine(x));
-// var d6 = s.Subscribe((x) => Console.WriteLine(x));
+var d1 = s.DelayFrame(10, ThreadFrameProvider.Instance).Subscribe((x) => Console.WriteLine(x));
 
-s.OnNext(1);
-
-d3.Dispose();
-d4.Dispose();
-
-d2.Dispose();
-d1.Dispose();
-d5.Dispose();
+s.OnNext(99);
+Console.ReadLine();
 
 //var xs = new[] { 1, 10, 3, 4, 5, 0, 7, 8, 9, 10 };
 
