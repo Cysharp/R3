@@ -20,57 +20,48 @@ public interface IFrameRunnerWorkItem
     bool MoveNext(long frameCount);
 }
 
-public sealed class ThreadFrameProvider : FrameProvider
+public sealed class ThreadSleepFrameProvider : FrameProvider, IDisposable
 {
-    public static readonly ThreadFrameProvider Instance = new ThreadFrameProvider();
-
-    ThreadFrameProvider()
-    {
-    }
-
-    // Start GlobalThreadSleepLoop after first touch.
-
-    public override long GetFrameCount()
-    {
-        return GlobalThreadSleepFrameRunner.Instance.FrameCount;
-    }
-
-    public override void Register(IFrameRunnerWorkItem callback)
-    {
-        GlobalThreadSleepFrameRunner.Instance.Register(callback);
-    }
-
-    internal void RaiseUnhandledException(Exception ex)
-    {
-        OnUnhandledException(ex);
-    }
-}
-
-internal sealed class GlobalThreadSleepFrameRunner
-{
-    public static readonly GlobalThreadSleepFrameRunner Instance = new GlobalThreadSleepFrameRunner();
+    readonly int sleepMilliseconds;
+    bool disposed;
 
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
     Thread thread;
 
-    GlobalThreadSleepFrameRunner()
+    public ThreadSleepFrameProvider()
+        : this(1)
     {
-        list = new FreeListCore<IFrameRunnerWorkItem>(this);
-        thread = new Thread(Run);
-        thread.Start();
     }
 
-    public long FrameCount => frameCount;
-
-    public void Register(IFrameRunnerWorkItem callback)
+    public ThreadSleepFrameProvider(int sleepMilliseconds)
     {
+        this.sleepMilliseconds = sleepMilliseconds;
+        this.list = new FreeListCore<IFrameRunnerWorkItem>(this);
+        this.thread = new Thread(Run);
+        this.thread.Start();
+    }
+
+    public override long GetFrameCount()
+    {
+        ObjectDisposedException.ThrowIf(disposed, typeof(ThreadSleepFrameProvider));
+        return frameCount;
+    }
+
+    public override void Register(IFrameRunnerWorkItem callback)
+    {
+        ObjectDisposedException.ThrowIf(disposed, typeof(ThreadSleepFrameProvider));
         list.Add(callback);
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
     }
 
     void Run()
     {
-        while (true)
+        while (!disposed)
         {
             var span = list.AsSpan();
             for (int i = 0; i < span.Length; i++)
@@ -90,15 +81,16 @@ internal sealed class GlobalThreadSleepFrameRunner
                         list.Remove(i);
                         try
                         {
-                            ThreadFrameProvider.Instance.RaiseUnhandledException(ex);
+                            OnUnhandledException(ex);
                         }
                         catch { }
                     }
                 }
             }
 
-            Thread.Sleep(1); // TODO: non-static, configurable?
+            Thread.Sleep(sleepMilliseconds);
             frameCount++;
         }
+        list.Dispose();
     }
 }

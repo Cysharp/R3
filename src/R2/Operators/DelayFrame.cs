@@ -25,7 +25,7 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
     {
         static readonly Action<_DelayFrame> disposeCallback = OnDisposed;
 
-        public CallbackDisposable<_DelayFrame> Subscription { get; private set; }
+        public ICancelable Subscription { get; private set; }
 
         readonly ISubscriber<TMessage> subscriber;
         readonly int delayFrameCount;
@@ -41,7 +41,7 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
             this.subscriber = subscriber;
             this.delayFrameCount = delayFrameCount;
             this.frameProvider = frameProvider;
-            this.Subscription = Disposable.Callback(disposeCallback, this);
+            this.Subscription = Disposable.Create(disposeCallback, this); // TODO:remove Disposable.Create
         }
 
         public void OnNext(TMessage message)

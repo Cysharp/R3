@@ -18,7 +18,7 @@ internal struct FreeListCore<T>
         this.gate = gate;
     }
 
-    public bool IsDisposed => lastIndex == -1;
+    public bool IsDisposed => lastIndex == -2;
 
     public ReadOnlySpan<T?> AsSpan()
     {
@@ -88,7 +88,7 @@ internal struct FreeListCore<T>
         lock (gate)
         {
             values = null;
-            lastIndex = -1;
+            lastIndex = -2; // -2 is disposed.
         }
     }
 
@@ -104,6 +104,6 @@ internal struct FreeListCore<T>
         var span = MemoryMarshal.CreateReadOnlySpan(
             ref Unsafe.As<T?, IntPtr>(ref MemoryMarshal.GetArrayDataReference(target)), lastIndex); // without lastIndexed value.
         var index = span.LastIndexOfAnyExcept(IntPtr.Zero);
-        return (index == -1) ? 0 : index;
+        return index; // return -1 is ok(means empty)
     }
 }

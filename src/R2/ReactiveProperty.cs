@@ -3,17 +3,17 @@ using System.Runtime.CompilerServices;
 
 namespace R2;
 
-public interface IReadOnlyFlow<T> : IEvent<T>
+public interface IReadOnlyReactiveProperty<T> : IEvent<T>
 {
     T Value { get; }
 }
 
-public interface IFlow<T> : IReadOnlyFlow<T>
+public interface IReactiveProperty<T> : IReadOnlyReactiveProperty<T>
 {
     new T Value { get; set; }
 }
 
-public class Flow<T> : IFlow<T>, IDisposable
+public class ReactiveProperty<T> : IReactiveProperty<T>, IDisposable
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
@@ -42,12 +42,12 @@ public class Flow<T> : IFlow<T>, IDisposable
         }
     }
 
-    public Flow(T value)
+    public ReactiveProperty(T value)
         : this(value, EqualityComparer<T>.Default)
     {
     }
 
-    public Flow(T value, EqualityComparer<T>? equalityComparer)
+    public ReactiveProperty(T value, EqualityComparer<T>? equalityComparer)
     {
         this.value = value;
         this.equalityComparer = equalityComparer;
@@ -82,7 +82,7 @@ public class Flow<T> : IFlow<T>, IDisposable
         return (value == null) ? "(null)" : value.ToString();
     }
 
-    sealed class Subscription(Flow<T>? parent, ISubscriber<T> subscriber) : IDisposable
+    sealed class Subscription(ReactiveProperty<T>? parent, ISubscriber<T> subscriber) : IDisposable
     {
         public int removeKey;
 

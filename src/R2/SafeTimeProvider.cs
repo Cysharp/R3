@@ -6,7 +6,7 @@ public sealed class SafeTimerTimeProvider : TimeProvider
     readonly Action<Exception> unhandledExceptionHandler;
     readonly TimerCallback wrappedCallback;
 
-    public SafeTimerTimeProvider(Action<Exception> unhandledExceptionHandler, TimeProvider timeProvider)
+    public SafeTimerTimeProvider(TimeProvider timeProvider, Action<Exception> unhandledExceptionHandler)
     {
         this.timeProvider = timeProvider;
         this.unhandledExceptionHandler = unhandledExceptionHandler;

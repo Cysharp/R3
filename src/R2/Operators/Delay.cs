@@ -21,22 +21,20 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
     public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
     {
         var delay = new _Delay(subscriber, dueTime, timeProvider);
-        var sourceSubscription = source.Subscribe(delay);
-        var delaySubscription = delay.Subscription;
-        return Disposable.Combine(delaySubscription, sourceSubscription); // call delay's dispose first
+        delay.SourceSubscription = source.Subscribe(delay);
+        return delay;
     }
 
-    class _Delay : ISubscriber<TMessage>
+    class _Delay : ISubscriber<TMessage>, IDisposable
     {
         static readonly TimerCallback timerCallback = DrainMessages;
-        static readonly Action<_Delay> disposeCallback = OnDisposed;
 
-        public CallbackDisposable<_Delay> Subscription { get; private set; }
+        public IDisposable? SourceSubscription { get; set; }
 
         readonly ISubscriber<TMessage> subscriber;
         readonly TimeSpan dueTime;
         readonly TimeProvider timeProvider;
-        readonly ITimer timer;
+        ITimer? timer;
         readonly Queue<(long timestamp, TMessage message)> queue = new Queue<(long, TMessage)>(); // lock gate
 
         bool running;
@@ -47,7 +45,6 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
             this.dueTime = dueTime;
             this.timeProvider = timeProvider;
             this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-            this.Subscription = Disposable.Callback(disposeCallback, this);
         }
 
         public void OnNext(TMessage message)
@@ -55,7 +52,7 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
             var timestamp = timeProvider.GetTimestamp();
             lock (queue)
             {
-                if (Subscription.IsDisposed)
+                if (timer == null)
                 {
                     return;
                 }
@@ -80,7 +77,7 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
             {
                 lock (queue)
                 {
-                    if (self.Subscription.IsDisposed)
+                    if (self.timer == null)
                     {
                         self.running = false;
                         return;
@@ -117,13 +114,16 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
                 {
                     lock (queue)
                     {
-                        if (queue.Count != 0)
+                        if (self.timer != null)
                         {
-                            self.timer.RestartImmediately(); // reserve next timer
-                        }
-                        else
-                        {
-                            self.running = false;
+                            if (queue.Count != 0)
+                            {
+                                self.timer.RestartImmediately(); // reserve next timer
+                            }
+                            else
+                            {
+                                self.running = false;
+                            }
                         }
                     }
 
@@ -132,12 +132,16 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
             }
         }
 
-        static void OnDisposed(_Delay self)
+        public void Dispose()
         {
-            lock (self.queue)
+            lock (queue)
             {
-                self.timer.Dispose();
-                self.queue.Clear();
+                timer?.Dispose();
+                timer = null!;
+                queue.Clear();
+
+                SourceSubscription?.Dispose();
+                SourceSubscription = null;
             }
         }
     }

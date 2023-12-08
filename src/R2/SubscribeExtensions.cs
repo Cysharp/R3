@@ -9,12 +9,14 @@ public static class SubscribeExtensions
 
     public static IDisposable Subscribe<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext)
     {
-        return source.Subscribe(new Subscriber<TMessage, TComplete>(onNext, _ => { }));
+        return Subscribe(source, onNext, _ => { });
     }
 
     public static IDisposable Subscribe<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<TComplete> onComplete)
     {
-        return source.Subscribe(new Subscriber<TMessage, TComplete>(onNext, onComplete));
+        var subscriber = new Subscriber<TMessage, TComplete>(onNext, onComplete);
+        subscriber.SourceSubscription.Disposable = source.Subscribe(subscriber);
+        return subscriber;
     }
 }
 
@@ -26,15 +28,30 @@ internal sealed class Subscriber<TMessage>(Action<TMessage> onNext) : ISubscribe
     }
 }
 
-internal sealed class Subscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<TComplete> onComplete) : ISubscriber<TMessage, TComplete>
+internal sealed class Subscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<TComplete> onComplete) : ISubscriber<TMessage, TComplete>, IDisposable
 {
+    public SingleAssignmentDisposableCore SourceSubscription;
+
     public void OnNext(TMessage message)
     {
         onNext(message);
     }
 
+    // auto detach
     public void OnCompleted(TComplete complete)
     {
-        onComplete(complete);
+        try
+        {
+            onComplete(complete);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        SourceSubscription.Dispose();
     }
 }

@@ -3,6 +3,11 @@ using System.Runtime.CompilerServices;
 
 namespace R2;
 
+public interface ICancelable : IDisposable
+{
+    bool IsDisposed { get; }
+}
+
 public static class Disposable
 {
     public static readonly IDisposable Empty = new EmptyDisposable();
@@ -17,9 +22,14 @@ public static class Disposable
         builder.Add(disposable);
     }
 
-    public static CallbackDisposable<T> Callback<T>(Action<T> callback, T state)
+    public static ICancelable Create(Action onDisposed)
     {
-        return new CallbackDisposable<T>(callback, state);
+        return new CallbackDisposable(onDisposed);
+    }
+
+    public static ICancelable Create<T>(Action<T> onDisposed, T state)
+    {
+        return new CallbackDisposable<T>(onDisposed, state);
     }
 
     public static IDisposable Combine(IDisposable disposable1, IDisposable disposable2)
@@ -444,5 +454,42 @@ public ref struct DisposableBuilder()
             }
             count = -1;
         }
+    }
+}
+
+internal sealed class CallbackDisposable : ICancelable
+{
+    volatile Action? onDisposed;
+
+    public bool IsDisposed => onDisposed == null;
+
+    public CallbackDisposable(Action onDisposed)
+    {
+        this.onDisposed = onDisposed;
+    }
+
+    public void Dispose()
+    {
+        Interlocked.Exchange(ref onDisposed, null)?.Invoke();
+    }
+}
+
+internal sealed class CallbackDisposable<T> : ICancelable
+{
+    volatile Action<T>? onDisposed;
+    T state;
+
+    public bool IsDisposed => onDisposed == null;
+
+    public CallbackDisposable(Action<T> onDisposed, T state)
+    {
+        this.onDisposed = onDisposed;
+        this.state = state;
+    }
+
+    public void Dispose()
+    {
+        Interlocked.Exchange(ref onDisposed, null)?.Invoke(state);
+        state = default!;
     }
 }

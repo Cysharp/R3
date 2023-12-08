@@ -1,5 +1,6 @@
 ﻿using R2;
 using R2.Internal;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -8,33 +9,42 @@ using System.Threading.Channels;
 //using System.Reactive.Subjects;
 //using System.Threading.Channels;
 
-var s = new Publisher<int>();
+var s = new System.Reactive.Subjects.Subject<int>();
 
-var d1 = s.DelayFrame(10, ThreadFrameProvider.Instance).Subscribe((x) => Console.WriteLine(x));
 
-s.OnNext(99);
+EventFactory.Timer(TimeSpan.FromSeconds(3), TimeProvider.System)
+    .WriteLine();
+
 Console.ReadLine();
 
-//var xs = new[] { 1, 10, 3, 4, 5, 0, 7, 8, 9, 10 };
-
-//xs.AsSpan().LastIndexOfAnyExcept(0);
-
-
-////var gate = new object();
-////var list = new CompactListCore<object>(gate);
-
-////object a = new object();
-////object b = new object();
-////object c = new object();
-////list.Add(a);
-////list.Add(b);
-////list.Add(c);
-
-////list.Remove(b);
+var a = new ReactiveProperty<int>(100);
+var b = new ReactiveProperty<int>(999);
 
 
-////d.Dispose();
-//public class Foo
-//{
+a.CombineLatest(b, (x, y) => (x, y)).WriteLine();
 
-//}
+
+a.Value = 3;
+a.Value = 4;
+b.Value = 99999;
+b.Value = 1111;
+
+
+
+//Observable.event
+
+
+
+
+public static class Extensions
+{
+    public static IDisposable WriteLine<T>(this IEvent<T> source)
+    {
+        return source.Subscribe(x => Console.WriteLine(x));
+    }
+
+    public static IDisposable WriteLine<T, U>(this ICompletableEvent<T, U> source)
+    {
+        return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
+    }
+}
