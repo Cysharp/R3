@@ -67,6 +67,9 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
             if (p == null) return;
 
             p.Unsubscribe(this);
+
+            // TODO: should Dispose subscriber?
+            subscriber.Dispose();
         }
     }
 }
@@ -147,6 +150,9 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
             if (p == null) return;
 
             p.Unsubscribe(this);
+
+            // TODO: should Dispose subscriber?
+            subscriber.Dispose();
         }
     }
 }

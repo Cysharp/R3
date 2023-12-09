@@ -1,6 +1,8 @@
 ﻿#pragma warning disable CS0618
 
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace R2;
 
@@ -8,13 +10,18 @@ namespace R2;
 // IDisposable Subscribe(Subscriber<TMessage> subscriber)
 public abstract class Event<TMessage>
 {
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public IDisposable Subscribe(Subscriber<TMessage> subscriber)
     {
         try
         {
-            // TODO: track subscription
             var subscription = SubscribeCore(subscriber);
+
+            if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
+            {
+                subscription = trackableDisposable;
+            }
+
             subscriber.SourceSubscription.Disposable = subscription;
             return subscription;
         }
@@ -42,13 +49,13 @@ public abstract class Subscriber<TMessage> : IDisposable
     public abstract void OnNext(TMessage message);
     protected virtual void DisposeCore() { }
 
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public void Dispose()
     {
         if (!SourceSubscription.IsDisposed)
         {
-            SourceSubscription.Dispose();
-            DisposeCore();
+            DisposeCore();                // Dispose self
+            SourceSubscription.Dispose(); // Dispose attached parent
         }
     }
 }
@@ -56,12 +63,18 @@ public abstract class Subscriber<TMessage> : IDisposable
 // similar as IObservable<T>
 public abstract class CompletableEvent<TMessage, TComplete>
 {
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public IDisposable Subscribe(Subscriber<TMessage, TComplete> subscriber)
     {
         try
         {
             var subscription = SubscribeCore(subscriber);
+
+            if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
+            {
+                subscription = trackableDisposable;
+            }
+
             subscriber.SourceSubscription.Disposable = subscription;
             return subscription;
         }
@@ -87,7 +100,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     internal SingleAssignmentDisposableCore SourceSubscription;
 
     public abstract void OnNext(TMessage message);
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public void OnCompleted(TComplete complete)
     {
         try
@@ -103,13 +116,13 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     protected abstract void OnCompletedCore(TComplete complete);
     protected virtual void DisposeCore() { }
 
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public void Dispose()
     {
         if (!SourceSubscription.IsDisposed)
         {
-            SourceSubscription.Dispose();
             DisposeCore();
+            SourceSubscription.Dispose();
         }
     }
 }

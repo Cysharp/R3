@@ -17,9 +17,7 @@ internal sealed class Take<TMessage>(Event<TMessage> source, int count) : Comple
 {
     protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
-        var take = new _Take(subscriber, count);
-        source.Subscribe(take); // subscription is tracked by take
-        return take;            // so return take as subscription
+        return source.Subscribe(new _Take(subscriber, count));
     }
 
     sealed class _Take(Subscriber<TMessage, Unit> subscriber, int count) : Subscriber<TMessage>, IDisposable
@@ -31,6 +29,7 @@ internal sealed class Take<TMessage>(Event<TMessage> source, int count) : Comple
             if (count == onNextCount++)
             {
                 subscriber.OnCompleted(Unit.Default);
+                return;
             }
 
             subscriber.OnNext(message);
