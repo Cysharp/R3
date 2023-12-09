@@ -1,16 +1,16 @@
 ﻿namespace R2;
 
 // TODO:...
-internal class OnErrorBubbling<TMessage>(IEvent<TMessage> source, Func<Exception, bool> onError) : IEvent<TMessage>
+internal class OnErrorBubbling<TMessage>(Event<TMessage> source, Func<Exception, bool> onError) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         return source.Subscribe(new _OnErrorBubbling(subscriber, onError));
     }
 
-    class _OnErrorBubbling(ISubscriber<TMessage> subscriber, Func<Exception, bool> onError) : ISubscriber<TMessage>
+    class _OnErrorBubbling(Subscriber<TMessage> subscriber, Func<Exception, bool> onError) : Subscriber<TMessage>
     {
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             try
             {

@@ -5,159 +5,137 @@ public static partial class EventExtensions
     // TODO: doOnSubscribed
 
     // Finally
-    public static IEvent<TMessage> DoOnDisposed<TMessage>(this IEvent<TMessage> source, Action action)
+    public static Event<TMessage> DoOnDisposed<TMessage>(this Event<TMessage> source, Action action)
     {
         return new DoOnDisposed<TMessage>(source, action);
     }
 
-    public static IEvent<TMessage> DoOnDisposed<TMessage, TState>(this IEvent<TMessage> source, Action<TState> action, TState state)
+    public static Event<TMessage> DoOnDisposed<TMessage, TState>(this Event<TMessage> source, Action<TState> action, TState state)
     {
         return new DoOnDisposed<TMessage, TState>(source, action, state);
     }
 
-    public static ICompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, Action action)
+    public static CompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action action)
     {
         return new DoOnDisposed2<TMessage, TComplete>(source, action);
     }
 
-    public static ICompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete, TState>(this ICompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state)
+    public static CompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete, TState>(this CompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state)
     {
         return new DoOnDisposed2<TMessage, TComplete, TState>(source, action, state);
     }
 }
 
-internal sealed class DoOnDisposed<TMessage>(IEvent<TMessage> source, Action action) : IEvent<TMessage>
+internal sealed class DoOnDisposed<TMessage>(Event<TMessage> source, Action action) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action);
-        method.SourceSubscription = source.Subscribe(method);
+        source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(ISubscriber<TMessage> subscriber, Action action) : ISubscriber<TMessage>, IDisposable
+    class _DoOnDisposed(Subscriber<TMessage> subscriber, Action action) : Subscriber<TMessage>, IDisposable
     {
         Action? action = action;
-        public IDisposable? SourceSubscription;
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             subscriber.OnNext(message);
         }
 
-        public void Dispose()
+        protected override void DisposeCore()
         {
-            Interlocked.Exchange(ref action, null)?.Invoke();
-            SourceSubscription?.Dispose();
+            Interlocked.Exchange(ref action, null)?.Invoke(); base.DisposeCore();
         }
     }
 }
 
-internal sealed class DoOnDisposed<TMessage, TState>(IEvent<TMessage> source, Action<TState> action, TState state) : IEvent<TMessage>
+internal sealed class DoOnDisposed<TMessage, TState>(Event<TMessage> source, Action<TState> action, TState state) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action, state);
-        method.SourceSubscription = source.Subscribe(method);
+        source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(ISubscriber<TMessage> subscriber, Action<TState> action, TState state) : ISubscriber<TMessage>, IDisposable
+    class _DoOnDisposed(Subscriber<TMessage> subscriber, Action<TState> action, TState state) : Subscriber<TMessage>, IDisposable
     {
         Action<TState>? action = action;
         TState state = state;
-        public IDisposable? SourceSubscription;
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             subscriber.OnNext(message);
         }
 
-        public void Dispose()
+        protected override void DisposeCore()
         {
             Interlocked.Exchange(ref action, null)?.Invoke(state);
             state = default!;
-            SourceSubscription?.Dispose();
         }
     }
 }
 
-internal sealed class DoOnDisposed2<TMessage, TComplete>(ICompletableEvent<TMessage, TComplete> source, Action action) : ICompletableEvent<TMessage, TComplete>
+internal sealed class DoOnDisposed2<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, Action action) : CompletableEvent<TMessage, TComplete>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action);
-        method.SourceSubscription.Disposable = source.Subscribe(method);
+        source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(ISubscriber<TMessage, TComplete> subscriber, Action action) : ISubscriber<TMessage, TComplete>, IDisposable
+    class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action action) : Subscriber<TMessage, TComplete>, IDisposable
     {
         Action? action = action;
-        public SingleAssignmentDisposableCore SourceSubscription;
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             subscriber.OnNext(message);
         }
 
-        public void OnCompleted(TComplete complete)
+        protected override void OnCompletedCore(TComplete complete)
         {
-            try
-            {
-                subscriber.OnCompleted(complete);
-            }
-            finally
-            {
-                Dispose();
-            }
+            subscriber.OnCompleted(complete);
         }
 
-        public void Dispose()
+        protected override void DisposeCore()
         {
             Interlocked.Exchange(ref action, null)?.Invoke();
-            SourceSubscription.Dispose();
         }
     }
 }
 
-internal sealed class DoOnDisposed2<TMessage, TComplete, TState>(ICompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state) : ICompletableEvent<TMessage, TComplete>
+internal sealed class DoOnDisposed2<TMessage, TComplete, TState>(CompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state) : CompletableEvent<TMessage, TComplete>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action, state);
-        method.SourceSubscription.Disposable = source.Subscribe(method);
+        source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(ISubscriber<TMessage, TComplete> subscriber, Action<TState> action, TState state) : ISubscriber<TMessage, TComplete>, IDisposable
+    class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action<TState> action, TState state) : Subscriber<TMessage, TComplete>, IDisposable
     {
         Action<TState>? action = action;
         TState state = state;
-        public SingleAssignmentDisposableCore SourceSubscription;
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             subscriber.OnNext(message);
         }
 
-        public void OnCompleted(TComplete complete)
+        protected override void OnCompletedCore(TComplete complete)
         {
-            try
-            {
-                subscriber.OnCompleted(complete);
-            }
-            finally
-            {
-                Dispose();
-            }
+            subscriber.OnCompleted(complete);
         }
 
-        public void Dispose()
+        protected override void DisposeCore()
         {
             Interlocked.Exchange(ref action, null)?.Invoke(state);
             state = default!;
-            SourceSubscription.Dispose();
         }
     }
 }

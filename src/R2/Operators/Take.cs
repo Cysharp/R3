@@ -2,7 +2,7 @@
 
 public static partial class EventExtensions
 {
-    public static ICompletableEvent<TMessage, Unit> Take<TMessage>(this IEvent<TMessage> source, int count)
+    public static CompletableEvent<TMessage, Unit> Take<TMessage>(this Event<TMessage> source, int count)
     {
         return new Take<TMessage>(source, count);
     }
@@ -13,42 +13,27 @@ public static partial class EventExtensions
     //}
 }
 
-internal sealed class Take<TMessage>(IEvent<TMessage> source, int count) : ICompletableEvent<TMessage, Unit>
+internal sealed class Take<TMessage>(Event<TMessage> source, int count) : CompletableEvent<TMessage, Unit>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
         var take = new _Take(subscriber, count);
-        take.SourceSubscription.Disposable = source.Subscribe(take);
-        return take;
+        source.Subscribe(take); // subscription is tracked by take
+        return take;            // so return take as subscription
     }
 
-    class _Take(ISubscriber<TMessage, Unit> subscriber, int count) : ISubscriber<TMessage>, IDisposable
+    sealed class _Take(Subscriber<TMessage, Unit> subscriber, int count) : Subscriber<TMessage>, IDisposable
     {
-        public SingleAssignmentDisposableCore SourceSubscription = new SingleAssignmentDisposableCore();
-
         int onNextCount;
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             if (count == onNextCount++)
             {
-                try
-                {
-                    subscriber.OnCompleted(Unit.Default);
-                }
-                finally
-                {
-                    Dispose();
-                }
-                return;
+                subscriber.OnCompleted(Unit.Default);
             }
 
             subscriber.OnNext(message);
-        }
-
-        public void Dispose()
-        {
-            SourceSubscription.Dispose();
         }
     }
 }

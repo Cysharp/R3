@@ -1,33 +1,27 @@
-﻿using R2.Internal;
-
-namespace R2;
+﻿namespace R2;
 
 public static partial class EventExtensions
 {
-    public static IEvent<TMessage> DelayFrame<TMessage>(this IEvent<TMessage> source, int delayFrameCount, FrameProvider frameProvider)
+    public static Event<TMessage> DelayFrame<TMessage>(this Event<TMessage> source, int delayFrameCount, FrameProvider frameProvider)
     {
         return new DelayFrame<TMessage>(source, delayFrameCount, frameProvider);
     }
 }
 
 // TODO:dueTime validation
-internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFrameCount, FrameProvider frameProvider) : IEvent<TMessage>
+// TODO:impl minaosi.
+internal sealed class DelayFrame<TMessage>(Event<TMessage> source, int delayFrameCount, FrameProvider frameProvider) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         var delay = new _DelayFrame(subscriber, delayFrameCount, frameProvider);
-        var sourceSubscription = source.Subscribe(delay);
-        var delaySubscription = delay.Subscription;
-        return Disposable.Combine(delaySubscription, sourceSubscription); // call delay's dispose first
+        source.Subscribe(delay); // source subscription is included in _DelayFrame
+        return delay;
     }
 
-    class _DelayFrame : ISubscriber<TMessage>, IFrameRunnerWorkItem
+    class _DelayFrame : Subscriber<TMessage>, IFrameRunnerWorkItem
     {
-        static readonly Action<_DelayFrame> disposeCallback = OnDisposed;
-
-        public ICancelable Subscription { get; private set; }
-
-        readonly ISubscriber<TMessage> subscriber;
+        readonly Subscriber<TMessage> subscriber;
         readonly int delayFrameCount;
         readonly FrameProvider frameProvider;
         readonly Queue<(long frameCount, TMessage message)> queue = new Queue<(long, TMessage)>(); // lock gate
@@ -36,20 +30,19 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
         long nextTick;
         bool stopRunner;
 
-        public _DelayFrame(ISubscriber<TMessage> subscriber, int delayFrameCount, FrameProvider frameProvider)
+        public _DelayFrame(Subscriber<TMessage> subscriber, int delayFrameCount, FrameProvider frameProvider)
         {
             this.subscriber = subscriber;
             this.delayFrameCount = delayFrameCount;
             this.frameProvider = frameProvider;
-            this.Subscription = Disposable.Create(disposeCallback, this); // TODO:remove Disposable.Create
         }
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             var currentCount = frameProvider.GetFrameCount();
             lock (queue)
             {
-                if (Subscription.IsDisposed)
+                if (IsDisposed)
                 {
                     return;
                 }
@@ -82,7 +75,7 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
             {
                 lock (queue)
                 {
-                    if (Subscription.IsDisposed)
+                    if (IsDisposed)
                     {
                         running = false;
                         return false;
@@ -135,12 +128,12 @@ internal sealed class DelayFrame<TMessage>(IEvent<TMessage> source, int delayFra
             }
         }
 
-        static void OnDisposed(_DelayFrame self)
+        protected override void DisposeCore()
         {
-            lock (self.queue)
+            lock (queue)
             {
-                self.stopRunner = true;
-                self.queue.Clear();
+                stopRunner = true;
+                queue.Clear();
             }
         }
     }

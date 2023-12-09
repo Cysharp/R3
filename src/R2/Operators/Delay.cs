@@ -4,7 +4,7 @@ namespace R2;
 
 public static partial class EventExtensions
 {
-    public static IEvent<TMessage> Delay<TMessage>(this IEvent<TMessage> source, TimeSpan dueTime, TimeProvider timeProvider)
+    public static Event<TMessage> Delay<TMessage>(this Event<TMessage> source, TimeSpan dueTime, TimeProvider timeProvider)
     {
         return new Delay<TMessage>(source, dueTime, timeProvider);
     }
@@ -16,22 +16,20 @@ public static partial class EventExtensions
 }
 
 // TODO:dueTime validation
-internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime, TimeProvider timeProvider) : IEvent<TMessage>
+internal sealed class Delay<TMessage>(Event<TMessage> source, TimeSpan dueTime, TimeProvider timeProvider) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         var delay = new _Delay(subscriber, dueTime, timeProvider);
-        delay.SourceSubscription = source.Subscribe(delay);
+        source.Subscribe(delay);
         return delay;
     }
 
-    class _Delay : ISubscriber<TMessage>, IDisposable
+    class _Delay : Subscriber<TMessage>, IDisposable
     {
         static readonly TimerCallback timerCallback = DrainMessages;
 
-        public IDisposable? SourceSubscription { get; set; }
-
-        readonly ISubscriber<TMessage> subscriber;
+        readonly Subscriber<TMessage> subscriber;
         readonly TimeSpan dueTime;
         readonly TimeProvider timeProvider;
         ITimer? timer;
@@ -39,7 +37,7 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
 
         bool running;
 
-        public _Delay(ISubscriber<TMessage> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
+        public _Delay(Subscriber<TMessage> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
         {
             this.subscriber = subscriber;
             this.dueTime = dueTime;
@@ -47,7 +45,7 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
             this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
         }
 
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             var timestamp = timeProvider.GetTimestamp();
             lock (queue)
@@ -132,16 +130,13 @@ internal sealed class Delay<TMessage>(IEvent<TMessage> source, TimeSpan dueTime,
             }
         }
 
-        public void Dispose()
+        protected override void DisposeCore()
         {
             lock (queue)
             {
                 timer?.Dispose();
                 timer = null!;
                 queue.Clear();
-
-                SourceSubscription?.Dispose();
-                SourceSubscription = null;
             }
         }
     }

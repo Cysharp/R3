@@ -12,22 +12,45 @@ using System.Threading.Channels;
 var s = new System.Reactive.Subjects.Subject<int>();
 
 
-EventFactory.Timer(TimeSpan.FromSeconds(3), TimeProvider.System)
-    .WriteLine();
 
-Console.ReadLine();
+var p = new Publisher<int>();
 
-var a = new ReactiveProperty<int>(100);
-var b = new ReactiveProperty<int>(999);
+var d = p
+    .Take(2)
+    .Subscribe(x =>
+{
+    Console.WriteLine(x);
+});
 
 
-a.CombineLatest(b, (x, y) => (x, y)).WriteLine();
+p.PublishOnNext(1);
+p.PublishOnNext(2);
+p.PublishOnNext(3);
+
+// d.Dispose();
+
+p.PublishOnNext(4);
+p.PublishOnNext(5);
 
 
-a.Value = 3;
-a.Value = 4;
-b.Value = 99999;
-b.Value = 1111;
+
+
+//EventFactory.Return(10, TimeProvider.System)
+//    .WriteLine();
+
+//Console.ReadLine();
+
+//var a = new ReactiveProperty<int>(100);
+//var b = new ReactiveProperty<int>(999);
+
+
+//a.CombineLatest(b, (x, y) => (x, y)).WriteLine();
+
+
+//a.Value = 3;
+//a.Value = 4;
+//b.Value = 99999;
+//b.Value = 1111;
 
 
 
@@ -38,13 +61,14 @@ b.Value = 1111;
 
 public static class Extensions
 {
-    public static IDisposable WriteLine<T>(this IEvent<T> source)
+    public static IDisposable WriteLine<T>(this Event<T> source)
     {
         return source.Subscribe(x => Console.WriteLine(x));
     }
 
-    public static IDisposable WriteLine<T, U>(this ICompletableEvent<T, U> source)
+    public static IDisposable WriteLine<T, U>(this CompletableEvent<T, U> source)
     {
         return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
     }
 }
+

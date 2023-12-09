@@ -1,15 +1,15 @@
 ﻿namespace R2;
 
-internal class OnErrorResumeNext<TMessage>(IEvent<TMessage> source, Action<Exception>? errorHandler) : IEvent<TMessage>
+internal class OnErrorResumeNext<TMessage>(Event<TMessage> source, Action<Exception>? errorHandler) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         return source.Subscribe(new _OnErrorResumeNext(subscriber, errorHandler));
     }
 
-    class _OnErrorResumeNext(ISubscriber<TMessage> subscriber, Action<Exception>? errorHandler) : ISubscriber<TMessage>
+    sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<TMessage>
     {
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             try
             {
@@ -24,16 +24,16 @@ internal class OnErrorResumeNext<TMessage>(IEvent<TMessage> source, Action<Excep
 }
 
 
-internal class OnErrorResumeNext2<TMessage>(IEvent<Result<TMessage>> source, Action<Exception>? errorHandler) : IEvent<TMessage>
+internal class OnErrorResumeNext2<TMessage>(Event<Result<TMessage>> source, Action<Exception>? errorHandler) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         return source.Subscribe(new _OnErrorResumeNext(subscriber, errorHandler));
     }
 
-    class _OnErrorResumeNext(ISubscriber<TMessage> subscriber, Action<Exception>? errorHandler) : ISubscriber<Result<TMessage>>
+    sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<Result<TMessage>>
     {
-        public void OnNext(Result<TMessage> message)
+        public override void OnNext(Result<TMessage> message)
         {
             if (message.HasException)
             {
@@ -52,5 +52,3 @@ internal class OnErrorResumeNext2<TMessage>(IEvent<Result<TMessage>> source, Act
         }
     }
 }
-
-

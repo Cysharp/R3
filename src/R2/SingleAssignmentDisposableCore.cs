@@ -1,5 +1,6 @@
 ﻿namespace R2;
 
+// TODO: internal?
 // struct, be carefult to use
 public struct SingleAssignmentDisposableCore
 {

@@ -2,22 +2,22 @@
 
 public static partial class EventExtensions
 {
-    public static IEvent<TMessage> Where<TMessage>(this IEvent<TMessage> source, Func<TMessage, bool> predicate)
+    public static Event<TMessage> Where<TMessage>(this Event<TMessage> source, Func<TMessage, bool> predicate)
     {
         return new Where<TMessage>(source, predicate);
     }
 }
 
-internal class Where<TMessage>(IEvent<TMessage> source, Func<TMessage, bool> predicate) : IEvent<TMessage>
+internal class Where<TMessage>(Event<TMessage> source, Func<TMessage, bool> predicate) : Event<TMessage>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         return source.Subscribe(new _Where(subscriber, predicate));
     }
 
-    class _Where(ISubscriber<TMessage> subscriber, Func<TMessage, bool> predicate) : ISubscriber<TMessage>
+    class _Where(Subscriber<TMessage> subscriber, Func<TMessage, bool> predicate) : Subscriber<TMessage>
     {
-        public void OnNext(TMessage message)
+        public override void OnNext(TMessage message)
         {
             if (predicate(message))
             {

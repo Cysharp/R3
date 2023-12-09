@@ -24,12 +24,12 @@ public static class Disposable
 
     public static ICancelable Create(Action onDisposed)
     {
-        return new CallbackDisposable(onDisposed);
+        return new AnonymousDisposable(onDisposed);
     }
 
     public static ICancelable Create<T>(Action<T> onDisposed, T state)
     {
-        return new CallbackDisposable<T>(onDisposed, state);
+        return new AnonymousDisposable<T>(onDisposed, state);
     }
 
     public static IDisposable Combine(IDisposable disposable1, IDisposable disposable2)
@@ -457,13 +457,13 @@ public ref struct DisposableBuilder()
     }
 }
 
-internal sealed class CallbackDisposable : ICancelable
+internal sealed class AnonymousDisposable : ICancelable
 {
     volatile Action? onDisposed;
 
     public bool IsDisposed => onDisposed == null;
 
-    public CallbackDisposable(Action onDisposed)
+    public AnonymousDisposable(Action onDisposed)
     {
         this.onDisposed = onDisposed;
     }
@@ -474,14 +474,14 @@ internal sealed class CallbackDisposable : ICancelable
     }
 }
 
-internal sealed class CallbackDisposable<T> : ICancelable
+internal sealed class AnonymousDisposable<T> : ICancelable
 {
     volatile Action<T>? onDisposed;
     T state;
 
     public bool IsDisposed => onDisposed == null;
 
-    public CallbackDisposable(Action<T> onDisposed, T state)
+    public AnonymousDisposable(Action<T> onDisposed, T state)
     {
         this.onDisposed = onDisposed;
         this.state = state;

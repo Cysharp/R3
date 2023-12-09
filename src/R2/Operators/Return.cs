@@ -4,17 +4,17 @@ namespace R2;
 
 public static partial class EventFactory
 {
-    public static ICompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value)
+    public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value)
     {
         return new ImmediateScheduleReturn<TMessage>(value); // immediate
     }
 
-    public static ICompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value, TimeProvider timeProvider)
+    public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value, TimeProvider timeProvider)
     {
         return Return(value, TimeSpan.Zero, timeProvider);
     }
 
-    public static ICompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider)
+    public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider)
     {
         if (dueTime == TimeSpan.Zero)
         {
@@ -32,9 +32,9 @@ public static partial class EventFactory
     }
 }
 
-internal class Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider) : ICompletableEvent<TMessage, Unit>
+internal class Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider) : CompletableEvent<TMessage, Unit>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
         var method = new _Return(value, subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_Return.timerCallback, method);
@@ -42,12 +42,12 @@ internal class Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider t
         return method;
     }
 
-    sealed class _Return(TMessage value, ISubscriber<TMessage, Unit> subscriber) : IDisposable
+    sealed class _Return(TMessage value, Subscriber<TMessage, Unit> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
         readonly TMessage value = value;
-        readonly ISubscriber<TMessage, Unit> subscriber = subscriber;
+        readonly Subscriber<TMessage, Unit> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 
@@ -73,9 +73,9 @@ internal class Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider t
     }
 }
 
-internal class ImmediateScheduleReturn<TMessage>(TMessage value) : ICompletableEvent<TMessage, Unit>
+internal class ImmediateScheduleReturn<TMessage>(TMessage value) : CompletableEvent<TMessage, Unit>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
         subscriber.OnNext(value);
         subscriber.OnCompleted();
@@ -83,16 +83,16 @@ internal class ImmediateScheduleReturn<TMessage>(TMessage value) : ICompletableE
     }
 }
 
-internal class ThreadPoolScheduleReturn<TMessage>(TMessage value, Action<Exception>? unhandledExceptionHandler) : ICompletableEvent<TMessage, Unit>
+internal class ThreadPoolScheduleReturn<TMessage>(TMessage value, Action<Exception>? unhandledExceptionHandler) : CompletableEvent<TMessage, Unit>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
         var method = new _Return(value, unhandledExceptionHandler, subscriber);
         ThreadPool.UnsafeQueueUserWorkItem(method, preferLocal: false);
         return method;
     }
 
-    sealed class _Return(TMessage value, Action<Exception>? unhandledExceptionHandler, ISubscriber<TMessage, Unit> subscriber) : IDisposable, IThreadPoolWorkItem
+    sealed class _Return(TMessage value, Action<Exception>? unhandledExceptionHandler, Subscriber<TMessage, Unit> subscriber) : IDisposable, IThreadPoolWorkItem
     {
         bool stop;
 

@@ -4,20 +4,20 @@ namespace R2;
 
 public static partial class EventFactory
 {
-    public static ICompletableEvent<TMessage, Unit> ToEvent<TMessage>(this IEnumerable<TMessage> source)
+    public static CompletableEvent<TMessage, Unit> ToEvent<TMessage>(this IEnumerable<TMessage> source)
     {
         return new EnumerableToEvent<TMessage>(source);
     }
 
-    public static ICompletableEvent<long, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
+    public static CompletableEvent<long, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
     {
         return new Timer(dueTime, timeProvider);
     }
 }
 
-internal class EnumerableToEvent<TMessage>(IEnumerable<TMessage> source) : ICompletableEvent<TMessage, Unit>
+internal class EnumerableToEvent<TMessage>(IEnumerable<TMessage> source) : CompletableEvent<TMessage, Unit>
 {
-    public IDisposable Subscribe(ISubscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
         foreach (var message in source)
         {
@@ -28,7 +28,7 @@ internal class EnumerableToEvent<TMessage>(IEnumerable<TMessage> source) : IComp
     }
 }
 
-internal class Timer : ICompletableEvent<long, Unit>
+internal class Timer : CompletableEvent<long, Unit>
 {
     readonly TimeSpan dueTime;
     readonly TimeProvider timeProvider;
@@ -39,7 +39,7 @@ internal class Timer : ICompletableEvent<long, Unit>
         this.timeProvider = timeProvider;
     }
 
-    public IDisposable Subscribe(ISubscriber<long, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<long, Unit> subscriber)
     {
         var method = new _Timer(subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
@@ -47,11 +47,11 @@ internal class Timer : ICompletableEvent<long, Unit>
         return method;
     }
 
-    sealed class _Timer(ISubscriber<long, Unit> subscriber) : IDisposable
+    sealed class _Timer(Subscriber<long, Unit> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
-        ISubscriber<long, Unit> subscriber = subscriber;
+        Subscriber<long, Unit> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 

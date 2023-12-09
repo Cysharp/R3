@@ -2,7 +2,7 @@
 
 public static class SubscriberExtensions
 {
-    public static void OnCompleted<T>(this ISubscriber<T, Unit> subscriber)
+    public static void OnCompleted<T>(this Subscriber<T, Unit> subscriber)
     {
         subscriber.OnCompleted(Unit.Default);
     }

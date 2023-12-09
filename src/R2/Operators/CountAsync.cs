@@ -2,7 +2,7 @@
 
 public static partial class EventExtensions
 {
-    public static async Task<int> CountAsync<T, U>(this ICompletableEvent<T, U> source, CancellationToken cancellationToken = default)
+    public static async Task<int> CountAsync<T, U>(this CompletableEvent<T, U> source, CancellationToken cancellationToken = default)
     {
         var tcs = new TaskCompletionSource<int>();
 
@@ -15,7 +15,7 @@ public static partial class EventExtensions
         return await tcs.Task.ConfigureAwait(false);
     }
 
-    public static async Task<int> CountAsync<T, U>(this ICompletableEvent<T, Result<U>> source, CancellationToken cancellationToken = default)
+    public static async Task<int> CountAsync<T, U>(this CompletableEvent<T, Result<U>> source, CancellationToken cancellationToken = default)
     {
         var tcs = new TaskCompletionSource<int>();
 
@@ -29,31 +29,37 @@ public static partial class EventExtensions
     }
 }
 
-internal sealed class CountAsync<TMessage, TComplete>(TaskCompletionSource<int> tcs) : ISubscriber<TMessage, TComplete>
+internal sealed class CountAsync<TMessage, TComplete>(TaskCompletionSource<int> tcs) : Subscriber<TMessage, TComplete>
 {
     int count;
 
-    public void OnNext(TMessage message)
+    public override void OnNext(TMessage message)
     {
-        Interlocked.Increment(ref count);
+        checked
+        {
+            count++;
+        }
     }
 
-    public void OnCompleted(TComplete complete)
+    protected override void OnCompletedCore(TComplete complete)
     {
         tcs.TrySetResult(count);
     }
 }
 
-internal sealed class CountUAsync<TMessage, TComplete>(TaskCompletionSource<int> tcs) : ISubscriber<TMessage, Result<TComplete>>
+internal sealed class CountUAsync<TMessage, TComplete>(TaskCompletionSource<int> tcs) : Subscriber<TMessage, Result<TComplete>>
 {
     int count;
 
-    public void OnNext(TMessage message)
+    public override void OnNext(TMessage message)
     {
-        Interlocked.Increment(ref count);
+        checked
+        {
+            count++;
+        }
     }
 
-    public void OnCompleted(Result<TComplete> complete)
+    protected override void OnCompletedCore(Result<TComplete> complete)
     {
         if (complete.HasValue)
         {

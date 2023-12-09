@@ -3,23 +3,20 @@ using System.Runtime.CompilerServices;
 
 namespace R2;
 
-public interface IReadOnlyReactiveProperty<T> : IEvent<T>
+public abstract class ReadOnlyReactiveProperty<T> : Event<T>
 {
-    T Value { get; }
+    public abstract T CurrentValue { get; }
 }
 
-public interface IReactiveProperty<T> : IReadOnlyReactiveProperty<T>
-{
-    new T Value { get; set; }
-}
-
-public class ReactiveProperty<T> : IReactiveProperty<T>, IDisposable
+public sealed class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
     FreeListCore<Subscription> list;
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
+
+    public override T CurrentValue => value;
 
     public T Value
     {
@@ -54,7 +51,7 @@ public class ReactiveProperty<T> : IReactiveProperty<T>, IDisposable
         this.list = new FreeListCore<Subscription>(this);
     }
 
-    public IDisposable Subscribe(ISubscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         var value = this.value;
         ObjectDisposedException.ThrowIf(list.IsDisposed, this);
@@ -82,7 +79,7 @@ public class ReactiveProperty<T> : IReactiveProperty<T>, IDisposable
         return (value == null) ? "(null)" : value.ToString();
     }
 
-    sealed class Subscription(ReactiveProperty<T>? parent, ISubscriber<T> subscriber) : IDisposable
+    sealed class Subscription(ReactiveProperty<T>? parent, Subscriber<T> subscriber) : IDisposable
     {
         public int removeKey;
 

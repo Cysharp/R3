@@ -1,57 +1,47 @@
-﻿namespace R2;
+﻿using System.Diagnostics;
+
+namespace R2;
 
 public static class SubscribeExtensions
 {
-    public static IDisposable Subscribe<TMessage>(this IEvent<TMessage> source, Action<TMessage> onNext)
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<TMessage>(this Event<TMessage> source, Action<TMessage> onNext)
     {
-        return source.Subscribe(new Subscriber<TMessage>(onNext));
+        return source.Subscribe(new AnonymousSubscriber<TMessage>(onNext));
     }
 
-    public static IDisposable Subscribe<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext)
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext)
     {
         return Subscribe(source, onNext, _ => { });
     }
 
-    public static IDisposable Subscribe<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<TComplete> onComplete)
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<TComplete> onComplete)
     {
-        var subscriber = new Subscriber<TMessage, TComplete>(onNext, onComplete);
-        subscriber.SourceSubscription.Disposable = source.Subscribe(subscriber);
-        return subscriber;
+        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, onComplete));
     }
 }
 
-internal sealed class Subscriber<TMessage>(Action<TMessage> onNext) : ISubscriber<TMessage>
+[DebuggerStepThrough]
+internal sealed class AnonymousSubscriber<TMessage>(Action<TMessage> onNext) : Subscriber<TMessage>
 {
-    public void OnNext(TMessage message)
+    public override void OnNext(TMessage message)
     {
         onNext(message);
     }
 }
 
-internal sealed class Subscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<TComplete> onComplete) : ISubscriber<TMessage, TComplete>, IDisposable
+[DebuggerStepThrough]
+internal sealed class AnonymousSubscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<TComplete> onComplete) : Subscriber<TMessage, TComplete>
 {
-    public SingleAssignmentDisposableCore SourceSubscription;
-
-    public void OnNext(TMessage message)
+    public override void OnNext(TMessage message)
     {
         onNext(message);
     }
 
-    // auto detach
-    public void OnCompleted(TComplete complete)
+    protected override void OnCompletedCore(TComplete complete)
     {
-        try
-        {
-            onComplete(complete);
-        }
-        finally
-        {
-            Dispose();
-        }
-    }
-
-    public void Dispose()
-    {
-        SourceSubscription.Dispose();
+        onComplete(complete);
     }
 }
