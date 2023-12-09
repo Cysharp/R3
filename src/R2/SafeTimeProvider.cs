@@ -6,6 +6,9 @@ public sealed class SafeTimerTimeProvider : TimeProvider
     readonly Action<Exception> unhandledExceptionHandler;
     readonly TimerCallback wrappedCallback;
 
+    internal bool IsSystemTimeProvider => timeProvider == TimeProvider.System;
+    internal Action<Exception> UnhandledExceptionHandler => unhandledExceptionHandler;
+
     public SafeTimerTimeProvider(TimeProvider timeProvider, Action<Exception> unhandledExceptionHandler)
     {
         this.timeProvider = timeProvider;
