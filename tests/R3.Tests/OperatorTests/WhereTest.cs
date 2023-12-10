@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-
-namespace R3.Tests;
+﻿namespace R3.Tests.OperatorTests;
 
 public class WhereTest(ITestOutputHelper output)
 {
@@ -12,16 +10,16 @@ public class WhereTest(ITestOutputHelper output)
         using var list = p.Where(x => x % 2 != 0).LiveRecord();
 
         p.PublishOnNext(2);
-        list.Should().BeEmpty();
+        list.AssertEqual([]);
 
         p.PublishOnNext(1);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(3);
-        list.Should().Equal([1, 3]);
+        list.AssertEqual([1, 3]);
 
         p.PublishOnNext(30);
-        list.Should().Equal([1, 3]);
+        list.AssertEqual([1, 3]);
     }
 
     // test WhereWhere optimize
@@ -33,22 +31,22 @@ public class WhereTest(ITestOutputHelper output)
         using var list = p.Where(x => x % 2 != 0).Where(x => x % 3 != 0).LiveRecord();
 
         p.PublishOnNext(2);
-        list.Should().BeEmpty();
+        list.AssertEqual([]);
 
         p.PublishOnNext(1);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(3);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(5);
-        list.Should().Equal([1, 5]);
+        list.AssertEqual([1, 5]);
 
         p.PublishOnNext(6);
-        list.Should().Equal([1, 5]);
+        list.AssertEqual([1, 5]);
 
         p.PublishOnNext(7);
-        list.Should().Equal([1, 5, 7]);
+        list.AssertEqual([1, 5, 7]);
     }
 
     //test where indexed
@@ -60,22 +58,22 @@ public class WhereTest(ITestOutputHelper output)
         using var list = p.Where((x, i) => i % 2 != 0).LiveRecord();
 
         p.PublishOnNext(2);
-        list.Should().BeEmpty();
+        list.AssertEqual([]);
 
         p.PublishOnNext(1);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(3);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(5);
-        list.Should().Equal([1, 5]);
+        list.AssertEqual([1, 5]);
 
         p.PublishOnNext(6);
-        list.Should().Equal([1, 5]);
+        list.AssertEqual([1, 5]);
 
         p.PublishOnNext(8);
-        list.Should().Equal([1, 5, 8]);
+        list.AssertEqual([1, 5, 8]);
     }
 
     // test where completable
@@ -87,22 +85,22 @@ public class WhereTest(ITestOutputHelper output)
         using var list = p.Where(x => x % 2 != 0).LiveRecord();
 
         p.PublishOnNext(2);
-        list.Should().BeEmpty();
+        list.AssertEqual([]);
 
         p.PublishOnNext(1);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(3);
-        list.Should().Equal([1, 3]);
+        list.AssertEqual([1, 3]);
 
         p.PublishOnNext(30);
-        list.Should().Equal([1, 3]);
+        list.AssertEqual([1, 3]);
 
-        list.IsCompleted.Should().BeFalse();
+        list.AssertIsNotCompleted();
 
         p.PublishOnCompleted(default);
 
-        list.IsCompleted.Should().BeTrue();
+        list.AssertIsCompleted();
     }
 
 
@@ -115,27 +113,27 @@ public class WhereTest(ITestOutputHelper output)
         using var list = p.Where((x, i) => i % 2 != 0).LiveRecord();
 
         p.PublishOnNext(2);
-        list.Should().BeEmpty();
+        list.AssertEqual([]);
 
         p.PublishOnNext(1);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(3);
-        list.Should().Equal([1]);
+        list.AssertEqual([1]);
 
         p.PublishOnNext(5);
-        list.Should().Equal([1, 5]);
+        list.AssertEqual([1, 5]);
 
         p.PublishOnNext(6);
-        list.Should().Equal([1, 5]);
+        list.AssertEqual([1, 5]);
 
         p.PublishOnNext(8);
-        list.Should().Equal([1, 5, 8]);
+        list.AssertEqual([1, 5, 8]);
 
-        list.IsCompleted.Should().BeFalse();
+        list.AssertIsNotCompleted();
 
         p.PublishOnCompleted(default);
 
-        list.IsCompleted.Should().BeTrue();
+        list.AssertIsCompleted();
     }
 }

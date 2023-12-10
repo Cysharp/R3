@@ -2,6 +2,7 @@
 using R3.Internal;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -12,9 +13,9 @@ public static class SubscriptionTracker
     static int trackingIdCounter = 0;
 
     // TODO: UnityEditor? AppSwitch?
-    public static bool EnableAutoReload = true;
-    public static bool EnableTracking = true;
-    public static bool EnableStackTrace = true;
+    // public static bool EnableAutoReload = false;
+    public static bool EnableTracking = false;
+    public static bool EnableStackTrace = false;
     // TODO: EnableStackTraceFileLink
 
     static readonly WeakDictionary<TrackableDisposable, TrackingState> tracking = new();
@@ -25,6 +26,7 @@ public static class SubscriptionTracker
     // flag for polling performance
     static bool dirty;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool TryTrackActiveSubscription(IDisposable subscription, int skipFrame, [NotNullWhen(true)] out TrackableDisposable? trackableDisposable)
     {
         if (!EnableTracking)
@@ -32,7 +34,11 @@ public static class SubscriptionTracker
             trackableDisposable = default;
             return false;
         }
+        return TryTrackActiveSubscriptionCore(subscription, skipFrame, out trackableDisposable);
+    }
 
+    internal static bool TryTrackActiveSubscriptionCore(IDisposable subscription, int skipFrame, [NotNullWhen(true)] out TrackableDisposable? trackableDisposable)
+    {
         dirty = true;
 
         string stackTrace = "";
@@ -63,6 +69,7 @@ public static class SubscriptionTracker
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void RemoveTracking(TrackableDisposable subscription)
     {
         if (!EnableTracking) return;

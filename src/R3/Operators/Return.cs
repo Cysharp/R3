@@ -1,6 +1,4 @@
-﻿using R3.Internal;
-
-namespace R3
+﻿namespace R3
 {
     public static partial class EventFactory
     {

@@ -14,7 +14,7 @@ using ZLogger;
 
 
 SubscriptionTracker.EnableTracking = true;
-SubscriptionTracker.EnableStackTrace = false;
+SubscriptionTracker.EnableStackTrace = true;
 
 using var factory = LoggerFactory.Create(x =>
 {
@@ -36,7 +36,7 @@ var d = publisher
 
 SubscriptionTracker.ForEachActiveTask(x =>
 {
-    // logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
+    logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
 
 
     // logger.ZLogInformation($"{x.TrackingId,3}: {x.FormattedType}");
@@ -50,6 +50,7 @@ d.Dispose();
 
 
 
+// System.Reactive.Linq.Observable.Empty<int>(
 
 var s = new System.Reactive.Subjects.Subject<string>();
 
@@ -63,14 +64,14 @@ var s = new System.Reactive.Subjects.Subject<string>();
 
 
 
-foreach (var item in typeof(System.Reactive.Linq.Observable).GetMethods().Select(x => x.Name).Distinct().OrderBy(x => x))
-{
-    if (item == "ToString" || item == "Equals" || item == "GetHashCode" || item == "GetType")
-    {
-        continue;
-    }
-    Console.WriteLine("- [ ] " + item);
-}
+//foreach (var item in typeof(System.Reactive.Linq.Observable).GetMethods().Select(x => x.Name).Distinct().OrderBy(x => x))
+//{
+//    if (item == "ToString" || item == "Equals" || item == "GetHashCode" || item == "GetType")
+//    {
+//        continue;
+//    }
+//    Console.WriteLine("- [ ] " + item);
+//}
 
 
 

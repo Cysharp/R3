@@ -4,6 +4,23 @@ namespace R3;
 
 public static partial class EventFactory
 {
+    // TODO: Empty, Never, Throw, Defer, DeferAsync, FromAsync, FromAsyncPattern, FromEvent, FromEventPattern, Interval, Range, Repeat, Start, Timer, Using, Create
+
+    // TODO: Convert
+    // ToArray
+    // ToAsync
+    // ToDictionary
+    // ToEnumerable
+    // ToEvent
+    // ToEventPattern
+    // ToList
+    // ToLookup
+    // ToObservable
+
+    // AsObservable
+    // AsSingleUnitObservable
+    // AsUnitObservable
+
     public static CompletableEvent<int, Unit> Range(int start, int count)
     {
         return new Range(start, count);

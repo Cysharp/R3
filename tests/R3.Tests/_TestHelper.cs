@@ -1,4 +1,6 @@
-﻿namespace R3.Tests;
+﻿using FluentAssertions;
+
+namespace R3.Tests;
 
 public static class _TestHelper
 {
@@ -25,5 +27,22 @@ public sealed class RecordList<T> : List<T>, IDisposable
     public void Dispose()
     {
         SourceSubscription.Dispose();
+    }
+
+    // test helper
+
+    public void AssertIsCompleted()
+    {
+        IsCompleted.Should().BeTrue();
+    }
+
+    public void AssertIsNotCompleted()
+    {
+        IsCompleted.Should().BeFalse();
+    }
+
+    public void AssertEqual(params T[] expected)
+    {
+        this.Should().Equal(expected);
     }
 }
