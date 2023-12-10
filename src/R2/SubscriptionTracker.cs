@@ -65,7 +65,7 @@ public static class SubscriptionTracker
 
         var id = Interlocked.Increment(ref trackingIdCounter);
         trackableDisposable = new TrackableDisposable(subscription, id);
-        R2System.Logger.AddTracking(id);
+        EventSystem.Logger.AddTracking(id);
         tracking.TryAdd(trackableDisposable, new TrackingState(id, typeName, DateTime.Now, firstLine, stackTrace)); // use local now.
 
         return true;
@@ -167,7 +167,7 @@ internal sealed class TrackableDisposable(IDisposable disposable, int trackingId
         var field = Interlocked.CompareExchange(ref disposed, 1, 0);
         if (field == 0)
         {
-            R2System.Logger.RemoveTracking(trackingId);
+            EventSystem.Logger.RemoveTracking(trackingId);
             SubscriptionTracker.RemoveTracking(this);
         }
 

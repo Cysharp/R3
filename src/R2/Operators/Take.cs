@@ -17,22 +17,24 @@ internal sealed class Take<TMessage>(Event<TMessage> source, int count) : Comple
 {
     protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
-        return source.Subscribe(new _Take(subscriber, count));
+        return source.SubscribeAndReturn(new _Take(subscriber, count));
     }
 
     sealed class _Take(Subscriber<TMessage, Unit> subscriber, int count) : Subscriber<TMessage>, IDisposable
     {
-        int onNextCount;
+        int remaining = count;
 
         public override void OnNext(TMessage message)
         {
-            if (count == onNextCount++)
+            if (remaining > 0)
+            {
+                remaining--;
+                subscriber.OnNext(message);
+            }
+            else
             {
                 subscriber.OnCompleted(Unit.Default);
-                return;
             }
-
-            subscriber.OnNext(message);
         }
     }
 }

@@ -69,7 +69,7 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
             p.Unsubscribe(this);
 
             // TODO: should Dispose subscriber?
-            subscriber.Dispose();
+            // subscriber.Dispose();
         }
     }
 }

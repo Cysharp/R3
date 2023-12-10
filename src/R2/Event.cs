@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace R2;
 
@@ -10,7 +11,8 @@ namespace R2;
 // IDisposable Subscribe(Subscriber<TMessage> subscriber)
 public abstract class Event<TMessage>
 {
-    // [DebuggerStepThrough]
+    [DebuggerStepThrough]
+    [StackTraceHidden]
     public IDisposable Subscribe(Subscriber<TMessage> subscriber)
     {
         try
@@ -33,6 +35,33 @@ public abstract class Event<TMessage>
     }
 
     protected abstract IDisposable SubscribeCore(Subscriber<TMessage> subscriber);
+
+    /// <summary>
+    /// Subscribe and return subscriber to make subscription chain.
+    /// </summary>
+    [DebuggerStepThrough]
+    [StackTraceHidden]
+    public Subscriber<TMessage> SubscribeAndReturn(Subscriber<TMessage> subscriber)
+    {
+        // for StackTrace impl same as Subscribe
+        try
+        {
+            var subscription = SubscribeCore(subscriber);
+
+            if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
+            {
+                subscription = trackableDisposable;
+            }
+
+            subscriber.SourceSubscription.Disposable = subscription;
+            return subscriber; // ret subscriber
+        }
+        catch
+        {
+            subscriber.Dispose(); // when SubscribeCore failed, auto detach caller subscriber
+            throw;
+        }
+    }
 }
 
 // similar as IObserver<T>
@@ -49,7 +78,8 @@ public abstract class Subscriber<TMessage> : IDisposable
     public abstract void OnNext(TMessage message);
     protected virtual void DisposeCore() { }
 
-    // [DebuggerStepThrough]
+    [DebuggerStepThrough]
+    [StackTraceHidden]
     public void Dispose()
     {
         if (!SourceSubscription.IsDisposed)
@@ -63,7 +93,8 @@ public abstract class Subscriber<TMessage> : IDisposable
 // similar as IObservable<T>
 public abstract class CompletableEvent<TMessage, TComplete>
 {
-    // [DebuggerStepThrough]
+    [DebuggerStepThrough]
+    [StackTraceHidden]
     public IDisposable Subscribe(Subscriber<TMessage, TComplete> subscriber)
     {
         try
@@ -86,6 +117,32 @@ public abstract class CompletableEvent<TMessage, TComplete>
     }
 
     protected abstract IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber);
+
+    /// <summary>
+    /// Subscribe and return subscriber to make subscription chain.
+    /// </summary>
+    [DebuggerStepThrough]
+    [StackTraceHidden]
+    public Subscriber<TMessage, TComplete> SubscribeAndReturn(Subscriber<TMessage, TComplete> subscriber)
+    {
+        try
+        {
+            var subscription = SubscribeCore(subscriber);
+
+            if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
+            {
+                subscription = trackableDisposable;
+            }
+
+            subscriber.SourceSubscription.Disposable = subscription;
+            return subscriber; // ret subscriber
+        }
+        catch
+        {
+            subscriber.Dispose(); // when SubscribeCore failed, auto detach caller subscriber
+            throw;
+        }
+    }
 }
 
 
@@ -116,7 +173,8 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     protected abstract void OnCompletedCore(TComplete complete);
     protected virtual void DisposeCore() { }
 
-    // [DebuggerStepThrough]
+    [DebuggerStepThrough]
+    [StackTraceHidden]
     public void Dispose()
     {
         if (!SourceSubscription.IsDisposed)

@@ -11,57 +11,99 @@ using ZLogger;
 //using System.Reactive.Subjects;
 //using System.Threading.Channels;
 
-var s = new System.Reactive.Subjects.Subject<int>();
+
 
 SubscriptionTracker.EnableTracking = true;
-SubscriptionTracker.EnableStackTrace = false;
+SubscriptionTracker.EnableStackTrace = true;
 SubscriptionTracker.EnableFirstLine = true;
-
 
 using var factory = LoggerFactory.Create(x =>
 {
     x.SetMinimumLevel(LogLevel.Trace);
     x.AddZLoggerConsole();
 });
-R2System.Logger = factory.CreateLogger<R2System>();
+EventSystem.Logger = factory.CreateLogger<EventSystem>();
+var logger = factory.CreateLogger<Program>();
 
+var publisher = new Publisher<int>();
 
-var p = new Publisher<int>();
-
-var d = EventFactory.Return(10)
-    // .Where(x => true)
-    // .Take(2)
+var d = publisher
+    .Where(x => true)
+    .Select(x => x)
     .Subscribe(x =>
     {
-        Console.WriteLine("?::::" + x);
-    }, _ =>
-    {
-        // throw new Exception("oncompleted exception");
+        logger.ZLogInformation($"OnNext: {x}");
     });
-
-// d is Take subscriber linked Anonymous
-
 
 SubscriptionTracker.ForEachActiveTask(x =>
 {
-    Console.WriteLine($"{x.TrackingId,3}: {x.FirstLine}");
+    logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
 });
 
-try
-{
-    p.PublishOnNext(1);
-    p.PublishOnNext(2);
-    p.PublishOnNext(3);
-
-}
-catch (Exception ex)
-{
-    Console.WriteLine(ex);
-}
-
-//Console.ReadLine();
+publisher.PublishOnNext(1);
+publisher.PublishOnNext(2);
+publisher.PublishOnNext(3);
 
 d.Dispose();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine(  );
+Console.WriteLine();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //p.PublishOnNext(4); 
 //p.PublishOnNext(5);

@@ -7,7 +7,7 @@ public static class SubscribeExtensions
     [DebuggerStepThrough]
     public static IDisposable Subscribe<TMessage>(this Event<TMessage> source, Action<TMessage> onNext)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage>(onNext));
+        return source.SubscribeAndReturn(new AnonymousSubscriber<TMessage>(onNext));
     }
 
     [DebuggerStepThrough]
@@ -19,7 +19,7 @@ public static class SubscribeExtensions
     [DebuggerStepThrough]
     public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<TComplete> onComplete)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, onComplete));
+        return source.SubscribeAndReturn(new AnonymousSubscriber<TMessage, TComplete>(onNext, onComplete));
     }
 }
 

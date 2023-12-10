@@ -4,11 +4,11 @@ using static Microsoft.Extensions.Logging.LogLevel;
 
 namespace R2;
 
-public class R2System
+public class EventSystem
 {
-    public static ILogger<R2System> Logger { get; set; } = NullLogger<R2System>.Instance;
+    public static ILogger<EventSystem> Logger { get; set; } = NullLogger<EventSystem>.Instance;
 
-    R2System()
+    EventSystem()
     {
     }
 }
@@ -18,9 +18,9 @@ public class R2System
 internal static partial class SystemLoggerExtensions
 {
     [LoggerMessage(Trace, "Add subscription tracking TrackingId: {TrackingId}.")]
-    public static partial void AddTracking(this ILogger<R2System> logger, int trackingId);
+    public static partial void AddTracking(this ILogger<EventSystem> logger, int trackingId);
 
     [LoggerMessage(Trace, "Remove subscription TrackingId: {TrackingId}.")]
-    public static partial void RemoveTracking(this ILogger<R2System> logger, int trackingId);
+    public static partial void RemoveTracking(this ILogger<EventSystem> logger, int trackingId);
 
 }
