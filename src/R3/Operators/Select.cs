@@ -6,6 +6,8 @@
         // TODO: CompletableEvent.Select
         // TODO: Element index overload
 
+        // TODO: Select for TComplete
+
         public static Event<TResult> Select<TMessage, TResult>(this Event<TMessage> source, Func<TMessage, TResult> selector)
         {
             return new Select<TMessage, TResult>(source, selector);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Time.Testing;
 
-namespace R3.Tests.OperatorTests;
+namespace R3.Tests.FactoryTests;
 
 public class ReturnTest
 {
