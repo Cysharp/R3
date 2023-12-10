@@ -8,21 +8,21 @@ public class ReturnTest
     public void Return()
     {
         {
-            using var list = EventFactory.Return(10).LiveRecord();
+            using var list = _EventFactory.Return(10).LiveRecord();
             list.AssertEqual([10]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = EventFactory.Return(10, TimeSpan.Zero, fakeTime).LiveRecord();
+            using var list = _EventFactory.Return(10, TimeSpan.Zero, fakeTime).LiveRecord();
             list.AssertEqual([10]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = EventFactory.Return(10, TimeSpan.FromSeconds(5), fakeTime).LiveRecord();
+            using var list = _EventFactory.Return(10, TimeSpan.FromSeconds(5), fakeTime).LiveRecord();
             list.AssertEqual([]);
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
@@ -38,7 +38,7 @@ public class ReturnTest
     [Fact]
     public void ReturnThreadPoolScheduleOptimized()
     {
-        using var list = EventFactory.Return(10).LiveRecord();
+        using var list = _EventFactory.Return(10).LiveRecord();
 
         Thread.Sleep(1);
 

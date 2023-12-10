@@ -1,6 +1,6 @@
 ﻿namespace R3
 {
-    public static partial class EventFactory
+    public static partial class _EventFactory
     {
         public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value)
         {
@@ -31,7 +31,7 @@
     }
 }
 
-namespace R3.Operators
+namespace R3.Factories
 {
     internal class Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider) : CompletableEvent<TMessage, Unit>
     {
