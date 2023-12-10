@@ -15,7 +15,7 @@ public struct SingleAssignmentDisposableCore
             var field = Volatile.Read(ref current);
             if (field == DisposedSentinel.Instance)
             {
-                return R2.Disposable.Empty; // don't expose sentinel
+                return R3.Disposable.Empty; // don't expose sentinel
             }
             return field;
         }

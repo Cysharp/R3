@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using R2;
-using R2.Internal;
+using R3;
+using R3.Internal;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
