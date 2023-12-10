@@ -1,25 +1,33 @@
-﻿namespace R3;
-
-public static partial class EventExtensions
+﻿namespace R3
 {
-    public static Event<TResult> Select<TMessage, TResult>(this Event<TMessage> source, Func<TMessage, TResult> selector)
+    public static partial class EventExtensions
     {
-        return new Select<TMessage, TResult>(source, selector);
+        // TODO: Optimize Where.Select
+        // TODO: CompletableEvent.Select
+        // TODO: Element index overload
+
+        public static Event<TResult> Select<TMessage, TResult>(this Event<TMessage> source, Func<TMessage, TResult> selector)
+        {
+            return new Select<TMessage, TResult>(source, selector);
+        }
     }
 }
 
-internal sealed class Select<TMessage, TResult>(Event<TMessage> source, Func<TMessage, TResult> selector) : Event<TResult>
+namespace R3.Operators
 {
-    protected override IDisposable SubscribeCore(Subscriber<TResult> subscriber)
+    internal sealed class Select<TMessage, TResult>(Event<TMessage> source, Func<TMessage, TResult> selector) : Event<TResult>
     {
-        return source.Subscribe(new _Select(subscriber, selector));
-    }
-
-    class _Select(Subscriber<TResult> subscriber, Func<TMessage, TResult> selector) : Subscriber<TMessage>
-    {
-        public override void OnNext(TMessage message)
+        protected override IDisposable SubscribeCore(Subscriber<TResult> subscriber)
         {
-            subscriber.OnNext(selector(message));
+            return source.Subscribe(new _Select(subscriber, selector));
+        }
+
+        class _Select(Subscriber<TResult> subscriber, Func<TMessage, TResult> selector) : Subscriber<TMessage>
+        {
+            public override void OnNext(TMessage message)
+            {
+                subscriber.OnNext(selector(message));
+            }
         }
     }
 }

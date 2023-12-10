@@ -4,14 +4,41 @@ namespace R3;
 
 public static partial class EventFactory
 {
+    public static CompletableEvent<int, Unit> Range(int start, int count)
+    {
+        return new Range(start, count);
+    }
+
     public static CompletableEvent<TMessage, Unit> ToEvent<TMessage>(this IEnumerable<TMessage> source)
     {
         return new EnumerableToEvent<TMessage>(source);
     }
 
-    public static CompletableEvent<long, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
+    public static CompletableEvent<Unit, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
     {
         return new Timer(dueTime, timeProvider);
+    }
+}
+
+internal sealed class Range : CompletableEvent<int, Unit>
+{
+    readonly int start;
+    readonly int count;
+
+    public Range(int start, int count)
+    {
+        this.start = start;
+        this.count = count;
+    }
+
+    protected override IDisposable SubscribeCore(Subscriber<int, Unit> subscriber)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            subscriber.OnNext(start + i);
+        }
+        subscriber.OnCompleted(default);
+        return Disposable.Empty;
     }
 }
 
@@ -28,7 +55,7 @@ internal class EnumerableToEvent<TMessage>(IEnumerable<TMessage> source) : Compl
     }
 }
 
-internal class Timer : CompletableEvent<long, Unit>
+internal sealed class Timer : CompletableEvent<Unit, Unit>
 {
     readonly TimeSpan dueTime;
     readonly TimeProvider timeProvider;
@@ -39,7 +66,7 @@ internal class Timer : CompletableEvent<long, Unit>
         this.timeProvider = timeProvider;
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<long, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<Unit, Unit> subscriber)
     {
         var method = new _Timer(subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
@@ -47,11 +74,11 @@ internal class Timer : CompletableEvent<long, Unit>
         return method;
     }
 
-    sealed class _Timer(Subscriber<long, Unit> subscriber) : IDisposable
+    sealed class _Timer(Subscriber<Unit, Unit> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
-        Subscriber<long, Unit> subscriber = subscriber;
+        Subscriber<Unit, Unit> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 
@@ -60,8 +87,8 @@ internal class Timer : CompletableEvent<long, Unit>
             var self = (_Timer)state!;
             try
             {
-                self.subscriber.OnNext(0);
-                self.subscriber.OnCompleted(Unit.Default);
+                self.subscriber.OnNext(default);
+                self.subscriber.OnCompleted();
             }
             finally
             {

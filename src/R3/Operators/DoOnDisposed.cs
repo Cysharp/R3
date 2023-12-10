@@ -1,141 +1,145 @@
-﻿namespace R3;
-
-public static partial class EventExtensions
+﻿namespace R3
 {
-    // TODO: doOnSubscribed
-
-    // Finally
-    public static Event<TMessage> DoOnDisposed<TMessage>(this Event<TMessage> source, Action action)
+    public static partial class EventExtensions
     {
-        return new DoOnDisposed<TMessage>(source, action);
-    }
+        // TODO: doOnSubscribed
 
-    public static Event<TMessage> DoOnDisposed<TMessage, TState>(this Event<TMessage> source, Action<TState> action, TState state)
-    {
-        return new DoOnDisposed<TMessage, TState>(source, action, state);
-    }
-
-    public static CompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action action)
-    {
-        return new DoOnDisposed2<TMessage, TComplete>(source, action);
-    }
-
-    public static CompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete, TState>(this CompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state)
-    {
-        return new DoOnDisposed2<TMessage, TComplete, TState>(source, action, state);
-    }
-}
-
-internal sealed class DoOnDisposed<TMessage>(Event<TMessage> source, Action action) : Event<TMessage>
-{
-    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
-    {
-        var method = new _DoOnDisposed(subscriber, action);
-        source.Subscribe(method);
-        return method;
-    }
-
-    class _DoOnDisposed(Subscriber<TMessage> subscriber, Action action) : Subscriber<TMessage>, IDisposable
-    {
-        Action? action = action;
-
-        public override void OnNext(TMessage message)
+        // Finally
+        public static Event<TMessage> DoOnDisposed<TMessage>(this Event<TMessage> source, Action action)
         {
-            subscriber.OnNext(message);
+            return new DoOnDisposed<TMessage>(source, action);
         }
 
-        protected override void DisposeCore()
+        public static Event<TMessage> DoOnDisposed<TMessage, TState>(this Event<TMessage> source, Action<TState> action, TState state)
         {
-            Interlocked.Exchange(ref action, null)?.Invoke(); base.DisposeCore();
+            return new DoOnDisposed<TMessage, TState>(source, action, state);
+        }
+
+        public static CompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action action)
+        {
+            return new DoOnDisposed2<TMessage, TComplete>(source, action);
+        }
+
+        public static CompletableEvent<TMessage, TComplete> DoOnDisposed<TMessage, TComplete, TState>(this CompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state)
+        {
+            return new DoOnDisposed2<TMessage, TComplete, TState>(source, action, state);
         }
     }
 }
 
-internal sealed class DoOnDisposed<TMessage, TState>(Event<TMessage> source, Action<TState> action, TState state) : Event<TMessage>
+namespace R3.Operators
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+    internal sealed class DoOnDisposed<TMessage>(Event<TMessage> source, Action action) : Event<TMessage>
     {
-        var method = new _DoOnDisposed(subscriber, action, state);
-        source.Subscribe(method);
-        return method;
+        protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+        {
+            var method = new _DoOnDisposed(subscriber, action);
+            source.Subscribe(method);
+            return method;
+        }
+
+        class _DoOnDisposed(Subscriber<TMessage> subscriber, Action action) : Subscriber<TMessage>, IDisposable
+        {
+            Action? action = action;
+
+            public override void OnNext(TMessage message)
+            {
+                subscriber.OnNext(message);
+            }
+
+            protected override void DisposeCore()
+            {
+                Interlocked.Exchange(ref action, null)?.Invoke(); base.DisposeCore();
+            }
+        }
     }
 
-    class _DoOnDisposed(Subscriber<TMessage> subscriber, Action<TState> action, TState state) : Subscriber<TMessage>, IDisposable
+    internal sealed class DoOnDisposed<TMessage, TState>(Event<TMessage> source, Action<TState> action, TState state) : Event<TMessage>
     {
-        Action<TState>? action = action;
-        TState state = state;
-
-        public override void OnNext(TMessage message)
+        protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
         {
-            subscriber.OnNext(message);
+            var method = new _DoOnDisposed(subscriber, action, state);
+            source.Subscribe(method);
+            return method;
         }
 
-        protected override void DisposeCore()
+        class _DoOnDisposed(Subscriber<TMessage> subscriber, Action<TState> action, TState state) : Subscriber<TMessage>, IDisposable
         {
-            Interlocked.Exchange(ref action, null)?.Invoke(state);
-            state = default!;
+            Action<TState>? action = action;
+            TState state = state;
+
+            public override void OnNext(TMessage message)
+            {
+                subscriber.OnNext(message);
+            }
+
+            protected override void DisposeCore()
+            {
+                Interlocked.Exchange(ref action, null)?.Invoke(state);
+                state = default!;
+            }
         }
     }
-}
 
-internal sealed class DoOnDisposed2<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, Action action) : CompletableEvent<TMessage, TComplete>
-{
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    internal sealed class DoOnDisposed2<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, Action action) : CompletableEvent<TMessage, TComplete>
     {
-        var method = new _DoOnDisposed(subscriber, action);
-        source.Subscribe(method);
-        return method;
+        protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+        {
+            var method = new _DoOnDisposed(subscriber, action);
+            source.Subscribe(method);
+            return method;
+        }
+
+        class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action action) : Subscriber<TMessage, TComplete>, IDisposable
+        {
+            Action? action = action;
+
+            public override void OnNext(TMessage message)
+            {
+                subscriber.OnNext(message);
+            }
+
+            protected override void OnCompletedCore(TComplete complete)
+            {
+                subscriber.OnCompleted(complete);
+            }
+
+            protected override void DisposeCore()
+            {
+                Interlocked.Exchange(ref action, null)?.Invoke();
+            }
+        }
     }
 
-    class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action action) : Subscriber<TMessage, TComplete>, IDisposable
+    internal sealed class DoOnDisposed2<TMessage, TComplete, TState>(CompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state) : CompletableEvent<TMessage, TComplete>
     {
-        Action? action = action;
-
-        public override void OnNext(TMessage message)
+        protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {
-            subscriber.OnNext(message);
+            var method = new _DoOnDisposed(subscriber, action, state);
+            source.Subscribe(method);
+            return method;
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action<TState> action, TState state) : Subscriber<TMessage, TComplete>, IDisposable
         {
-            subscriber.OnCompleted(complete);
-        }
+            Action<TState>? action = action;
+            TState state = state;
 
-        protected override void DisposeCore()
-        {
-            Interlocked.Exchange(ref action, null)?.Invoke();
-        }
-    }
-}
+            public override void OnNext(TMessage message)
+            {
+                subscriber.OnNext(message);
+            }
 
-internal sealed class DoOnDisposed2<TMessage, TComplete, TState>(CompletableEvent<TMessage, TComplete> source, Action<TState> action, TState state) : CompletableEvent<TMessage, TComplete>
-{
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
-    {
-        var method = new _DoOnDisposed(subscriber, action, state);
-        source.Subscribe(method);
-        return method;
-    }
+            protected override void OnCompletedCore(TComplete complete)
+            {
+                subscriber.OnCompleted(complete);
+            }
 
-    class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action<TState> action, TState state) : Subscriber<TMessage, TComplete>, IDisposable
-    {
-        Action<TState>? action = action;
-        TState state = state;
-
-        public override void OnNext(TMessage message)
-        {
-            subscriber.OnNext(message);
-        }
-
-        protected override void OnCompletedCore(TComplete complete)
-        {
-            subscriber.OnCompleted(complete);
-        }
-
-        protected override void DisposeCore()
-        {
-            Interlocked.Exchange(ref action, null)?.Invoke(state);
-            state = default!;
+            protected override void DisposeCore()
+            {
+                Interlocked.Exchange(ref action, null)?.Invoke(state);
+                state = default!;
+            }
         }
     }
 }

@@ -39,7 +39,7 @@ SubscriptionTracker.ForEachActiveTask(x =>
     // logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
 
 
-    logger.ZLogInformation($"{x.TrackingId,3}: {x.FormattedType}");
+    // logger.ZLogInformation($"{x.TrackingId,3}: {x.FormattedType}");
 });
 
 publisher.PublishOnNext(1);
@@ -51,17 +51,26 @@ d.Dispose();
 
 
 
+var s = new System.Reactive.Subjects.Subject<string>();
+
+
+// s.Where(
+
+// new Result<int>(
 
 
 
 
 
 
-
-
-
-
-
+foreach (var item in typeof(System.Reactive.Linq.Observable).GetMethods().Select(x => x.Name).Distinct().OrderBy(x => x))
+{
+    if (item == "ToString" || item == "Equals" || item == "GetHashCode" || item == "GetType")
+    {
+        continue;
+    }
+    Console.WriteLine("- [ ] " + item);
+}
 
 
 

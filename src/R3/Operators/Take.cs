@@ -1,39 +1,43 @@
-﻿namespace R3;
-
-public static partial class EventExtensions
+﻿namespace R3
 {
-    public static CompletableEvent<TMessage, Unit> Take<TMessage>(this Event<TMessage> source, int count)
+    public static partial class EventExtensions
     {
-        return new Take<TMessage>(source, count);
-    }
+        public static CompletableEvent<TMessage, Unit> Take<TMessage>(this Event<TMessage> source, int count)
+        {
+            return new Take<TMessage>(source, count);
+        }
 
-    //public static ICompletableEvent<TMessage, TComplete> Delay<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, TimeSpan dueTime, TimeProvider timeProvider)
-    //{
-    //    return new Delay<TMessage, TComplete>(source, dueTime, timeProvider);
-    //}
+        //public static ICompletableEvent<TMessage, TComplete> Delay<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, TimeSpan dueTime, TimeProvider timeProvider)
+        //{
+        //    return new Delay<TMessage, TComplete>(source, dueTime, timeProvider);
+        //}
+    }
 }
 
-internal sealed class Take<TMessage>(Event<TMessage> source, int count) : CompletableEvent<TMessage, Unit>
+namespace R3.Operators
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
+    internal sealed class Take<TMessage>(Event<TMessage> source, int count) : CompletableEvent<TMessage, Unit>
     {
-        return source.Subscribe(new _Take(subscriber, count));
-    }
-
-    sealed class _Take(Subscriber<TMessage, Unit> subscriber, int count) : Subscriber<TMessage>, IDisposable
-    {
-        int remaining = count;
-
-        public override void OnNext(TMessage message)
+        protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
         {
-            if (remaining > 0)
+            return source.Subscribe(new _Take(subscriber, count));
+        }
+
+        sealed class _Take(Subscriber<TMessage, Unit> subscriber, int count) : Subscriber<TMessage>, IDisposable
+        {
+            int remaining = count;
+
+            public override void OnNext(TMessage message)
             {
-                remaining--;
-                subscriber.OnNext(message);
-            }
-            else
-            {
-                subscriber.OnCompleted(Unit.Default);
+                if (remaining > 0)
+                {
+                    remaining--;
+                    subscriber.OnNext(message);
+                }
+                else
+                {
+                    subscriber.OnCompleted(Unit.Default);
+                }
             }
         }
     }

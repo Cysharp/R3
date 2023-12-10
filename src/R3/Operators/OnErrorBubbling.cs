@@ -1,27 +1,28 @@
-﻿namespace R3;
-
-// TODO:...
-internal class OnErrorBubbling<TMessage>(Event<TMessage> source, Func<Exception, bool> onError) : Event<TMessage>
+﻿namespace R3.Operators
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+    // TODO:...
+    internal class OnErrorBubbling<TMessage>(Event<TMessage> source, Func<Exception, bool> onError) : Event<TMessage>
     {
-        return source.Subscribe(new _OnErrorBubbling(subscriber, onError));
-    }
-
-    class _OnErrorBubbling(Subscriber<TMessage> subscriber, Func<Exception, bool> onError) : Subscriber<TMessage>
-    {
-        public override void OnNext(TMessage message)
+        protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
         {
-            try
+            return source.Subscribe(new _OnErrorBubbling(subscriber, onError));
+        }
+
+        class _OnErrorBubbling(Subscriber<TMessage> subscriber, Func<Exception, bool> onError) : Subscriber<TMessage>
+        {
+            public override void OnNext(TMessage message)
             {
-                subscriber.OnNext(message);
-            }
-            catch (Exception ex)
-            {
-                // true: stop propagation, false: re-throw
-                if (!onError(ex))
+                try
                 {
-                    throw;
+                    subscriber.OnNext(message);
+                }
+                catch (Exception ex)
+                {
+                    // true: stop propagation, false: re-throw
+                    if (!onError(ex))
+                    {
+                        throw;
+                    }
                 }
             }
         }

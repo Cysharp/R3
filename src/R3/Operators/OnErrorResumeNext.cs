@@ -1,53 +1,53 @@
-﻿namespace R3;
-
-internal class OnErrorResumeNext<TMessage>(Event<TMessage> source, Action<Exception>? errorHandler) : Event<TMessage>
+﻿namespace R3.Operators
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+    internal class OnErrorResumeNext<TMessage>(Event<TMessage> source, Action<Exception>? errorHandler) : Event<TMessage>
     {
-        return source.Subscribe(new _OnErrorResumeNext(subscriber, errorHandler));
-    }
-
-    sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<TMessage>
-    {
-        public override void OnNext(TMessage message)
+        protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
         {
-            try
+            return source.Subscribe(new _OnErrorResumeNext(subscriber, errorHandler));
+        }
+
+        sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<TMessage>
+        {
+            public override void OnNext(TMessage message)
             {
-                subscriber.OnNext(message);
-            }
-            catch (Exception ex)
-            {
-                errorHandler?.Invoke(ex);
+                try
+                {
+                    subscriber.OnNext(message);
+                }
+                catch (Exception ex)
+                {
+                    errorHandler?.Invoke(ex);
+                }
             }
         }
     }
-}
 
-
-internal class OnErrorResumeNext2<TMessage>(Event<Result<TMessage>> source, Action<Exception>? errorHandler) : Event<TMessage>
-{
-    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+    internal class OnErrorResumeNext2<TMessage>(Event<Result<TMessage>> source, Action<Exception>? errorHandler) : Event<TMessage>
     {
-        return source.Subscribe(new _OnErrorResumeNext(subscriber, errorHandler));
-    }
-
-    sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<Result<TMessage>>
-    {
-        public override void OnNext(Result<TMessage> message)
+        protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
         {
-            if (message.HasException)
-            {
-                errorHandler?.Invoke(message.Exception);
-                return;
-            }
+            return source.Subscribe(new _OnErrorResumeNext(subscriber, errorHandler));
+        }
 
-            try
+        sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<Result<TMessage>>
+        {
+            public override void OnNext(Result<TMessage> message)
             {
-                subscriber.OnNext(message.Value);
-            }
-            catch (Exception ex)
-            {
-                errorHandler?.Invoke(ex);
+                if (message.HasException)
+                {
+                    errorHandler?.Invoke(message.Exception);
+                    return;
+                }
+
+                try
+                {
+                    subscriber.OnNext(message.Value);
+                }
+                catch (Exception ex)
+                {
+                    errorHandler?.Invoke(ex);
+                }
             }
         }
     }

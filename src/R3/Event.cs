@@ -123,8 +123,8 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     {
         if (!SourceSubscription.IsDisposed)
         {
-            DisposeCore();
-            SourceSubscription.Dispose();
+            DisposeCore();                // Dispose self
+            SourceSubscription.Dispose(); // Dispose attached parent
         }
     }
 }
