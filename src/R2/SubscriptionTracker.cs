@@ -14,8 +14,8 @@ public static class SubscriptionTracker
     // TODO: UnityEditor? AppSwitch?
     public static bool EnableAutoReload = true;
     public static bool EnableTracking = true;
-    public static bool EnableFirstLine = true;
     public static bool EnableStackTrace = true;
+    // TODO: EnableStackTraceFileLink
 
     static readonly WeakDictionary<TrackableDisposable, TrackingState> tracking = new();
 
@@ -35,19 +35,11 @@ public static class SubscriptionTracker
 
         dirty = true;
 
-        string firstLine = "";
         string stackTrace = "";
-        if (EnableFirstLine || EnableStackTrace)
+        if (EnableStackTrace)
         {
             var trace = new StackTrace(skipFrame, true);
-            if (EnableFirstLine)
-            {
-                firstLine = trace.GetFrame(0)?.ToString() ?? "";
-            }
-            if (EnableStackTrace)
-            {
-                stackTrace = trace.ToString();
-            }
+            stackTrace = trace.ToString();
         }
 
         var unwrappedSubscription = UnwrapTrackableDisposable(subscription);
@@ -66,7 +58,7 @@ public static class SubscriptionTracker
         var id = Interlocked.Increment(ref trackingIdCounter);
         trackableDisposable = new TrackableDisposable(subscription, id);
         EventSystem.Logger.AddTracking(id);
-        tracking.TryAdd(trackableDisposable, new TrackingState(id, typeName, DateTime.Now, firstLine, stackTrace)); // use local now.
+        tracking.TryAdd(trackableDisposable, new TrackingState(id, typeName, DateTime.Now, stackTrace)); // use local now.
 
         return true;
     }
@@ -180,7 +172,7 @@ internal sealed class TrackableDisposable(IDisposable disposable, int trackingId
     }
 }
 
-public record struct TrackingState(int TrackingId, string FormattedType, DateTime AddTime, string FirstLine, string StackTrace) : IComparable<TrackingState>
+public record struct TrackingState(int TrackingId, string FormattedType, DateTime AddTime, string StackTrace) : IComparable<TrackingState>
 {
     public int CompareTo(TrackingState other)
     {

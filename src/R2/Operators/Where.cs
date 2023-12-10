@@ -12,7 +12,7 @@ internal class Where<TMessage>(Event<TMessage> source, Func<TMessage, bool> pred
 {
     protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
-        return source.SubscribeAndReturn(new _Where(subscriber, predicate));
+        return source.Subscribe(new _Where(subscriber, predicate));
     }
 
     class _Where(Subscriber<TMessage> subscriber, Func<TMessage, bool> predicate) : Subscriber<TMessage>

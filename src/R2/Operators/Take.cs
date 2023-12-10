@@ -17,7 +17,7 @@ internal sealed class Take<TMessage>(Event<TMessage> source, int count) : Comple
 {
     protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
     {
-        return source.SubscribeAndReturn(new _Take(subscriber, count));
+        return source.Subscribe(new _Take(subscriber, count));
     }
 
     sealed class _Take(Subscriber<TMessage, Unit> subscriber, int count) : Subscriber<TMessage>, IDisposable

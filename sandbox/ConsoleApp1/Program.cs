@@ -14,8 +14,7 @@ using ZLogger;
 
 
 SubscriptionTracker.EnableTracking = true;
-SubscriptionTracker.EnableStackTrace = true;
-SubscriptionTracker.EnableFirstLine = true;
+SubscriptionTracker.EnableStackTrace = false;
 
 using var factory = LoggerFactory.Create(x =>
 {
@@ -37,7 +36,10 @@ var d = publisher
 
 SubscriptionTracker.ForEachActiveTask(x =>
 {
-    logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
+    // logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
+
+
+    logger.ZLogInformation($"{x.TrackingId,3}: {x.FormattedType}");
 });
 
 publisher.PublishOnNext(1);
@@ -56,28 +58,6 @@ d.Dispose();
 
 
 
-
-
-
-
-
-
-
-
-
-
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine(  );
-Console.WriteLine();
 
 
 

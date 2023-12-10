@@ -95,9 +95,6 @@ public sealed class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposab
             if (p == null) return;
 
             p.Unsubscribe(this);
-
-            // TODO: should Dispose subscriber?
-            subscriber.Dispose();
         }
     }
 }

@@ -16,11 +16,11 @@ public interface ICompletableEventPublisher<TMessage, TComplete>
 
 public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMessage>, IDisposable
 {
-    FreeListCore<Subscription> list;
+    FreeListCore<_Publisher> list;
 
     public Publisher()
     {
-        list = new FreeListCore<Subscription>(this);
+        list = new FreeListCore<_Publisher>(this);
     }
 
     public void PublishOnNext(TMessage message)
@@ -36,12 +36,12 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
 
     protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
-        var subscription = new Subscription(this, subscriber);
+        var subscription = new _Publisher(this, subscriber);
         subscription.removeKey = list.Add(subscription);
         return subscription;
     }
 
-    void Unsubscribe(Subscription subscription)
+    void Unsubscribe(_Publisher subscription)
     {
         list.Remove(subscription.removeKey);
     }
@@ -51,7 +51,7 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
         list.Dispose();
     }
 
-    sealed class Subscription(Publisher<TMessage>? parent, Subscriber<TMessage> subscriber) : IDisposable
+    sealed class _Publisher(Publisher<TMessage>? parent, Subscriber<TMessage> subscriber) : IDisposable
     {
         public int removeKey;
 
@@ -67,9 +67,6 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
             if (p == null) return;
 
             p.Unsubscribe(this);
-
-            // TODO: should Dispose subscriber?
-            // subscriber.Dispose();
         }
     }
 }
@@ -77,11 +74,11 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
 public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent<TMessage, TComplete>, ICompletableEventPublisher<TMessage, TComplete>, IDisposable
 {
     int calledCompleted = 0;
-    FreeListCore<Subscription> list;
+    FreeListCore<_CompletablePublisher> list;
 
     public CompletablePublisher()
     {
-        list = new FreeListCore<Subscription>(this);
+        list = new FreeListCore<_CompletablePublisher>(this);
     }
 
     public void PublishOnNext(TMessage message)
@@ -113,12 +110,12 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
 
     protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
     {
-        var subscription = new Subscription(this, subscriber);
+        var subscription = new _CompletablePublisher(this, subscriber);
         subscription.removeKey = list.Add(subscription);
         return subscription;
     }
 
-    void Unsubscribe(Subscription subscription)
+    void Unsubscribe(_CompletablePublisher subscription)
     {
         list.Remove(subscription.removeKey);
     }
@@ -128,7 +125,7 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
         list.Dispose();
     }
 
-    sealed class Subscription(CompletablePublisher<TMessage, TComplete>? parent, Subscriber<TMessage, TComplete> subscriber) : IDisposable
+    sealed class _CompletablePublisher(CompletablePublisher<TMessage, TComplete>? parent, Subscriber<TMessage, TComplete> subscriber) : IDisposable
     {
         public int removeKey;
 
@@ -150,9 +147,6 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
             if (p == null) return;
 
             p.Unsubscribe(this);
-
-            // TODO: should Dispose subscriber?
-            subscriber.Dispose();
         }
     }
 }

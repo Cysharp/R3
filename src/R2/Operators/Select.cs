@@ -12,7 +12,7 @@ internal sealed class Select<TMessage, TResult>(Event<TMessage> source, Func<TMe
 {
     protected override IDisposable SubscribeCore(Subscriber<TResult> subscriber)
     {
-        return source.SubscribeAndReturn(new _Select(subscriber, selector));
+        return source.Subscribe(new _Select(subscriber, selector));
     }
 
     class _Select(Subscriber<TResult> subscriber, Func<TMessage, TResult> selector) : Subscriber<TMessage>
