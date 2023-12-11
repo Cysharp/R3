@@ -54,4 +54,16 @@ public readonly struct Result<T>(T? value, Exception? exception)
         exception = Exception;
         value = Value;
     }
+
+    public override string ToString()
+    {
+        if (IsSuccess)
+        {
+            return $"Success{{{Value}}}";
+        }
+        else
+        {
+            return $"Failure{{{Exception.Message}}}";
+        }
+    }
 }

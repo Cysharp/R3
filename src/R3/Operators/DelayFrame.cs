@@ -40,7 +40,7 @@ namespace R3.Operators
                 this.frameProvider = frameProvider;
             }
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 var currentCount = frameProvider.GetFrameCount();
                 lock (queue)
@@ -59,6 +59,12 @@ namespace R3.Operators
                         frameProvider.Register(this); // start runner
                     }
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                // TODO:not yet
+                throw new NotImplementedException();
             }
 
             public bool MoveNext(long framecount)

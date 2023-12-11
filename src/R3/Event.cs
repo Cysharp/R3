@@ -56,21 +56,20 @@ public abstract class Subscriber<TMessage> : IDisposable
         }
         catch (Exception ex)
         {
-            OnError(ex);
+            OnErrorResume(ex);
         }
     }
 
-    public abstract void OnNextCore(TMessage message);
+    protected abstract void OnNextCore(TMessage message);
 
     [StackTraceHidden, DebuggerStepThrough]
-    public void OnError(Exception error)
+    public void OnErrorResume(Exception error)
     {
         if (IsDisposed) return;
-        OnErrorCore(error);
+        OnErrorResumeCore(error);
     }
 
-    [StackTraceHidden, DebuggerStepThrough]
-    public virtual void OnErrorCore(Exception error) { }
+    protected abstract void OnErrorResumeCore(Exception error);
 
     [StackTraceHidden, DebuggerStepThrough]
     public void Dispose()
@@ -141,22 +140,21 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         }
         catch (Exception ex)
         {
-            OnError(ex);
+            OnErrorResume(ex);
         }
     }
 
-    public abstract void OnNextCore(TMessage message);
+    protected abstract void OnNextCore(TMessage message);
 
     [StackTraceHidden, DebuggerStepThrough]
-    public void OnError(Exception error)
+    public void OnErrorResume(Exception error)
     {
         if (IsDisposed || IsCalledCompleted) return;
 
-        OnErrorCore(error);
+        OnErrorResumeCore(error);
     }
 
-    [StackTraceHidden, DebuggerStepThrough]
-    public virtual void OnErrorCore(Exception error) { }
+    protected abstract void OnErrorResumeCore(Exception error);
 
     [StackTraceHidden, DebuggerStepThrough]
     public void OnCompleted(TComplete complete)

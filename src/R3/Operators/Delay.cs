@@ -48,7 +48,7 @@ namespace R3.Operators
                 this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
             }
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 var timestamp = timeProvider.GetTimestamp();
                 lock (queue)
@@ -66,6 +66,12 @@ namespace R3.Operators
                         timer.InvokeOnce(dueTime);
                     }
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                // TODO: what should we do?
+                throw new NotImplementedException();
             }
 
             static void DrainMessages(object? state)

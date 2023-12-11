@@ -24,19 +24,41 @@ using var factory = LoggerFactory.Create(x =>
 EventSystem.Logger = factory.CreateLogger<EventSystem>();
 var logger = factory.CreateLogger<Program>();
 
+
+EventSystem.SetUnhandledExceptionHandler(e =>
+{
+    logger.ZLogError($"{e}");
+});
+
+
+
 var publisher = new Publisher<int>();
 
 var d = publisher
     .Where(x => true)
-    .Select(x => x)
+    .Select(x =>
+    {
+        //if (x == 2) throw new Exception("e");
+        return x;
+    })
+    .Take(5)
+    .OnErrorAsComplete()
     .Subscribe(x =>
     {
+        if (x == 2) throw new Exception("e");
         logger.ZLogInformation($"OnNext: {x}");
+    }, e =>
+    {
+        logger.ZLogInformation($"failure resume");
+    },
+    x =>
+    {
+        logger.ZLogInformation($"end:{x}");
     });
 
 SubscriptionTracker.ForEachActiveTask(x =>
 {
-    logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
+    // logger.ZLogInformation($"{x.TrackingId,3}: {Environment.NewLine}{x.StackTrace.Replace("R2.", "").Replace("C:\\MyGit\\R2\\sandbox\\ConsoleApp1\\", "").Replace("C:\\MyGit\\R2\\src\\R2\\", "")}");
 
 
     // logger.ZLogInformation($"{x.TrackingId,3}: {x.FormattedType}");
@@ -46,20 +68,22 @@ publisher.PublishOnNext(1);
 publisher.PublishOnNext(2);
 publisher.PublishOnNext(3);
 
+publisher.PublishOnErrorResume(new Exception("ERROR"));
+
+publisher.PublishOnNext(4);
+publisher.PublishOnNext(5);
+publisher.PublishOnNext(6);
+publisher.PublishOnNext(7);
+
+
 d.Dispose();
-
-
-
-
-Observable.Range(1, 10, Scheduler.CurrentThread)
-    .Take(3)
-    .Subscribe();
 
 
 
 // System.Reactive.Linq.Observable.Empty<int>(
 
 var s = new System.Reactive.Subjects.Subject<string>();
+
 
 
 
@@ -153,4 +177,5 @@ public static class Extensions
         return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
     }
 }
+
 

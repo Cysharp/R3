@@ -9,10 +9,17 @@ public class EventSystem
 {
     public static ILogger<EventSystem> Logger { get; set; } = NullLogger<EventSystem>.Instance;
 
-    public static Action<Exception> UnhandledException { get; set; } = Throw;
+    static Action<Exception> unhandledException = Throw;
 
-    EventSystem()
+    // Prevent +=, use Set and Get method.
+    public static void SetUnhandledExceptionHandler(Action<Exception> unhandledExceptionHandler)
     {
+        unhandledException = unhandledExceptionHandler;
+    }
+
+    public static Action<Exception> GetUnhandledExceptionHandler()
+    {
+        return unhandledException;
     }
 
     static void Throw(Exception exception)

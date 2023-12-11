@@ -34,9 +34,14 @@ namespace R3.Operators
 
         class _Select(Subscriber<TResult> subscriber, Func<TMessage, TResult> selector) : Subscriber<TMessage>
         {
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(selector(message));
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
         }
     }
@@ -54,9 +59,14 @@ namespace R3.Operators
 
         class _Select(Subscriber<TMessageResult, TCompleteResult> subscriber, Func<TMessage, TMessageResult> messageSelector, Func<TComplete, TCompleteResult> completeSelector) : Subscriber<TMessage, TComplete>
         {
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(messageSelector(message));
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void OnCompletedCore(TComplete complete)

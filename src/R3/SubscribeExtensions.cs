@@ -13,31 +13,27 @@ public static class SubscribeExtensions
     [DebuggerStepThrough]
     public static IDisposable Subscribe<TMessage>(this Event<TMessage> source, Action<TMessage> onNext)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage>(onNext, EventSystem.UnhandledException));
+        return source.Subscribe(new AnonymousSubscriber<TMessage>(onNext, EventSystem.GetUnhandledExceptionHandler()));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage>(this Event<TMessage> source, Action<TMessage> onNext, Action<Exception> onError)
+    public static IDisposable Subscribe<TMessage>(this Event<TMessage> source, Action<TMessage> onNext, Action<Exception> onErrorResume)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage>(onNext, onError));
+        return source.Subscribe(new AnonymousSubscriber<TMessage>(onNext, onErrorResume));
     }
 
-    [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext)
-    {
-        return Subscribe(source, onNext, static _ => { });
-    }
+    // CompletableEvent must handle onComplete.
 
     [DebuggerStepThrough]
     public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<TComplete> onComplete)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, EventSystem.UnhandledException, onComplete));
+        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, EventSystem.GetUnhandledExceptionHandler(), onComplete));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<Exception> onError, Action<TComplete> onComplete)
+    public static IDisposable Subscribe<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action<TMessage> onNext, Action<Exception> onErrorResume, Action<TComplete> onComplete)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, onError, onComplete));
+        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, onErrorResume, onComplete));
     }
 }
 
@@ -51,47 +47,47 @@ internal sealed class NopSubscriber<TMessage> : Subscriber<TMessage>
     }
 
     [DebuggerStepThrough]
-    public override void OnNextCore(TMessage message)
+    protected override void OnNextCore(TMessage message)
     {
 
     }
 
     [DebuggerStepThrough]
-    public override void OnErrorCore(Exception error)
+    protected override void OnErrorResumeCore(Exception error)
     {
-        EventSystem.UnhandledException(error);
+        EventSystem.GetUnhandledExceptionHandler().Invoke(error);
     }
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousSubscriber<TMessage>(Action<TMessage> onNext, Action<Exception> onError) : Subscriber<TMessage>
+internal sealed class AnonymousSubscriber<TMessage>(Action<TMessage> onNext, Action<Exception> onErrorResume) : Subscriber<TMessage>
 {
     [DebuggerStepThrough]
-    public override void OnNextCore(TMessage message)
+    protected override void OnNextCore(TMessage message)
     {
         onNext(message);
     }
 
     [DebuggerStepThrough]
-    public override void OnErrorCore(Exception error)
+    protected override void OnErrorResumeCore(Exception error)
     {
-        onError(error);
+        onErrorResume(error);
     }
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousSubscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<Exception> onError, Action<TComplete> onComplete) : Subscriber<TMessage, TComplete>
+internal sealed class AnonymousSubscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<Exception> onErrorResume, Action<TComplete> onComplete) : Subscriber<TMessage, TComplete>
 {
     [DebuggerStepThrough]
-    public override void OnNextCore(TMessage message)
+    protected override void OnNextCore(TMessage message)
     {
         onNext(message);
     }
 
     [DebuggerStepThrough]
-    public override void OnErrorCore(Exception error)
+    protected override void OnErrorResumeCore(Exception error)
     {
-        onError(error);
+        onErrorResume(error);
     }
 
     [DebuggerStepThrough]

@@ -1,4 +1,5 @@
-﻿namespace R3
+﻿
+namespace R3
 {
     public static partial class EventExtensions
     {
@@ -36,12 +37,18 @@ namespace R3.Operators
     {
         int count;
 
-        public override void OnNextCore(TMessage message)
+        protected override void OnNextCore(TMessage message)
         {
             checked
             {
                 count++;
             }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            tcs.TrySetException(error);
+            this.Dispose(); // stop subscription.
         }
 
         protected override void OnCompletedCore(TComplete complete)
@@ -54,12 +61,18 @@ namespace R3.Operators
     {
         int count;
 
-        public override void OnNextCore(TMessage message)
+        protected override void OnNextCore(TMessage message)
         {
             checked
             {
                 count++;
             }
+        }
+        
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            tcs.TrySetException(error);
+            this.Dispose(); // stop subscription.
         }
 
         protected override void OnCompletedCore(Result<TComplete> complete)

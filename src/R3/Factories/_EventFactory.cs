@@ -1,4 +1,7 @@
-﻿namespace R3
+﻿
+using System.Diagnostics.CodeAnalysis;
+
+namespace R3
 {
     public static partial class EventFactory
     {
@@ -27,11 +30,8 @@
         // AsUnitComplete
         // AsNeverComplete
 
-        // Repeat
-        public static CompletableEvent<TMessage, Unit> Repeat<TMessage>(TMessage value)
-        {
-            return new ImmediateScheduleReturn<TMessage, Unit>(value, default); // immediate
-        }
+
+
     }
 }
 

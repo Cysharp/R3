@@ -42,9 +42,14 @@ namespace R3.Operators
         {
             Action? action = action;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void DisposeCore()
@@ -68,9 +73,14 @@ namespace R3.Operators
             Action<TState>? action = action;
             TState state = state;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void DisposeCore()
@@ -94,9 +104,14 @@ namespace R3.Operators
         {
             Action? action = action;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void OnCompletedCore(TComplete complete)
@@ -125,9 +140,14 @@ namespace R3.Operators
             Action<TState>? action = action;
             TState state = state;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void OnCompletedCore(TComplete complete)

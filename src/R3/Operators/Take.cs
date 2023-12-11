@@ -37,7 +37,7 @@ namespace R3.Operators
         {
             int remaining = count;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 if (remaining > 0)
                 {
@@ -48,6 +48,11 @@ namespace R3.Operators
                 {
                     subscriber.OnCompleted(Unit.Default);
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
         }
     }
@@ -63,7 +68,7 @@ namespace R3.Operators
         {
             int remaining = count;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 if (remaining > 0)
                 {
@@ -81,6 +86,11 @@ namespace R3.Operators
                         subscriber.OnCompleted(interruptMessage);
                     }
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void OnCompletedCore(TComplete complete)

@@ -45,12 +45,17 @@ namespace R3.Operators
 
         class _Where(Subscriber<TMessage> subscriber, Func<TMessage, bool> predicate) : Subscriber<TMessage>
         {
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 if (predicate(message))
                 {
                     subscriber.OnNext(message);
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
         }
     }
@@ -64,12 +69,17 @@ namespace R3.Operators
 
         class _Where(Subscriber<TMessage, TComplete> subscriber, Func<TMessage, bool> predicate) : Subscriber<TMessage, TComplete>
         {
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 if (predicate(message))
                 {
                     subscriber.OnNext(message);
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void OnCompletedCore(TComplete complete)
@@ -90,12 +100,17 @@ namespace R3.Operators
         {
             int index = 0;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 if (predicate(message, index++))
                 {
                     subscriber.OnNext(message);
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
         }
     }
@@ -111,12 +126,17 @@ namespace R3.Operators
         {
             int index = 0;
 
-            public override void OnNextCore(TMessage message)
+            protected override void OnNextCore(TMessage message)
             {
                 if (predicate(message, index++))
                 {
                     subscriber.OnNext(message);
                 }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                subscriber.OnErrorResume(error);
             }
 
             protected override void OnCompletedCore(TComplete complete)

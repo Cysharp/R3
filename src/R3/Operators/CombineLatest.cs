@@ -81,6 +81,11 @@ namespace R3.Operators
                 }
             }
 
+            public void OnError(Exception error)
+            {
+                subscriber.OnErrorResume(error);
+            }
+
             void Publish(TLeft m1, TRight m2)
             {
                 var result = selector(m1, m2);
@@ -90,17 +95,27 @@ namespace R3.Operators
 
         sealed class LeftSubscriber(_CombineLatest parent) : Subscriber<TLeft>
         {
-            public override void OnNextCore(TLeft message)
+            protected override void OnNextCore(TLeft message)
             {
                 parent.OnNext(message);
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                parent.OnError(error);
             }
         }
 
         sealed class RightSubscriber(_CombineLatest parent) : Subscriber<TRight>
         {
-            public override void OnNextCore(TRight message)
+            protected override void OnNextCore(TRight message)
             {
                 parent.OnNext(message);
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                parent.OnError(error);
             }
         }
     }

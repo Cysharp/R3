@@ -34,6 +34,17 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
         }
     }
 
+    public void PublishOnErrorResume(Exception error)
+    {
+        foreach (var subscriber in list.AsSpan())
+        {
+            if (subscriber != null)
+            {
+                subscriber.OnErrorResume(error);
+            }
+        }
+    }
+
     protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         var subscription = new _Publisher(this, subscriber);
@@ -59,6 +70,12 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
         public void OnNext(TMessage message)
         {
             subscriber.OnNext(message);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void OnErrorResume(Exception error)
+        {
+            subscriber.OnErrorResume(error);
         }
 
         public void Dispose()
@@ -90,6 +107,17 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
             if (subscriber != null)
             {
                 subscriber.OnNext(message);
+            }
+        }
+    }
+
+    public void PublishOnErrorResume(Exception error)
+    {
+        foreach (var subscriber in list.AsSpan())
+        {
+            if (subscriber != null)
+            {
+                subscriber.OnErrorResume(error);
             }
         }
     }
@@ -133,6 +161,12 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
         public void OnNext(TMessage message)
         {
             subscriber.OnNext(message);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void OnErrorResume(Exception error)
+        {
+            subscriber.OnErrorResume(error);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
