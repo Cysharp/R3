@@ -8,11 +8,12 @@ namespace R3
             var tcs = new TaskCompletionSource<int>();
 
             using var subscription = source.Subscribe(new CountAsync<T, U>(tcs));
-            using var registration = cancellationToken.Register(static state =>
+            using var registration = cancellationToken.UnsafeRegister(static state =>
             {
                 ((TaskCompletionSource<int>)state!).TrySetCanceled();
             }, tcs);
 
+            // when canceled, throws TaskCanceledException in here and subscription.Dispose() is called.
             return await tcs.Task.ConfigureAwait(false);
         }
 
@@ -21,11 +22,12 @@ namespace R3
             var tcs = new TaskCompletionSource<int>();
 
             using var subscription = source.Subscribe(new CountUAsync<T, U>(tcs));
-            using var registration = cancellationToken.Register(static state =>
+            using var registration = cancellationToken.UnsafeRegister(static state =>
             {
                 ((TaskCompletionSource<int>)state!).TrySetCanceled();
             }, tcs);
 
+            // when canceled, throws TaskCanceledException in here and subscription.Dispose() is called.
             return await tcs.Task.ConfigureAwait(false);
         }
     }
