@@ -34,7 +34,7 @@
         {
             public override void OnNext(Result<TMessage> message)
             {
-                if (message.HasException)
+                if (message.IsFailure)
                 {
                     errorHandler?.Invoke(message.Exception);
                     return;

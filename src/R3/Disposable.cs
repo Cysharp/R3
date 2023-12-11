@@ -3,11 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace R3;
 
-public interface ICancelable : IDisposable
-{
-    bool IsDisposed { get; }
-}
-
 public static class Disposable
 {
     public static readonly IDisposable Empty = new EmptyDisposable();
@@ -22,12 +17,12 @@ public static class Disposable
         builder.Add(disposable);
     }
 
-    public static ICancelable Create(Action onDisposed)
+    public static IDisposable Create(Action onDisposed)
     {
         return new AnonymousDisposable(onDisposed);
     }
 
-    public static ICancelable Create<T>(Action<T> onDisposed, T state)
+    public static IDisposable Create<T>(Action<T> onDisposed, T state)
     {
         return new AnonymousDisposable<T>(onDisposed, state);
     }
@@ -457,11 +452,11 @@ public ref struct DisposableBuilder()
     }
 }
 
-internal sealed class AnonymousDisposable : ICancelable
+internal sealed class AnonymousDisposable : IDisposable
 {
     volatile Action? onDisposed;
 
-    public bool IsDisposed => onDisposed == null;
+    // public bool IsDisposed => onDisposed == null;
 
     public AnonymousDisposable(Action onDisposed)
     {
@@ -474,12 +469,12 @@ internal sealed class AnonymousDisposable : ICancelable
     }
 }
 
-internal sealed class AnonymousDisposable<T> : ICancelable
+internal sealed class AnonymousDisposable<T> : IDisposable
 {
     volatile Action<T>? onDisposed;
     T state;
 
-    public bool IsDisposed => onDisposed == null;
+    // public bool IsDisposed => onDisposed == null;
 
     public AnonymousDisposable(Action<T> onDisposed, T state)
     {

@@ -15,11 +15,39 @@ public readonly struct Result<T>(T? value, Exception? exception)
 
     [MemberNotNullWhen(false, nameof(Exception))]
     [MemberNotNullWhen(true, nameof(Value))]
-    public bool HasValue => Exception == null;
+    public bool IsSuccess => Exception == null;
 
     [MemberNotNullWhen(true, nameof(Exception))]
     [MemberNotNullWhen(false, nameof(Value))]
-    public bool HasException => Exception != null;
+    public bool IsFailure => Exception != null;
+
+    public bool TryGetValue([NotNullWhen(true)] out T? value)
+    {
+        if (IsSuccess)
+        {
+            value = Value;
+            return true;
+        }
+        else
+        {
+            value = default;
+            return false;
+        }
+    }
+
+    public bool TryGetException([NotNullWhen(true)] out Exception? exception)
+    {
+        if (IsFailure)
+        {
+            exception = Exception;
+            return true;
+        }
+        else
+        {
+            exception = default;
+            return false;
+        }
+    }
 
     public void Deconstruct(out T? value, out Exception? exception)
     {

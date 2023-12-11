@@ -54,7 +54,7 @@ d.Dispose();
 
 var s = new System.Reactive.Subjects.Subject<string>();
 
-
+// Observable.Throw(
 // s.Where(
 
 // new Result<int>(

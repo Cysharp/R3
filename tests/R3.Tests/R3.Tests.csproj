@@ -38,6 +38,7 @@
         <Using Include="Xunit" />
         <Using Include="Xunit.Abstractions" />
         <Using Include="FluentAssertions" />
+        <Using Include="Microsoft.Extensions.Time.Testing" />
     </ItemGroup>
 
 </Project>

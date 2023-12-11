@@ -64,7 +64,7 @@ namespace R3.Operators
 
         protected override void OnCompletedCore(Result<TComplete> complete)
         {
-            if (complete.HasValue)
+            if (complete.IsSuccess)
             {
                 tcs.TrySetResult(count);
             }
