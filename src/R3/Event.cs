@@ -43,20 +43,27 @@ public abstract class Subscriber<TMessage> : IDisposable
 #endif
     internal SingleAssignmentDisposableCore SourceSubscription;
 
-    public bool IsDisposed => SourceSubscription.IsDisposed;
+    int calledDispose;
+
+    public bool IsDisposed => Volatile.Read(ref calledDispose) != 0;
 
     public abstract void OnNext(TMessage message);
+
+    [StackTraceHidden]
+    [DebuggerStepThrough]
     protected virtual void DisposeCore() { }
 
     // [DebuggerStepThrough]
     [StackTraceHidden]
     public void Dispose()
     {
-        if (!SourceSubscription.IsDisposed)
+        if (Interlocked.Exchange(ref calledDispose, 1) != 0)
         {
-            DisposeCore();                // Dispose self
-            SourceSubscription.Dispose(); // Dispose attached parent
+            return;
         }
+
+        DisposeCore();                // Dispose self
+        SourceSubscription.Dispose(); // Dispose attached parent
     }
 }
 
@@ -101,8 +108,12 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     internal SingleAssignmentDisposableCore SourceSubscription;
 
     int calledOnCompleted;
+    int disposed;
+
+    public bool IsDisposed => Volatile.Read(ref disposed) != 0;
 
     public abstract void OnNext(TMessage message);
+
     // // [DebuggerStepThrough]
     public void OnCompleted(TComplete complete)
     {
@@ -122,16 +133,21 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     }
 
     protected abstract void OnCompletedCore(TComplete complete);
+
+    [StackTraceHidden]
+    [DebuggerStepThrough]
     protected virtual void DisposeCore() { }
 
     // [DebuggerStepThrough]
     [StackTraceHidden]
     public void Dispose()
     {
-        if (!SourceSubscription.IsDisposed)
+        if (Interlocked.Exchange(ref disposed, 1) != 0)
         {
-            DisposeCore();                // Dispose self
-            SourceSubscription.Dispose(); // Dispose attached parent
+            return;
         }
+
+        DisposeCore();                // Dispose self
+        SourceSubscription.Dispose(); // Dispose attached parent
     }
 }
