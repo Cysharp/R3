@@ -36,7 +36,7 @@ namespace R3.Operators
     {
         int count;
 
-        public override void OnNext(TMessage message)
+        public override void OnNextCore(TMessage message)
         {
             checked
             {
@@ -54,7 +54,7 @@ namespace R3.Operators
     {
         int count;
 
-        public override void OnNext(TMessage message)
+        public override void OnNextCore(TMessage message)
         {
             checked
             {

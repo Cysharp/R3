@@ -90,7 +90,7 @@ namespace R3.Operators
 
         sealed class LeftSubscriber(_CombineLatest parent) : Subscriber<TLeft>
         {
-            public override void OnNext(TLeft message)
+            public override void OnNextCore(TLeft message)
             {
                 parent.OnNext(message);
             }
@@ -98,7 +98,7 @@ namespace R3.Operators
 
         sealed class RightSubscriber(_CombineLatest parent) : Subscriber<TRight>
         {
-            public override void OnNext(TRight message)
+            public override void OnNextCore(TRight message)
             {
                 parent.OnNext(message);
             }

@@ -45,7 +45,7 @@ namespace R3.Operators
 
         class _Where(Subscriber<TMessage> subscriber, Func<TMessage, bool> predicate) : Subscriber<TMessage>
         {
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 if (predicate(message))
                 {
@@ -64,7 +64,7 @@ namespace R3.Operators
 
         class _Where(Subscriber<TMessage, TComplete> subscriber, Func<TMessage, bool> predicate) : Subscriber<TMessage, TComplete>
         {
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 if (predicate(message))
                 {
@@ -90,7 +90,7 @@ namespace R3.Operators
         {
             int index = 0;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 if (predicate(message, index++))
                 {
@@ -111,7 +111,7 @@ namespace R3.Operators
         {
             int index = 0;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 if (predicate(message, index++))
                 {

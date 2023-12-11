@@ -9,7 +9,7 @@
 
         sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<TMessage>
         {
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 try
                 {
@@ -32,7 +32,7 @@
 
         sealed class _OnErrorResumeNext(Subscriber<TMessage> subscriber, Action<Exception>? errorHandler) : Subscriber<Result<TMessage>>
         {
-            public override void OnNext(Result<TMessage> message)
+            public override void OnNextCore(Result<TMessage> message)
             {
                 if (message.IsFailure)
                 {

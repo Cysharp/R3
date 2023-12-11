@@ -34,7 +34,7 @@ namespace R3.Operators
 
         class _Select(Subscriber<TResult> subscriber, Func<TMessage, TResult> selector) : Subscriber<TMessage>
         {
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(selector(message));
             }
@@ -54,7 +54,7 @@ namespace R3.Operators
 
         class _Select(Subscriber<TMessageResult, TCompleteResult> subscriber, Func<TMessage, TMessageResult> messageSelector, Func<TComplete, TCompleteResult> completeSelector) : Subscriber<TMessage, TComplete>
         {
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(messageSelector(message));
             }

@@ -4,12 +4,11 @@ using System.Diagnostics;
 
 namespace R3;
 
-// similar as IObservable<T> (only OnNext)
+// similar as IObservable<T> 
 // IDisposable Subscribe(Subscriber<TMessage> subscriber)
 public abstract class Event<TMessage>
 {
-    // [DebuggerStepThrough]
-    [StackTraceHidden]
+    [StackTraceHidden, DebuggerStepThrough]
     public IDisposable Subscribe(Subscriber<TMessage> subscriber)
     {
         try
@@ -31,11 +30,11 @@ public abstract class Event<TMessage>
         }
     }
 
+    [StackTraceHidden, DebuggerStepThrough]
     protected abstract IDisposable SubscribeCore(Subscriber<TMessage> subscriber);
 }
 
-// similar as IObserver<T>
-// void OnNext(TMessage message);
+// similar as IObserver<T> but no stop on OnError.
 public abstract class Subscriber<TMessage> : IDisposable
 {
 #if DEBUG
@@ -47,14 +46,33 @@ public abstract class Subscriber<TMessage> : IDisposable
 
     public bool IsDisposed => Volatile.Read(ref calledDispose) != 0;
 
-    public abstract void OnNext(TMessage message);
+    [StackTraceHidden, DebuggerStepThrough]
+    public void OnNext(TMessage message)
+    {
+        if (IsDisposed) return;
+        try
+        {
+            OnNextCore(message);
+        }
+        catch (Exception ex)
+        {
+            OnError(ex);
+        }
+    }
 
-    [StackTraceHidden]
-    [DebuggerStepThrough]
-    protected virtual void DisposeCore() { }
+    public abstract void OnNextCore(TMessage message);
 
-    // [DebuggerStepThrough]
-    [StackTraceHidden]
+    [StackTraceHidden, DebuggerStepThrough]
+    public void OnError(Exception error)
+    {
+        if (IsDisposed) return;
+        OnErrorCore(error);
+    }
+
+    [StackTraceHidden, DebuggerStepThrough]
+    public virtual void OnErrorCore(Exception error) { }
+
+    [StackTraceHidden, DebuggerStepThrough]
     public void Dispose()
     {
         if (Interlocked.Exchange(ref calledDispose, 1) != 0)
@@ -65,13 +83,15 @@ public abstract class Subscriber<TMessage> : IDisposable
         DisposeCore();                // Dispose self
         SourceSubscription.Dispose(); // Dispose attached parent
     }
+
+    [StackTraceHidden, DebuggerStepThrough]
+    protected virtual void DisposeCore() { }
 }
 
 // similar as IObservable<T>
 public abstract class CompletableEvent<TMessage, TComplete>
 {
-    // [DebuggerStepThrough]
-    [StackTraceHidden]
+    [StackTraceHidden, DebuggerStepThrough]
     public IDisposable Subscribe(Subscriber<TMessage, TComplete> subscriber)
     {
         try
@@ -96,10 +116,7 @@ public abstract class CompletableEvent<TMessage, TComplete>
     protected abstract IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber);
 }
 
-
 // similar as IObserver<T>
-// void OnNext(TMessage message);
-// void OnCompleted(TComplete complete);
 public abstract class Subscriber<TMessage, TComplete> : IDisposable
 {
 #if DEBUG
@@ -111,16 +128,44 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     int disposed;
 
     public bool IsDisposed => Volatile.Read(ref disposed) != 0;
+    bool IsCalledCompleted => Volatile.Read(ref calledOnCompleted) != 0;
 
-    public abstract void OnNext(TMessage message);
+    [StackTraceHidden, DebuggerStepThrough]
+    public void OnNext(TMessage message)
+    {
+        if (IsDisposed || IsCalledCompleted) return;
 
-    // // [DebuggerStepThrough]
+        try
+        {
+            OnNextCore(message);
+        }
+        catch (Exception ex)
+        {
+            OnError(ex);
+        }
+    }
+
+    public abstract void OnNextCore(TMessage message);
+
+    [StackTraceHidden, DebuggerStepThrough]
+    public void OnError(Exception error)
+    {
+        if (IsDisposed || IsCalledCompleted) return;
+
+        OnErrorCore(error);
+    }
+
+    [StackTraceHidden, DebuggerStepThrough]
+    public virtual void OnErrorCore(Exception error) { }
+
+    [StackTraceHidden, DebuggerStepThrough]
     public void OnCompleted(TComplete complete)
     {
         if (Interlocked.Exchange(ref calledOnCompleted, 1) != 0)
         {
             return;
         }
+        if (IsDisposed) return;
 
         try
         {
@@ -134,12 +179,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
 
     protected abstract void OnCompletedCore(TComplete complete);
 
-    [StackTraceHidden]
-    [DebuggerStepThrough]
-    protected virtual void DisposeCore() { }
-
-    // [DebuggerStepThrough]
-    [StackTraceHidden]
+    [StackTraceHidden, DebuggerStepThrough]
     public void Dispose()
     {
         if (Interlocked.Exchange(ref disposed, 1) != 0)
@@ -150,4 +190,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         DisposeCore();                // Dispose self
         SourceSubscription.Dispose(); // Dispose attached parent
     }
+    
+    [StackTraceHidden, DebuggerStepThrough]
+    protected virtual void DisposeCore() { }
 }

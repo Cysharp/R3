@@ -10,7 +10,7 @@
 
         class _OnErrorBubbling(Subscriber<TMessage> subscriber, Func<Exception, bool> onError) : Subscriber<TMessage>
         {
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 try
                 {

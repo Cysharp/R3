@@ -42,7 +42,7 @@ namespace R3.Operators
         {
             Action? action = action;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
             }
@@ -68,7 +68,7 @@ namespace R3.Operators
             Action<TState>? action = action;
             TState state = state;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
             }
@@ -94,7 +94,7 @@ namespace R3.Operators
         {
             Action? action = action;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
             }
@@ -125,7 +125,7 @@ namespace R3.Operators
             Action<TState>? action = action;
             TState state = state;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 subscriber.OnNext(message);
             }

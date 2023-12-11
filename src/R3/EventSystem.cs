@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Runtime.ExceptionServices;
 using static Microsoft.Extensions.Logging.LogLevel;
 
 namespace R3;
@@ -8,8 +9,15 @@ public class EventSystem
 {
     public static ILogger<EventSystem> Logger { get; set; } = NullLogger<EventSystem>.Instance;
 
+    public static Action<Exception> UnhandledException { get; set; } = Throw;
+
     EventSystem()
     {
+    }
+
+    static void Throw(Exception exception)
+    {
+        ExceptionDispatchInfo.Capture(exception).Throw();
     }
 }
 

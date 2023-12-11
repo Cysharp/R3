@@ -48,7 +48,7 @@ namespace R3.Operators
                 this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
             }
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 var timestamp = timeProvider.GetTimestamp();
                 lock (queue)

@@ -40,7 +40,7 @@ namespace R3.Operators
                 this.frameProvider = frameProvider;
             }
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 var currentCount = frameProvider.GetFrameCount();
                 lock (queue)

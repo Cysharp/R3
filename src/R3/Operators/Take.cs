@@ -37,7 +37,7 @@ namespace R3.Operators
         {
             int remaining = count;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 if (remaining > 0)
                 {
@@ -63,7 +63,7 @@ namespace R3.Operators
         {
             int remaining = count;
 
-            public override void OnNext(TMessage message)
+            public override void OnNextCore(TMessage message)
             {
                 if (remaining > 0)
                 {
