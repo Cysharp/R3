@@ -4,7 +4,7 @@
     {
         // TODO: this is working space, will remove this file after complete.
 
-        // TODO: Range, Repeat, Defer, DeferAsync, FromAsync, FromAsyncPattern, FromEvent, FromEventPattern, Start, Using, Create
+        // TODO: Defer, DeferAsync, FromAsync, FromAsyncPattern, FromEvent, FromEventPattern, Start, Using, Create
         // Timer, Interval, TimerFrame, IntervalFrame, ToObservable(ToEvent)
 
         // TODO: Convert
@@ -22,7 +22,9 @@
 
         // AsObservable
         // AsSingleUnitObservable
+
         // AsUnitObservable
+        // AsUnitComplete
         // AsNeverComplete
 
         // Repeat
