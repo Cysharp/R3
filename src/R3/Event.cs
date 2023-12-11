@@ -169,6 +169,10 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         {
             OnCompletedCore(complete);
         }
+        catch (Exception ex)
+        {
+            throw;
+        }
         finally
         {
             Dispose();
@@ -188,7 +192,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         DisposeCore();                // Dispose self
         SourceSubscription.Dispose(); // Dispose attached parent
     }
-    
+
     [StackTraceHidden, DebuggerStepThrough]
     protected virtual void DisposeCore() { }
 }

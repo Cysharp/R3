@@ -84,6 +84,7 @@ d.Dispose();
 
 var s = new System.Reactive.Subjects.Subject<string>();
 
+Console.WriteLine($"Average: {Enumerable.Empty<int>().Average()}");
 
 
 
