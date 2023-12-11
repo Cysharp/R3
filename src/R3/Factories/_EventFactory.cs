@@ -20,11 +20,14 @@
         // AsObservable
         // AsSingleUnitObservable
         // AsUnitObservable
+
+        
+        // ReturnOnCompleted( or EmptyReturn???)
     }
 }
 
 namespace R3.Factories
 {
-
+    // return on completed
 
 }
