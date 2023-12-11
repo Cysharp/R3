@@ -100,10 +100,17 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
 #endif
     internal SingleAssignmentDisposableCore SourceSubscription;
 
+    int calledOnCompleted;
+
     public abstract void OnNext(TMessage message);
     // // [DebuggerStepThrough]
     public void OnCompleted(TComplete complete)
     {
+        if (Interlocked.Exchange(ref calledOnCompleted, 1) != 0)
+        {
+            return;
+        }
+
         try
         {
             OnCompletedCore(complete);

@@ -7,10 +7,20 @@
             return new Take<TMessage>(source, count);
         }
 
-        //public static ICompletableEvent<TMessage, TComplete> Delay<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, TimeSpan dueTime, TimeProvider timeProvider)
-        //{
-        //    return new Delay<TMessage, TComplete>(source, dueTime, timeProvider);
-        //}
+        public static CompletableEvent<TMessage, Unit> Take<TMessage>(this CompletableEvent<TMessage, Unit> source, int count)
+        {
+            return new Take<TMessage, Unit>(source, count, default, null);
+        }
+
+        public static CompletableEvent<TMessage, TComplete> Take<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, int count, TComplete interruptMessage)
+        {
+            return new Take<TMessage, TComplete>(source, count, interruptMessage, null);
+        }
+
+        public static CompletableEvent<TMessage, TComplete> Take<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, int count, Func<TComplete> interruptMessageFactory)
+        {
+            return new Take<TMessage, TComplete>(source, count, default!, interruptMessageFactory);
+        }
     }
 }
 
@@ -38,6 +48,44 @@ namespace R3.Operators
                 {
                     subscriber.OnCompleted(Unit.Default);
                 }
+            }
+        }
+    }
+
+    internal sealed class Take<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, int count, TComplete interruptMessage, Func<TComplete>? interruptMessageFactory) : CompletableEvent<TMessage, TComplete>
+    {
+        protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+        {
+            return source.Subscribe(new _Take(subscriber, count, interruptMessage, interruptMessageFactory));
+        }
+
+        sealed class _Take(Subscriber<TMessage, TComplete> subscriber, int count, TComplete interruptMessage, Func<TComplete>? interruptMessageFactory) : Subscriber<TMessage, TComplete>, IDisposable
+        {
+            int remaining = count;
+
+            public override void OnNext(TMessage message)
+            {
+                if (remaining > 0)
+                {
+                    remaining--;
+                    subscriber.OnNext(message);
+                }
+                else
+                {
+                    if (interruptMessageFactory != null)
+                    {
+                        subscriber.OnCompleted(interruptMessageFactory());
+                    }
+                    else
+                    {
+                        subscriber.OnCompleted(interruptMessage);
+                    }
+                }
+            }
+
+            protected override void OnCompletedCore(TComplete complete)
+            {
+                subscriber.OnCompleted(complete);
             }
         }
     }

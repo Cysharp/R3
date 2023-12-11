@@ -50,17 +50,26 @@ d.Dispose();
 
 
 
+
+Observable.Range(1, 10, Scheduler.CurrentThread)
+    .Take(3)
+    .Subscribe();
+
+
+
 // System.Reactive.Linq.Observable.Empty<int>(
 
 var s = new System.Reactive.Subjects.Subject<string>();
+
+
 
 // Observable.Throw(
 // s.Where(
 
 // new Result<int>(
 
-
-
+// s.ObserveOn(
+// Observable.FromEventPattern(
 
 
 
