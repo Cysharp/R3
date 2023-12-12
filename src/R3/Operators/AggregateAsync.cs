@@ -24,7 +24,6 @@
 
             source.Subscribe(subscriber); // return subscriber self so ignore subscription
 
-            // when canceled, throws TaskCanceledException in here and subscription.Dispose() is called.
             return tcs.Task;
         }
 
@@ -50,7 +49,6 @@
 
             source.Subscribe(subscriber); // return subscriber self so ignore subscription
 
-            // when canceled, throws TaskCanceledException in here and subscription.Dispose() is called.
             return tcs.Task;
         }
     }

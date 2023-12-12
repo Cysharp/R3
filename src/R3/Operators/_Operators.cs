@@ -8,13 +8,11 @@
         // Time based
         // Frame based
         // OnErrorStop
-
-        // ObserveOn(TimeProvider, SynchronizationContext, TaskScheduler)
     }
 }
 
 namespace R3.Operators
 {
-    
-    
+
+
 }
