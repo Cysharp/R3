@@ -20,10 +20,6 @@
                 {
                     return new ThreadPoolScheduleReturn<TMessage, Unit>(value, default, null); // optimize for SystemTimeProvidr, use ThreadPool.UnsafeQueueUserWorkItem
                 }
-                else if (timeProvider is SafeTimerTimeProvider t && t.IsSystemTimeProvider)
-                {
-                    return new ThreadPoolScheduleReturn<TMessage, Unit>(value, default, t.UnhandledExceptionHandler); // use with SafeTimeProvider.UnhandledExceptionHandler
-                }
             }
 
             return new Return<TMessage, Unit>(value, default, dueTime, timeProvider); // use ITimer
@@ -48,10 +44,6 @@
                 if (timeProvider == TimeProvider.System)
                 {
                     return new ThreadPoolScheduleReturn<TMessage, TComplete>(value, complete, null); // optimize for SystemTimeProvidr, use ThreadPool.UnsafeQueueUserWorkItem
-                }
-                else if (timeProvider is SafeTimerTimeProvider t && t.IsSystemTimeProvider)
-                {
-                    return new ThreadPoolScheduleReturn<TMessage, TComplete>(value, complete, t.UnhandledExceptionHandler); // use with SafeTimeProvider.UnhandledExceptionHandler
                 }
             }
 

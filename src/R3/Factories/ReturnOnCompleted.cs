@@ -22,10 +22,6 @@
                 {
                     return new ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(complete, null); // optimize for SystemTimeProvidr, use ThreadPool.UnsafeQueueUserWorkItem
                 }
-                else if (timeProvider is SafeTimerTimeProvider t && t.IsSystemTimeProvider)
-                {
-                    return new ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(complete, t.UnhandledExceptionHandler); // use with SafeTimeProvider.UnhandledExceptionHandler
-                }
             }
 
             return new ReturnOnCompleted<TMessage, TComplete>(complete, dueTime, timeProvider); // use ITimer

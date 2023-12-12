@@ -13,6 +13,31 @@ using ZLogger;
 
 
 
+
+
+
+
+
+var disposables = Enumerable.Range(1, 100).Select(x => new TestDisposable()).ToArray();
+var composite = new System.Reactive.Disposables.CompositeDisposable(disposables);
+
+foreach (var item in disposables)
+{
+    composite.Remove(item);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 SubscriptionTracker.EnableTracking = true;
 SubscriptionTracker.EnableStackTrace = true;
 
@@ -119,7 +144,7 @@ subject.OnNext(99);
 
 
 
-
+// subject.ForEachAsync(
 
 
 
@@ -173,5 +198,16 @@ public static class Extensions
     public static IDisposable WriteLine<T, U>(this CompletableEvent<T, U> source)
     {
         return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
+    }
+}
+
+
+class TestDisposable : IDisposable
+{
+    public int CalledCount = 0;
+
+    public void Dispose()
+    {
+        CalledCount += 1;
     }
 }

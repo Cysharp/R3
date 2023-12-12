@@ -15,7 +15,42 @@ internal struct FreeListCore<T>
 
     public FreeListCore(object gate)
     {
+        // don't create values at initialize
         this.gate = gate;
+    }
+
+    public FreeListCore(object gate, int capacity)
+    {
+        this.gate = gate;
+        this.values = new T[capacity];
+    }
+
+    public FreeListCore(object gate, T[] items)
+    {
+        this.gate = gate;
+        this.values = new T[items.Length];
+        for (int i = 0; i < items.Length; i++)
+        {
+            this.values[i] = items[i];
+        }
+    }
+
+    public FreeListCore(object gate, IEnumerable<T> items)
+    {
+        this.gate = gate;
+        if (items.TryGetNonEnumeratedCount(out var count))
+        {
+            this.values = new T[count];
+        }
+        else
+        {
+            this.values = new T[InitialArraySize];
+        }
+        var i = 0;
+        foreach (var item in items)
+        {
+            this.values[i++] = item;
+        }
     }
 
     public bool IsDisposed => lastIndex == -2;
@@ -79,6 +114,45 @@ internal struct FreeListCore<T>
                 {
                     Volatile.Write(ref lastIndex, FindLastNonNullIndex(values, index));
                 }
+            }
+        }
+    }
+
+    public bool RemoveSlow(T value)
+    {
+        lock (gate)
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, typeof(FreeListCore<T>));
+            if (values == null) return false;
+
+            var index = -1;
+            var span = values.AsSpan(0, lastIndex);
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] == value)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index != -1)
+            {
+                Remove(index);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void Clear(bool removeArray)
+    {
+        lock (gate)
+        {
+            values.AsSpan(0, lastIndex).Clear();
+            if (removeArray)
+            {
+                values = null;
             }
         }
     }
