@@ -200,4 +200,21 @@ public class AggregateTest
         }).OnErrorAsComplete();
         await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
     }
+
+    [Fact]
+    public async Task WaitAsync()
+    {
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        await source.WaitAsync();
+
+        var p = new CompletablePublisher<int, string>();
+        var task = p.WaitAsync();
+
+        p.PublishOnNext(10);
+        p.PublishOnNext(20);
+        p.PublishOnNext(30);
+        p.PublishOnCompleted("foo");
+
+        (await task).Should().Be("foo");
+    }
 }

@@ -59,19 +59,19 @@ SubscriptionTracker.ForEachActiveTask(x =>
     // logger.ZLogInformation($"{x.TrackingId,3}: {x.FormattedType}");
 });
 
-publisher.PublishOnNext(1);
-publisher.PublishOnNext(2);
-publisher.PublishOnNext(3);
+//publisher.PublishOnNext(1);
+//publisher.PublishOnNext(2);
+//publisher.PublishOnNext(3);
 
-publisher.PublishOnErrorResume(new Exception("ERROR"));
+//publisher.PublishOnErrorResume(new Exception("ERROR"));
 
-publisher.PublishOnNext(4);
-publisher.PublishOnNext(5);
-publisher.PublishOnNext(6);
-publisher.PublishOnNext(7);
+//publisher.PublishOnNext(4);
+//publisher.PublishOnNext(5);
+//publisher.PublishOnNext(6);
+//publisher.PublishOnNext(7);
 
 
-d.Dispose();
+//d.Dispose();
 
 
 
@@ -79,7 +79,7 @@ d.Dispose();
 
 var s = new System.Reactive.Subjects.Subject<string>();
 
-Console.WriteLine($"Average: {Enumerable.Empty<int>().Average()}");
+// Console.WriteLine($"Average: {Enumerable.Empty<int>().Average()}");
 
 // s.ToListObservable();
 
@@ -108,11 +108,13 @@ Console.WriteLine($"Average: {Enumerable.Empty<int>().Average()}");
 
 
 
+var subject = new Subject<int>();
 
+subject.OnCompleted();
 
-
-
-
+Console.WriteLine("Subscribe");
+subject.Subscribe(x => Console.WriteLine(x));
+subject.OnNext(99);
 
 
 

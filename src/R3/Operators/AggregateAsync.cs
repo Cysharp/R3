@@ -16,7 +16,7 @@
             // before Subscribe, register and set CancellationTokenRegistration
             subscriber.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
             {
-                var s = ((AggregateAsync<TMessage, TComplete, TAccumulate, TResult>)state!);
+                var s = (AggregateAsync<TMessage, TComplete, TAccumulate, TResult>)state!;
 
                 s.Dispose(); // subscriber is subscription, dispose
                 s.tcs.TrySetCanceled(s.cancellationToken);
@@ -41,7 +41,7 @@
             // before Subscribe, register and set CancellationTokenRegistration
             subscriber.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
             {
-                var s = ((AggregateAsyncR<TMessage, TComplete, TAccumulate, TResult>)state!);
+                var s = (AggregateAsyncR<TMessage, TComplete, TAccumulate, TResult>)state!;
 
                 s.Dispose(); // subscriber is subscription, dispose
                 s.tcs.TrySetCanceled(s.cancellationToken);
@@ -56,6 +56,7 @@
 
 namespace R3.Operators
 {
+
     internal sealed class AggregateAsync<TMessage, TComplete, TAccumulate, TResult>(
        TaskCompletionSource<TResult> tcs,
        TAccumulate seed,

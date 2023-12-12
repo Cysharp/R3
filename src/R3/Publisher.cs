@@ -25,6 +25,8 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
 
     public void PublishOnNext(TMessage message)
     {
+        if (list.IsDisposed) ThrowDisposed();
+
         foreach (var subscriber in list.AsSpan())
         {
             if (subscriber != null)
@@ -36,6 +38,8 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
 
     public void PublishOnErrorResume(Exception error)
     {
+        if (list.IsDisposed) ThrowDisposed();
+
         foreach (var subscriber in list.AsSpan())
         {
             if (subscriber != null)
@@ -48,7 +52,7 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
     protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         var subscription = new _Publisher(this, subscriber);
-        subscription.removeKey = list.Add(subscription);
+        subscription.removeKey = list.Add(subscription); // when disposed, may throw DisposedException in this line
         return subscription;
     }
 
@@ -60,6 +64,11 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
     public void Dispose()
     {
         list.Dispose();
+    }
+
+    static void ThrowDisposed()
+    {
+        throw new ObjectDisposedException("Publisher");
     }
 
     sealed class _Publisher(Publisher<TMessage>? parent, Subscriber<TMessage> subscriber) : IDisposable
@@ -91,7 +100,9 @@ public sealed class Publisher<TMessage> : Event<TMessage>, IEventPublisher<TMess
 public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent<TMessage, TComplete>, ICompletableEventPublisher<TMessage, TComplete>, IDisposable
 {
     int calledCompleted = 0;
+    TComplete? completeValue;
     FreeListCore<_CompletablePublisher> list;
+    readonly object completedLock = new object();
 
     public CompletablePublisher()
     {
@@ -100,6 +111,7 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
 
     public void PublishOnNext(TMessage message)
     {
+        if (list.IsDisposed) ThrowDisposed();
         if (Volatile.Read(ref calledCompleted) != 0) return;
 
         foreach (var subscriber in list.AsSpan())
@@ -113,6 +125,9 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
 
     public void PublishOnErrorResume(Exception error)
     {
+        if (list.IsDisposed) ThrowDisposed();
+        if (Volatile.Read(ref calledCompleted) != 0) return;
+
         foreach (var subscriber in list.AsSpan())
         {
             if (subscriber != null)
@@ -124,8 +139,15 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
 
     public void PublishOnCompleted(TComplete complete)
     {
-        var locationValue = Interlocked.CompareExchange(ref calledCompleted, 1, 0);
-        if (locationValue != 0) return;
+        if (list.IsDisposed) ThrowDisposed();
+        if (Volatile.Read(ref calledCompleted) != 0) return;
+
+        // need lock for Subscribe after OnCompleted
+        lock (completedLock)
+        {
+            completeValue = complete;
+            calledCompleted = 1;
+        }
 
         foreach (var subscriber in list.AsSpan())
         {
@@ -138,9 +160,21 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
 
     protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
     {
-        var subscription = new _CompletablePublisher(this, subscriber);
-        subscription.removeKey = list.Add(subscription);
-        return subscription;
+        if (list.IsDisposed) ThrowDisposed();
+
+        lock (completedLock)
+        {
+            if (Volatile.Read(ref calledCompleted) != 0)
+            {
+                subscriber.OnCompleted(completeValue!);
+                return Disposable.Empty;
+            }
+
+            // need lock after Add
+            var subscription = new _CompletablePublisher(this, subscriber);
+            subscription.removeKey = list.Add(subscription); // when disposed, may throw DisposedException in this line
+            return subscription;
+        }
     }
 
     void Unsubscribe(_CompletablePublisher subscription)
@@ -151,6 +185,11 @@ public sealed class CompletablePublisher<TMessage, TComplete> : CompletableEvent
     public void Dispose()
     {
         list.Dispose();
+    }
+
+    static void ThrowDisposed()
+    {
+        throw new ObjectDisposedException("CompletablePublisher");
     }
 
     sealed class _CompletablePublisher(CompletablePublisher<TMessage, TComplete>? parent, Subscriber<TMessage, TComplete> subscriber) : IDisposable

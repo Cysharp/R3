@@ -235,5 +235,17 @@ namespace R3
                 (avg, _) => double.CreateChecked(avg.Item1) / double.CreateChecked(avg.Item2), // ignore complete
                 cancellationToken);
         }
+
+        public static Task WaitAsync<TMessage>(this CompletableEvent<TMessage, Unit> source, CancellationToken cancellationToken = default)
+        {
+            // get only complete value.
+            return AggregateAsync(source, 0, static (_, _) => 0, static (_, result) => result, cancellationToken);
+        }
+
+        public static Task<TComplete> WaitAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        {
+            // get only complete value.
+            return AggregateAsync(source, 0, static (_, _) => 0, static (_, result) => result, cancellationToken);
+        }
     }
 }
