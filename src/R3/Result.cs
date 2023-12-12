@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 
 namespace R3;
 
@@ -46,6 +47,14 @@ public readonly struct Result<T>(T? value, Exception? exception)
         {
             exception = default;
             return false;
+        }
+    }
+
+    public void TryThrow()
+    {
+        if (IsFailure)
+        {
+            ExceptionDispatchInfo.Capture(Exception).Throw();
         }
     }
 

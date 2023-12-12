@@ -66,7 +66,15 @@ public abstract class Subscriber<TMessage> : IDisposable
     public void OnErrorResume(Exception error)
     {
         if (IsDisposed) return;
-        OnErrorResumeCore(error);
+
+        try
+        {
+            OnErrorResumeCore(error);
+        }
+        catch (Exception ex)
+        {
+            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
+        }
     }
 
     protected abstract void OnErrorResumeCore(Exception error);
@@ -151,7 +159,14 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     {
         if (IsDisposed || IsCalledCompleted) return;
 
-        OnErrorResumeCore(error);
+        try
+        {
+            OnErrorResumeCore(error);
+        }
+        catch (Exception ex)
+        {
+            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
+        }
     }
 
     protected abstract void OnErrorResumeCore(Exception error);
@@ -168,6 +183,10 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         try
         {
             OnCompletedCore(complete);
+        }
+        catch (Exception ex)
+        {
+            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
         }
         finally
         {
@@ -188,7 +207,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         DisposeCore();                // Dispose self
         SourceSubscription.Dispose(); // Dispose attached parent
     }
-    
+
     [StackTraceHidden, DebuggerStepThrough]
     protected virtual void DisposeCore() { }
 }

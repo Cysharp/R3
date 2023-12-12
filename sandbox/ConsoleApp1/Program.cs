@@ -25,12 +25,6 @@ EventSystem.Logger = factory.CreateLogger<EventSystem>();
 var logger = factory.CreateLogger<Program>();
 
 
-EventSystem.SetUnhandledExceptionHandler(e =>
-{
-    logger.ZLogError($"{e}");
-});
-
-
 
 var publisher = new Publisher<int>();
 
@@ -53,7 +47,8 @@ var d = publisher
     },
     x =>
     {
-        logger.ZLogInformation($"end:{x}");
+        //logger.ZLogInformation($"end:{x}");
+        x.TryThrow();
     });
 
 SubscriptionTracker.ForEachActiveTask(x =>
