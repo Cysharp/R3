@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace R3;
 
@@ -28,19 +29,23 @@ public static partial class EventExtensions
 
 public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
 {
-    readonly RingBuffer<T> list = new RingBuffer<T>();
+    readonly IReadOnlyList<T> list; // RingBuffer<T> or List<T>
     readonly IDisposable sourceSubscription;
     readonly int bufferSize;
 
     public LiveList(Event<T> source)
-        : this(source, -1)
     {
+        if (bufferSize == 0) bufferSize = 1;
+        this.bufferSize = -1;
+        this.list = new List<T>();
+        this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
     }
 
     public LiveList(Event<T> source, int bufferSize)
     {
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = bufferSize; // bufferSize must set before Subscribe(sometimes Subscribe run immediately)
+        this.list = new RingBuffer<T>(bufferSize);
         this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
     }
 
@@ -63,6 +68,14 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
             {
                 return list.Count;
             }
+        }
+    }
+
+    public void Clear()
+    {
+        lock (list)
+        {
+            list.Clear();
         }
     }
 
@@ -127,11 +140,20 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         {
             lock (parent.list)
             {
-                if (parent.list.Count == parent.bufferSize)
+                if (parent.bufferSize == -1)
                 {
-                    parent.list.RemoveFirst();
+                    ((List<T>)parent.list).Add(message);
                 }
-                parent.list.AddLast(message);
+                else
+                {
+                    var ring = (RingBuffer<T>)parent.list;
+
+                    if (ring.Count == parent.bufferSize)
+                    {
+                        ring.RemoveFirst();
+                    }
+                    ring.AddLast(message);
+                }
             }
         }
 
@@ -144,7 +166,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
 
 public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
 {
-    readonly RingBuffer<T> list = new RingBuffer<T>();
+    readonly IReadOnlyList<T> list; // RingBuffer<T> or List<T>
     readonly IDisposable sourceSubscription;
     readonly int bufferSize;
 
@@ -157,14 +179,18 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
     public TComplete? CompletedValue => completedValue;
 
     public LiveList(CompletableEvent<T, TComplete> source)
-        : this(source, -1)
     {
+        if (bufferSize == 0) bufferSize = 1;
+        this.bufferSize = -1;
+        this.list = new List<T>();
+        this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
     }
 
     public LiveList(CompletableEvent<T, TComplete> source, int bufferSize)
     {
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = bufferSize; // bufferSize must set before Subscribe(sometimes Subscribe run immediately)
+        this.list = new RingBuffer<T>(bufferSize);
         this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
     }
 
@@ -187,6 +213,14 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
             {
                 return list.Count;
             }
+        }
+    }
+
+    public void Clear()
+    {
+        lock (list)
+        {
+            list.Clear();
         }
     }
 
@@ -251,12 +285,20 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
         {
             lock (parent.list)
             {
-                if (parent.list.Count == parent.bufferSize)
+                if (parent.bufferSize == -1)
                 {
-                    parent.list.RemoveFirst();
-
+                    ((List<T>)parent.list).Add(message);
                 }
-                parent.list.AddLast(message);
+                else
+                {
+                    var ring = (RingBuffer<T>)parent.list;
+
+                    if (ring.Count == parent.bufferSize)
+                    {
+                        ring.RemoveFirst();
+                    }
+                    ring.AddLast(message);
+                }
             }
         }
 
@@ -272,6 +314,58 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
                 parent.completedValue = complete;
                 parent.isCompleted = true;
             }
+        }
+    }
+}
+
+file static class RingBufferOrListExtensions
+{
+    public static RingBufferSpan<T> GetSpan<T>(this IReadOnlyList<T> list)
+    {
+        if (list is RingBuffer<T> r)
+        {
+            return r.GetSpan();
+        }
+        else if (list is List<T> l)
+        {
+            var span1 = CollectionsMarshal.AsSpan(l);
+            return new RingBufferSpan<T>(span1, default, span1.Length);
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public static void Clear<T>(this IReadOnlyList<T> list)
+    {
+        if (list is RingBuffer<T> r)
+        {
+            r.Clear();
+        }
+        else if (list is List<T> l)
+        {
+            l.Clear();
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public static T[] ToArray<T>(this IReadOnlyList<T> list)
+    {
+        if (list is RingBuffer<T> r)
+        {
+            return r.ToArray();
+        }
+        else if (list is List<T> l)
+        {
+            return CollectionsMarshal.AsSpan(l).ToArray();
+        }
+        else
+        {
+            throw new NotSupportedException();
         }
     }
 }
