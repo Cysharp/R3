@@ -26,6 +26,9 @@
 
 namespace R3.Operators
 {
-
+    //internal sealed class ElementAtAsync<TMessage>(Event<TMessage> CancellationToken cancellationToken)
+        
+    //{
+    //}
 
 }

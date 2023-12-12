@@ -6,6 +6,7 @@ namespace R3;
 public static class Result
 {
     public static Result<T> Success<T>(T value) => new(value, null);
+    public static Result<Unit> Failure(Exception exception) => new(default, exception);
     public static Result<T> Failure<T>(Exception exception) => new(default, exception);
 }
 

@@ -53,7 +53,7 @@ namespace R3.Operators
         {
             try
             {
-                var result = resultSelector(value, complete);
+                var result = resultSelector(value, complete); // trap this resultSelector exception
                 tcs.TrySetResult(result);
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace R3.Operators
         {
             try
             {
-                var result = resultSelector(value, complete);
+                var result = resultSelector(value, complete); // trap this resultSelector exception
                 if (complete.IsSuccess)
                 {
                     tcs.TrySetResult(result);

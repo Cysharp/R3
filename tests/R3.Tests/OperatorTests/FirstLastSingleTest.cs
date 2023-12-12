@@ -1,4 +1,6 @@
-﻿namespace R3.Tests.OperatorTests;
+﻿using System.Threading.Tasks;
+
+namespace R3.Tests.OperatorTests;
 
 public class FirstLastSingleTest
 {
@@ -220,5 +222,19 @@ public class FirstLastSingleTest
         publisher.PublishOnNext(99);
         publisher.PublishOnCompleted();
         (await task4).Should().Be(99);
+    }
+
+    [Fact]
+    public async Task ErrorStream()
+    {
+        var publisher = new CompletablePublisher<int, Result<Unit>>();
+        var task = publisher.LastAsync();
+
+        publisher.PublishOnNext(10);
+        publisher.PublishOnNext(20);
+        publisher.PublishOnNext(30);
+        publisher.PublishOnCompleted(Result.Failure(new Exception("foo")));
+
+        await Assert.ThrowsAsync<Exception>(async () => await task);
     }
 }
