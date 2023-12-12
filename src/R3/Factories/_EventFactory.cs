@@ -10,16 +10,11 @@ namespace R3
         // TODO: Defer, DeferAsync, FromAsync, FromAsyncPattern, FromEvent, FromEventPattern, Start, Using, Create
         // Timer, Interval, TimerFrame, IntervalFrame, ToObservable(ToEvent)
 
-        // TODO: Convert
-        // ToArray
-        // ToAsync
-        // ToDictionary
-        // ToHashSet
-        // ToEnumerable
+
+
+        // ToAsyncEnumerable?
         // ToEvent
         // ToEventPattern
-        // ToList
-        // ToLookup
 
 
 
@@ -31,10 +26,10 @@ namespace R3
         // AsNeverComplete
 
 
-
     }
 }
 
 namespace R3.Factories
 {
+
 }

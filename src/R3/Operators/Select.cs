@@ -13,6 +13,13 @@
             return new Select<TMessage, TResult>(source, selector);
         }
 
+        public static CompletableEvent<TMessageResult, TComplete> Select<TMessage, TComplete, TMessageResult>(
+            this CompletableEvent<TMessage, TComplete> source,
+            Func<TMessage, TMessageResult> messageSelector)
+        {
+            return new Select<TMessage, TComplete, TMessageResult, TComplete>(source, messageSelector, static x => x);
+        }
+
         public static CompletableEvent<TMessageResult, TCompleteResult> Select<TMessage, TComplete, TMessageResult, TCompleteResult>(
             this CompletableEvent<TMessage, TComplete> source,
             Func<TMessage, TMessageResult> messageSelector,
@@ -45,7 +52,7 @@ namespace R3.Operators
             }
         }
     }
-    
+
     internal sealed class Select<TMessage, TComplete, TMessageResult, TCompleteResult>(
         CompletableEvent<TMessage, TComplete> source,
            Func<TMessage, TMessageResult> messageSelector,
