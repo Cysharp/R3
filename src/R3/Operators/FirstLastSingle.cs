@@ -25,56 +25,25 @@
 
         public static Task<TMessage> FirstAsync<TMessage>(this Event<TMessage> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default)
         {
-            var tcs = new TaskCompletionSource<TMessage>();
-
-            var subscriber = new First<TMessage>(tcs, predicate, cancellationToken);
-
-            // before Subscribe, register and set CancellationTokenRegistration
-            subscriber.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
-            {
-                var s = (First<TMessage>)state!;
-
-                s.Dispose(); // subscriber is subscription, dispose
-                s.tcs.TrySetCanceled(s.cancellationToken);
-            }, subscriber);
-
-            source.Subscribe(subscriber); // return subscriber self so ignore subscription
-
-            return tcs.Task;
+            var subscriber = new First<TMessage>(predicate, cancellationToken);
+            source.Subscribe(subscriber);
+            return subscriber.Task;
         }
 
         static Task<TMessage> FirstLastSingleAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
         {
-            var tcs = new TaskCompletionSource<TMessage>();
-
-            var subscriber = new FirstLastSingle<TMessage, TComplete>(tcs, operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
-
-            // before Subscribe, register and set CancellationTokenRegistration
-            subscriber.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
-            {
-                var s = (FirstLastSingle<TMessage, TComplete>)state!;
-
-                s.Dispose(); // subscriber is subscription, dispose
-                s.tcs.TrySetCanceled(s.cancellationToken);
-            }, subscriber);
-
-            source.Subscribe(subscriber); // return subscriber self so ignore subscription
-
-            return tcs.Task;
+            var subscriber = new FirstLastSingle<TMessage, TComplete>(operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
+            source.Subscribe(subscriber);
+            return subscriber.Task;
         }
     }
 }
 
 namespace R3.Operators
 {
-    internal sealed class First<TMessage>(TaskCompletionSource<TMessage> tcs, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
-        : Subscriber<TMessage>
+    internal sealed class First<TMessage>(Func<TMessage, bool> predicate, CancellationToken cancellationToken)
+        : TaskSubscriberBase<TMessage, TMessage>(cancellationToken)
     {
-        // hold state for CancellationToken.Register
-        internal TaskCompletionSource<TMessage> tcs = tcs;
-        internal CancellationToken cancellationToken = cancellationToken;
-        internal CancellationTokenRegistration tokenRegistration;
-
         protected override void OnNextCore(TMessage message)
         {
             if (!predicate(message)) return;
@@ -89,14 +58,9 @@ namespace R3.Operators
         }
     }
 
-    internal sealed class FirstLastSingle<TMessage, TComplete>(TaskCompletionSource<TMessage> tcs, FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
-        : Subscriber<TMessage, TComplete>
+    internal sealed class FirstLastSingle<TMessage, TComplete>(FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
+        : TaskSubscriberBase<TMessage, TComplete, TMessage>(cancellationToken)
     {
-        // hold state for CancellationToken.Register
-        internal TaskCompletionSource<TMessage> tcs = tcs;
-        internal CancellationToken cancellationToken = cancellationToken;
-        internal CancellationTokenRegistration tokenRegistration;
-
         bool hasValue;
         TMessage? latestValue = defaultValue;
 
