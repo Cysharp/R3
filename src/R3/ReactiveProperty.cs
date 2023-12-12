@@ -8,7 +8,8 @@ public abstract class ReadOnlyReactiveProperty<T> : Event<T>
     public abstract T CurrentValue { get; }
 }
 
-public sealed class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
+// allow inherit?
+public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
@@ -51,6 +52,14 @@ public sealed class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposab
         this.list = new FreeListCore<Subscription>(this);
     }
 
+    public void PublishOnErrorResume(Exception error)
+    {
+        foreach (var subscriber in list.AsSpan())
+        {
+            subscriber?.OnErrorResume(error);
+        }
+    }
+
     protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         var value = this.value;
@@ -87,6 +96,12 @@ public sealed class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposab
         public void OnNext(T message)
         {
             subscriber.OnNext(message);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void OnErrorResume(Exception error)
+        {
+            subscriber.OnErrorResume(error);
         }
 
         public void Dispose()

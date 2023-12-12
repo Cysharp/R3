@@ -6,6 +6,23 @@
         {
             return new CombineLatest<TLeft, TRight, TResult>(left, right, selector);
         }
+
+        public static CompletableEvent<TResult, TResultComplete> CombineLatest<TLeft, TRight, TLeftComplete, TRightComplete, TResult, TResultComplete>(
+            this CompletableEvent<TLeft, TLeftComplete> left,
+            CompletableEvent<TRight, TRightComplete> right,
+            Func<TLeft, TRight, TResult> selector,
+            Func<TLeftComplete, TRightComplete, TResultComplete> completeSelector)
+        {
+            return new CombineLatest<TLeft, TRight, TLeftComplete, TRightComplete, TResult, TResultComplete>(left, right, selector, completeSelector);
+        }
+
+        public static CompletableEvent<TResult, Unit> CombineLatest<TLeft, TRight, TResult>(
+            this CompletableEvent<TLeft, Unit> left,
+            CompletableEvent<TRight, Unit> right,
+            Func<TLeft, TRight, TResult> selector)
+        {
+            return new CombineLatest<TLeft, TRight, Unit, Unit, TResult, Unit>(left, right, selector, static (x, y) => default);
+        }
     }
 }
 
@@ -30,66 +47,26 @@ namespace R3.Operators
             }
         }
 
-        class _CombineLatest(Subscriber<TResult> subscriber, Func<TLeft, TRight, TResult> selector)
+        sealed class _CombineLatest(Subscriber<TResult> subscriber, Func<TLeft, TRight, TResult> selector)
         {
-            TLeft? message1;
-            bool hasMessage1;
-            TRight? message2;
-            bool hasMessage2;
+            internal TLeft? message1;
+            internal bool hasMessage1;
 
-            public void OnNext(TLeft message)
-            {
-                var canPublish = false;
-                TRight? msg2 = default;
-                lock (this)
-                {
-                    hasMessage1 = true;
-                    message1 = message;
+            internal TRight? message2;
+            internal bool hasMessage2;
 
-                    if (hasMessage2)
-                    {
-                        canPublish = true;
-                        msg2 = message2;
-                    }
-                }
-
-                if (canPublish)
-                {
-                    Publish(message, msg2!);
-                }
-            }
-
-            public void OnNext(TRight message)
-            {
-                var canPublish = false;
-                TLeft? msg1 = default;
-                lock (this)
-                {
-                    hasMessage2 = true;
-                    message2 = message;
-
-                    if (hasMessage1)
-                    {
-                        canPublish = true;
-                        msg1 = message1;
-                    }
-                }
-
-                if (canPublish)
-                {
-                    Publish(msg1!, message);
-                }
-            }
-
-            public void OnError(Exception error)
+            public void OnErrorResume(Exception error)
             {
                 subscriber.OnErrorResume(error);
             }
 
-            void Publish(TLeft m1, TRight m2)
+            internal void Publish()
             {
-                var result = selector(m1, m2);
-                subscriber.OnNext(result);
+                if (hasMessage1 && hasMessage2)
+                {
+                    var result = selector(message1!, message2!);
+                    subscriber.OnNext(result);
+                }
             }
         }
 
@@ -97,12 +74,20 @@ namespace R3.Operators
         {
             protected override void OnNextCore(TLeft message)
             {
-                parent.OnNext(message);
+                lock (parent) // `_CombineLatest` is hide in Disposable.Combine so safe to use lock
+                {
+                    parent.hasMessage1 = true;
+                    parent.message1 = message;
+                    parent.Publish();
+                }
             }
 
             protected override void OnErrorResumeCore(Exception error)
             {
-                parent.OnError(error);
+                lock (parent)
+                {
+                    parent.OnErrorResume(error);
+                }
             }
         }
 
@@ -110,12 +95,142 @@ namespace R3.Operators
         {
             protected override void OnNextCore(TRight message)
             {
-                parent.OnNext(message);
+                lock (parent) // `_CombineLatest` is hide in Disposable.Combine so safe to use lock
+                {
+                    parent.hasMessage2 = true;
+                    parent.message2 = message;
+                    parent.Publish();
+                }
             }
 
             protected override void OnErrorResumeCore(Exception error)
             {
-                parent.OnError(error);
+                lock (parent)
+                {
+                    parent.OnErrorResume(error);
+                }
+            }
+        }
+    }
+
+    internal sealed class CombineLatest<TLeft, TRight, TLeftComplete, TRightComplete, TResult, TResultComplete>(
+        CompletableEvent<TLeft, TLeftComplete> left,
+        CompletableEvent<TRight, TRightComplete> right,
+        Func<TLeft, TRight, TResult> selector,
+        Func<TLeftComplete, TRightComplete, TResultComplete> completeSelector) : CompletableEvent<TResult, TResultComplete>
+    {
+        protected override IDisposable SubscribeCore(Subscriber<TResult, TResultComplete> subscriber)
+        {
+            var method = new _CombineLatest(subscriber, selector, completeSelector);
+
+            var d1 = left.Subscribe(new LeftSubscriber(method));
+            try
+            {
+                var d2 = right.Subscribe(new RightSubscriber(method));
+                return Disposable.Combine(d1, d2);
+            }
+            catch
+            {
+                d1.Dispose();
+                throw;
+            }
+        }
+
+        sealed class _CombineLatest(Subscriber<TResult, TResultComplete> subscriber, Func<TLeft, TRight, TResult> selector, Func<TLeftComplete, TRightComplete, TResultComplete> completeSelector)
+        {
+            internal TLeft? message1;
+            internal bool hasMessage1;
+            internal TLeftComplete? complete1;
+            internal bool hasComplete1;
+
+            internal TRight? message2;
+            internal bool hasMessage2;
+            internal TRightComplete? complete2;
+            internal bool hasComplete2;
+
+            public void OnErrorResume(Exception error)
+            {
+                subscriber.OnErrorResume(error);
+            }
+
+            internal void Publish()
+            {
+                if (hasMessage1 && hasMessage2)
+                {
+                    var result = selector(message1!, message2!);
+                    subscriber.OnNext(result);
+                }
+            }
+
+            internal void Complete()
+            {
+                if (hasComplete1 && hasComplete2)
+                {
+                    var result = completeSelector(complete1!, complete2!);
+                    subscriber.OnCompleted(result);
+                }
+            }
+        }
+
+        sealed class LeftSubscriber(_CombineLatest parent) : Subscriber<TLeft, TLeftComplete>
+        {
+            protected override void OnNextCore(TLeft message)
+            {
+                lock (parent) // `_CombineLatest` is hide in Disposable.Combine so safe to use lock
+                {
+                    parent.hasMessage1 = true;
+                    parent.message1 = message;
+                    parent.Publish();
+                }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                lock (parent)
+                {
+                    parent.OnErrorResume(error);
+                }
+            }
+
+            protected override void OnCompletedCore(TLeftComplete complete)
+            {
+                lock (parent)
+                {
+                    parent.hasComplete1 = true;
+                    parent.complete1 = complete;
+                    parent.Complete();
+                }
+            }
+        }
+
+        sealed class RightSubscriber(_CombineLatest parent) : Subscriber<TRight, TRightComplete>
+        {
+            protected override void OnNextCore(TRight message)
+            {
+                lock (parent) // `_CombineLatest` is hide in Disposable.Combine so safe to use lock
+                {
+                    parent.hasMessage2 = true;
+                    parent.message2 = message;
+                    parent.Publish();
+                }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                lock (parent)
+                {
+                    parent.OnErrorResume(error);
+                }
+            }
+
+            protected override void OnCompletedCore(TRightComplete complete)
+            {
+                lock (parent)
+                {
+                    parent.hasComplete2 = true;
+                    parent.complete2 = complete;
+                    parent.Complete();
+                }
             }
         }
     }
