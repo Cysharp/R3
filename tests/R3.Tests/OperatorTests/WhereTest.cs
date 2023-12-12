@@ -7,7 +7,7 @@ public class WhereTest(ITestOutputHelper output)
     {
         var p = new Publisher<int>();
 
-        using var list = p.Where(x => x % 2 != 0).LiveRecord();
+        using var list = p.Where(x => x % 2 != 0).ToLiveList();
 
         p.PublishOnNext(2);
         list.AssertEqual([]);
@@ -28,7 +28,7 @@ public class WhereTest(ITestOutputHelper output)
     {
         var p = new Publisher<int>();
 
-        using var list = p.Where(x => x % 2 != 0).Where(x => x % 3 != 0).LiveRecord();
+        using var list = p.Where(x => x % 2 != 0).Where(x => x % 3 != 0).ToLiveList();
 
         p.PublishOnNext(2);
         list.AssertEqual([]);
@@ -55,7 +55,7 @@ public class WhereTest(ITestOutputHelper output)
     {
         var p = new Publisher<int>();
 
-        using var list = p.Where((x, i) => i % 2 != 0).LiveRecord();
+        using var list = p.Where((x, i) => i % 2 != 0).ToLiveList();
 
         p.PublishOnNext(2);
         list.AssertEqual([]);
@@ -82,7 +82,7 @@ public class WhereTest(ITestOutputHelper output)
     {
         var p = new CompletablePublisher<int, Unit>();
 
-        using var list = p.Where(x => x % 2 != 0).LiveRecord();
+        using var list = p.Where(x => x % 2 != 0).ToLiveList();
 
         p.PublishOnNext(2);
         list.AssertEqual([]);
@@ -110,7 +110,7 @@ public class WhereTest(ITestOutputHelper output)
     {
         var p = new CompletablePublisher<int, Unit>();
 
-        using var list = p.Where((x, i) => i % 2 != 0).LiveRecord();
+        using var list = p.Where((x, i) => i % 2 != 0).ToLiveList();
 
         p.PublishOnNext(2);
         list.AssertEqual([]);

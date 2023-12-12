@@ -8,21 +8,21 @@ public class ReturnTest
     public void Return()
     {
         {
-            using var list = EventFactory.Return(10).LiveRecord();
+            using var list = EventFactory.Return(10).ToLiveList();
             list.AssertEqual([10]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = EventFactory.Return(10, TimeSpan.Zero, fakeTime).LiveRecord();
+            using var list = EventFactory.Return(10, TimeSpan.Zero, fakeTime).ToLiveList();
             list.AssertEqual([10]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = EventFactory.Return(10, TimeSpan.FromSeconds(5), fakeTime).LiveRecord();
+            using var list = EventFactory.Return(10, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
             list.AssertEqual([]);
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
@@ -38,7 +38,7 @@ public class ReturnTest
     [Fact]
     public void ReturnThreadPoolScheduleOptimized()
     {
-        using var list = EventFactory.Return(10).LiveRecord();
+        using var list = EventFactory.Return(10).ToLiveList();
 
         Thread.Sleep(1);
 
@@ -51,7 +51,7 @@ public class ReturnTest
     public void ReturnOnCompleted()
     {
         {
-            using var list = EventFactory.Return(0, "foo").LiveRecord();
+            using var list = EventFactory.Return(0, "foo").ToLiveList();
             list.AssertEqual([0]);
             list.AssertIsCompleted();
             list.AssertCompletedValue("foo");
@@ -59,7 +59,7 @@ public class ReturnTest
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = EventFactory.Return(10, "foo", TimeSpan.FromSeconds(5), fakeTime).LiveRecord();
+            using var list = EventFactory.Return(10, "foo", TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
             list.AssertEqual([]);
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));

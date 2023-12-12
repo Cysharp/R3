@@ -8,7 +8,7 @@ public class ReturnOnCompletedTest
     public void ReturnOnCompleted()
     {
         {
-            using var list = EventFactory.ReturnOnCompleted<int, string>("foo").LiveRecord();
+            using var list = EventFactory.ReturnOnCompleted<int, string>("foo").ToLiveList();
             list.AssertEqual([]);
             list.AssertIsCompleted();
             list.AssertCompletedValue("foo");
@@ -16,7 +16,7 @@ public class ReturnOnCompletedTest
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = EventFactory.ReturnOnCompleted<int, string>("foo", TimeSpan.FromSeconds(5), fakeTime).LiveRecord();
+            using var list = EventFactory.ReturnOnCompleted<int, string>("foo", TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);

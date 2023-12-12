@@ -4,7 +4,7 @@ using R3.Internal;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
+using System.Reactive.Subjects;
 using System.Threading.Channels;
 using ZLogger;
 //using System.Reactive.Disposables;
@@ -81,7 +81,7 @@ var s = new System.Reactive.Subjects.Subject<string>();
 
 Console.WriteLine($"Average: {Enumerable.Empty<int>().Average()}");
 
-
+// s.ToListObservable();
 
 // Observable.Throw(
 // s.Where(
@@ -173,5 +173,3 @@ public static class Extensions
         return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
     }
 }
-
-
