@@ -8,10 +8,13 @@ public class EventSystem
 {
     public static ILogger<EventSystem> Logger { get; set; } = NullLogger<EventSystem>.Instance;
 
+    public static TimeProvider DefaultTimeProvider { get; set; } = TimeProvider.System;
+    public static FrameProvider DefaultFrameProvider { get; set; } = new NotSupportedFrameProvider();
+
     static Action<Exception> unhandledException = WriteLog;
 
     // Prevent +=, use Set and Get method.
-    public static void SetUnhandledExceptionHandler(Action<Exception> unhandledExceptionHandler)
+    public static void RegisterUnhandledExceptionHandler(Action<Exception> unhandledExceptionHandler)
     {
         unhandledException = unhandledExceptionHandler;
     }
@@ -31,6 +34,19 @@ public class EventSystem
         {
             Logger.UnhandledException(exception);
         }
+    }
+}
+
+internal sealed class NotSupportedFrameProvider : FrameProvider
+{
+    public override long GetFrameCount()
+    {
+        throw new NotSupportedException("EventSystem.DefaultFrameProvider is not set. Please set EventSystem.DefaultFrameProvider to a valid FrameProvider(ThreadSleepFrameProvider, etc...).");
+    }
+
+    public override void Register(IFrameRunnerWorkItem callback)
+    {
+        throw new NotSupportedException("EventSystem.DefaultFrameProvider is not set. Please set EventSystem.DefaultFrameProvider to a valid FrameProvider(ThreadSleepFrameProvider, etc...).");
     }
 }
 

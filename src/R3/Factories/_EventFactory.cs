@@ -26,76 +26,65 @@ public static partial class Event
     // AsUnitComplete
     // AsNeverComplete
 
+    // TODO: use SystemDefault
 
-    //public static Event<Unit> EveryUpdate(FrameProvider frameProvider)
-    //{
-    //    return new R3.Factories.EveryUpdate(frameProvider);
-    //}
+    public static Event<Unit, Unit> EveryUpdate()
+    {
+        return new EveryUpdate(EventSystem.DefaultFrameProvider, CancellationToken.None);
+    }
 
-    //public static CompletableEvent<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
-    //{
-    //    return new R3.Factories.EveryUpdate(frameProvider);
-    //}
+    public static Event<Unit, Unit> EveryUpdate(CancellationToken cancellationToken)
+    {
+        return new EveryUpdate(EventSystem.DefaultFrameProvider, cancellationToken);
+    }
+
+    public static Event<Unit, Unit> EveryUpdate(FrameProvider frameProvider)
+    {
+        return new EveryUpdate(frameProvider, CancellationToken.None);
+    }
+
+    public static Event<Unit, Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
+    {
+        return new EveryUpdate(frameProvider, cancellationToken);
+    }
 }
 
-//internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit>
-//{
-//    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
-//    {
-//        var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken);
-//        frameProvider.Register(runner);
-//        return runner;
-//    }
 
-//    class EveryUpdateRunnerWorkItem(Subscriber<Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
-//    {
-//        bool isDisposed;
 
-//        public bool MoveNext(long frameCount)
-//        {
-//            if (isDisposed || cancellationToken.IsCancellationRequested)
-//            {
-//                return false;
-//            }
+internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit, Unit>
+{
+    protected override IDisposable SubscribeCore(Subscriber<Unit, Unit> subscriber)
+    {
+        var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken);
+        frameProvider.Register(runner);
+        return runner;
+    }
 
-//            subscriber.OnNext(default);
-//            return true;
-//        }
+    class EveryUpdateRunnerWorkItem(Subscriber<Unit, Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
+    {
+        bool isDisposed;
 
-//        public void Dispose()
-//        {
-//            isDisposed = true;
-//        }
-//    }
-//}
+        public bool MoveNext(long frameCount)
+        {
+            if (isDisposed)
+            {
+                return false;
+            }
 
-//internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit>
-//{
-//    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
-//    {
-//        var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken);
-//        frameProvider.Register(runner);
-//        return runner;
-//    }
+            if (cancellationToken.IsCancellationRequested)
+            {
+                subscriber.OnCompleted();
+                Dispose();
+                return false;
+            }
 
-//    class EveryUpdateRunnerWorkItem(Subscriber<Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
-//    {
-//        bool isDisposed;
+            subscriber.OnNext(default);
+            return true;
+        }
 
-//        public bool MoveNext(long frameCount)
-//        {
-//            if (isDisposed || cancellationToken.IsCancellationRequested)
-//            {
-//                return false;
-//            }
-
-//            subscriber.OnNext(default);
-//            return true;
-//        }
-
-//        public void Dispose()
-//        {
-//            isDisposed = true;
-//        }
-//    }
-//}
+        public void Dispose()
+        {
+            isDisposed = true;
+        }
+    }
+}
