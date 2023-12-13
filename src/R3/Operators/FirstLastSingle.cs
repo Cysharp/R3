@@ -73,13 +73,12 @@ namespace R3.Operators
         {
             if (!predicate(message)) return;
 
-            tcs.TrySetResult(message); // First
-            Dispose();
+            TrySetResult(message); // First
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            tcs.TrySetException(error);
+            TrySetException(error);
         }
     }
 
@@ -95,14 +94,14 @@ namespace R3.Operators
 
             if (operation == FirstLastSingleOperation.Single && hasValue)
             {
-                tcs.TrySetException(new InvalidOperationException("Sequence contains more than one element."));
+                TrySetException(new InvalidOperationException("Sequence contains more than one element."));
+                return;
             }
 
             hasValue = true;
             if (operation == FirstLastSingleOperation.First)
             {
-                tcs.TrySetResult(message); // First / FirstOrDefault
-                Dispose();
+                TrySetResult(message); // First / FirstOrDefault
             }
             else
             {
@@ -112,18 +111,18 @@ namespace R3.Operators
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            tcs.TrySetException(error);
+            TrySetException(error);
         }
 
         protected override void OnCompletedCore(TComplete complete)
         {
             if (hasValue || useDefaultIfEmpty)
             {
-                tcs.TrySetResult(latestValue!); // FirstOrDefault / Last / LastOrDefault / Single / SingleOrDefault
+                TrySetResult(latestValue!); // FirstOrDefault / Last / LastOrDefault / Single / SingleOrDefault
                 return;
             }
 
-            tcs.TrySetException(new InvalidOperationException("Sequence contains no elements."));
+            TrySetException(new InvalidOperationException("Sequence contains no elements."));
         }
     }
 
@@ -139,14 +138,14 @@ namespace R3.Operators
 
             if (operation == FirstLastSingleOperation.Single && hasValue)
             {
-                tcs.TrySetException(new InvalidOperationException("Sequence contains more than one element."));
+                TrySetException(new InvalidOperationException("Sequence contains more than one element."));
+                return;
             }
 
             hasValue = true;
             if (operation == FirstLastSingleOperation.First)
             {
-                tcs.TrySetResult(message); // First / FirstOrDefault
-                Dispose();
+                TrySetResult(message); // First / FirstOrDefault
             }
             else
             {
@@ -156,24 +155,24 @@ namespace R3.Operators
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            tcs.TrySetException(error);
+            TrySetException(error);
         }
 
         protected override void OnCompletedCore(Result<TComplete> complete)
         {
             if (complete.IsFailure)
             {
-                tcs.TrySetException(complete.Exception);
+                TrySetException(complete.Exception);
                 return;
             }
 
             if (hasValue || useDefaultIfEmpty)
             {
-                tcs.TrySetResult(latestValue!); // FirstOrDefault / Last / LastOrDefault / Single / SingleOrDefault
+                TrySetResult(latestValue!); // FirstOrDefault / Last / LastOrDefault / Single / SingleOrDefault
                 return;
             }
 
-            tcs.TrySetException(new InvalidOperationException("Sequence contains no elements."));
+            TrySetException(new InvalidOperationException("Sequence contains no elements."));
         }
     }
 

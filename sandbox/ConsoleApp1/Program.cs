@@ -99,6 +99,9 @@ SubscriptionTracker.ForEachActiveTask(x =>
 //d.Dispose();
 
 
+var iiii = Enumerable.Range(1, 10).ElementAt(^12);
+Console.WriteLine(iiii);
+
 
 // System.Reactive.Linq.Observable.Empty<int>(
 

@@ -46,7 +46,7 @@ namespace R3.Operators
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            tcs.TrySetException(error);
+            TrySetException(error);
         }
 
         protected override void OnCompletedCore(TComplete complete)
@@ -54,11 +54,11 @@ namespace R3.Operators
             try
             {
                 var result = resultSelector(value, complete); // trap this resultSelector exception
-                tcs.TrySetResult(result);
+                TrySetResult(result);
             }
             catch (Exception ex)
             {
-                tcs.TrySetException(ex);
+                TrySetException(ex);
             }
         }
     }
@@ -78,7 +78,7 @@ namespace R3.Operators
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            tcs.TrySetException(error);
+            TrySetException(error);
         }
 
         protected override void OnCompletedCore(Result<TComplete> complete)
@@ -88,16 +88,16 @@ namespace R3.Operators
                 var result = resultSelector(value, complete); // trap this resultSelector exception
                 if (complete.IsSuccess)
                 {
-                    tcs.TrySetResult(result);
+                    TrySetResult(result);
                 }
                 else
                 {
-                    tcs.TrySetException(complete.Exception);
+                    TrySetException(complete.Exception);
                 }
             }
             catch (Exception ex)
             {
-                tcs.TrySetException(ex);
+                TrySetException(ex);
             }
         }
     }

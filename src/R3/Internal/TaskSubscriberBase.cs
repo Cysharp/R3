@@ -6,8 +6,7 @@ namespace R3.Internal;
 
 internal abstract class TaskSubscriberBase<TMessage, TTask> : Subscriber<TMessage>
 {
-    protected TaskCompletionSource<TTask> tcs; // use this field.
-
+    TaskCompletionSource<TTask> tcs;
     CancellationToken cancellationToken;
     CancellationTokenRegistration tokenRegistration;
 
@@ -20,6 +19,7 @@ internal abstract class TaskSubscriberBase<TMessage, TTask> : Subscriber<TMessag
 
         if (cancellationToken.CanBeCanceled)
         {
+            // register before call Subscribe
             this.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
             {
                 var s = (TaskSubscriberBase<TMessage, TTask>)state!;
@@ -35,11 +35,35 @@ internal abstract class TaskSubscriberBase<TMessage, TTask> : Subscriber<TMessag
     {
         tokenRegistration.Dispose();
     }
+
+    protected void TrySetResult(TTask result)
+    {
+        try
+        {
+            tcs.TrySetResult(result);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    protected void TrySetException(Exception exception)
+    {
+        try
+        {
+            tcs.TrySetException(exception);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
 }
 
 internal abstract class TaskSubscriberBase<TMessage, TComplete, TTask> : Subscriber<TMessage, TComplete>
 {
-    protected TaskCompletionSource<TTask> tcs; // use this field.
+    TaskCompletionSource<TTask> tcs; // use this field.
 
     CancellationToken cancellationToken;
     CancellationTokenRegistration tokenRegistration;
@@ -53,6 +77,7 @@ internal abstract class TaskSubscriberBase<TMessage, TComplete, TTask> : Subscri
 
         if (cancellationToken.CanBeCanceled)
         {
+            // register before call Subscribe
             this.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
             {
                 var s = (TaskSubscriberBase<TMessage, TComplete, TTask>)state!;
@@ -67,5 +92,29 @@ internal abstract class TaskSubscriberBase<TMessage, TComplete, TTask> : Subscri
     protected override void DisposeCore()
     {
         tokenRegistration.Dispose();
+    }
+
+    protected void TrySetResult(TTask result)
+    {
+        try
+        {
+            tcs.TrySetResult(result);
+        }
+        finally
+        {
+            Dispose();
+        }
+    }
+
+    protected void TrySetException(Exception exception)
+    {
+        try
+        {
+            tcs.TrySetException(exception);
+        }
+        finally
+        {
+            Dispose();
+        }
     }
 }
