@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace R3;
 
+// TODO: call OnCompleted on Dispose.
+
 public abstract class ReadOnlyReactiveProperty<T> : Event<T>
 {
     public abstract T CurrentValue { get; }
