@@ -8,7 +8,7 @@ public class ThrowTest
     {
         {
             var e = new Exception();
-            using var list = EventFactory.Throw<int>(e).ToLiveList();
+            using var list = Event.Throw<int>(e).ToLiveList();
             list.AssertEqual([]);
             list.CompletedValue.IsFailure.Should().BeTrue();
             list.CompletedValue.Exception.Should().Be(e);
@@ -17,7 +17,7 @@ public class ThrowTest
             var fakeTime = new FakeTimeProvider();
 
             var e = new Exception();
-            using var list = EventFactory.Throw<int>(e, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+            using var list = Event.Throw<int>(e, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);

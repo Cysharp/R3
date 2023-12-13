@@ -1,6 +1,6 @@
 ﻿namespace R3
 {
-    public static partial class EventFactory
+    public static partial class Event
     {
         // no scheduler(TimeProvider) overload
 

@@ -27,7 +27,7 @@ public class AggregateTest
     [Fact]
     public async Task ImmediateCompleted()
     {
-        var range = EventFactory.Range(1, 5);
+        var range = Event.Range(1, 5);
         var listTask = range.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x, _) => x);
         (await listTask).Should().Equal(1, 2, 3, 4, 5);
     }
@@ -70,7 +70,7 @@ public class AggregateTest
 
         count.Should().Be(8);
 
-        var count2 = await EventFactory.Empty<int>().CountAsync();
+        var count2 = await Event.Empty<int>().CountAsync();
         count2.Should().Be(0);
     }
 
@@ -82,10 +82,10 @@ public class AggregateTest
 
         count.Should().Be(8);
 
-        var count2 = await EventFactory.Empty<int>().LongCountAsync();
+        var count2 = await Event.Empty<int>().LongCountAsync();
         count2.Should().Be(0);
 
-        var error = EventFactory.Throw<int>(new Exception("foo"));
+        var error = Event.Throw<int>(new Exception("foo"));
 
         await Assert.ThrowsAsync<Exception>(async () => await error.LongCountAsync());
     }
@@ -98,13 +98,13 @@ public class AggregateTest
 
         min.Should().Be(1);
 
-        (await EventFactory.Return(999).MinAsync()).Should().Be(999);
+        (await Event.Return(999).MinAsync()).Should().Be(999);
 
-        var task = EventFactory.Empty<int>().MinAsync();
+        var task = Event.Empty<int>().MinAsync();
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
 
-        var error = EventFactory.Range(1, 10).Select(x =>
+        var error = Event.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;
@@ -120,13 +120,13 @@ public class AggregateTest
 
         min.Should().Be(10);
 
-        (await EventFactory.Return(999).MaxAsync()).Should().Be(999);
+        (await Event.Return(999).MaxAsync()).Should().Be(999);
 
-        var task = EventFactory.Empty<int>().MaxAsync();
+        var task = Event.Empty<int>().MaxAsync();
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
 
-        var error = EventFactory.Range(1, 10).Select(x =>
+        var error = Event.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;
@@ -143,15 +143,15 @@ public class AggregateTest
         minmax.Min.Should().Be(1);
         minmax.Max.Should().Be(10);
 
-        var mm2 = await EventFactory.Return(999).MinMaxAsync();
+        var mm2 = await Event.Return(999).MinMaxAsync();
         mm2.Min.Should().Be(999);
         mm2.Max.Should().Be(999);
 
-        var task = EventFactory.Empty<int>().MaxAsync();
+        var task = Event.Empty<int>().MaxAsync();
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
 
-        var error = EventFactory.Range(1, 10).Select(x =>
+        var error = Event.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;
@@ -167,12 +167,12 @@ public class AggregateTest
 
         sum.Should().Be(36);
 
-        (await EventFactory.Return(999).SumAsync()).Should().Be(999);
+        (await Event.Return(999).SumAsync()).Should().Be(999);
 
-        var task = EventFactory.Empty<int>().SumAsync();
+        var task = Event.Empty<int>().SumAsync();
         (await task).Should().Be(0);
 
-        var error = EventFactory.Range(1, 10).Select(x =>
+        var error = Event.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;
@@ -188,12 +188,12 @@ public class AggregateTest
 
         avg.Should().Be(new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.Average());
 
-        (await EventFactory.Return(999).AverageAsync()).Should().Be(999);
+        (await Event.Return(999).AverageAsync()).Should().Be(999);
 
-        var task = EventFactory.Empty<int>().AverageAsync();
+        var task = Event.Empty<int>().AverageAsync();
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
 
-        var error = EventFactory.Range(1, 10).Select(x =>
+        var error = Event.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;

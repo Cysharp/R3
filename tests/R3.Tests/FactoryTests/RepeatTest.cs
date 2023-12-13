@@ -6,15 +6,15 @@ public class RepeatTest
     [Fact]
     public void Repeat()
     {
-        using var list = EventFactory.Repeat("foo", 3).ToLiveList();
+        using var list = Event.Repeat("foo", 3).ToLiveList();
         list.AssertEqual(["foo", "foo", "foo"]);
         list.AssertIsCompleted();
 
-        using var list2 = EventFactory.Repeat("foo", 0).ToLiveList();
+        using var list2 = Event.Repeat("foo", 0).ToLiveList();
         list2.AssertEqual([]);
         list2.AssertIsCompleted();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => EventFactory.Repeat("foo", -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Event.Repeat("foo", -1));
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class RepeatTest
     {
         var cts = new CancellationTokenSource();
 
-        using var list = EventFactory.Repeat("foo", int.MaxValue, cts.Token)
+        using var list = Event.Repeat("foo", int.MaxValue, cts.Token)
             .Take(5)
             .DoOnCompleted(() => cts.Cancel())
             .ToLiveList();

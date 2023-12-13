@@ -167,7 +167,7 @@ subject.OnNext(99);
 
 
 
-//EventFactory.Return(10, TimeProvider.System)
+//Event.Return(10, TimeProvider.System)
 //    .WriteLine();
 
 //Console.ReadLine();

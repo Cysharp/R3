@@ -7,7 +7,7 @@ public class EmptyTest
     [Fact]
     public void Empty()
     {
-        using var list = EventFactory.Empty<int>().ToLiveList();
+        using var list = Event.Empty<int>().ToLiveList();
         list.AssertIsCompleted();
     }
 
@@ -15,7 +15,7 @@ public class EmptyTest
     public void EmptyWithTime()
     {
         var fakeTime = new FakeTimeProvider();
-        using var list = EventFactory.Empty<int>(TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+        using var list = Event.Empty<int>(TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
 
         fakeTime.Advance(TimeSpan.FromSeconds(4));
         list.AssertIsNotCompleted();
