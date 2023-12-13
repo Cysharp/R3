@@ -1,40 +1,36 @@
-﻿namespace R3
+﻿namespace R3;
+
+public static partial class Event
 {
-    public static partial class Event
+    public static Event<TMessage, Result<Unit>> ToCompletableEvent<TMessage>(this Task<TMessage> task)
     {
-        public static Event<TMessage, Result<Unit>> ToCompletableEvent<TMessage>(this Task<TMessage> task)
-        {
-            return new R3.Factories.ToCompletableEvent<TMessage>(task);
-        }
+        return new ToCompletableEvent<TMessage>(task);
     }
 }
 
-namespace R3.Factories
+internal sealed class ToCompletableEvent<TMessage>(Task<TMessage> task) : Event<TMessage, Result<Unit>>
 {
-    internal sealed class ToCompletableEvent<TMessage>(Task<TMessage> task) : Event<TMessage, Result<Unit>>
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, Result<Unit>> subscriber)
     {
-        protected override IDisposable SubscribeCore(Subscriber<TMessage, Result<Unit>> subscriber)
+        var subscription = new CancellationDisposable();
+        SubscribeTask(subscriber, subscription.Token);
+        return subscription;
+    }
+
+    async void SubscribeTask(Subscriber<TMessage, Result<Unit>> subscriber, CancellationToken cancellationToken)
+    {
+        TMessage? result;
+        try
         {
-            var subscription = new CancellationDisposable();
-            SubscribeTask(subscriber, subscription.Token);
-            return subscription;
+            result = await task.WaitAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            subscriber.OnCompleted(Result.Failure<Unit>(ex));
+            return;
         }
 
-        async void SubscribeTask(Subscriber<TMessage, Result<Unit>> subscriber, CancellationToken cancellationToken)
-        {
-            TMessage? result;
-            try
-            {
-                result = await task.WaitAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                subscriber.OnCompleted(Result.Failure<Unit>(ex));
-                return;
-            }
-
-            subscriber.OnNext(result);
-            subscriber.OnCompleted(Result.Success<Unit>(default));
-        }
+        subscriber.OnNext(result);
+        subscriber.OnCompleted(Result.Success<Unit>(default));
     }
 }

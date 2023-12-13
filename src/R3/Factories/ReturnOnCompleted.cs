@@ -1,123 +1,119 @@
-﻿namespace R3
+﻿namespace R3;
+
+public static partial class Event
 {
-    public static partial class Event
+    // similar as Empty, only return OnCompleted
+
+    public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete)
     {
-        // similar as Empty, only return OnCompleted
+        return new ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(complete); // immediate
+    }
 
-        public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete)
-        {
-            return new ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(complete); // immediate
-        }
+    public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeProvider timeProvider)
+    {
+        return ReturnOnCompleted<TMessage, TComplete>(complete, TimeSpan.Zero, timeProvider);
+    }
 
-        public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeProvider timeProvider)
+    public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider)
+    {
+        if (dueTime == TimeSpan.Zero)
         {
-            return ReturnOnCompleted<TMessage, TComplete>(complete, TimeSpan.Zero, timeProvider);
-        }
-
-        public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider)
-        {
-            if (dueTime == TimeSpan.Zero)
+            if (timeProvider == TimeProvider.System)
             {
-                if (timeProvider == TimeProvider.System)
-                {
-                    return new ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(complete, null); // optimize for SystemTimeProvidr, use ThreadPool.UnsafeQueueUserWorkItem
-                }
+                return new ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(complete, null); // optimize for SystemTimeProvidr, use ThreadPool.UnsafeQueueUserWorkItem
             }
+        }
 
-            return new ReturnOnCompleted<TMessage, TComplete>(complete, dueTime, timeProvider); // use ITimer
+        return new ReturnOnCompleted<TMessage, TComplete>(complete, dueTime, timeProvider); // use ITimer
+    }
+}
+
+internal class ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider) : Event<TMessage, TComplete>
+{
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    {
+        var method = new _ReturnOnCompleted(complete, subscriber);
+        method.Timer = timeProvider.CreateStoppedTimer(_ReturnOnCompleted.timerCallback, method);
+        method.Timer.InvokeOnce(dueTime);
+        return method;
+    }
+
+    sealed class _ReturnOnCompleted(TComplete complete, Subscriber<TMessage, TComplete> subscriber) : IDisposable
+    {
+        public static readonly TimerCallback timerCallback = NextTick;
+
+        readonly TComplete complete = complete;
+        readonly Subscriber<TMessage, TComplete> subscriber = subscriber;
+
+        public ITimer? Timer { get; set; }
+
+        static void NextTick(object? state)
+        {
+            var self = (_ReturnOnCompleted)state!;
+            try
+            {
+                self.subscriber.OnCompleted(self.complete);
+            }
+            finally
+            {
+                self.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Timer?.Dispose();
+            Timer = null;
         }
     }
 }
 
-namespace R3.Factories
+internal class ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete) : Event<TMessage, TComplete>
 {
-    internal class ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider) : Event<TMessage, TComplete>
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
     {
-        protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
-        {
-            var method = new _ReturnOnCompleted(complete, subscriber);
-            method.Timer = timeProvider.CreateStoppedTimer(_ReturnOnCompleted.timerCallback, method);
-            method.Timer.InvokeOnce(dueTime);
-            return method;
-        }
+        subscriber.OnCompleted(complete);
+        return Disposable.Empty;
+    }
+}
 
-        sealed class _ReturnOnCompleted(TComplete complete, Subscriber<TMessage, TComplete> subscriber) : IDisposable
-        {
-            public static readonly TimerCallback timerCallback = NextTick;
-
-            readonly TComplete complete = complete;
-            readonly Subscriber<TMessage, TComplete> subscriber = subscriber;
-
-            public ITimer? Timer { get; set; }
-
-            static void NextTick(object? state)
-            {
-                var self = (_ReturnOnCompleted)state!;
-                try
-                {
-                    self.subscriber.OnCompleted(self.complete);
-                }
-                finally
-                {
-                    self.Dispose();
-                }
-            }
-
-            public void Dispose()
-            {
-                Timer?.Dispose();
-                Timer = null;
-            }
-        }
+internal class ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete, Action<Exception>? unhandledExceptionHandler) : Event<TMessage, TComplete>
+{
+    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    {
+        var method = new _ReturnOnCompleted(complete, unhandledExceptionHandler, subscriber);
+        ThreadPool.UnsafeQueueUserWorkItem(method, preferLocal: false);
+        return method;
     }
 
-    internal class ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete) : Event<TMessage, TComplete>
+    sealed class _ReturnOnCompleted(TComplete complete, Action<Exception>? unhandledExceptionHandler, Subscriber<TMessage, TComplete> subscriber) : IDisposable, IThreadPoolWorkItem
     {
-        protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
-        {
-            subscriber.OnCompleted(complete);
-            return Disposable.Empty;
-        }
-    }
+        bool stop;
 
-    internal class ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete, Action<Exception>? unhandledExceptionHandler) : Event<TMessage, TComplete>
-    {
-        protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+        public void Execute()
         {
-            var method = new _ReturnOnCompleted(complete, unhandledExceptionHandler, subscriber);
-            ThreadPool.UnsafeQueueUserWorkItem(method, preferLocal: false);
-            return method;
-        }
+            if (stop) return;
 
-        sealed class _ReturnOnCompleted(TComplete complete, Action<Exception>? unhandledExceptionHandler, Subscriber<TMessage, TComplete> subscriber) : IDisposable, IThreadPoolWorkItem
-        {
-            bool stop;
-
-            public void Execute()
+            try
             {
-                if (stop) return;
-
-                try
+                subscriber.OnCompleted(complete);
+            }
+            catch (Exception ex)
+            {
+                if (unhandledExceptionHandler == null)
                 {
-                    subscriber.OnCompleted(complete);
+                    throw;
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (unhandledExceptionHandler == null)
-                    {
-                        throw;
-                    }
-                    else
-                    {
-                        unhandledExceptionHandler?.Invoke(ex);
-                    }
+                    unhandledExceptionHandler?.Invoke(ex);
                 }
             }
+        }
 
-            public void Dispose()
-            {
-                stop = true;
-            }
+        public void Dispose()
+        {
+            stop = true;
         }
     }
 }

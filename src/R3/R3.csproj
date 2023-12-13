@@ -24,8 +24,6 @@
 
     <ItemGroup>
         <Using Include="R3" />
-        <Using Include="R3.Operators" />
-        <Using Include="R3.Factories" />
         <Using Include="R3.Internal" />
     </ItemGroup>
 

@@ -1,62 +1,58 @@
-﻿namespace R3
+﻿namespace R3;
+
+public static partial class Event
 {
-    public static partial class Event
+    public static Event<Unit, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
     {
-        public static Event<Unit, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
-        {
-            return new R3.Factories.Timer(dueTime, timeProvider);
-        }
+        return new Timer(dueTime, timeProvider);
     }
 }
 
-namespace R3.Factories
+internal sealed class Timer : Event<Unit, Unit>
 {
-    internal sealed class Timer : Event<Unit, Unit>
+    readonly TimeSpan dueTime;
+    readonly TimeProvider timeProvider;
+
+    public Timer(TimeSpan dueTime, TimeProvider timeProvider)
     {
-        readonly TimeSpan dueTime;
-        readonly TimeProvider timeProvider;
+        this.dueTime = dueTime;
+        this.timeProvider = timeProvider;
+    }
 
-        public Timer(TimeSpan dueTime, TimeProvider timeProvider)
+    protected override IDisposable SubscribeCore(Subscriber<Unit, Unit> subscriber)
+    {
+        var method = new _Timer(subscriber);
+        method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
+        method.Timer.InvokeOnce(dueTime);
+        return method;
+    }
+
+    sealed class _Timer(Subscriber<Unit, Unit> subscriber) : IDisposable
+    {
+        public static readonly TimerCallback timerCallback = NextTick;
+
+        Subscriber<Unit, Unit> subscriber = subscriber;
+
+        public ITimer? Timer { get; set; }
+
+        static void NextTick(object? state)
         {
-            this.dueTime = dueTime;
-            this.timeProvider = timeProvider;
+            var self = (_Timer)state!;
+            try
+            {
+                self.subscriber.OnNext(default);
+                self.subscriber.OnCompleted();
+            }
+            finally
+            {
+                self.Dispose();
+            }
         }
 
-        protected override IDisposable SubscribeCore(Subscriber<Unit, Unit> subscriber)
+        public void Dispose()
         {
-            var method = new _Timer(subscriber);
-            method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
-            method.Timer.InvokeOnce(dueTime);
-            return method;
-        }
-
-        sealed class _Timer(Subscriber<Unit, Unit> subscriber) : IDisposable
-        {
-            public static readonly TimerCallback timerCallback = NextTick;
-
-            Subscriber<Unit, Unit> subscriber = subscriber;
-
-            public ITimer? Timer { get; set; }
-
-            static void NextTick(object? state)
-            {
-                var self = (_Timer)state!;
-                try
-                {
-                    self.subscriber.OnNext(default);
-                    self.subscriber.OnCompleted();
-                }
-                finally
-                {
-                    self.Dispose();
-                }
-            }
-
-            public void Dispose()
-            {
-                Timer?.Dispose();
-                Timer = null;
-            }
+            Timer?.Dispose();
+            Timer = null;
         }
     }
 }
