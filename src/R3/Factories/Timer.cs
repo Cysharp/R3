@@ -2,7 +2,7 @@
 {
     public static partial class Event
     {
-        public static CompletableEvent<Unit, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
+        public static Event<Unit, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
         {
             return new R3.Factories.Timer(dueTime, timeProvider);
         }
@@ -11,7 +11,7 @@
 
 namespace R3.Factories
 {
-    internal sealed class Timer : CompletableEvent<Unit, Unit>
+    internal sealed class Timer : Event<Unit, Unit>
     {
         readonly TimeSpan dueTime;
         readonly TimeProvider timeProvider;

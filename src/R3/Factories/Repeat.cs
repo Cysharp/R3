@@ -5,7 +5,7 @@
         // no scheduler(TimeProvider) overload
         // no infinitely overload
 
-        public static CompletableEvent<TMessage, Unit> Repeat<TMessage>(TMessage value, int count)
+        public static Event<TMessage, Unit> Repeat<TMessage>(TMessage value, int count)
         {
             if (count < 0)
             {
@@ -20,7 +20,7 @@
             return new Repeat<TMessage>(value, count);
         }
 
-        public static CompletableEvent<TMessage, Unit> Repeat<TMessage>(TMessage value, int count, CancellationToken cancellationToken)
+        public static Event<TMessage, Unit> Repeat<TMessage>(TMessage value, int count, CancellationToken cancellationToken)
         {
             if (count < 0)
             {
@@ -39,7 +39,7 @@
 
 namespace R3.Factories
 {
-    internal sealed class Repeat<TMessage>(TMessage value, int count) : CompletableEvent<TMessage, Unit>
+    internal sealed class Repeat<TMessage>(TMessage value, int count) : Event<TMessage, Unit>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
         {
@@ -52,7 +52,7 @@ namespace R3.Factories
         }
     }
 
-    internal sealed class RepeatC<TMessage>(TMessage value, int count, CancellationToken cancellationToken) : CompletableEvent<TMessage, Unit>
+    internal sealed class RepeatC<TMessage>(TMessage value, int count, CancellationToken cancellationToken) : Event<TMessage, Unit>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
         {

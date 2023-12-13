@@ -3,7 +3,7 @@
     public static partial class EventExtensions
     {
         public static Task<TResult> AggregateAsync<TMessage, TComplete, TAccumulate, TResult>
-            (this CompletableEvent<TMessage, TComplete> source,
+            (this Event<TMessage, TComplete> source,
             TAccumulate seed,
             Func<TAccumulate, TMessage, TAccumulate> func,
             Func<TAccumulate, TComplete, TResult> resultSelector,
@@ -15,7 +15,7 @@
         }
 
         public static Task<TResult> AggregateAsync<TMessage, TComplete, TAccumulate, TResult>
-            (this CompletableEvent<TMessage, Result<TComplete>> source,
+            (this Event<TMessage, Result<TComplete>> source,
             TAccumulate seed,
             Func<TAccumulate, TMessage, TAccumulate> func,
             Func<TAccumulate, Result<TComplete>, TResult> resultSelector,

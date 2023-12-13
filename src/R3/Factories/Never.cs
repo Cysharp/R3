@@ -3,46 +3,21 @@
     public static partial class Event
     {
         // Never
-        public static Event<T> Never<T>()
+        public static Event<TMessage, TComplete> Never<TMessage, TComplete>()
         {
-            return R3.Factories.Never<T>.Instance;
-        }
-
-        // NeverComplete
-        public static CompletableEvent<TMessage, TComplete> NeverComplete<TMessage, TComplete>()
-        {
-            return R3.Factories.NeverComplete<TMessage, TComplete>.Instance;
+            return R3.Factories.Never<TMessage, TComplete>.Instance;
         }
     }
 }
 
 namespace R3.Factories
 {
-    // Never
-    internal sealed class Never<T> : Event<T>
+    internal sealed class Never<TMessage, TComplete> : Event<TMessage, TComplete>
     {
         // singleton
-        public static readonly Never<T> Instance = new Never<T>();
+        public static readonly Never<TMessage, TComplete> Instance = new Never<TMessage, TComplete>();
 
         Never()
-        {
-                
-        }
-
-        protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
-        {
-            return Disposable.Empty;
-        }
-    }
-
-
-    // NeverComplete
-    internal sealed class NeverComplete<TMessage, TComplete> : CompletableEvent<TMessage, TComplete>
-    {
-        // singleton
-        public static readonly NeverComplete<TMessage, TComplete> Instance = new NeverComplete<TMessage, TComplete>();
-
-        NeverComplete()
         {
 
         }

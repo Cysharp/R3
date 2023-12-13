@@ -1,102 +1,10 @@
-#pragma warning disable CS0618
+﻿#pragma warning disable CS0618
 
 using System.Diagnostics;
 
 namespace R3;
 
-// similar as IObservable<T> 
-// IDisposable Subscribe(Subscriber<TMessage> subscriber)
-public abstract class Event<TMessage>
-{
-    [StackTraceHidden, DebuggerStepThrough]
-    public IDisposable Subscribe(Subscriber<TMessage> subscriber)
-    {
-        try
-        {
-            var subscription = SubscribeCore(subscriber);
-
-            if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
-            {
-                subscription = trackableDisposable;
-            }
-
-            subscriber.SourceSubscription.Disposable = subscription;
-            return subscriber; // return subscriber to make subscription chain.
-        }
-        catch
-        {
-            subscriber.Dispose(); // when SubscribeCore failed, auto detach caller subscriber
-            throw;
-        }
-    }
-
-    [StackTraceHidden, DebuggerStepThrough]
-    protected abstract IDisposable SubscribeCore(Subscriber<TMessage> subscriber);
-}
-
-// similar as IObserver<T> but no stop on OnError.
-public abstract class Subscriber<TMessage> : IDisposable
-{
-#if DEBUG
-    [Obsolete("Only allow in Event<TMessage>.")]
-#endif
-    internal SingleAssignmentDisposableCore SourceSubscription;
-
-    int calledDispose;
-
-    public bool IsDisposed => Volatile.Read(ref calledDispose) != 0;
-
-    [StackTraceHidden, DebuggerStepThrough]
-    public void OnNext(TMessage message)
-    {
-        if (IsDisposed) return;
-        try
-        {
-            OnNextCore(message);
-        }
-        catch (Exception ex)
-        {
-            OnErrorResume(ex);
-        }
-    }
-
-    protected abstract void OnNextCore(TMessage message);
-
-    [StackTraceHidden, DebuggerStepThrough]
-    public void OnErrorResume(Exception error)
-    {
-        if (IsDisposed) return;
-
-        try
-        {
-            OnErrorResumeCore(error);
-        }
-        catch (Exception ex)
-        {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
-        }
-    }
-
-    protected abstract void OnErrorResumeCore(Exception error);
-
-    [StackTraceHidden, DebuggerStepThrough]
-    public void Dispose()
-    {
-        if (Interlocked.Exchange(ref calledDispose, 1) != 0)
-        {
-            return;
-        }
-
-        DisposeCore();                // Dispose self
-        SourceSubscription.Dispose(); // Dispose attached parent
-    }
-
-    [StackTraceHidden, DebuggerStepThrough]
-    protected virtual void DisposeCore() { }
-}
-
-// similar as IObservable<T>
-public abstract class CompletableEvent<TMessage, TComplete>
+public abstract class Event<TMessage, TComplete>
 {
     [StackTraceHidden, DebuggerStepThrough]
     public IDisposable Subscribe(Subscriber<TMessage, TComplete> subscriber)

@@ -41,36 +41,36 @@ namespace R3
 
 namespace R3.Factories
 {
-    internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit>
-    {
-        protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
-        {
-            var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken);
-            frameProvider.Register(runner);
-            return runner;
-        }
+    //internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit>
+    //{
+    //    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
+    //    {
+    //        var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken);
+    //        frameProvider.Register(runner);
+    //        return runner;
+    //    }
 
-        class EveryUpdateRunnerWorkItem(Subscriber<Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
-        {
-            bool isDisposed;
+    //    class EveryUpdateRunnerWorkItem(Subscriber<Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
+    //    {
+    //        bool isDisposed;
 
-            public bool MoveNext(long frameCount)
-            {
-                if (isDisposed || cancellationToken.IsCancellationRequested)
-                {
-                    return false;
-                }
+    //        public bool MoveNext(long frameCount)
+    //        {
+    //            if (isDisposed || cancellationToken.IsCancellationRequested)
+    //            {
+    //                return false;
+    //            }
 
-                subscriber.OnNext(default);
-                return true;
-            }
+    //            subscriber.OnNext(default);
+    //            return true;
+    //        }
 
-            public void Dispose()
-            {
-                isDisposed = true;
-            }
-        }
-    }
+    //        public void Dispose()
+    //        {
+    //            isDisposed = true;
+    //        }
+    //    }
+    //}
 
     //internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit>
     //{

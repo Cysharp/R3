@@ -5,7 +5,7 @@ public class LiveListTest
     [Fact]
     public void FromEvent()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Publisher<int, Unit>();
         var list = publisher.ToLiveList();
 
         list.AssertEqual([]);
@@ -28,7 +28,7 @@ public class LiveListTest
     [Fact]
     public void BufferSize()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Publisher<int, Unit>();
         var list = publisher.ToLiveList(bufferSize: 5);
 
         publisher.PublishOnNext(10);

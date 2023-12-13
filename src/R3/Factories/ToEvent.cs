@@ -2,7 +2,7 @@
 {
     public static partial class Event
     {
-        public static CompletableEvent<TMessage, Unit> ToEvent<TMessage>(this IEnumerable<TMessage> source)
+        public static Event<TMessage, Unit> ToEvent<TMessage>(this IEnumerable<TMessage> source)
         {
             return new ToEvent<TMessage>(source);
         }
@@ -11,7 +11,7 @@
 
 namespace R3.Factories
 {
-    internal class ToEvent<TMessage>(IEnumerable<TMessage> source) : CompletableEvent<TMessage, Unit>
+    internal class ToEvent<TMessage>(IEnumerable<TMessage> source) : Event<TMessage, Unit>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
         {

@@ -4,17 +4,17 @@
     {
         // similar as Empty, only return OnCompleted
 
-        public static CompletableEvent<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete)
+        public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete)
         {
             return new ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(complete); // immediate
         }
 
-        public static CompletableEvent<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeProvider timeProvider)
+        public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeProvider timeProvider)
         {
             return ReturnOnCompleted<TMessage, TComplete>(complete, TimeSpan.Zero, timeProvider);
         }
 
-        public static CompletableEvent<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider)
+        public static Event<TMessage, TComplete> ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider)
         {
             if (dueTime == TimeSpan.Zero)
             {
@@ -31,7 +31,7 @@
 
 namespace R3.Factories
 {
-    internal class ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider) : CompletableEvent<TMessage, TComplete>
+    internal class ReturnOnCompleted<TMessage, TComplete>(TComplete complete, TimeSpan dueTime, TimeProvider timeProvider) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {
@@ -71,7 +71,7 @@ namespace R3.Factories
         }
     }
 
-    internal class ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete) : CompletableEvent<TMessage, TComplete>
+    internal class ImmediateScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {
@@ -80,7 +80,7 @@ namespace R3.Factories
         }
     }
 
-    internal class ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete, Action<Exception>? unhandledExceptionHandler) : CompletableEvent<TMessage, TComplete>
+    internal class ThreadPoolScheduleReturnOnCompleted<TMessage, TComplete>(TComplete complete, Action<Exception>? unhandledExceptionHandler) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {

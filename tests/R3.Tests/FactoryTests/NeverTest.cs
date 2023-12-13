@@ -5,7 +5,7 @@ public class NeverTest
     [Fact]
     public void Never()
     {
-        using var list = Event.Never<int>().ToLiveList();
+        using var list = Event.Never<int, Unit>().ToLiveList();
         list.AssertEqual([]);
     }
 
@@ -13,7 +13,7 @@ public class NeverTest
     [Fact]
     public void NeverComplete()
     {
-        using var list = Event.NeverComplete<int, int>().ToLiveList();
+        using var list = Event.Never<int, int>().ToLiveList();
         list.AssertIsNotCompleted();
     }
 }

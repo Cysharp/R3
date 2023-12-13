@@ -51,7 +51,7 @@ var logger = factory.CreateLogger<Program>();
 
 
 
-var publisher = new Publisher<int>();
+var publisher = new Publisher<int, R3.Unit>();
 
 var d = publisher
     .Where(x => true)
@@ -193,12 +193,7 @@ subject.OnNext(99);
 
 public static class Extensions
 {
-    public static IDisposable WriteLine<T>(this Event<T> source)
-    {
-        return source.Subscribe(x => Console.WriteLine(x));
-    }
-
-    public static IDisposable WriteLine<T, U>(this CompletableEvent<T, U> source)
+    public static IDisposable WriteLine<T, U>(this Event<T, U> source)
     {
         return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
     }

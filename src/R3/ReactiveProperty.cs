@@ -3,14 +3,12 @@ using System.Runtime.CompilerServices;
 
 namespace R3;
 
-// TODO: call OnCompleted on Dispose.
-
-public abstract class ReadOnlyReactiveProperty<T> : Event<T>
+public abstract class ReadOnlyReactiveProperty<T> : Event<T, Unit>
 {
     public abstract T CurrentValue { get; }
 }
 
-// allow inherit?
+// allow inherit
 public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
 {
     T value;
@@ -62,7 +60,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         }
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T, Unit> subscriber)
     {
         var value = this.value;
         ObjectDisposedException.ThrowIf(list.IsDisposed, this);
@@ -82,6 +80,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
 
     public void Dispose()
     {
+        // TODO: call OnCompleted on Dispose.
         list.Dispose();
     }
 
@@ -90,7 +89,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         return (value == null) ? "(null)" : value.ToString();
     }
 
-    sealed class Subscription(ReactiveProperty<T>? parent, Subscriber<T> subscriber) : IDisposable
+    sealed class Subscription(ReactiveProperty<T>? parent, Subscriber<T, Unit> subscriber) : IDisposable
     {
         public int removeKey;
 

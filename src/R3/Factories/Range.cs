@@ -4,7 +4,7 @@
     {
         // no scheduler(TimeProvider) overload
 
-        public static CompletableEvent<int, Unit> Range(int start, int count)
+        public static Event<int, Unit> Range(int start, int count)
         {
             long max = ((long)start) + count - 1;
             if (count < 0 || max > int.MaxValue)
@@ -20,7 +20,7 @@
             return new R3.Factories.Range(start, count);
         }
 
-        public static CompletableEvent<int, Unit> Range(int start, int count, CancellationToken cancellationToken)
+        public static Event<int, Unit> Range(int start, int count, CancellationToken cancellationToken)
         {
             long max = ((long)start) + count - 1;
             if (count < 0 || max > int.MaxValue)
@@ -40,7 +40,7 @@
 
 namespace R3.Factories
 {
-    internal sealed class Range(int start, int count) : CompletableEvent<int, Unit>
+    internal sealed class Range(int start, int count) : Event<int, Unit>
     {
         protected override IDisposable SubscribeCore(Subscriber<int, Unit> subscriber)
         {
@@ -53,7 +53,7 @@ namespace R3.Factories
         }
     }
 
-    internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : CompletableEvent<int, Unit>
+    internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : Event<int, Unit>
     {
         protected override IDisposable SubscribeCore(Subscriber<int, Unit> subscriber)
         {

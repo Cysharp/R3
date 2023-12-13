@@ -31,26 +31,9 @@ namespace R3.Operators
 {
     // TODO: now working
 
-    internal sealed class ElementAtAsync<TMessage>(Event<TMessage> source, int index, CancellationToken cancellationToken)
-        : TaskSubscriberBase<TMessage, TMessage>(cancellationToken)
-    {
-        int count = 0;
+    
 
-        protected override void OnNextCore(TMessage message)
-        {
-            if (count++ == index)
-            {
-                TrySetResult(message);
-            }
-        }
-
-        protected override void OnErrorResumeCore(Exception error)
-        {
-            TrySetException(error);
-        }
-    }
-
-    internal sealed class ElementAtAsync<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, int index, bool useDefaultValue, TMessage? defaultValue, CancellationToken cancellationToken)
+    internal sealed class ElementAtAsync<TMessage, TComplete>(Event<TMessage, TComplete> source, int index, bool useDefaultValue, TMessage? defaultValue, CancellationToken cancellationToken)
         : TaskSubscriberBase<TMessage, TComplete, TMessage>(cancellationToken)
     {
         int count = 0;
@@ -77,7 +60,7 @@ namespace R3.Operators
     }
 
     // Index.IsFromEnd
-    internal sealed class ElementAtFromEndAsync<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, int fromEndIndex, bool useDefaultValue, TMessage? defaultValue, CancellationToken cancellationToken)
+    internal sealed class ElementAtFromEndAsync<TMessage, TComplete>(Event<TMessage, TComplete> source, int fromEndIndex, bool useDefaultValue, TMessage? defaultValue, CancellationToken cancellationToken)
         : TaskSubscriberBase<TMessage, TComplete, TMessage>(cancellationToken)
     {
         int count = 0;

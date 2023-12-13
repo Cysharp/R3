@@ -7,7 +7,7 @@ public class AggregateTest
     [Fact]
     public async Task Aggreagte()
     {
-        var publisher = new CompletablePublisher<int, Unit>();
+        var publisher = new Publisher<int, Unit>();
 
         var listTask = publisher.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x, _) => x);
 
@@ -38,7 +38,7 @@ public class AggregateTest
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
-        var publisher = new CompletablePublisher<int, Unit>();
+        var publisher = new Publisher<int, Unit>();
         var isDisposed = false;
 
         var listTask = publisher
@@ -207,7 +207,7 @@ public class AggregateTest
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
         await source.WaitAsync();
 
-        var p = new CompletablePublisher<int, string>();
+        var p = new Publisher<int, string>();
         var task = p.WaitAsync();
 
         p.PublishOnNext(10);

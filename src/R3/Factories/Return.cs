@@ -2,17 +2,17 @@
 {
     public static partial class Event
     {
-        public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value)
+        public static Event<TMessage, Unit> Return<TMessage>(TMessage value)
         {
             return new ImmediateScheduleReturn<TMessage, Unit>(value, default); // immediate
         }
 
-        public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value, TimeProvider timeProvider)
+        public static Event<TMessage, Unit> Return<TMessage>(TMessage value, TimeProvider timeProvider)
         {
             return Return(value, TimeSpan.Zero, timeProvider);
         }
 
-        public static CompletableEvent<TMessage, Unit> Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider)
+        public static Event<TMessage, Unit> Return<TMessage>(TMessage value, TimeSpan dueTime, TimeProvider timeProvider)
         {
             if (dueTime == TimeSpan.Zero)
             {
@@ -27,17 +27,17 @@
 
         // OnCompleted
 
-        public static CompletableEvent<TMessage, TComplete> Return<TMessage, TComplete>(TMessage value, TComplete complete)
+        public static Event<TMessage, TComplete> Return<TMessage, TComplete>(TMessage value, TComplete complete)
         {
             return new ImmediateScheduleReturn<TMessage, TComplete>(value, complete); // immediate
         }
 
-        public static CompletableEvent<TMessage, TComplete> Return<TMessage, TComplete>(TMessage value, TComplete complete, TimeProvider timeProvider)
+        public static Event<TMessage, TComplete> Return<TMessage, TComplete>(TMessage value, TComplete complete, TimeProvider timeProvider)
         {
             return Return(value, complete, TimeSpan.Zero, timeProvider);
         }
 
-        public static CompletableEvent<TMessage, TComplete> Return<TMessage, TComplete>(TMessage value, TComplete complete, TimeSpan dueTime, TimeProvider timeProvider)
+        public static Event<TMessage, TComplete> Return<TMessage, TComplete>(TMessage value, TComplete complete, TimeSpan dueTime, TimeProvider timeProvider)
         {
             if (dueTime == TimeSpan.Zero)
             {
@@ -54,7 +54,7 @@
 
 namespace R3.Factories
 {
-    internal class Return<TMessage, TComplete>(TMessage value, TComplete complete, TimeSpan dueTime, TimeProvider timeProvider) : CompletableEvent<TMessage, TComplete>
+    internal class Return<TMessage, TComplete>(TMessage value, TComplete complete, TimeSpan dueTime, TimeProvider timeProvider) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {
@@ -96,7 +96,7 @@ namespace R3.Factories
         }
     }
 
-    internal class ImmediateScheduleReturn<TMessage, TComplete>(TMessage value, TComplete complete) : CompletableEvent<TMessage, TComplete>
+    internal class ImmediateScheduleReturn<TMessage, TComplete>(TMessage value, TComplete complete) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {
@@ -106,7 +106,7 @@ namespace R3.Factories
         }
     }
 
-    internal class ThreadPoolScheduleReturn<TMessage, TComplete>(TMessage value, TComplete complete, Action<Exception>? unhandledExceptionHandler) : CompletableEvent<TMessage, TComplete>
+    internal class ThreadPoolScheduleReturn<TMessage, TComplete>(TMessage value, TComplete complete, Action<Exception>? unhandledExceptionHandler) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {

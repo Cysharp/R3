@@ -2,7 +2,7 @@
 {
     public static partial class Event
     {
-        public static CompletableEvent<TMessage, Result<Unit>> ToCompletableEvent<TMessage>(this Task<TMessage> task)
+        public static Event<TMessage, Result<Unit>> ToCompletableEvent<TMessage>(this Task<TMessage> task)
         {
             return new R3.Factories.ToCompletableEvent<TMessage>(task);
         }
@@ -11,7 +11,7 @@
 
 namespace R3.Factories
 {
-    internal sealed class ToCompletableEvent<TMessage>(Task<TMessage> task) : CompletableEvent<TMessage, Result<Unit>>
+    internal sealed class ToCompletableEvent<TMessage>(Task<TMessage> task) : Event<TMessage, Result<Unit>>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, Result<Unit>> subscriber)
         {

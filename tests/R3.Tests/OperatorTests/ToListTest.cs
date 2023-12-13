@@ -5,7 +5,7 @@ public class ToListTest
     [Fact]
     public async Task ToList()
     {
-        var publisher = new CompletablePublisher<int, Unit>();
+        var publisher = new Publisher<int, Unit>();
 
         var listTask = publisher.ToListAsync();
 
@@ -25,7 +25,7 @@ public class ToListTest
     [Fact]
     public async Task ResultCompletableFault()
     {
-        var publisher = new CompletablePublisher<int, Result<Unit>>();
+        var publisher = new Publisher<int, Result<Unit>>();
 
         var listTask = publisher.ToListAsync();
 
@@ -48,7 +48,7 @@ public class ToListTest
         var cts = new CancellationTokenSource();
         var isDisposed = false;
 
-        var publisher = new CompletablePublisher<int, Result<Unit>>();
+        var publisher = new Publisher<int, Result<Unit>>();
 
         var listTask = publisher.DoOnDisposed(() => isDisposed = true).ToListAsync(cts.Token);
 
@@ -71,7 +71,7 @@ public class ToListTest
     [Fact]
     public async Task ToArray()
     {
-        var publisher = new CompletablePublisher<int, Unit>();
+        var publisher = new Publisher<int, Unit>();
 
         var listTask = publisher.ToArrayAsync();
 
@@ -91,7 +91,7 @@ public class ToListTest
     [Fact]
     public async Task ToArray2()
     {
-        var publisher = new CompletablePublisher<int, Result<Unit>>();
+        var publisher = new Publisher<int, Result<Unit>>();
 
         var listTask = publisher.ToArrayAsync();
 

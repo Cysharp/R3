@@ -12,7 +12,7 @@ namespace R3
 
     public static partial class EventExtensions
     {
-        public static Task<TMessage[]> ToArrayAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage[]> ToArrayAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, new List<TMessage>(), static (list, message) =>
             {
@@ -21,7 +21,7 @@ namespace R3
             }, (list, _) => list.ToArray(), cancellationToken); // ignore complete
         }
 
-        public static Task<TMessage[]> ToArrayAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage[]> ToArrayAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, new List<TMessage>(), static (list, message) =>
             {
@@ -30,7 +30,7 @@ namespace R3
             }, (list, _) => list.ToArray(), cancellationToken); // ignore complete
         }
 
-        public static Task<List<TMessage>> ToListAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<List<TMessage>> ToListAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, new List<TMessage>(), static (list, message) =>
             {
@@ -39,7 +39,7 @@ namespace R3
             }, (list, _) => list, cancellationToken); // ignore complete
         }
 
-        public static Task<List<TMessage>> ToListAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<List<TMessage>> ToListAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, new List<TMessage>(), static (list, message) =>
             {
@@ -48,17 +48,17 @@ namespace R3
             }, (list, _) => list, cancellationToken); // ignore complete
         }
 
-        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return ToHashSetAsync(source, null, cancellationToken);
         }
 
-        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return ToHashSetAsync(source, null, cancellationToken);
         }
 
-        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, IEqualityComparer<TMessage>? equalityComparer, CancellationToken cancellationToken = default)
+        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, IEqualityComparer<TMessage>? equalityComparer, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, new HashSet<TMessage>(equalityComparer), static (value, message) =>
             {
@@ -67,7 +67,7 @@ namespace R3
             }, (value, _) => value, cancellationToken); // ignore complete
         }
 
-        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, IEqualityComparer<TMessage>? equalityComparer, CancellationToken cancellationToken = default)
+        public static Task<HashSet<TMessage>> ToHashSetAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, IEqualityComparer<TMessage>? equalityComparer, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, new HashSet<TMessage>(equalityComparer), static (value, message) =>
             {
@@ -77,30 +77,30 @@ namespace R3
         }
 
         // CountAsync using AggregateAsync
-        public static Task<int> CountAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<int> CountAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, 0, static (count, _) => checked(count + 1), (count, _) => count, cancellationToken); // ignore complete
         }
 
         // CountAsync Result<TComplete> variation
-        public static Task<int> CountAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<int> CountAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, 0, static (count, _) => checked(count + 1), (count, _) => count, cancellationToken); // ignore complete
         }
 
         // LongCountAsync using AggregateAsync
-        public static Task<long> LongCountAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<long> LongCountAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, 0L, static (count, _) => checked(count + 1), (count, _) => count, cancellationToken); // ignore complete
         }
 
         // LongCountAsync using AggregateAsync Result<TComplete> variation
-        public static Task<long> LongCountAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<long> LongCountAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, 0L, static (count, _) => checked(count + 1), (count, _) => count, cancellationToken); // ignore complete
         }
 
-        public static Task<TMessage> MinAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage> MinAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, (default(TMessage)!, hasValue: false),
                 static (min, message) =>
@@ -115,7 +115,7 @@ namespace R3
                 }, cancellationToken);
         }
 
-        public static Task<TMessage> MinAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage> MinAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, (default(TMessage)!, hasValue: false),
                 static (min, message) =>
@@ -130,7 +130,7 @@ namespace R3
                 }, cancellationToken);
         }
 
-        public static Task<TMessage> MaxAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage> MaxAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, (default(TMessage)!, hasValue: false),
                 static (max, message) =>
@@ -145,7 +145,7 @@ namespace R3
                 }, cancellationToken);
         }
 
-        public static Task<TMessage> MaxAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage> MaxAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source, (default(TMessage)!, hasValue: false),
                 static (max, message) =>
@@ -160,7 +160,7 @@ namespace R3
                 }, cancellationToken);
         }
 
-        public static Task<(TMessage Min, TMessage Max)> MinMaxAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<(TMessage Min, TMessage Max)> MinMaxAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source,
                 (min: default(TMessage)!, max: default(TMessage)!, hasValue: false),
@@ -179,7 +179,7 @@ namespace R3
         }
 
 
-        public static Task<(TMessage Min, TMessage Max)> MinMaxAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<(TMessage Min, TMessage Max)> MinMaxAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
         {
             return AggregateAsync(source,
                 (min: default(TMessage)!, max: default(TMessage)!, hasValue: false),
@@ -197,19 +197,19 @@ namespace R3
                 }, cancellationToken);
         }
 
-        public static Task<TMessage> SumAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage> SumAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
             where TMessage : IAdditionOperators<TMessage, TMessage, TMessage>
         {
             return AggregateAsync(source, default(TMessage)!, static (sum, message) => checked(sum + message), (sum, _) => sum, cancellationToken); // ignore complete
         }
 
-        public static Task<TMessage> SumAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<TMessage> SumAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
             where TMessage : IAdditionOperators<TMessage, TMessage, TMessage>
         {
             return AggregateAsync(source, default(TMessage)!, static (sum, message) => checked(sum + message), (sum, _) => sum, cancellationToken); // ignore complete
         }
 
-        public static Task<double> AverageAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<double> AverageAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
             where TMessage : INumberBase<TMessage>
         {
             return AggregateAsync(source,
@@ -226,7 +226,7 @@ namespace R3
                 cancellationToken);
         }
 
-        public static Task<double> AverageAsync<TMessage, TComplete>(this CompletableEvent<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
+        public static Task<double> AverageAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default)
             where TMessage : INumberBase<TMessage>
         {
             return AggregateAsync(source,
@@ -236,13 +236,13 @@ namespace R3
                 cancellationToken);
         }
 
-        public static Task WaitAsync<TMessage>(this CompletableEvent<TMessage, Unit> source, CancellationToken cancellationToken = default)
+        public static Task WaitAsync<TMessage>(this Event<TMessage, Unit> source, CancellationToken cancellationToken = default)
         {
             // get only complete value.
             return AggregateAsync(source, 0, static (_, _) => 0, static (_, result) => result, cancellationToken);
         }
 
-        public static Task<TComplete> WaitAsync<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, CancellationToken cancellationToken = default)
+        public static Task<TComplete> WaitAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default)
         {
             // get only complete value.
             return AggregateAsync(source, 0, static (_, _) => 0, static (_, result) => result, cancellationToken);

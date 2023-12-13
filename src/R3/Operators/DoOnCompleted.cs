@@ -4,7 +4,7 @@
     {
         // TODO: more accurate impl
         // TODO: with state
-        public static CompletableEvent<TMessage, TComplete> DoOnCompleted<TMessage, TComplete>(this CompletableEvent<TMessage, TComplete> source, Action action)
+        public static Event<TMessage, TComplete> DoOnCompleted<TMessage, TComplete>(this Event<TMessage, TComplete> source, Action action)
         {
             return new DoOnCompleted<TMessage, TComplete>(source, action);
         }
@@ -13,7 +13,7 @@
 
 namespace R3.Operators
 {
-    internal sealed class DoOnCompleted<TMessage, TComplete>(CompletableEvent<TMessage, TComplete> source, Action action) : CompletableEvent<TMessage, TComplete>
+    internal sealed class DoOnCompleted<TMessage, TComplete>(Event<TMessage, TComplete> source, Action action) : Event<TMessage, TComplete>
     {
         protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
         {
