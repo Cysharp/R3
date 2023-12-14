@@ -28,8 +28,18 @@ EventSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 // Enumerable.Empty<int>().ElementAtOrDefault(
 
-var i = Enumerable.Range(4, 10).ElementAtOrDefault(^0);
-Console.WriteLine(i);
+var range = Observable.Range(1, 10);
+
+// range.TakeLast(
+
+
+//var publisher = new Publisher<int>();
+//publisher.PublishOnNext(1);
+
+
+//var xs = await publisher.Take(TimeSpan.FromSeconds(5));
+
+
 
 
 
