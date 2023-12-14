@@ -16,9 +16,7 @@ public static partial class EventExtensions
     }
 }
 
-
-
-internal sealed class DoOnDisposed<T>(Event<T> source, Action action) : Event<T>
+sealed class DoOnDisposed<T>(Event<T> source, Action action) : Event<T>
 {
     protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {

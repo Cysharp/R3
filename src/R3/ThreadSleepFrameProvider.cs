@@ -61,7 +61,7 @@ public sealed class ThreadSleepFrameProvider : FrameProvider, IDisposable
                         list.Remove(i);
                         try
                         {
-                            OnUnhandledException(ex);
+                            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
                         }
                         catch { }
                     }

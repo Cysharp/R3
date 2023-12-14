@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using R3;
 using R3.Internal;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -44,20 +45,34 @@ var source = Event.EveryUpdate(ct.Token);
 
 
 
-source.DoOnDisposed(() => {/*Console.WriteLine("DISPOSED")*/}).WriteLine();
-
-
-
-// TODO: if WaitAsync is using, not disposed???
-await source.WaitAsync();
-Console.WriteLine("Press Key to done.");
-
-Console.ReadLine();
+source.DoOnDisposed(() => { Console.WriteLine("DISPOSED"); }).WriteLine();
 
 SubscriptionTracker.ForEachActiveTask(x =>
 {
     Console.WriteLine(x);
 });
+
+
+
+Console.WriteLine("BeforeId:" + Thread.CurrentThread.ManagedThreadId);
+
+await source.WaitAsync();
+Console.WriteLine("Press Key to done.");
+
+
+await Task.Yield();
+
+Console.ReadLine();
+
+
+SubscriptionTracker.ForEachActiveTask(x =>
+{
+    Console.WriteLine(x);
+});
+
+Console.WriteLine("----------------");
+Console.WriteLine("AfterId:" + Thread.CurrentThread.ManagedThreadId);
+
 
 public static class Extensions
 {
