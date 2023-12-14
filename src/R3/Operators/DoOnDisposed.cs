@@ -10,7 +10,7 @@ public static partial class EventExtensions
         return new DoOnDisposed<T>(source, action);
     }
 
-    public static Event<T> DoOnDisposed<T, TState>(this Event<T> source, Action<TState> action, TState state)
+    public static Event<T> DoOnDisposed<T, TState>(this Event<T> source, TState state, Action<TState> action)
     {
         return new DoOnDisposed<T, TState>(source, action, state);
     }

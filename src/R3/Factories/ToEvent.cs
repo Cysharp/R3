@@ -2,7 +2,7 @@
 
 public static partial class Event
 {
-    public static Event<T> ToCompletableEvent<T>(this Task<T> task)
+    public static Event<T> ToEvent<T>(this Task<T> task)
     {
         return new TaskToEvent<T>(task);
     }

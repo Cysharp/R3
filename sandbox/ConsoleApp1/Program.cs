@@ -33,10 +33,10 @@ var range = Observable.Range(1, 10);
 // range.TakeLast(
 
 
-//var publisher = new Publisher<int>();
+var publisher = new Publisher<int>();
 //publisher.PublishOnNext(1);
 
-
+// publisher.Subscribe(new object(), (x,y) => y
 
 //var xs = await publisher.Take(TimeSpan.FromSeconds(5));
 

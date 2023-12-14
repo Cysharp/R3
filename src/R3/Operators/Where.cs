@@ -2,6 +2,8 @@
 
 public static partial class EventExtensions
 {
+    // TODO: TState
+
     public static Event<T> Where<T>(this Event<T> source, Func<T, bool> predicate)
     {
         if (source is Where<T> where)

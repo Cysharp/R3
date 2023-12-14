@@ -102,7 +102,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         }
     }
 
-    public void ForEach<TState>(Action<T, TState> action, TState state)
+    public void ForEach<TState>(TState state, Action<T, TState> action)
     {
         lock (list)
         {
