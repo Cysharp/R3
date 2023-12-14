@@ -15,7 +15,7 @@ public static class _TestHelper
         list.IsCompleted.Should().BeTrue();
     }
 
-    public static void AssertIsNoResulted<T>(this LiveList<T> list)
+    public static void AssertIsNotCompleted<T>(this LiveList<T> list)
     {
         list.IsCompleted.Should().BeFalse();
     }

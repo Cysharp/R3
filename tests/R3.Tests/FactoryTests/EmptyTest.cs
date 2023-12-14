@@ -18,7 +18,7 @@ public class EmptyTest
         using var list = Event.Empty<int>(TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
 
         fakeTime.Advance(TimeSpan.FromSeconds(4));
-        list.AssertIsNoResulted();
+        list.AssertIsNotCompleted();
 
         fakeTime.Advance(TimeSpan.FromSeconds(1));
         list.AssertIsCompleted();

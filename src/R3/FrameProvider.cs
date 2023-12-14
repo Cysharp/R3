@@ -15,7 +15,13 @@ public interface IFrameRunnerWorkItem
 public sealed class ManualFrameProvider : FrameProvider
 {
     long frameCount;
-    FreeListCore<IFrameRunnerWorkItem> list = new FreeListCore<IFrameRunnerWorkItem>();
+    readonly object gate = new object();
+    FreeListCore<IFrameRunnerWorkItem> list;
+
+    public ManualFrameProvider()
+    {
+        list = new FreeListCore<IFrameRunnerWorkItem>(gate);
+    }
 
     public override long GetFrameCount()
     {
