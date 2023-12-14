@@ -16,9 +16,8 @@ public static partial class EventExtensions
     // Concat, Append, Prepend, Distinct, DistinctUntilChanged, Scan, Select, SelectMany
 
     // SkipTake:
-    // Skip, SkipLast, SkipUntil, SkipWhile, Take, TakeLast, TakeLastBuffer, TakeUntil, TakeWhile
-    // TakeUntilDestroy, TakeUntilDisable
+    // Skip, SkipLast, SkipUntil, SkipWhile
 
     // return tasks:
-    // All, Any, Contains, SequenceEqual, ElementAt, ElementAtOrDefault, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup, ForEachAsync
+    // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup, ForEachAsync
 }
