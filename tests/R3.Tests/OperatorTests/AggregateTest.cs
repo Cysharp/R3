@@ -9,7 +9,7 @@ public class AggregateTest
     {
         var publisher = new Publisher<int>();
 
-        var listTask = publisher.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x, _) => x);
+        var listTask = publisher.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x);
 
         publisher.PublishOnNext(1);
         publisher.PublishOnNext(2);
@@ -19,7 +19,7 @@ public class AggregateTest
 
         listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
 
-        publisher.PublishOnCompleted(Unit.Default);
+        publisher.PublishOnCompleted();
 
         (await listTask).Should().Equal(1, 2, 3, 4, 5);
     }
@@ -28,7 +28,7 @@ public class AggregateTest
     public async Task ImmediateCompleted()
     {
         var range = Event.Range(1, 5);
-        var listTask = range.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x, _) => x);
+        var listTask = range.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x);
         (await listTask).Should().Equal(1, 2, 3, 4, 5);
     }
 
@@ -43,7 +43,7 @@ public class AggregateTest
 
         var listTask = publisher
             .DoOnDisposed(() => isDisposed = true)
-            .AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x, _) => x, cts.Token);
+            .AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x, cts.Token);
 
 
         isDisposed.Should().BeTrue();
@@ -108,7 +108,7 @@ public class AggregateTest
         {
             if (x == 3) throw new Exception("foo");
             return x;
-        }).OnErrorAsComplete();
+        }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.MinAsync());
     }
 
@@ -130,7 +130,7 @@ public class AggregateTest
         {
             if (x == 3) throw new Exception("foo");
             return x;
-        }).OnErrorAsComplete();
+        }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.MaxAsync());
     }
 
@@ -155,7 +155,7 @@ public class AggregateTest
         {
             if (x == 3) throw new Exception("foo");
             return x;
-        }).OnErrorAsComplete();
+        }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.MinMaxAsync());
     }
 
@@ -176,7 +176,7 @@ public class AggregateTest
         {
             if (x == 3) throw new Exception("foo");
             return x;
-        }).OnErrorAsComplete();
+        }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.MinAsync());
     }
 
@@ -197,7 +197,7 @@ public class AggregateTest
         {
             if (x == 3) throw new Exception("foo");
             return x;
-        }).OnErrorAsComplete();
+        }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
     }
 
@@ -207,14 +207,14 @@ public class AggregateTest
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
         await source.WaitAsync();
 
-        var p = new Publisher<int, string>();
+        var p = new Publisher<int>();
         var task = p.WaitAsync();
 
         p.PublishOnNext(10);
         p.PublishOnNext(20);
         p.PublishOnNext(30);
-        p.PublishOnCompleted("foo");
+        p.PublishOnCompleted();
 
-        (await task).Should().Be("foo");
+        await task;
     }
 }

@@ -3,7 +3,7 @@ using System.Runtime.ExceptionServices;
 
 namespace R3;
 
-// default is Succeeded
+// default(Result) is Succeeded
 public readonly struct Result
 {
     public static Result Success => default;
@@ -17,7 +17,7 @@ public readonly struct Result
     [MemberNotNullWhen(true, nameof(Exception))]
     public bool IsFailure => Exception != null;
 
-    public Result(Exception? exception)
+    public Result(Exception exception)
     {
         this.Exception = exception;
     }

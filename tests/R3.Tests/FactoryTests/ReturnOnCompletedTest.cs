@@ -8,24 +8,22 @@ public class ReturnOnCompletedTest
     public void ReturnOnCompleted()
     {
         {
-            using var list = Event.ReturnOnCompleted<int, string>("foo").ToLiveList();
+            using var list = Event.ReturnOnCompleted<int>(Result.Success).ToLiveList();
             list.AssertEqual([]);
             list.AssertIsCompleted();
-            list.AsserResultdValue("foo");
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = Event.ReturnOnCompleted<int, string>("foo", TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+            using var list = Event.ReturnOnCompleted<int>(Result.Success, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);
-            list.AssertIsNoResultd();
+            list.AssertIsNoResulted();
 
             fakeTime.Advance(TimeSpan.FromSeconds(1));
             list.AssertEqual([]);
             list.AssertIsCompleted();
-            list.AsserResultdValue("foo");
         }
     }
 }

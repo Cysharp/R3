@@ -2,30 +2,20 @@
 
 public static partial class EventExtensions
 {
-    public static Event<TMessage> Take<T>(this Event<TMessage> source, int count)
+    public static Event<T> Take<T>(this Event<T> source, int count)
     {
-        return new Take<TMessage>(source, count, default, null);
-    }
-
-    public static Event<T> Take<T>(this Event<T> source, int count interruptMessage)
-    {
-        return new Take<T>(source, count, interruptMessage, null);
-    }
-
-    public static Event<T> Take<T>(this Event<T> source, int count, Func<Result> interruptMessageFactory)
-    {
-        return new Take<T>(source, count, default!, interruptMessageFactory);
+        return new Take<T>(source, count);
     }
 }
 
-internal sealed class Take<T>(Event<T> source, int count interruptMessage, Func<Result>? interruptMessageFactory) : Event<T>
+internal sealed class Take<T>(Event<T> source, int count) : Event<T>
 {
     protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
-        return source.Subscribe(new _Take(subscriber, count, interruptMessage, interruptMessageFactory));
+        return source.Subscribe(new _Take(subscriber, count));
     }
 
-    sealed class _Take(Subscriber<T> subscriber, int count interruptMessage, Func<Result>? interruptMessageFactory) : Subscriber<T>, IDisposable
+    sealed class _Take(Subscriber<T> subscriber, int count) : Subscriber<T>, IDisposable
     {
         int remaining = count;
 
@@ -38,14 +28,7 @@ internal sealed class Take<T>(Event<T> source, int count interruptMessage, Func<
             }
             else
             {
-                if (interruptMessageFactory != null)
-                {
-                    subscriber.OnCompleted(interruptMessageFactory());
-                }
-                else
-                {
-                    subscriber.OnCompleted(interruptMessage);
-                }
+                subscriber.OnCompleted();
             }
         }
 
@@ -54,9 +37,9 @@ internal sealed class Take<T>(Event<T> source, int count interruptMessage, Func<
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result complete)
+        protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(complete);
+            subscriber.OnCompleted(result);
         }
     }
 }

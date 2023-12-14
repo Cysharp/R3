@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace R3;
@@ -24,12 +23,21 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
     readonly int bufferSize;
 
     bool isCompleted;
-    Result? completedValue;
+    Result completedValue;
 
-    [MemberNotNullWhen(true, nameof(CompletedValue))]
     public bool IsCompleted => isCompleted;
 
-    public Result? CompletedValue => completedValue;
+    public Result CompletedValue
+    {
+        get
+        {
+            lock (list)
+            {
+                if (!isCompleted) throw new InvalidOperationException("LiveList is not completed, you should check IsCompleted.");
+                return completedValue;
+            }
+        }
+    }
 
     public LiveList(Event<T> source)
     {

@@ -17,7 +17,7 @@ public class ToListTest
 
         listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
 
-        publisher.PublishOnCompleted(Unit.Default);
+        publisher.PublishOnCompleted();
 
         (await listTask).Should().Equal(1, 2, 3, 4, 5);
     }
@@ -83,7 +83,7 @@ public class ToListTest
 
         listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
 
-        publisher.PublishOnCompleted(Unit.Default);
+        publisher.PublishOnCompleted();
 
         (await listTask).Should().Equal(1, 2, 3, 4, 5);
     }

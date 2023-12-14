@@ -4,6 +4,15 @@ public static partial class EventExtensions
 {
     // TODO: more accurate impl
     // TODO: with state
+
+
+    // TODO: other file.
+    public static Event<T> CancelOnCompleted<T>(this Event<T> source, CancellationTokenSource cancellationTokenSource)
+    {
+        return new DoOnCompleted<T>(source, _ => cancellationTokenSource.Cancel());
+    }
+
+
     public static Event<T> DoOnCompleted<T>(this Event<T> source, Action<Result> action)
     {
         return new DoOnCompleted<T>(source, action);

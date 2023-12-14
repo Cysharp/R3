@@ -94,7 +94,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         public int removeKey;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnNext(T message)
+        public void OnNext(T value)
         {
             subscriber.OnNext(value);
         }

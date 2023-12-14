@@ -27,7 +27,7 @@ public class ReturnTest
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);
-            list.AssertIsNoResultd();
+            list.AssertIsNoResulted();
 
             fakeTime.Advance(TimeSpan.FromSeconds(1));
             list.AssertEqual([10]);
@@ -51,25 +51,23 @@ public class ReturnTest
     public void ReturnOnCompleted()
     {
         {
-            using var list = Event.Return(0, "foo").ToLiveList();
+            using var list = Event.Return(0).ToLiveList();
             list.AssertEqual([0]);
             list.AssertIsCompleted();
-            list.AsserResultdValue("foo");
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = Event.Return(10, "foo", TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+            using var list = Event.Return(10, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
             list.AssertEqual([]);
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);
-            list.AssertIsNoResultd();
+            list.AssertIsNoResulted();
 
             fakeTime.Advance(TimeSpan.FromSeconds(1));
             list.AssertEqual([10]);
             list.AssertIsCompleted();
-            list.AsserResultdValue("foo");
         }
     }
 }

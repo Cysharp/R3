@@ -5,23 +5,18 @@ namespace R3.Tests;
 
 public static class _TestHelper
 {
-    public static void AssertEqual<T, TC>(this LiveList<T, TC> list, params T[] expected)
+    public static void AssertEqual<T>(this LiveList<T> list, params T[] expected)
     {
         list.Should().Equal(expected);
     }
 
-    public static void AssertIsCompleted<T, TC>(this LiveList<T, TC> list)
+    public static void AssertIsCompleted<T>(this LiveList<T> list)
     {
         list.IsCompleted.Should().BeTrue();
     }
 
-    public static void AssertIsNoResultd<T, TC>(this LiveList<T, TC> list)
+    public static void AssertIsNoResulted<T>(this LiveList<T> list)
     {
         list.IsCompleted.Should().BeFalse();
-    }
-
-    public static void AsserResultdValue<T, TC>(this LiveList<T, TC> list, TC value)
-    {
-        list.CompletedValue.Should().Be(value);
     }
 }

@@ -68,7 +68,7 @@ internal sealed class AnonymousRSubscriber<T>(Action<T> onNext, Action<Exception
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)
     {
-        onNext(message);
+        onNext(value);
     }
 
     [DebuggerStepThrough]
@@ -94,7 +94,7 @@ internal sealed class AnonymousSubscriber<T>(Action<T> onNext, Action<Exception>
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)
     {
-        onNext(message);
+        onNext(value);
     }
 
     [DebuggerStepThrough]

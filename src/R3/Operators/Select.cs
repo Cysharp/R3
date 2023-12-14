@@ -6,41 +6,26 @@ public static partial class EventExtensions
     // TODO: CompletableEvent.Select
     // TODO: Element index overload
 
-    // TODO: Select for Result
-
-
-    public static Event<TMessageResult> Select<TMessage, TMessageResult>(
+    public static Event<TResult> Select<T, TResult>(
         this Event<T> source,
-        Func<TMessage, TMessageResult> messageSelector)
+        Func<T, TResult> selector)
     {
-        return new Select<TMessage, TMessageResult>(source, messageSelector, Stubs<Result>.ReturnSelf);
-    }
-
-    public static Event<TMessageResultResult> Select<TMessage, TMessageResultResult>(
-        this Event<T> source,
-        Func<TMessage, TMessageResult> messageSelector,
-        Func<ResultResult> completeSelector)
-    {
-        return new Select<TMessage, TMessageResultResult>(source, messageSelector, completeSelector);
+        return new Select<T, TResult>(source, selector);
     }
 }
 
-internal sealed class Select<TMessage, TMessageResultResult>(
-    Event<T> source,
-       Func<TMessage, TMessageResult> messageSelector,
-        Func<ResultResult> completeSelector
-    ) : Event<TMessageResultResult>
+internal sealed class Select<T, TResult>(Event<T> source, Func<T, TResult> selector) : Event<TResult>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessageResultResult> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TResult> subscriber)
     {
-        return source.Subscribe(new _Select(subscriber, messageSelector, completeSelector));
+        return source.Subscribe(new _Select(subscriber, selector));
     }
 
-    class _Select(Subscriber<TMessageResultResult> subscriber, Func<TMessage, TMessageResult> messageSelector, Func<ResultResult> completeSelector) : Subscriber<T>
+    class _Select(Subscriber<TResult> subscriber, Func<T, TResult> selector) : Subscriber<T>
     {
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(messageSelector(message));
+            subscriber.OnNext(selector(value));
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -48,9 +33,9 @@ internal sealed class Select<TMessage, TMessageResultResult>(
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result complete)
+        protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(completeSelector(complete));
+            subscriber.OnCompleted(result);
         }
     }
 }

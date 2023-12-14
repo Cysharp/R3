@@ -50,7 +50,7 @@ public class WhereTest(ITestOutputHelper output)
         p.PublishOnNext(30);
         list.AssertEqual([1, 3]);
 
-        list.AssertIsNoResultd();
+        list.AssertIsNoResulted();
 
         p.PublishOnCompleted(default);
 
@@ -84,7 +84,7 @@ public class WhereTest(ITestOutputHelper output)
         p.PublishOnNext(8);
         list.AssertEqual([1, 5, 8]);
 
-        list.AssertIsNoResultd();
+        list.AssertIsNoResulted();
 
         p.PublishOnCompleted(default);
 

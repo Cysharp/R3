@@ -3,33 +3,15 @@
 Third Generation of Reactive Extensions.
 
 ```csharp
-public abstract class Event<TMessage>
+public abstract class Event<T>
 {
-    public IDisposable Subscribe(Subscriber<TMessage> subscriber);
+    public IDisposable Subscribe(Subscriber<T> subscriber);
 }
 
-public abstract class Subscriber<TMessage> : IDisposable
+public abstract class Subscriber<T> : IDisposable
 {
-    public void OnNext(TMessage message);
+    public void OnNext(T value);
     public void OnErrorResume(Exception error);
-}
-
-// Completable
-public abstract class CompletableEvent<TMessage, TComplete>
-{
-    public IDisposable Subscribe(Subscriber<TMessage, TComplete> subscriber)
-}
-
-public abstract class Subscriber<TMessage, TComplete> : IDisposable
-{
-    public void OnNext(TMessage message);
-    public void OnErrorResume(Exception error);
-    public void OnCompleted(TComplete complete);
+    public void OnCompleted(Result result);
 }
 ```
-
-```csharp
-// similar as IObserver<T>
-CompletableEvent<TMessage, Result<TComplete>>
-```
-

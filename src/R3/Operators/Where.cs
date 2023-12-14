@@ -2,7 +2,7 @@
 
 public static partial class EventExtensions
 {
-    public static Event<T> Where<T>(this Event<T> source, Func<TMessage, bool> predicate)
+    public static Event<T> Where<T>(this Event<T> source, Func<T, bool> predicate)
     {
         if (source is Where<T> where)
         {
@@ -14,27 +14,27 @@ public static partial class EventExtensions
         return new Where<T>(source, predicate);
     }
 
-    public static Event<T> Where<T>(this Event<T> source, Func<TMessage, int, bool> predicate)
+    public static Event<T> Where<T>(this Event<T> source, Func<T, int, bool> predicate)
     {
         return new WhereIndexed<T>(source, predicate);
     }
 }
 
-internal sealed class Where<T>(Event<T> source, Func<TMessage, bool> predicate) : Event<T>
+internal sealed class Where<T>(Event<T> source, Func<T, bool> predicate) : Event<T>
 {
     internal Event<T> source = source;
-    internal Func<TMessage, bool> predicate = predicate;
+    internal Func<T, bool> predicate = predicate;
 
     protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         return source.Subscribe(new _Where(subscriber, predicate));
     }
 
-    class _Where(Subscriber<T> subscriber, Func<TMessage, bool> predicate) : Subscriber<T>
+    class _Where(Subscriber<T> subscriber, Func<T, bool> predicate) : Subscriber<T>
     {
         protected override void OnNextCore(T value)
         {
-            if (predicate(message))
+            if (predicate(value))
             {
                 subscriber.OnNext(value);
             }
@@ -45,27 +45,27 @@ internal sealed class Where<T>(Event<T> source, Func<TMessage, bool> predicate) 
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result complete)
+        protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(complete);
+            subscriber.OnCompleted(result);
         }
     }
 }
 
-internal sealed class WhereIndexed<T>(Event<T> source, Func<TMessage, int, bool> predicate) : Event<T>
+internal sealed class WhereIndexed<T>(Event<T> source, Func<T, int, bool> predicate) : Event<T>
 {
     protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         return source.Subscribe(new _Where(subscriber, predicate));
     }
 
-    class _Where(Subscriber<T> subscriber, Func<TMessage, int, bool> predicate) : Subscriber<T>
+    class _Where(Subscriber<T> subscriber, Func<T, int, bool> predicate) : Subscriber<T>
     {
         int index = 0;
 
         protected override void OnNextCore(T value)
         {
-            if (predicate(message, index++))
+            if (predicate(value, index++))
             {
                 subscriber.OnNext(value);
             }
@@ -76,9 +76,9 @@ internal sealed class WhereIndexed<T>(Event<T> source, Func<TMessage, int, bool>
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result complete)
+        protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(complete);
+            subscriber.OnCompleted(result);
         }
     }
 }

@@ -24,7 +24,7 @@ public class RepeatTest
 
         using var list = Event.Repeat("foo", int.MaxValue, cts.Token)
             .Take(5)
-            .DoOnCompleted(() => cts.Cancel())
+            .CancelOnCompleted(cts)
             .ToLiveList();
 
         list.AssertEqual(["foo", "foo", "foo", "foo", "foo"]);

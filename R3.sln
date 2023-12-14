@@ -13,7 +13,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "sandbox\Cons
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0544806B-3BB4-43CF-8277-BC612F32208D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R3.Tests", "tests\R3.Tests\R3.Tests.csproj", "{42F7C4F7-3BB3-4DC8-8285-9DFF7E93BC4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R3.Tests", "tests\R3.Tests\R3.Tests.csproj", "{42F7C4F7-3BB3-4DC8-8285-9DFF7E93BC4B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C7327A31-448F-4A7D-9AC6-C06F5AA03D02}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

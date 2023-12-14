@@ -11,7 +11,7 @@ public interface IEventPublisher<T>
 public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
 {
     int calledCompleted = 0;
-    Result? completeValue;
+    Result completeValue;
     FreeListCore<_CompletablePublisher> list;
     readonly object completedLock = new object();
 
@@ -77,7 +77,7 @@ public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
         {
             if (Volatile.Read(ref calledCompleted) != 0)
             {
-                subscriber.OnCompleted(completeValue!);
+                subscriber.OnCompleted(completeValue);
                 return Disposable.Empty;
             }
 
@@ -95,6 +95,8 @@ public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
 
     public void Dispose()
     {
+        // TODO: when dispose, call OnCompleted to dispose all subscribers.
+
         list.Dispose();
     }
 

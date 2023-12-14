@@ -6,4 +6,9 @@ public static class PublisherExtensions
     {
         publisher.PublishOnCompleted(default);
     }
+
+    public static void PublishOnCompleted<T>(this Publisher<T> publisher, Exception exception)
+    {
+        publisher.PublishOnCompleted(Result.Failure(exception));
+    }
 }

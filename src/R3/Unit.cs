@@ -4,12 +4,12 @@ public readonly struct Unit : IEquatable<Unit>
 {
     public static readonly Unit Default = default;
 
-    public static bool operator ==(Unit first second)
+    public static bool operator ==(Unit first, Unit second)
     {
         return true;
     }
 
-    public static bool operator !=(Unit first second)
+    public static bool operator !=(Unit first, Unit second)
     {
         return false;
     }

@@ -33,7 +33,7 @@ public class RangeTest
 
         using var list = Event.Range(0, int.MaxValue, cts.Token)
             .Take(5)
-            .DoOnCompleted(() => cts.Cancel())
+            .CancelOnCompleted(cts)
             .ToLiveList();
 
         list.AssertEqual([0, 1, 2, 3, 4]);

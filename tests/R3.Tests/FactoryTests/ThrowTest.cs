@@ -21,7 +21,7 @@ public class ThrowTest
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);
-            list.AssertIsNoResultd();
+            list.AssertIsNoResulted();
 
             fakeTime.Advance(TimeSpan.FromSeconds(1));
             list.AssertEqual([]);

@@ -48,14 +48,8 @@ internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) :
         static void NextTick(object? state)
         {
             var self = (_Return)state!;
-            if (self.subscriber.OnNext(self.value))
-            {
-                self.subscriber.OnCompleted();
-            }
-            else
-            {
-                self.subscriber.OnCompleted(Result.Failure);
-            }
+            self.subscriber.OnNext(self.value);
+            self.subscriber.OnCompleted();
         }
 
         public void Dispose()
