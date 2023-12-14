@@ -26,52 +26,21 @@ var ct = new CancellationTokenSource(1000);
 EventSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 
-//var t = new Thread(() =>
-//{
-//    while (true)
-//    {
-//        Console.WriteLine("loop"); Thread.Sleep(60);
-//    }
-//});
-//t.IsBackground = true;
-//t.Start();
+// Enumerable.Empty<int>().ElementAtOrDefault(
 
-//var s = new NewThreadScheduler(_ => new Thread(() => { while (true) { Console.WriteLine("loop"); Thread.Sleep(60); } }));
-
-//s.Schedule(() => Console.WriteLine("do once"));
-//using var f = new ThreadSleepFrameProvider(60);
-
-var source = Event.EveryUpdate(ct.Token);
+var i = Enumerable.Range(4, 10).ElementAtOrDefault(^0);
+Console.WriteLine(i);
 
 
 
-source.DoOnDisposed(() => { Console.WriteLine("DISPOSED"); }).WriteLine();
-
-SubscriptionTracker.ForEachActiveTask(x =>
+IEnumerable<int> Range(int count)
 {
-    Console.WriteLine(x);
-});
-
-
-
-Console.WriteLine("BeforeId:" + Thread.CurrentThread.ManagedThreadId);
-
-await source.WaitAsync();
-Console.WriteLine("Press Key to done.");
-
-
-await Task.Yield();
-
-Console.ReadLine();
-
-
-SubscriptionTracker.ForEachActiveTask(x =>
-{
-    Console.WriteLine(x);
-});
-
-Console.WriteLine("----------------");
-Console.WriteLine("AfterId:" + Thread.CurrentThread.ManagedThreadId);
+    for (int i = 0; i < count; i++)
+    {
+        Console.WriteLine(i);
+        yield return i;
+    }
+}
 
 
 public static class Extensions
@@ -92,3 +61,4 @@ class TestDisposable : IDisposable
         CalledCount += 1;
     }
 }
+

@@ -57,6 +57,7 @@ internal sealed class RepeatC<T>(T value, int count, CancellationToken cancellat
         {
             if (cancellationToken.IsCancellationRequested)
             {
+                subscriber.OnCompleted();
                 return Disposable.Empty;
             }
             subscriber.OnNext(value);

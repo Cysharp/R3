@@ -58,11 +58,12 @@ internal sealed class RangeC(int start, int count, CancellationToken cancellatio
         {
             if (cancellationToken.IsCancellationRequested)
             {
+                subscriber.OnCompleted();
                 return Disposable.Empty;
             }
             subscriber.OnNext(start + i);
         }
-        subscriber.OnCompleted(default);
+        subscriber.OnCompleted();
         return Disposable.Empty;
     }
 }
