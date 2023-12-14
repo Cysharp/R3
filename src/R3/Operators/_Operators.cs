@@ -27,18 +27,18 @@ public static partial class EventExtensions
 
 
 
-internal sealed class ElementAtAsync<TMessage, TComplete>(Event<TMessage, TComplete> source, int index, bool useDefaultValue, TMessage? defaultValue, CancellationToken cancellationToken)
-    : TaskSubscriberBase<TMessage, TComplete, TMessage>(cancellationToken)
+internal sealed class ElementAtAsync<T>(int index, bool useDefaultValue, T? defaultValue, CancellationToken cancellationToken)
+    : TaskSubscriberBase<T, T>(cancellationToken)
 {
     int count = 0;
     bool hasValue;
 
-    protected override void OnNextCore(TMessage message)
+    protected override void OnNextCore(T value)
     {
         hasValue = true;
         if (count++ == index)
         {
-            TrySetResult(message);
+            TrySetResult(value);
         }
     }
 
@@ -47,22 +47,28 @@ internal sealed class ElementAtAsync<TMessage, TComplete>(Event<TMessage, TCompl
         TrySetException(error);
     }
 
-    protected override void OnCompletedCore(TComplete complete)
+    protected override void OnCompletedCore(Result result)
     {
-        throw new NotImplementedException();
+        if (result.IsFailure)
+        {
+            // TODO:...
+        }
+        else
+        {
+            // TODO:...
+        }
     }
 }
 
 // Index.IsFromEnd
-internal sealed class ElementAtFromEndAsync<TMessage, TComplete>(Event<TMessage, TComplete> source, int fromEndIndex, bool useDefaultValue, TMessage? defaultValue, CancellationToken cancellationToken)
-    : TaskSubscriberBase<TMessage, TComplete, TMessage>(cancellationToken)
+internal sealed class ElementAtFromEndAsync<T>(int fromEndIndex, bool useDefaultValue, T? defaultValue, CancellationToken cancellationToken)
+    : TaskSubscriberBase<T, T>(cancellationToken)
 {
-    int count = 0;
     bool hasValue;
 
-    Queue<TMessage> queue = new Queue<TMessage>(fromEndIndex);
+    Queue<T> queue = new Queue<T>(fromEndIndex);
 
-    protected override void OnNextCore(TMessage message)
+    protected override void OnNextCore(T value)
     {
         hasValue = true;
         if (queue.Count == fromEndIndex)
@@ -70,7 +76,7 @@ internal sealed class ElementAtFromEndAsync<TMessage, TComplete>(Event<TMessage,
             queue.Dequeue();
         }
 
-        queue.Enqueue(message);
+        queue.Enqueue(value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -78,12 +84,12 @@ internal sealed class ElementAtFromEndAsync<TMessage, TComplete>(Event<TMessage,
         TrySetException(error);
     }
 
-    protected override void OnCompletedCore(TComplete complete)
+    protected override void OnCompletedCore(Result result)
     {
         if (queue.Count == fromEndIndex)
         {
-            var result = queue.Dequeue();
-            TrySetResult(result);
+            var value = queue.Dequeue();
+            TrySetResult(value);
             return;
         }
 

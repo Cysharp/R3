@@ -2,19 +2,19 @@
 
 public static partial class Event
 {
-    public static Event<TMessage, Unit> ToEvent<TMessage>(this IEnumerable<TMessage> source)
+    public static Event<TMessage> ToEvent<T>(this IEnumerable<T> source)
     {
-        return new ToEvent<TMessage>(source);
+        return new ToEvent<T>(source);
     }
 }
 
-internal class ToEvent<TMessage>(IEnumerable<TMessage> source) : Event<TMessage, Unit>
+internal class ToEvent<T>(IEnumerable<T> source) : Event<TMessage>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
     {
         foreach (var message in source)
         {
-            subscriber.OnNext(message);
+            subscriber.OnNext(value);
         }
         subscriber.OnCompleted(default);
         return Disposable.Empty;

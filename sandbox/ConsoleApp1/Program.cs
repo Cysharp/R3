@@ -61,9 +61,9 @@ SubscriptionTracker.ForEachActiveTask(x =>
 
 public static class Extensions
 {
-    public static IDisposable WriteLine<T, U>(this Event<T, U> source)
+    public static IDisposable WriteLine<T>(this Event<T> source)
     {
-        return source.Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("COMPLETED"));
+        return source.Subscribe(x => Console.WriteLine(x), x => Console.WriteLine(x));
     }
 }
 

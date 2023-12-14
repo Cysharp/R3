@@ -5,7 +5,7 @@ public static partial class Event
     // no scheduler(TimeProvider) overload
     // no infinitely overload
 
-    public static Event<TMessage, Unit> Repeat<TMessage>(TMessage value, int count)
+    public static Event<T> Repeat<T>(T value, int count)
     {
         if (count < 0)
         {
@@ -14,13 +14,13 @@ public static partial class Event
 
         if (count == 0)
         {
-            return Empty<TMessage>();
+            return Empty<T>();
         }
 
-        return new Repeat<TMessage>(value, count);
+        return new Repeat<T>(value, count);
     }
 
-    public static Event<TMessage, Unit> Repeat<TMessage>(TMessage value, int count, CancellationToken cancellationToken)
+    public static Event<T> Repeat<T>(T value, int count, CancellationToken cancellationToken)
     {
         if (count < 0)
         {
@@ -29,16 +29,16 @@ public static partial class Event
 
         if (count == 0)
         {
-            return Empty<TMessage>();
+            return Empty<T>();
         }
 
-        return new RepeatC<TMessage>(value, count, cancellationToken);
+        return new RepeatC<T>(value, count, cancellationToken);
     }
 }
 
-internal sealed class Repeat<TMessage>(TMessage value, int count) : Event<TMessage, Unit>
+internal sealed class Repeat<T>(T value, int count) : Event<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         for (int i = 0; i < count; i++)
         {
@@ -49,9 +49,9 @@ internal sealed class Repeat<TMessage>(TMessage value, int count) : Event<TMessa
     }
 }
 
-internal sealed class RepeatC<TMessage>(TMessage value, int count, CancellationToken cancellationToken) : Event<TMessage, Unit>
+internal sealed class RepeatC<T>(T value, int count, CancellationToken cancellationToken) : Event<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         for (int i = 0; i < count; i++)
         {

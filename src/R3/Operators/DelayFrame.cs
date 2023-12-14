@@ -2,42 +2,42 @@
 
 public static partial class EventExtensions
 {
-    //public static Event<TMessage> DelayFrame<TMessage>(this Event<TMessage> source, int delayFrameCount, FrameProvider frameProvider)
+    //public static Event<T> DelayFrame<T>(this Event<T> source, int delayFrameCount, FrameProvider frameProvider)
     //{
-    //    return new DelayFrame<TMessage>(source, delayFrameCount, frameProvider);
+    //    return new DelayFrame<T>(source, delayFrameCount, frameProvider);
     //}
 }
 
 // TODO:dueTime validation
 // TODO:impl minaosi.
-//internal sealed class DelayFrame<TMessage>(Event<TMessage> source, int delayFrameCount, FrameProvider frameProvider) : Event<TMessage>
+//internal sealed class DelayFrame<T>(Event<T> source, int delayFrameCount, FrameProvider frameProvider) : Event<T>
 //{
-//    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+//    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
 //    {
 //        var delay = new _DelayFrame(subscriber, delayFrameCount, frameProvider);
 //        source.Subscribe(delay); // source subscription is included in _DelayFrame
 //        return delay;
 //    }
 
-//    class _DelayFrame : Subscriber<TMessage>, IFrameRunnerWorkItem
+//    class _DelayFrame : Subscriber<T>, IFrameRunnerWorkItem
 //    {
-//        readonly Subscriber<TMessage> subscriber;
+//        readonly Subscriber<T> subscriber;
 //        readonly int delayFrameCount;
 //        readonly FrameProvider frameProvider;
-//        readonly Queue<(long frameCount, TMessage message)> queue = new Queue<(long, TMessage)>(); // lock gate
+//        readonly Queue<(long frameCount, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
 
 //        bool running;
 //        long nextTick;
 //        bool stopRunner;
 
-//        public _DelayFrame(Subscriber<TMessage> subscriber, int delayFrameCount, FrameProvider frameProvider)
+//        public _DelayFrame(Subscriber<T> subscriber, int delayFrameCount, FrameProvider frameProvider)
 //        {
 //            this.subscriber = subscriber;
 //            this.delayFrameCount = delayFrameCount;
 //            this.frameProvider = frameProvider;
 //        }
 
-//        protected override void OnNextCore(TMessage message)
+//        protected override void OnNextCore(T value)
 //        {
 //            var currentCount = frameProvider.GetFrameCount();
 //            lock (queue)
@@ -76,7 +76,7 @@ public static partial class EventExtensions
 //                return true;
 //            }
 
-//            TMessage message;
+//            T value;
 //            while (true)
 //            {
 //                lock (queue)
@@ -111,7 +111,7 @@ public static partial class EventExtensions
 
 //                try
 //                {
-//                    subscriber.OnNext(message);
+//                    subscriber.OnNext(value);
 //                    continue; // loop to drain all messages
 //                }
 //                catch

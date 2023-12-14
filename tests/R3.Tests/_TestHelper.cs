@@ -15,12 +15,12 @@ public static class _TestHelper
         list.IsCompleted.Should().BeTrue();
     }
 
-    public static void AssertIsNotCompleted<T, TC>(this LiveList<T, TC> list)
+    public static void AssertIsNoResultd<T, TC>(this LiveList<T, TC> list)
     {
         list.IsCompleted.Should().BeFalse();
     }
 
-    public static void AssertCompletedValue<T, TC>(this LiveList<T, TC> list, TC value)
+    public static void AsserResultdValue<T, TC>(this LiveList<T, TC> list, TC value)
     {
         list.CompletedValue.Should().Be(value);
     }

@@ -2,13 +2,13 @@
 
 public static partial class Event
 {
-    public static Event<Unit, Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
+    public static Event<Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
     {
         return new Timer(dueTime, timeProvider);
     }
 }
 
-internal sealed class Timer : Event<Unit, Unit>
+internal sealed class Timer : Event<Unit>
 {
     readonly TimeSpan dueTime;
     readonly TimeProvider timeProvider;
@@ -19,7 +19,7 @@ internal sealed class Timer : Event<Unit, Unit>
         this.timeProvider = timeProvider;
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<Unit, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
     {
         var method = new _Timer(subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
@@ -27,11 +27,11 @@ internal sealed class Timer : Event<Unit, Unit>
         return method;
     }
 
-    sealed class _Timer(Subscriber<Unit, Unit> subscriber) : IDisposable
+    sealed class _Timer(Subscriber<Unit> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
-        Subscriber<Unit, Unit> subscriber = subscriber;
+        Subscriber<Unit> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 

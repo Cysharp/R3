@@ -5,7 +5,7 @@ public class ToListTest
     [Fact]
     public async Task ToList()
     {
-        var publisher = new Publisher<int, Unit>();
+        var publisher = new Publisher<int>();
 
         var listTask = publisher.ToListAsync();
 
@@ -25,7 +25,7 @@ public class ToListTest
     [Fact]
     public async Task ResultCompletableFault()
     {
-        var publisher = new Publisher<int, Result<Unit>>();
+        var publisher = new Publisher<int>();
 
         var listTask = publisher.ToListAsync();
 
@@ -37,7 +37,7 @@ public class ToListTest
 
         listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
 
-        publisher.PublishOnCompleted(Result.Failure<Unit>(new Exception("foo")));
+        publisher.PublishOnCompleted(Result.Failure(new Exception("foo")));
 
         await Assert.ThrowsAsync<Exception>(async () => await listTask);
     }
@@ -48,7 +48,7 @@ public class ToListTest
         var cts = new CancellationTokenSource();
         var isDisposed = false;
 
-        var publisher = new Publisher<int, Result<Unit>>();
+        var publisher = new Publisher<int>();
 
         var listTask = publisher.DoOnDisposed(() => isDisposed = true).ToListAsync(cts.Token);
 
@@ -71,7 +71,7 @@ public class ToListTest
     [Fact]
     public async Task ToArray()
     {
-        var publisher = new Publisher<int, Unit>();
+        var publisher = new Publisher<int>();
 
         var listTask = publisher.ToArrayAsync();
 
@@ -91,7 +91,7 @@ public class ToListTest
     [Fact]
     public async Task ToArray2()
     {
-        var publisher = new Publisher<int, Result<Unit>>();
+        var publisher = new Publisher<int>();
 
         var listTask = publisher.ToArrayAsync();
 
@@ -103,7 +103,7 @@ public class ToListTest
 
         listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
 
-        publisher.PublishOnCompleted(Result.Failure<Unit>(new Exception("foo")));
+        publisher.PublishOnCompleted(Result.Failure(new Exception("foo")));
 
         await Assert.ThrowsAsync<Exception>(async () => await listTask);
     }

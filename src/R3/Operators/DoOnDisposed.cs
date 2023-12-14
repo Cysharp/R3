@@ -5,33 +5,35 @@ public static partial class EventExtensions
     // TODO: doOnSubscribed
 
     // Finally
-    public static Event<TMessage, TComplete> DoOnDisposed<TMessage, TComplete>(this Event<TMessage, TComplete> source, Action action)
+    public static Event<T> DoOnDisposed<T>(this Event<T> source, Action action)
     {
-        return new DoOnDisposed<TMessage, TComplete>(source, action);
+        return new DoOnDisposed<T>(source, action);
     }
 
-    public static Event<TMessage, TComplete> DoOnDisposed<TMessage, TComplete, TState>(this Event<TMessage, TComplete> source, Action<TState> action, TState state)
+    public static Event<T> DoOnDisposed<T, TState>(this Event<T> source, Action<TState> action, TState state)
     {
-        return new DoOnDisposed<TMessage, TComplete, TState>(source, action, state);
+        return new DoOnDisposed<T, TState>(source, action, state);
     }
 }
 
-internal sealed class DoOnDisposed<TMessage, TComplete>(Event<TMessage, TComplete> source, Action action) : Event<TMessage, TComplete>
+
+
+internal sealed class DoOnDisposed<T>(Event<T> source, Action action) : Event<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action action) : Subscriber<TMessage, TComplete>, IDisposable
+    class _DoOnDisposed(Subscriber<T> subscriber, Action action) : Subscriber<T>, IDisposable
     {
         Action? action = action;
 
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(message);
+            subscriber.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -39,9 +41,9 @@ internal sealed class DoOnDisposed<TMessage, TComplete>(Event<TMessage, TComplet
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(complete);
+            subscriber.OnCompleted(result);
         }
 
         protected override void DisposeCore()
@@ -51,23 +53,23 @@ internal sealed class DoOnDisposed<TMessage, TComplete>(Event<TMessage, TComplet
     }
 }
 
-internal sealed class DoOnDisposed<TMessage, TComplete, TState>(Event<TMessage, TComplete> source, Action<TState> action, TState state) : Event<TMessage, TComplete>
+internal sealed class DoOnDisposed<T, TState>(Event<T> source, Action<TState> action, TState state) : Event<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action, state);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(Subscriber<TMessage, TComplete> subscriber, Action<TState> action, TState state) : Subscriber<TMessage, TComplete>, IDisposable
+    class _DoOnDisposed(Subscriber<T> subscriber, Action<TState> action, TState state) : Subscriber<T>, IDisposable
     {
         Action<TState>? action = action;
         TState state = state;
 
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(message);
+            subscriber.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -75,9 +77,9 @@ internal sealed class DoOnDisposed<TMessage, TComplete, TState>(Event<TMessage, 
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(complete);
+            subscriber.OnCompleted(result);
         }
 
         protected override void DisposeCore()

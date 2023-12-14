@@ -4,40 +4,40 @@ namespace R3;
 
 public static partial class EventExtensions
 {
-    //public static Event<TMessage> Delay<TMessage>(this Event<TMessage> source, TimeSpan dueTime, TimeProvider timeProvider)
+    //public static Event<T> Delay<T>(this Event<T> source, TimeSpan dueTime, TimeProvider timeProvider)
     //{
-    //    return new Delay<TMessage>(source, dueTime, timeProvider);
+    //    return new Delay<T>(source, dueTime, timeProvider);
     //}
 
-    //public static ICompletableEvent<TMessage, TComplete> Delay<TMessage, TComplete>(this ICompletableEvent<TMessage, TComplete> source, TimeSpan dueTime, TimeProvider timeProvider)
+    //public static ICompletableEvent<T> Delay<T>(this ICompletableEvent<T> source, TimeSpan dueTime, TimeProvider timeProvider)
     //{
-    //    return new Delay<TMessage, TComplete>(source, dueTime, timeProvider);
+    //    return new Delay<T>(source, dueTime, timeProvider);
     //}
 }
 
 // TODO:dueTime validation
-//internal sealed class Delay<TMessage>(Event<TMessage> source, TimeSpan dueTime, TimeProvider timeProvider) : Event<TMessage>
+//internal sealed class Delay<T>(Event<T> source, TimeSpan dueTime, TimeProvider timeProvider) : Event<T>
 //{
-//    protected override IDisposable SubscribeCore(Subscriber<TMessage> subscriber)
+//    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
 //    {
 //        var delay = new _Delay(subscriber, dueTime, timeProvider);
 //        source.Subscribe(delay);
 //        return delay;
 //    }
 
-//    class _Delay : Subscriber<TMessage>, IDisposable
+//    class _Delay : Subscriber<T>, IDisposable
 //    {
 //        static readonly TimerCallback timerCallback = DrainMessages;
 
-//        readonly Subscriber<TMessage> subscriber;
+//        readonly Subscriber<T> subscriber;
 //        readonly TimeSpan dueTime;
 //        readonly TimeProvider timeProvider;
 //        ITimer? timer;
-//        readonly Queue<(long timestamp, TMessage message)> queue = new Queue<(long, TMessage)>(); // lock gate
+//        readonly Queue<(long timestamp, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
 
 //        bool running;
 
-//        public _Delay(Subscriber<TMessage> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
+//        public _Delay(Subscriber<T> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
 //        {
 //            this.subscriber = subscriber;
 //            this.dueTime = dueTime;
@@ -45,7 +45,7 @@ public static partial class EventExtensions
 //            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
 //        }
 
-//        protected override void OnNextCore(TMessage message)
+//        protected override void OnNextCore(T value)
 //        {
 //            var timestamp = timeProvider.GetTimestamp();
 //            lock (queue)
@@ -76,7 +76,7 @@ public static partial class EventExtensions
 //            var self = (_Delay)state!;
 //            var queue = self.queue;
 
-//            TMessage message;
+//            T value;
 //            while (true)
 //            {
 //                lock (queue)
@@ -111,7 +111,7 @@ public static partial class EventExtensions
 
 //                try
 //                {
-//                    self.subscriber.OnNext(message);
+//                    self.subscriber.OnNext(value);
 //                    continue; // loop to drain all messages
 //                }
 //                catch
@@ -148,9 +148,9 @@ public static partial class EventExtensions
 //    }
 //}
 
-//internal sealed class Delay<TMessage, TComplete>(ICompletableEvent<TMessage, TComplete> source, TimeSpan dueTime, TimeProvider timeProvider) : ICompletableEvent<TMessage, TComplete>
+//internal sealed class Delay<T>(ICompletableEvent<T> source, TimeSpan dueTime, TimeProvider timeProvider) : ICompletableEvent<T>
 //{
-//    public IDisposable Subscribe(ISubscriber<TMessage, TComplete> subscriber)
+//    public IDisposable Subscribe(ISubscriber<T> subscriber)
 //    {
 //        var delay = new _Delay(subscriber, dueTime, timeProvider);
 //        var sourceSubscription = source.Subscribe(delay);
@@ -158,28 +158,28 @@ public static partial class EventExtensions
 //        return Disposable.Combine(delaySubscription, sourceSubscription); // call delay's dispose first
 //    }
 
-//    class _Delay : ISubscriber<TMessage, TComplete>
+//    class _Delay : ISubscriber<T>
 //    {
 //        static readonly TimerCallback timerCallback = DrainMessages;
 //        static readonly Action<object?> disposeCallback = OnDisposed;
 
 //        public CallbackDisposable Subscription { get; private set; }
 
-//        readonly ISubscriber<TMessage, TComplete> subscriber;
+//        readonly ISubscriber<T> subscriber;
 //        readonly TimeSpan dueTime;
 //        readonly TimeProvider timeProvider;
 //        readonly ITimer timer;
-//        readonly Queue<(long timestamp, TMessage message)> queue = new Queue<(long, TMessage)>(); // lock gate
+//        readonly Queue<(long timestamp, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
 
 //        bool running;
 
 //        // for Completed event
-//        TComplete? completeMessage;
+//        Result? completeMessage;
 //        DateTimeOffset completeAt;
 //        bool isCompleted;
 
 
-//        public _Delay(ISubscriber<TMessage, TComplete> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
+//        public _Delay(ISubscriber<T> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
 //        {
 //            this.dueTime = dueTime;
 //            this.subscriber = subscriber;
@@ -188,7 +188,7 @@ public static partial class EventExtensions
 //            this.Subscription = new CallbackDisposable(disposeCallback, this);
 //        }
 
-//        public void OnNext(TMessage message)
+//        public void OnNext(T value)
 //        {
 //            var current = timeProvider.GetTimestamp();
 //            lock (queue)
@@ -208,7 +208,7 @@ public static partial class EventExtensions
 //            }
 //        }
 
-//        public void OnCompleted(TComplete complete)
+//        public void OnCompleted(Result complete)
 //        {
 //            var completeAt = timeProvider.GetUtcNow() + dueTime;
 //            lock (queue)
@@ -236,7 +236,7 @@ public static partial class EventExtensions
 //            var self = (_Delay)state!;
 //            var queue = self.queue;
 
-//            TMessage message;
+//            T value;
 //            bool invokeCompleted = false;
 //            while (true)
 //            {
@@ -281,7 +281,7 @@ public static partial class EventExtensions
 //                {
 //                    try
 //                    {
-//                        self.subscriber.OnNext(message);
+//                        self.subscriber.OnNext(value);
 //                        continue; // succeed, loop to drain all messages
 //                    }
 //                    catch

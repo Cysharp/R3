@@ -6,39 +6,39 @@ public static partial class EventExtensions
     // TODO: CompletableEvent.Select
     // TODO: Element index overload
 
-    // TODO: Select for TComplete
+    // TODO: Select for Result
 
 
-    public static Event<TMessageResult, TComplete> Select<TMessage, TComplete, TMessageResult>(
-        this Event<TMessage, TComplete> source,
+    public static Event<TMessageResult> Select<TMessage, TMessageResult>(
+        this Event<T> source,
         Func<TMessage, TMessageResult> messageSelector)
     {
-        return new Select<TMessage, TComplete, TMessageResult, TComplete>(source, messageSelector, Stubs<TComplete>.ReturnSelf);
+        return new Select<TMessage, TMessageResult>(source, messageSelector, Stubs<Result>.ReturnSelf);
     }
 
-    public static Event<TMessageResult, TCompleteResult> Select<TMessage, TComplete, TMessageResult, TCompleteResult>(
-        this Event<TMessage, TComplete> source,
+    public static Event<TMessageResultResult> Select<TMessage, TMessageResultResult>(
+        this Event<T> source,
         Func<TMessage, TMessageResult> messageSelector,
-        Func<TComplete, TCompleteResult> completeSelector)
+        Func<ResultResult> completeSelector)
     {
-        return new Select<TMessage, TComplete, TMessageResult, TCompleteResult>(source, messageSelector, completeSelector);
+        return new Select<TMessage, TMessageResultResult>(source, messageSelector, completeSelector);
     }
 }
 
-internal sealed class Select<TMessage, TComplete, TMessageResult, TCompleteResult>(
-    Event<TMessage, TComplete> source,
+internal sealed class Select<TMessage, TMessageResultResult>(
+    Event<T> source,
        Func<TMessage, TMessageResult> messageSelector,
-        Func<TComplete, TCompleteResult> completeSelector
-    ) : Event<TMessageResult, TCompleteResult>
+        Func<ResultResult> completeSelector
+    ) : Event<TMessageResultResult>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessageResult, TCompleteResult> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<TMessageResultResult> subscriber)
     {
         return source.Subscribe(new _Select(subscriber, messageSelector, completeSelector));
     }
 
-    class _Select(Subscriber<TMessageResult, TCompleteResult> subscriber, Func<TMessage, TMessageResult> messageSelector, Func<TComplete, TCompleteResult> completeSelector) : Subscriber<TMessage, TComplete>
+    class _Select(Subscriber<TMessageResultResult> subscriber, Func<TMessage, TMessageResult> messageSelector, Func<ResultResult> completeSelector) : Subscriber<T>
     {
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
             subscriber.OnNext(messageSelector(message));
         }
@@ -48,7 +48,7 @@ internal sealed class Select<TMessage, TComplete, TMessageResult, TCompleteResul
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        protected override void OnCompletedCore(Result complete)
         {
             subscriber.OnCompleted(completeSelector(complete));
         }

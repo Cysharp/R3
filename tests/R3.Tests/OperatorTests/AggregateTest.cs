@@ -7,7 +7,7 @@ public class AggregateTest
     [Fact]
     public async Task Aggreagte()
     {
-        var publisher = new Publisher<int, Unit>();
+        var publisher = new Publisher<int>();
 
         var listTask = publisher.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x, _) => x);
 
@@ -38,7 +38,7 @@ public class AggregateTest
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
-        var publisher = new Publisher<int, Unit>();
+        var publisher = new Publisher<int>();
         var isDisposed = false;
 
         var listTask = publisher

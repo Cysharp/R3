@@ -6,7 +6,7 @@ public class WhereTest(ITestOutputHelper output)
     [Fact]
     public void WhereWhere()
     {
-        var p = new Publisher<int, Unit>();
+        var p = new Publisher<int>();
 
         using var list = p.Where(x => x % 2 != 0).Where(x => x % 3 != 0).ToLiveList();
 
@@ -34,7 +34,7 @@ public class WhereTest(ITestOutputHelper output)
     [Fact]
     public void WhereCompletable()
     {
-        var p = new Publisher<int, Unit>();
+        var p = new Publisher<int>();
 
         using var list = p.Where(x => x % 2 != 0).ToLiveList();
 
@@ -50,7 +50,7 @@ public class WhereTest(ITestOutputHelper output)
         p.PublishOnNext(30);
         list.AssertEqual([1, 3]);
 
-        list.AssertIsNotCompleted();
+        list.AssertIsNoResultd();
 
         p.PublishOnCompleted(default);
 
@@ -62,7 +62,7 @@ public class WhereTest(ITestOutputHelper output)
     [Fact]
     public void WhereCompletableIndexed()
     {
-        var p = new Publisher<int, Unit>();
+        var p = new Publisher<int>();
 
         using var list = p.Where((x, i) => i % 2 != 0).ToLiveList();
 
@@ -84,7 +84,7 @@ public class WhereTest(ITestOutputHelper output)
         p.PublishOnNext(8);
         list.AssertEqual([1, 5, 8]);
 
-        list.AssertIsNotCompleted();
+        list.AssertIsNoResultd();
 
         p.PublishOnCompleted(default);
 

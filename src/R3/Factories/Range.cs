@@ -4,7 +4,7 @@ public static partial class Event
 {
     // no scheduler(TimeProvider) overload
 
-    public static Event<int, Unit> Range(int start, int count)
+    public static Event<int> Range(int start, int count)
     {
         long max = ((long)start) + count - 1;
         if (count < 0 || max > int.MaxValue)
@@ -20,7 +20,7 @@ public static partial class Event
         return new Range(start, count);
     }
 
-    public static Event<int, Unit> Range(int start, int count, CancellationToken cancellationToken)
+    public static Event<int> Range(int start, int count, CancellationToken cancellationToken)
     {
         long max = ((long)start) + count - 1;
         if (count < 0 || max > int.MaxValue)
@@ -37,9 +37,9 @@ public static partial class Event
     }
 }
 
-internal sealed class Range(int start, int count) : Event<int, Unit>
+internal sealed class Range(int start, int count) : Event<int>
 {
-    protected override IDisposable SubscribeCore(Subscriber<int, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<int> subscriber)
     {
         for (int i = 0; i < count; i++)
         {
@@ -50,9 +50,9 @@ internal sealed class Range(int start, int count) : Event<int, Unit>
     }
 }
 
-internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : Event<int, Unit>
+internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : Event<int>
 {
-    protected override IDisposable SubscribeCore(Subscriber<int, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<int> subscriber)
     {
         for (int i = 0; i < count; i++)
         {

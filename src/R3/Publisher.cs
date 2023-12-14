@@ -2,16 +2,16 @@
 
 namespace R3;
 
-public interface IEventPublisher<TMessage, TComplete>
+public interface IEventPublisher<T>
 {
-    void PublishOnNext(TMessage message);
-    void PublishOnCompleted(TComplete complete);
+    void PublishOnNext(T value);
+    void PublishOnCompleted(Result complete);
 }
 
-public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>, IEventPublisher<TMessage, TComplete>, IDisposable
+public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
 {
     int calledCompleted = 0;
-    TComplete? completeValue;
+    Result? completeValue;
     FreeListCore<_CompletablePublisher> list;
     readonly object completedLock = new object();
 
@@ -20,7 +20,7 @@ public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>,
         list = new FreeListCore<_CompletablePublisher>(this);
     }
 
-    public void PublishOnNext(TMessage message)
+    public void PublishOnNext(T value)
     {
         if (list.IsDisposed) ThrowDisposed();
         if (Volatile.Read(ref calledCompleted) != 0) return;
@@ -29,7 +29,7 @@ public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>,
         {
             if (subscriber != null)
             {
-                subscriber.OnNext(message);
+                subscriber.OnNext(value);
             }
         }
     }
@@ -48,7 +48,7 @@ public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>,
         }
     }
 
-    public void PublishOnCompleted(TComplete complete)
+    public void PublishOnCompleted(Result complete)
     {
         if (list.IsDisposed) ThrowDisposed();
         if (Volatile.Read(ref calledCompleted) != 0) return;
@@ -69,7 +69,7 @@ public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>,
         }
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         if (list.IsDisposed) ThrowDisposed();
 
@@ -103,14 +103,14 @@ public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>,
         throw new ObjectDisposedException("CompletablePublisher");
     }
 
-    sealed class _CompletablePublisher(Publisher<TMessage, TComplete>? parent, Subscriber<TMessage, TComplete> subscriber) : IDisposable
+    sealed class _CompletablePublisher(Publisher<T>? parent, Subscriber<T> subscriber) : IDisposable
     {
         public int removeKey;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnNext(TMessage message)
+        public void OnNext(T value)
         {
-            subscriber.OnNext(message);
+            subscriber.OnNext(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,7 +120,7 @@ public sealed class Publisher<TMessage, TComplete> : Event<TMessage, TComplete>,
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnCompleted(TComplete complete)
+        public void OnCompleted(Result complete)
         {
             subscriber.OnCompleted(complete);
         }

@@ -23,27 +23,27 @@ public static partial class Event
     // AsSingleUnitObservable
 
     // AsUnitObservable
-    // AsUnitComplete
+    // AsUniResult
     // AsNeverComplete
 
     // TODO: use SystemDefault
 
-    public static Event<Unit, Unit> EveryUpdate()
+    public static Event<Unit> EveryUpdate()
     {
         return new EveryUpdate(EventSystem.DefaultFrameProvider, CancellationToken.None);
     }
 
-    public static Event<Unit, Unit> EveryUpdate(CancellationToken cancellationToken)
+    public static Event<Unit> EveryUpdate(CancellationToken cancellationToken)
     {
         return new EveryUpdate(EventSystem.DefaultFrameProvider, cancellationToken);
     }
 
-    public static Event<Unit, Unit> EveryUpdate(FrameProvider frameProvider)
+    public static Event<Unit> EveryUpdate(FrameProvider frameProvider)
     {
         return new EveryUpdate(frameProvider, CancellationToken.None);
     }
 
-    public static Event<Unit, Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
+    public static Event<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
     {
         return new EveryUpdate(frameProvider, cancellationToken);
     }
@@ -51,16 +51,16 @@ public static partial class Event
 
 
 
-internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit, Unit>
+internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Event<Unit>
 {
-    protected override IDisposable SubscribeCore(Subscriber<Unit, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
     {
         var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken);
         frameProvider.Register(runner);
         return runner;
     }
 
-    class EveryUpdateRunnerWorkItem(Subscriber<Unit, Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
+    class EveryUpdateRunnerWorkItem(Subscriber<Unit> subscriber, CancellationToken cancellationToken) : IFrameRunnerWorkItem, IDisposable
     {
         bool isDisposed;
 

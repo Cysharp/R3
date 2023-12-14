@@ -4,10 +4,10 @@ using System.Diagnostics;
 
 namespace R3;
 
-public abstract class Event<TMessage, TComplete>
+public abstract class Event<T>
 {
     [StackTraceHidden, DebuggerStepThrough]
-    public IDisposable Subscribe(Subscriber<TMessage, TComplete> subscriber)
+    public IDisposable Subscribe(Subscriber<T> subscriber)
     {
         try
         {
@@ -28,14 +28,13 @@ public abstract class Event<TMessage, TComplete>
         }
     }
 
-    protected abstract IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber);
+    protected abstract IDisposable SubscribeCore(Subscriber<T> subscriber);
 }
 
-// similar as IObserver<T>
-public abstract class Subscriber<TMessage, TComplete> : IDisposable
+public abstract class Subscriber<T> : IDisposable
 {
 #if DEBUG
-    [Obsolete("Only allow in CompletableEvent<TMessage>.")]
+    [Obsolete("Only allow in Event<T>.")]
 #endif
     internal SingleAssignmentDisposableCore SourceSubscription;
 
@@ -46,13 +45,13 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     bool IsCalledCompleted => Volatile.Read(ref calledOnCompleted) != 0;
 
     [StackTraceHidden, DebuggerStepThrough]
-    public void OnNext(TMessage message)
+    public void OnNext(T value)
     {
         if (IsDisposed || IsCalledCompleted) return;
 
         try
         {
-            OnNextCore(message);
+            OnNextCore(value);
         }
         catch (Exception ex)
         {
@@ -60,7 +59,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         }
     }
 
-    protected abstract void OnNextCore(TMessage message);
+    protected abstract void OnNextCore(T value);
 
     [StackTraceHidden, DebuggerStepThrough]
     public void OnErrorResume(Exception error)
@@ -80,7 +79,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
     protected abstract void OnErrorResumeCore(Exception error);
 
     [StackTraceHidden, DebuggerStepThrough]
-    public void OnCompleted(TComplete complete)
+    public void OnCompleted(Result result)
     {
         if (Interlocked.Exchange(ref calledOnCompleted, 1) != 0)
         {
@@ -90,7 +89,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
 
         try
         {
-            OnCompletedCore(complete);
+            OnCompletedCore(result);
         }
         catch (Exception ex)
         {
@@ -102,7 +101,7 @@ public abstract class Subscriber<TMessage, TComplete> : IDisposable
         }
     }
 
-    protected abstract void OnCompletedCore(TComplete complete);
+    protected abstract void OnCompletedCore(Result result);
 
     [StackTraceHidden, DebuggerStepThrough]
     public void Dispose()

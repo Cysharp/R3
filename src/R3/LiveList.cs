@@ -6,32 +6,32 @@ namespace R3;
 
 public static partial class EventExtensions
 {
-    public static LiveList<TMessage, TComplete> ToLiveList<TMessage, TComplete>(this Event<TMessage, TComplete> source)
+    public static LiveList<T> ToLiveList<T>(this Event<T> source)
     {
-        return new LiveList<TMessage, TComplete>(source);
+        return new LiveList<T>(source);
     }
 
-    public static LiveList<TMessage, TComplete> ToLiveList<TMessage, TComplete>(this Event<TMessage, TComplete> source, int bufferSize)
+    public static LiveList<T> ToLiveList<T>(this Event<T> source, int bufferSize)
     {
-        return new LiveList<TMessage, TComplete>(source, bufferSize);
+        return new LiveList<T>(source, bufferSize);
     }
 }
 
-public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
+public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
 {
     readonly IReadOnlyList<T> list; // RingBuffer<T> or List<T>
     readonly IDisposable sourceSubscription;
     readonly int bufferSize;
 
     bool isCompleted;
-    TComplete? completedValue;
+    Result? completedValue;
 
     [MemberNotNullWhen(true, nameof(CompletedValue))]
     public bool IsCompleted => isCompleted;
 
-    public TComplete? CompletedValue => completedValue;
+    public Result? CompletedValue => completedValue;
 
-    public LiveList(Event<T, TComplete> source)
+    public LiveList(Event<T> source)
     {
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = -1;
@@ -39,7 +39,7 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
         this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
     }
 
-    public LiveList(Event<T, TComplete> source, int bufferSize)
+    public LiveList(Event<T> source, int bufferSize)
     {
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = bufferSize; // bufferSize must set before Subscribe(sometimes Subscribe run immediately)
@@ -132,7 +132,7 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
         }
     }
 
-    sealed class ListSubscriber(LiveList<T, TComplete> parent) : Subscriber<T, TComplete>
+    sealed class ListSubscriber(LiveList<T> parent) : Subscriber<T>
     {
         protected override void OnNextCore(T message)
         {
@@ -160,7 +160,7 @@ public sealed class LiveList<T, TComplete> : IReadOnlyList<T>, IDisposable
             EventSystem.GetUnhandledExceptionHandler().Invoke(error);
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        protected override void OnCompletedCore(Result complete)
         {
             lock (parent.list)
             {

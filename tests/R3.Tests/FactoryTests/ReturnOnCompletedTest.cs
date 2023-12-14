@@ -11,7 +11,7 @@ public class ReturnOnCompletedTest
             using var list = Event.ReturnOnCompleted<int, string>("foo").ToLiveList();
             list.AssertEqual([]);
             list.AssertIsCompleted();
-            list.AssertCompletedValue("foo");
+            list.AsserResultdValue("foo");
         }
         {
             var fakeTime = new FakeTimeProvider();
@@ -20,12 +20,12 @@ public class ReturnOnCompletedTest
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
             list.AssertEqual([]);
-            list.AssertIsNotCompleted();
+            list.AssertIsNoResultd();
 
             fakeTime.Advance(TimeSpan.FromSeconds(1));
             list.AssertEqual([]);
             list.AssertIsCompleted();
-            list.AssertCompletedValue("foo");
+            list.AsserResultdValue("foo");
         }
     }
 }

@@ -7,53 +7,42 @@ public static class EventSubscribeExtensions
     // TODO: with State
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this Event<TMessage, TComplete> source)
+    public static IDisposable Subscribe<T>(this Event<T> source)
     {
-        return source.Subscribe(NopSubscriber<TMessage, TComplete>.Instance);
+        return source.Subscribe(NopSubscriber<T>.Instance);
+    }
+
+
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T>(this Event<T> source, Action<T> onNext)
+    {
+        return source.Subscribe(new AnonymousSubscriber<T>(onNext, EventSystem.GetUnhandledExceptionHandler(), Stubs.HandleError));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source)
+    public static IDisposable Subscribe<T>(this Event<T> source, Action<T> onNext, Action<Result> onComplete)
     {
-        return source.Subscribe(NopRSubscriber<TMessage, TComplete>.Instance);
+        return source.Subscribe(new AnonymousSubscriber<T>(onNext, EventSystem.GetUnhandledExceptionHandler(), onComplete));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this Event<TMessage, TComplete> source, Action<TMessage> onNext)
+    public static IDisposable Subscribe<T>(this Event<T> source, Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete)
     {
-        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, EventSystem.GetUnhandledExceptionHandler(), Stubs<TComplete>.Nop));
-    }
-
-    [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Action<TMessage> onNext)
-    {
-        return source.Subscribe(new AnonymousRSubscriber<TMessage, TComplete>(onNext, EventSystem.GetUnhandledExceptionHandler()));
-    }
-
-    [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this Event<TMessage, TComplete> source, Action<TMessage> onNext, Action<TComplete> onComplete)
-    {
-        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, EventSystem.GetUnhandledExceptionHandler(), onComplete));
-    }
-
-    [DebuggerStepThrough]
-    public static IDisposable Subscribe<TMessage, TComplete>(this Event<TMessage, TComplete> source, Action<TMessage> onNext, Action<Exception> onErrorResume, Action<TComplete> onComplete)
-    {
-        return source.Subscribe(new AnonymousSubscriber<TMessage, TComplete>(onNext, onErrorResume, onComplete));
+        return source.Subscribe(new AnonymousSubscriber<T>(onNext, onErrorResume, onComplete));
     }
 }
 
 [DebuggerStepThrough]
-internal sealed class NopSubscriber<TMessage, TComplete> : Subscriber<TMessage, TComplete>
+internal sealed class NopSubscriber<T> : Subscriber<T>
 {
-    public static readonly NopSubscriber<TMessage, TComplete> Instance = new();
+    public static readonly NopSubscriber<T> Instance = new();
 
     private NopSubscriber()
     {
     }
 
     [DebuggerStepThrough]
-    protected override void OnNextCore(TMessage message)
+    protected override void OnNextCore(T value)
     {
     }
 
@@ -64,46 +53,20 @@ internal sealed class NopSubscriber<TMessage, TComplete> : Subscriber<TMessage, 
     }
 
     [DebuggerStepThrough]
-    protected override void OnCompletedCore(TComplete complete)
+    protected override void OnCompletedCore(Result result)
     {
-    }
-}
-
-[DebuggerStepThrough]
-internal sealed class NopRSubscriber<TMessage, TComplete> : Subscriber<TMessage, Result<TComplete>>
-{
-    public static readonly NopRSubscriber<TMessage, TComplete> Instance = new();
-
-    private NopRSubscriber()
-    {
-    }
-
-    [DebuggerStepThrough]
-    protected override void OnNextCore(TMessage message)
-    {
-    }
-
-    [DebuggerStepThrough]
-    protected override void OnErrorResumeCore(Exception error)
-    {
-        EventSystem.GetUnhandledExceptionHandler().Invoke(error);
-    }
-
-    [DebuggerStepThrough]
-    protected override void OnCompletedCore(Result<TComplete> complete)
-    {
-        if (complete.IsFailure)
+        if (result.IsFailure)
         {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(complete.Exception);
+            EventSystem.GetUnhandledExceptionHandler().Invoke(result.Exception);
         }
     }
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousSubscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<Exception> onErrorResume, Action<TComplete> onComplete) : Subscriber<TMessage, TComplete>
+internal sealed class AnonymousRSubscriber<T>(Action<T> onNext, Action<Exception> onErrorResume) : Subscriber<T>
 {
     [DebuggerStepThrough]
-    protected override void OnNextCore(TMessage message)
+    protected override void OnNextCore(T value)
     {
         onNext(message);
     }
@@ -115,33 +78,34 @@ internal sealed class AnonymousSubscriber<TMessage, TComplete>(Action<TMessage> 
     }
 
     [DebuggerStepThrough]
-    protected override void OnCompletedCore(TComplete complete)
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            EventSystem.GetUnhandledExceptionHandler().Invoke(result.Exception);
+        }
+    }
+}
+
+
+[DebuggerStepThrough]
+internal sealed class AnonymousSubscriber<T>(Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete) : Subscriber<T>
+{
+    [DebuggerStepThrough]
+    protected override void OnNextCore(T value)
+    {
+        onNext(message);
+    }
+
+    [DebuggerStepThrough]
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        onErrorResume(error);
+    }
+
+    [DebuggerStepThrough]
+    protected override void OnCompletedCore(Result complete)
     {
         onComplete(complete);
-    }
-}
-
-[DebuggerStepThrough]
-internal sealed class AnonymousRSubscriber<TMessage, TComplete>(Action<TMessage> onNext, Action<Exception> onErrorResume) : Subscriber<TMessage, Result<TComplete>>
-{
-    [DebuggerStepThrough]
-    protected override void OnNextCore(TMessage message)
-    {
-        onNext(message);
-    }
-
-    [DebuggerStepThrough]
-    protected override void OnErrorResumeCore(Exception error)
-    {
-        onErrorResume(error);
-    }
-
-    [DebuggerStepThrough]
-    protected override void OnCompletedCore(Result<TComplete> complete)
-    {
-        if (complete.IsFailure)
-        {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(complete.Exception);
-        }
     }
 }

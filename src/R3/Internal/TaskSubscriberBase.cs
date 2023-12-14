@@ -1,10 +1,9 @@
-﻿
-namespace R3.Internal;
+﻿namespace R3.Internal;
 
 // for return Task(tcs.TrySet***)
 // include proper Cancel registration
 
-internal abstract class TaskSubscriberBase<TMessage, TComplete, TTask> : Subscriber<TMessage, TComplete>
+internal abstract class TaskSubscriberBase<T, TTask> : Subscriber<T>
 {
     TaskCompletionSource<TTask> tcs; // use this field.
 
@@ -23,7 +22,7 @@ internal abstract class TaskSubscriberBase<TMessage, TComplete, TTask> : Subscri
             // register before call Subscribe
             this.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
             {
-                var s = (TaskSubscriberBase<TMessage, TComplete, TTask>)state!;
+                var s = (TaskSubscriberBase<T, TTask>)state!;
 
                 s.Dispose(); // subscriber is subscription, dispose
                 s.tcs.TrySetCanceled(s.cancellationToken);

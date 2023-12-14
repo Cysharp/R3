@@ -2,30 +2,30 @@
 
 public static partial class Event
 {
-    public static Event<TMessage, Unit> Empty<TMessage>()
+    public static Event<T> Empty<T>()
     {
-        return R3.Empty<TMessage>.Instance;
+        return R3.Empty<T>.Instance;
     }
 
-    public static Event<TMessage, Unit> Empty<TMessage>(TimeProvider timeProvider)
+    public static Event<T> Empty<T>(TimeProvider timeProvider)
     {
-        return ReturnOnCompleted<TMessage, Unit>(default, timeProvider);
+        return ReturnOnCompleted<T>(Result.Success, timeProvider);
     }
 
-    public static Event<TMessage, Unit> Empty<TMessage>(TimeSpan dueTime, TimeProvider timeProvider)
+    public static Event<T> Empty<T>(TimeSpan dueTime, TimeProvider timeProvider)
     {
-        return ReturnOnCompleted<TMessage, Unit>(default, dueTime, timeProvider);
+        return ReturnOnCompleted<T>(Result.Success, dueTime, timeProvider);
     }
 }
 
-internal sealed class Empty<TMessage> : Event<TMessage, Unit>
+internal sealed class Empty<T> : Event<T>
 {
     // singleton
-    public static readonly Empty<TMessage> Instance = new Empty<TMessage>();
+    public static readonly Empty<T> Instance = new Empty<T>();
 
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, Unit> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
-        subscriber.OnCompleted(default);
+        subscriber.OnCompleted();
         return Disposable.Empty;
     }
 

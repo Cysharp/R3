@@ -2,7 +2,7 @@
 
 public static class PublisherExtensions
 {
-    public static void PublishOnCompleted<T>(this Publisher<T, Unit> publisher)
+    public static void PublishOnCompleted<T>(this Publisher<T> publisher)
     {
         publisher.PublishOnCompleted(default);
     }

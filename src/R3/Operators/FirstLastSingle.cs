@@ -4,63 +4,38 @@ using static FirstLastSingleOperation;
 
 public static partial class EventExtensions
 {
-    // Completable
-
-    public static Task<TMessage> FirstAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default) => FirstAsync(source, static _ => true, cancellationToken);
-    public static Task<TMessage> FirstOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
-    public static Task<TMessage> LastAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default) => LastAsync(source, static _ => true, cancellationToken);
-    public static Task<TMessage> LastOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => LastOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
-    public static Task<TMessage> SingleAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, CancellationToken cancellationToken = default) => SingleAsync(source, static _ => true, cancellationToken);
-    public static Task<TMessage> SingleOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => SingleOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
+    public static Task<T> FirstAsync<T>(this Event<T> source, CancellationToken cancellationToken = default) => FirstAsync(source, static _ => true, cancellationToken);
+    public static Task<T> FirstOrDefaultAsync<T>(this Event<T> source, T? defaultValue = default, CancellationToken cancellationToken = default) => FirstOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
+    public static Task<T> LastAsync<T>(this Event<T> source, CancellationToken cancellationToken = default) => LastAsync(source, static _ => true, cancellationToken);
+    public static Task<T> LastOrDefaultAsync<T>(this Event<T> source, T? defaultValue = default, CancellationToken cancellationToken = default) => LastOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
+    public static Task<T> SingleAsync<T>(this Event<T> source, CancellationToken cancellationToken = default) => SingleAsync(source, static _ => true, cancellationToken);
+    public static Task<T> SingleOrDefaultAsync<T>(this Event<T> source, T? defaultValue = default, CancellationToken cancellationToken = default) => SingleOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
 
     // with predicate
+    public static Task<T> FirstAsync<T>(this Event<T> source, Func<T, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, First, false, default, predicate, cancellationToken);
+    public static Task<T> FirstOrDefaultAsync<T>(this Event<T> source, Func<T, bool> predicate, T? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, First, true, defaultValue, predicate, cancellationToken);
+    public static Task<T> LastAsync<T>(this Event<T> source, Func<T, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Last, false, default, predicate, cancellationToken);
+    public static Task<T> LastOrDefaultAsync<T>(this Event<T> source, Func<T, bool> predicate, T? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Last, true, defaultValue, predicate, cancellationToken);
+    public static Task<T> SingleAsync<T>(this Event<T> source, Func<T, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Single, false, default, predicate, cancellationToken);
+    public static Task<T> SingleOrDefaultAsync<T>(this Event<T> source, Func<T, bool> predicate, T? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Single, true, defaultValue, predicate, cancellationToken);
 
-    public static Task<TMessage> FirstAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, First, false, default, predicate, cancellationToken);
-    public static Task<TMessage> FirstOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, Func<TMessage, bool> predicate, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, First, true, defaultValue, predicate, cancellationToken);
-    public static Task<TMessage> LastAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Last, false, default, predicate, cancellationToken);
-    public static Task<TMessage> LastOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, Func<TMessage, bool> predicate, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Last, true, defaultValue, predicate, cancellationToken);
-    public static Task<TMessage> SingleAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Single, false, default, predicate, cancellationToken);
-    public static Task<TMessage> SingleOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, Func<TMessage, bool> predicate, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Single, true, defaultValue, predicate, cancellationToken);
-
-    // Result variation
-
-    public static Task<TMessage> FirstAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default) => FirstAsync(source, static _ => true, cancellationToken);
-    public static Task<TMessage> FirstOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
-    public static Task<TMessage> LastAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default) => LastAsync(source, static _ => true, cancellationToken);
-    public static Task<TMessage> LastOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => LastOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
-    public static Task<TMessage> SingleAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, CancellationToken cancellationToken = default) => SingleAsync(source, static _ => true, cancellationToken);
-    public static Task<TMessage> SingleOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => SingleOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
-    public static Task<TMessage> FirstAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, First, false, default, predicate, cancellationToken);
-    public static Task<TMessage> FirstOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Func<TMessage, bool> predicate, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, First, true, defaultValue, predicate, cancellationToken);
-    public static Task<TMessage> LastAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Last, false, default, predicate, cancellationToken);
-    public static Task<TMessage> LastOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Func<TMessage, bool> predicate, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Last, true, defaultValue, predicate, cancellationToken);
-    public static Task<TMessage> SingleAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Func<TMessage, bool> predicate, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Single, false, default, predicate, cancellationToken);
-    public static Task<TMessage> SingleOrDefaultAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, Func<TMessage, bool> predicate, TMessage? defaultValue = default, CancellationToken cancellationToken = default) => FirstLastSingleAsync(source, Single, true, defaultValue, predicate, cancellationToken);
-
-    static Task<TMessage> FirstLastSingleAsync<TMessage, TComplete>(this Event<TMessage, TComplete> source, FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
+    static Task<T> FirstLastSingleAsync<T>(this Event<T> source, FirstLastSingleOperation operation, bool useDefaultIfEmpty, T? defaultValue, Func<T, bool> predicate, CancellationToken cancellationToken)
     {
-        var subscriber = new FirstLastSingle<TMessage, TComplete>(operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
-        source.Subscribe(subscriber);
-        return subscriber.Task;
-    }
-
-    static Task<TMessage> FirstLastSingleAsync<TMessage, TComplete>(this Event<TMessage, Result<TComplete>> source, FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
-    {
-        var subscriber = new FirstLastSingleR<TMessage, TComplete>(operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
+        var subscriber = new FirstLastSingle<T>(operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
         source.Subscribe(subscriber);
         return subscriber.Task;
     }
 }
 
-internal sealed class FirstLastSingle<TMessage, TComplete>(FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
-    : TaskSubscriberBase<TMessage, TComplete, TMessage>(cancellationToken)
+internal sealed class FirstLastSingle<T>(FirstLastSingleOperation operation, bool useDefaultIfEmpty, T? defaultValue, Func<T, bool> predicate, CancellationToken cancellationToken)
+    : TaskSubscriberBase<T, T>(cancellationToken)
 {
     bool hasValue;
-    TMessage? latestValue = defaultValue;
+    T? latestValue = defaultValue;
 
-    protected override void OnNextCore(TMessage message)
+    protected override void OnNextCore(T value)
     {
-        if (!predicate(message)) return;
+        if (!predicate(value)) return;
 
         if (operation == FirstLastSingleOperation.Single && hasValue)
         {
@@ -71,11 +46,11 @@ internal sealed class FirstLastSingle<TMessage, TComplete>(FirstLastSingleOperat
         hasValue = true;
         if (operation == FirstLastSingleOperation.First)
         {
-            TrySetResult(message); // First / FirstOrDefault
+            TrySetResult(value); // First / FirstOrDefault
         }
         else
         {
-            latestValue = message;
+            latestValue = value;
         }
     }
 
@@ -84,61 +59,17 @@ internal sealed class FirstLastSingle<TMessage, TComplete>(FirstLastSingleOperat
         TrySetException(error);
     }
 
-    protected override void OnCompletedCore(TComplete complete)
+    protected override void OnCompletedCore(Result result)
     {
-        if (hasValue || useDefaultIfEmpty)
+        if (result.IsFailure)
         {
-            TrySetResult(latestValue!); // FirstOrDefault / Last / LastOrDefault / Single / SingleOrDefault
-            return;
-        }
-
-        TrySetException(new InvalidOperationException("Sequence contains no elements."));
-    }
-}
-
-internal sealed class FirstLastSingleR<TMessage, TComplete>(FirstLastSingleOperation operation, bool useDefaultIfEmpty, TMessage? defaultValue, Func<TMessage, bool> predicate, CancellationToken cancellationToken)
-    : TaskSubscriberBase<TMessage, Result<TComplete>, TMessage>(cancellationToken)
-{
-    bool hasValue;
-    TMessage? latestValue = defaultValue;
-
-    protected override void OnNextCore(TMessage message)
-    {
-        if (!predicate(message)) return;
-
-        if (operation == FirstLastSingleOperation.Single && hasValue)
-        {
-            TrySetException(new InvalidOperationException("Sequence contains more than one element."));
-            return;
-        }
-
-        hasValue = true;
-        if (operation == FirstLastSingleOperation.First)
-        {
-            TrySetResult(message); // First / FirstOrDefault
-        }
-        else
-        {
-            latestValue = message;
-        }
-    }
-
-    protected override void OnErrorResumeCore(Exception error)
-    {
-        TrySetException(error);
-    }
-
-    protected override void OnCompletedCore(Result<TComplete> complete)
-    {
-        if (complete.IsFailure)
-        {
-            TrySetException(complete.Exception);
+            TrySetException(result.Exception);
             return;
         }
 
         if (hasValue || useDefaultIfEmpty)
         {
-            TrySetResult(latestValue!); // FirstOrDefault / Last / LastOrDefault / Single / SingleOrDefault
+            TrySetResult(latestValue!);
             return;
         }
 

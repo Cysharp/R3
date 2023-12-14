@@ -2,39 +2,39 @@
 
 public static partial class EventExtensions
 {
-    public static Event<TMessage, Unit> Take<TMessage>(this Event<TMessage, Unit> source, int count)
+    public static Event<TMessage> Take<T>(this Event<TMessage> source, int count)
     {
-        return new Take<TMessage, Unit>(source, count, default, null);
+        return new Take<TMessage>(source, count, default, null);
     }
 
-    public static Event<TMessage, TComplete> Take<TMessage, TComplete>(this Event<TMessage, TComplete> source, int count, TComplete interruptMessage)
+    public static Event<T> Take<T>(this Event<T> source, int count interruptMessage)
     {
-        return new Take<TMessage, TComplete>(source, count, interruptMessage, null);
+        return new Take<T>(source, count, interruptMessage, null);
     }
 
-    public static Event<TMessage, TComplete> Take<TMessage, TComplete>(this Event<TMessage, TComplete> source, int count, Func<TComplete> interruptMessageFactory)
+    public static Event<T> Take<T>(this Event<T> source, int count, Func<Result> interruptMessageFactory)
     {
-        return new Take<TMessage, TComplete>(source, count, default!, interruptMessageFactory);
+        return new Take<T>(source, count, default!, interruptMessageFactory);
     }
 }
 
-internal sealed class Take<TMessage, TComplete>(Event<TMessage, TComplete> source, int count, TComplete interruptMessage, Func<TComplete>? interruptMessageFactory) : Event<TMessage, TComplete>
+internal sealed class Take<T>(Event<T> source, int count interruptMessage, Func<Result>? interruptMessageFactory) : Event<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         return source.Subscribe(new _Take(subscriber, count, interruptMessage, interruptMessageFactory));
     }
 
-    sealed class _Take(Subscriber<TMessage, TComplete> subscriber, int count, TComplete interruptMessage, Func<TComplete>? interruptMessageFactory) : Subscriber<TMessage, TComplete>, IDisposable
+    sealed class _Take(Subscriber<T> subscriber, int count interruptMessage, Func<Result>? interruptMessageFactory) : Subscriber<T>, IDisposable
     {
         int remaining = count;
 
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
             if (remaining > 0)
             {
                 remaining--;
-                subscriber.OnNext(message);
+                subscriber.OnNext(value);
             }
             else
             {
@@ -54,7 +54,7 @@ internal sealed class Take<TMessage, TComplete>(Event<TMessage, TComplete> sourc
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        protected override void OnCompletedCore(Result complete)
         {
             subscriber.OnCompleted(complete);
         }

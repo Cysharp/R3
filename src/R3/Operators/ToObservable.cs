@@ -3,29 +3,29 @@
 public static partial class EventExtensions
 {
     // TODO: more overload?
-    public static IObservable<TMessage> ToObservable<TMessage, TComplete>(this Event<TMessage, Unit> source)
+    public static IObservable<T> ToObservable<T>(this Event<TMessage> source)
     {
-        return new ToObservable<TMessage>(source);
+        return new ToObservable<T>(source);
     }
 
-    public static IObservable<TMessage> ToObservable<TMessage, TComplete>(this Event<TMessage, Result<Unit>> source)
+    public static IObservable<T> ToObservable<T>(this Event<TMessage> source)
     {
-        return new ToObservableR<TMessage>(source);
+        return new ToObservableR<T>(source);
     }
 }
 
-internal sealed class ToObservable<TMessage>(Event<TMessage, Unit> source) : IObservable<TMessage>
+internal sealed class ToObservable<T>(Event<TMessage> source) : IObservable<T>
 {
-    public IDisposable Subscribe(IObserver<TMessage> observer)
+    public IDisposable Subscribe(IObserver<T> observer)
     {
         return source.Subscribe(new ObserverToSubscriber(observer));
     }
 
-    sealed class ObserverToSubscriber(IObserver<TMessage> observer) : Subscriber<TMessage, Unit>
+    sealed class ObserverToSubscriber(IObserver<T> observer) : Subscriber<TMessage>
     {
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
-            observer.OnNext(message);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -40,18 +40,18 @@ internal sealed class ToObservable<TMessage>(Event<TMessage, Unit> source) : IOb
     }
 }
 
-internal sealed class ToObservableR<TMessage>(Event<TMessage, Result<Unit>> source) : IObservable<TMessage>
+internal sealed class ToObservableR<T>(Event<TMessage> source) : IObservable<T>
 {
-    public IDisposable Subscribe(IObserver<TMessage> observer)
+    public IDisposable Subscribe(IObserver<T> observer)
     {
         return source.Subscribe(new ObserverToSubscriber(observer));
     }
 
-    sealed class ObserverToSubscriber(IObserver<TMessage> observer) : Subscriber<TMessage, Result<Unit>>
+    sealed class ObserverToSubscriber(IObserver<T> observer) : Subscriber<TMessage>
     {
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
-            observer.OnNext(message);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)

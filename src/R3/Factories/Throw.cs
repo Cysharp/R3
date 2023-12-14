@@ -2,33 +2,20 @@
 
 public static partial class Event
 {
-    public static Event<TMessage, Result<Unit>> Throw<TMessage>(Exception exception)
+    public static Event<T> Throw<T>(Exception exception)
     {
-        return Throw<TMessage, Unit>(exception);
+        return ReturnOnCompleted<T>(Result.Failure(exception));
     }
 
-    public static Event<TMessage, Result<TComplete>> Throw<TMessage, TComplete>(Exception exception)
+    public static Event<T> Throw<T>(Exception exception, TimeProvider timeProvider)
     {
-        return ReturnOnCompleted<TMessage, Result<TComplete>>(Result.Failure<TComplete>(exception));
+        return ReturnOnCompleted<T>(Result.Failure(exception), timeProvider);
     }
 
-    public static Event<TMessage, Result<Unit>> Throw<TMessage>(Exception exception, TimeProvider timeProvider)
+    public static Event<T> Throw<T>(Exception exception, TimeSpan dueTime, TimeProvider timeProvider)
     {
-        return Throw<TMessage, Unit>(exception, timeProvider);
-    }
-
-    public static Event<TMessage, Result<TComplete>> Throw<TMessage, TComplete>(Exception exception, TimeProvider timeProvider)
-    {
-        return ReturnOnCompleted<TMessage, Result<TComplete>>(Result.Failure<TComplete>(exception), timeProvider);
-    }
-
-    public static Event<TMessage, Result<Unit>> Throw<TMessage>(Exception exception, TimeSpan dueTime, TimeProvider timeProvider)
-    {
-        return Throw<TMessage, Unit>(exception, dueTime, timeProvider);
-    }
-
-    public static Event<TMessage, Result<TComplete>> Throw<TMessage, TComplete>(Exception exception, TimeSpan dueTime, TimeProvider timeProvider)
-    {
-        return ReturnOnCompleted<TMessage, Result<TComplete>>(Result.Failure<TComplete>(exception), dueTime, timeProvider);
+        return ReturnOnCompleted<T>(Result.Failure(exception), dueTime, timeProvider);
     }
 }
+
+

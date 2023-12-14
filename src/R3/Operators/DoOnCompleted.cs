@@ -4,28 +4,28 @@ public static partial class EventExtensions
 {
     // TODO: more accurate impl
     // TODO: with state
-    public static Event<TMessage, TComplete> DoOnCompleted<TMessage, TComplete>(this Event<TMessage, TComplete> source, Action action)
+    public static Event<T> DoOnCompleted<T>(this Event<T> source, Action<Result> action)
     {
-        return new DoOnCompleted<TMessage, TComplete>(source, action);
+        return new DoOnCompleted<T>(source, action);
     }
 }
 
-internal sealed class DoOnCompleted<TMessage, TComplete>(Event<TMessage, TComplete> source, Action action) : Event<TMessage, TComplete>
+internal sealed class DoOnCompleted<T>(Event<T> source, Action<Result> action) : Event<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<TMessage, TComplete> subscriber)
+    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
     {
         var method = new _DoOnCompleted(subscriber, action);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnCompleted(Subscriber<TMessage, TComplete> subscriber, Action action) : Subscriber<TMessage, TComplete>, IDisposable
+    class _DoOnCompleted(Subscriber<T> subscriber, Action<Result> action) : Subscriber<T>, IDisposable
     {
-        Action? action = action;
+        Action<Result>? action = action;
 
-        protected override void OnNextCore(TMessage message)
+        protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(message);
+            subscriber.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -33,10 +33,10 @@ internal sealed class DoOnCompleted<TMessage, TComplete>(Event<TMessage, TComple
             subscriber.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(TComplete complete)
+        protected override void OnCompletedCore(Result result)
         {
-            Interlocked.Exchange(ref action, null)?.Invoke();
-            subscriber.OnCompleted(complete);
+            Interlocked.Exchange(ref action, null)?.Invoke(result);
+            subscriber.OnCompleted(result);
         }
-}
+    }
 }
