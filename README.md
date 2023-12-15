@@ -2,6 +2,9 @@
 
 Third Generation of Reactive Extensions.
 
+
+* LINQ is not for EveryThing
+
 ```csharp
 public abstract class Observable<T>
 {

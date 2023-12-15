@@ -43,7 +43,7 @@ public class TakeLastTest
         var frameProvider = new ManualFrameProvider();
         var cts = new CancellationTokenSource();
 
-        var list = Observable.EveryUpdate(frameProvider, cts.Token, cancelImmediately: true)
+        var list = Observable.EveryUpdate(frameProvider, cts.Token)
             .Select(x => frameProvider.GetFrameCount())
             .TakeLastFrame(3, frameProvider)
             .ToLiveList();
@@ -57,8 +57,6 @@ public class TakeLastTest
         cts.Cancel(); // stop and OnCompleted
 
         list.AssertEqual([3, 4, 5]);
-
-
         list.AssertIsCompleted();
     }
 }

@@ -59,7 +59,7 @@ public class TakeTest
         var frameProvider = new ManualFrameProvider();
 
         var list = Observable.EveryUpdate(frameProvider)
-            .Select(x => (int)frameProvider.GetFrameCount())
+            .Select(x => frameProvider.GetFrameCount())
             .TakeFrame(5, frameProvider)
             .ToLiveList();
 

@@ -22,6 +22,23 @@ public static class Disposable
         disposables.Add(disposable);
     }
 
+    public static CancellationTokenRegistration RegisterTo(this IDisposable disposable, CancellationToken cancellationToken)
+    {
+        if (!cancellationToken.CanBeCanceled) throw new ArgumentException("Require CancellationToken CanBeCanceled");
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            disposable.Dispose();
+            return default;
+        }
+
+        return cancellationToken.Register(state =>
+        {
+            var d = ((IDisposable)state!);
+            d.Dispose();
+        }, disposable);
+    }
+
     public static IDisposable Create(Action onDisposed)
     {
         return new AnonymousDisposable(onDisposed);
@@ -441,6 +458,11 @@ public ref struct DisposableBuilder()
 
         Dispose();
         return result;
+    }
+
+    public CancellationTokenRegistration RegisterTo(CancellationToken cancellationToken)
+    {
+        return Build().RegisterTo(cancellationToken);
     }
 
     public void Dispose()

@@ -25,7 +25,7 @@ public static partial class ObservableExtensions
 internal sealed class Where<T>(Observable<T> source, Func<T, bool> predicate) : Observable<T>
 {
     internal Observable<T> source = source;
-    internal Func<T, bool> predicate = predicate;
+    internal Func<T, bool> predicate = predicate; // use in WhereWhere, WhereSelect(Select.cs)
 
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {

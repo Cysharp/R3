@@ -9,7 +9,7 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>
 }
 
 // allow inherit
-public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
+public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDisposable
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
@@ -32,11 +32,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
                 }
             }
 
-            this.value = value;
-            foreach (var observer in list.AsSpan())
-            {
-                observer?.OnNext(value);
-            }
+            OnNext(value);
         }
     }
 
@@ -52,11 +48,29 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         this.list = new FreeListCore<Subscription>(this);
     }
 
-    public void PublishOnErrorResume(Exception error)
+    public void OnNext(T value)
+    {
+        this.value = value;
+        foreach (var observer in list.AsSpan())
+        {
+            observer?.OnNext(value);
+        }
+    }
+
+    public void OnErrorResume(Exception error)
     {
         foreach (var observer in list.AsSpan())
         {
             observer?.OnErrorResume(error);
+        }
+    }
+
+    // TODO: OnCompleted lock? same as Subject
+    public void OnCompleted(Result result)
+    {
+        foreach (var observer in list.AsSpan())
+        {
+            observer?.OnCompleted(result);
         }
     }
 
@@ -81,7 +95,12 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
     public void Dispose()
     {
         // TODO: call OnCompleted on Dispose.
+        DisposeCore();
         list.Dispose();
+    }
+
+    protected virtual void DisposeCore()
+    {
     }
 
     public override string? ToString()
@@ -103,6 +122,12 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         public void OnErrorResume(Exception error)
         {
             observer.OnErrorResume(error);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void OnCompleted(Result result)
+        {
+            observer.OnCompleted(result);
         }
 
         public void Dispose()

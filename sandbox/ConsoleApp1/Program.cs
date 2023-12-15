@@ -50,15 +50,9 @@ var repeat = System.Reactive.Linq.Observable.Repeat("foo", 10);
 
 
 
-IEnumerable<int> Range(int count)
-{
-    for (int i = 0; i < count; i++)
-    {
-        Console.WriteLine(i);
-        yield return i;
-    }
-}
 
+var rp = new ReactiveProperty<int>(999);
+rp.Value += 10;
 
 public static class Extensions
 {
