@@ -1,11 +1,11 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
     // no scheduler(TimeProvider) overload
     // no infinitely overload
 
-    public static Event<T> Repeat<T>(T value, int count)
+    public static Observable<T> Repeat<T>(T value, int count)
     {
         if (count < 0)
         {
@@ -20,7 +20,7 @@ public static partial class Event
         return new Repeat<T>(value, count);
     }
 
-    public static Event<T> Repeat<T>(T value, int count, CancellationToken cancellationToken)
+    public static Observable<T> Repeat<T>(T value, int count, CancellationToken cancellationToken)
     {
         if (count < 0)
         {
@@ -36,9 +36,9 @@ public static partial class Event
     }
 }
 
-internal sealed class Repeat<T>(T value, int count) : Event<T>
+internal sealed class Repeat<T>(T value, int count) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         for (int i = 0; i < count; i++)
         {
@@ -49,9 +49,9 @@ internal sealed class Repeat<T>(T value, int count) : Event<T>
     }
 }
 
-internal sealed class RepeatC<T>(T value, int count, CancellationToken cancellationToken) : Event<T>
+internal sealed class RepeatC<T>(T value, int count, CancellationToken cancellationToken) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         for (int i = 0; i < count; i++)
         {

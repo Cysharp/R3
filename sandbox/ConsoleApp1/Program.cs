@@ -28,7 +28,7 @@ EventSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 // Enumerable.Empty<int>().ElementAtOrDefault(
 
-var range = Observable.Range(1, 10);
+var range = System.Reactive.Linq.Observable.Range(1, 10);
 
 // range.TakeLast(
 
@@ -45,7 +45,7 @@ foreach (var item in Enumerable.Range(1, 10).TakeWhile(x => x <= 3))
     Console.WriteLine(item);
 }
 
-var repeat = Observable.Repeat("foo", 10);
+var repeat = System.Reactive.Linq.Observable.Repeat("foo", 10);
 // repeat.TakeWhile(
 
 
@@ -62,7 +62,7 @@ IEnumerable<int> Range(int count)
 
 public static class Extensions
 {
-    public static IDisposable WriteLine<T>(this Event<T> source)
+    public static IDisposable WriteLine<T>(this Observable<T> source)
     {
         return source.Subscribe(x => Console.WriteLine(x), x => Console.WriteLine(x));
     }

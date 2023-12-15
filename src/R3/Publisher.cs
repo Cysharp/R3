@@ -8,7 +8,7 @@ public interface IEventPublisher<T>
     void PublishOnCompleted(Result complete);
 }
 
-public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
+public sealed class Publisher<T> : Observable<T>, IEventPublisher<T>, IDisposable
 {
     int calledCompleted = 0;
     Result completeValue;
@@ -69,7 +69,7 @@ public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
         }
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         if (list.IsDisposed) ThrowDisposed();
 
@@ -105,7 +105,7 @@ public sealed class Publisher<T> : Event<T>, IEventPublisher<T>, IDisposable
         throw new ObjectDisposedException("CompletablePublisher");
     }
 
-    sealed class _CompletablePublisher(Publisher<T>? parent, Subscriber<T> subscriber) : IDisposable
+    sealed class _CompletablePublisher(Publisher<T>? parent, Observer<T> subscriber) : IDisposable
     {
         public int removeKey;
 

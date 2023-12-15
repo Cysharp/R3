@@ -5,25 +5,25 @@ namespace R3;
 public static class EventSubscribeExtensions
 {
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T>(this Event<T> source)
+    public static IDisposable Subscribe<T>(this Observable<T> source)
     {
         return source.Subscribe(NopSubscriber<T>.Instance);
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T>(this Event<T> source, Action<T> onNext)
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext)
     {
         return source.Subscribe(new AnonymousSubscriber<T>(onNext, EventSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T>(this Event<T> source, Action<T> onNext, Action<Result> onComplete)
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Result> onComplete)
     {
         return source.Subscribe(new AnonymousSubscriber<T>(onNext, EventSystem.GetUnhandledExceptionHandler(), onComplete));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T>(this Event<T> source, Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete)
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete)
     {
         return source.Subscribe(new AnonymousSubscriber<T>(onNext, onErrorResume, onComplete));
     }
@@ -31,26 +31,26 @@ public static class EventSubscribeExtensions
     // with state
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T, TState>(this Event<T> source, TState state, Action<T, TState> onNext)
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext)
     {
         return source.Subscribe(new AnonymousSubscriber<T, TState>(onNext, Stubs<TState>.HandleException, Stubs<TState>.HandleResult, state));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T, TState>(this Event<T> source, TState state, Action<T, TState> onNext, Action<Result, TState> onComplete)
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Result, TState> onComplete)
     {
         return source.Subscribe(new AnonymousSubscriber<T, TState>(onNext, Stubs<TState>.HandleException, onComplete, state));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T, TState>(this Event<T> source, TState state, Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onComplete)
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onComplete)
     {
         return source.Subscribe(new AnonymousSubscriber<T, TState>(onNext, onErrorResume, onComplete, state));
     }
 }
 
 [DebuggerStepThrough]
-internal sealed class NopSubscriber<T> : Subscriber<T>
+internal sealed class NopSubscriber<T> : Observer<T>
 {
     public static readonly NopSubscriber<T> Instance = new();
 
@@ -80,7 +80,7 @@ internal sealed class NopSubscriber<T> : Subscriber<T>
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousRSubscriber<T>(Action<T> onNext, Action<Exception> onErrorResume) : Subscriber<T>
+internal sealed class AnonymousRSubscriber<T>(Action<T> onNext, Action<Exception> onErrorResume) : Observer<T>
 {
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)
@@ -105,7 +105,7 @@ internal sealed class AnonymousRSubscriber<T>(Action<T> onNext, Action<Exception
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousSubscriber<T>(Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete) : Subscriber<T>
+internal sealed class AnonymousSubscriber<T>(Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete) : Observer<T>
 {
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)
@@ -127,7 +127,7 @@ internal sealed class AnonymousSubscriber<T>(Action<T> onNext, Action<Exception>
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousSubscriber<T, TState>(Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onComplete, TState state) : Subscriber<T>
+internal sealed class AnonymousSubscriber<T, TState>(Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onComplete, TState state) : Observer<T>
 {
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)

@@ -1,28 +1,28 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
-    public static Event<T> ToEvent<T>(this Task<T> task)
+    public static Observable<T> ToEvent<T>(this Task<T> task)
     {
         return new TaskToEvent<T>(task);
     }
 
-    public static Event<T> ToEvent<T>(this IEnumerable<T> source)
+    public static Observable<T> ToEvent<T>(this IEnumerable<T> source)
     {
         return new EnumerableToEvent<T>(source);
     }
 }
 
-internal sealed class TaskToEvent<T>(Task<T> task) : Event<T>
+internal sealed class TaskToEvent<T>(Task<T> task) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var subscription = new CancellationDisposable();
         SubscribeTask(subscriber, subscription.Token);
         return subscription;
     }
 
-    async void SubscribeTask(Subscriber<T> subscriber, CancellationToken cancellationToken)
+    async void SubscribeTask(Observer<T> subscriber, CancellationToken cancellationToken)
     {
         T? result;
         try
@@ -45,9 +45,9 @@ internal sealed class TaskToEvent<T>(Task<T> task) : Event<T>
     }
 }
 
-internal class EnumerableToEvent<T>(IEnumerable<T> source) : Event<T>
+internal class EnumerableToEvent<T>(IEnumerable<T> source) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         foreach (var message in source)
         {

@@ -2,20 +2,20 @@
 
 public static partial class EventExtensions
 {
-    public static Event<T> OnErrorResumeAsFailure<T>(this Event<T> source)
+    public static Observable<T> OnErrorResumeAsFailure<T>(this Observable<T> source)
     {
         return new OnErrorResumeAsFailure<T>(source);
     }
 }
 
-internal class OnErrorResumeAsFailure<T>(Event<T> source) : Event<T>
+internal class OnErrorResumeAsFailure<T>(Observable<T> source) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _OnErrorAsComplete(subscriber));
     }
 
-    sealed class _OnErrorAsComplete(Subscriber<T> subscriber) : Subscriber<T>
+    sealed class _OnErrorAsComplete(Observer<T> subscriber) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace R3;
 
-public abstract class ReadOnlyReactiveProperty<T> : Event<T>
+public abstract class ReadOnlyReactiveProperty<T> : Observable<T>
 {
     public abstract T CurrentValue { get; }
 }
@@ -60,7 +60,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         }
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var value = this.value;
         ObjectDisposedException.ThrowIf(list.IsDisposed, this);
@@ -89,7 +89,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         return (value == null) ? "(null)" : value.ToString();
     }
 
-    sealed class Subscription(ReactiveProperty<T>? parent, Subscriber<T> subscriber) : IDisposable
+    sealed class Subscription(ReactiveProperty<T>? parent, Observer<T> subscriber) : IDisposable
     {
         public int removeKey;
 

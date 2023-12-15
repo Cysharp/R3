@@ -1,16 +1,16 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
     // TODO: No Provider overload?
 
-    public static Event<Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
+    public static Observable<Unit> Timer(TimeSpan dueTime, TimeProvider timeProvider)
     {
         return new Timer(dueTime, timeProvider);
     }
 }
 
-internal sealed class Timer : Event<Unit>
+internal sealed class Timer : Observable<Unit>
 {
     readonly TimeSpan dueTime;
     readonly TimeProvider timeProvider;
@@ -21,7 +21,7 @@ internal sealed class Timer : Event<Unit>
         this.timeProvider = timeProvider;
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
+    protected override IDisposable SubscribeCore(Observer<Unit> subscriber)
     {
         var method = new _Timer(subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
@@ -29,11 +29,11 @@ internal sealed class Timer : Event<Unit>
         return method;
     }
 
-    sealed class _Timer(Subscriber<Unit> subscriber) : IDisposable
+    sealed class _Timer(Observer<Unit> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
-        Subscriber<Unit> subscriber = subscriber;
+        Observer<Unit> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 

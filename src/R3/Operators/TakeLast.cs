@@ -2,44 +2,44 @@
 
 public static partial class EventExtensions
 {
-    public static Event<T> TakeLast<T>(this Event<T> source, int count)
+    public static Observable<T> TakeLast<T>(this Observable<T> source, int count)
     {
         return new TakeLast<T>(source, count);
     }
 
     // TimeBased
 
-    public static Event<T> TakeLast<T>(this Event<T> source, TimeSpan duration)
+    public static Observable<T> TakeLast<T>(this Observable<T> source, TimeSpan duration)
     {
         return TakeLast(source, duration, EventSystem.DefaultTimeProvider);
     }
 
-    public static Event<T> TakeLast<T>(this Event<T> source, TimeSpan duration, TimeProvider timeProvider)
+    public static Observable<T> TakeLast<T>(this Observable<T> source, TimeSpan duration, TimeProvider timeProvider)
     {
         return new TakeLastTime<T>(source, duration, timeProvider);
     }
 
     // TakeLastFrame
 
-    public static Event<T> TakeLastFrame<T>(this Event<T> source, int frameCount)
+    public static Observable<T> TakeLastFrame<T>(this Observable<T> source, int frameCount)
     {
         return TakeLastFrame(source, frameCount, EventSystem.DefaultFrameProvider);
     }
 
-    public static Event<T> TakeLastFrame<T>(this Event<T> source, int frameCount, FrameProvider frameProvider)
+    public static Observable<T> TakeLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
         return new TakeLastFrame<T>(source, frameCount, frameProvider);
     }
 }
 
-internal sealed class TakeLast<T>(Event<T> source, int count) : Event<T>
+internal sealed class TakeLast<T>(Observable<T> source, int count) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _TakeLast(subscriber, count));
     }
 
-    sealed class _TakeLast(Subscriber<T> subscriber, int count) : Subscriber<T>, IDisposable
+    sealed class _TakeLast(Observer<T> subscriber, int count) : Observer<T>, IDisposable
     {
         Queue<T> queue = new Queue<T>(count);
 
@@ -79,22 +79,22 @@ internal sealed class TakeLast<T>(Event<T> source, int count) : Event<T>
     }
 }
 
-internal sealed class TakeLastTime<T>(Event<T> source, TimeSpan duration, TimeProvider timeProvider) : Event<T>
+internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, TimeProvider timeProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _TakeLastTime(subscriber, duration, timeProvider));
     }
 
-    sealed class _TakeLastTime : Subscriber<T>, IDisposable
+    sealed class _TakeLastTime : Observer<T>, IDisposable
     {
-        readonly Subscriber<T> subscriber;
+        readonly Observer<T> subscriber;
         readonly object gate = new object();
         readonly Queue<(long timestamp, T value)> queue = new();
         readonly TimeSpan duration;
         readonly TimeProvider timeProvider;
 
-        public _TakeLastTime(Subscriber<T> subscriber, TimeSpan duration, TimeProvider timeProvider)
+        public _TakeLastTime(Observer<T> subscriber, TimeSpan duration, TimeProvider timeProvider)
         {
             this.subscriber = subscriber;
             this.timeProvider = timeProvider;
@@ -156,22 +156,22 @@ internal sealed class TakeLastTime<T>(Event<T> source, TimeSpan duration, TimePr
     }
 }
 
-internal sealed class TakeLastFrame<T>(Event<T> source, int frameCount, FrameProvider frameProvider) : Event<T>
+internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _TakeLastFrame(subscriber, frameCount, frameProvider));
     }
 
-    sealed class _TakeLastFrame : Subscriber<T>, IDisposable
+    sealed class _TakeLastFrame : Observer<T>, IDisposable
     {
-        readonly Subscriber<T> subscriber;
+        readonly Observer<T> subscriber;
         readonly object gate = new object();
         readonly Queue<(long frameCount, T value)> queue = new();
         readonly int frameCount;
         readonly FrameProvider frameProvider;
 
-        public _TakeLastFrame(Subscriber<T> subscriber, int frameCount, FrameProvider frameProvider)
+        public _TakeLastFrame(Observer<T> subscriber, int frameCount, FrameProvider frameProvider)
         {
             this.subscriber = subscriber;
             this.frameCount = frameCount;

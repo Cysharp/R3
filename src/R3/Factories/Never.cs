@@ -1,15 +1,15 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
     // Never
-    public static Event<T> Never<T>()
+    public static Observable<T> Never<T>()
     {
         return R3.Never<T>.Instance;
     }
 }
 
-internal sealed class Never<T> : Event<T>
+internal sealed class Never<T> : Observable<T>
 {
     // singleton
     public static readonly Never<T> Instance = new Never<T>();
@@ -19,7 +19,7 @@ internal sealed class Never<T> : Event<T>
 
     }
 
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return Disposable.Empty;
     }

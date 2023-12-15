@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
     // TODO: this is working space, will remove this file after complete.
 

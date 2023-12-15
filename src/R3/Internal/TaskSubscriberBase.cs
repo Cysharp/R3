@@ -3,7 +3,7 @@
 // for return Task(tcs.TrySet***)
 // include proper Cancel registration
 
-internal abstract class TaskSubscriberBase<T, TTask> : Subscriber<T>
+internal abstract class TaskSubscriberBase<T, TTask> : Observer<T>
 {
     TaskCompletionSource<TTask> tcs; // use this field.
 

@@ -7,7 +7,7 @@ public class TakeLastTest
     [Fact]
     public async Task Take()
     {
-        var xs = await Event.Range(1, 10).TakeLast(3).ToArrayAsync();
+        var xs = await Observable.Range(1, 10).TakeLast(3).ToArrayAsync();
         xs.Should().Equal([8, 9, 10]);
     }
 
@@ -43,7 +43,7 @@ public class TakeLastTest
         var frameProvider = new ManualFrameProvider();
         var cts = new CancellationTokenSource();
 
-        var list = Event.EveryUpdate(frameProvider, cts.Token, cancelImmediately: true)
+        var list = Observable.EveryUpdate(frameProvider, cts.Token, cancelImmediately: true)
             .Select(x => frameProvider.GetFrameCount())
             .TakeLastFrame(3, frameProvider)
             .ToLiveList();

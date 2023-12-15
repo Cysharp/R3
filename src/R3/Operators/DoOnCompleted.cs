@@ -7,28 +7,28 @@ public static partial class EventExtensions
 
 
     // TODO: other file.
-    public static Event<T> CancelOnCompleted<T>(this Event<T> source, CancellationTokenSource cancellationTokenSource)
+    public static Observable<T> CancelOnCompleted<T>(this Observable<T> source, CancellationTokenSource cancellationTokenSource)
     {
         return new DoOnCompleted<T>(source, _ => cancellationTokenSource.Cancel());
     }
 
 
-    public static Event<T> DoOnCompleted<T>(this Event<T> source, Action<Result> action)
+    public static Observable<T> DoOnCompleted<T>(this Observable<T> source, Action<Result> action)
     {
         return new DoOnCompleted<T>(source, action);
     }
 }
 
-internal sealed class DoOnCompleted<T>(Event<T> source, Action<Result> action) : Event<T>
+internal sealed class DoOnCompleted<T>(Observable<T> source, Action<Result> action) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _DoOnCompleted(subscriber, action);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnCompleted(Subscriber<T> subscriber, Action<Result> action) : Subscriber<T>, IDisposable
+    class _DoOnCompleted(Observer<T> subscriber, Action<Result> action) : Observer<T>, IDisposable
     {
         Action<Result>? action = action;
 

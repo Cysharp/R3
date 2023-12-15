@@ -8,7 +8,7 @@ public class EveryUpdateTest
         var cts = new CancellationTokenSource();
         var frameProvider = new ManualFrameProvider();
 
-        var list = Event.EveryUpdate(frameProvider, cts.Token).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
+        var list = Observable.EveryUpdate(frameProvider, cts.Token).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
 
         list.AssertEqual([]);
 
@@ -31,7 +31,7 @@ public class EveryUpdateTest
         var cts = new CancellationTokenSource();
         var frameProvider = new ManualFrameProvider();
 
-        var list = Event.EveryUpdate(frameProvider, cts.Token, cancelImmediately: true).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
+        var list = Observable.EveryUpdate(frameProvider, cts.Token, cancelImmediately: true).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
 
         list.AssertEqual([]);
 
@@ -54,7 +54,7 @@ public class EveryUpdateTest
     {
         var frameProvider = new ManualFrameProvider();
 
-        var list = Event.EveryUpdate(frameProvider).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
+        var list = Observable.EveryUpdate(frameProvider).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
 
         list.AssertEqual([]);
 

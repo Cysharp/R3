@@ -8,21 +8,21 @@ public class ReturnTest
     public void Return()
     {
         {
-            using var list = Event.Return(10).ToLiveList();
+            using var list = Observable.Return(10).ToLiveList();
             list.AssertEqual([10]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = Event.Return(10, TimeSpan.Zero, fakeTime).ToLiveList();
+            using var list = Observable.Return(10, TimeSpan.Zero, fakeTime).ToLiveList();
             list.AssertEqual([10]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = Event.Return(10, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+            using var list = Observable.Return(10, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
             list.AssertEqual([]);
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));
@@ -38,7 +38,7 @@ public class ReturnTest
     [Fact]
     public void ReturnThreadPoolScheduleOptimized()
     {
-        using var list = Event.Return(10).ToLiveList();
+        using var list = Observable.Return(10).ToLiveList();
 
         Thread.Sleep(1);
 
@@ -51,14 +51,14 @@ public class ReturnTest
     public void ReturnOnCompleted()
     {
         {
-            using var list = Event.Return(0).ToLiveList();
+            using var list = Observable.Return(0).ToLiveList();
             list.AssertEqual([0]);
             list.AssertIsCompleted();
         }
         {
             var fakeTime = new FakeTimeProvider();
 
-            using var list = Event.Return(10, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+            using var list = Observable.Return(10, TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
             list.AssertEqual([]);
 
             fakeTime.Advance(TimeSpan.FromSeconds(4));

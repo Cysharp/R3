@@ -3,7 +3,7 @@
 public static partial class EventExtensions
 {
     public static Task<TResult> AggregateAsync<T, TAccumulate, TResult>
-        (this Event<T> source,
+        (this Observable<T> source,
         TAccumulate seed,
         Func<TAccumulate, T, TAccumulate> func,
         Func<TAccumulate, TResult> resultSelector,

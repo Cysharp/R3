@@ -1,18 +1,18 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
-    public static Event<T> ReturnOnCompleted<T>(Result result)
+    public static Observable<T> ReturnOnCompleted<T>(Result result)
     {
         return new ImmediateScheduleReturnOnCompleted<T>(result); // immediate
     }
 
-    public static Event<T> ReturnOnCompleted<T>(Result result, TimeProvider timeProvider)
+    public static Observable<T> ReturnOnCompleted<T>(Result result, TimeProvider timeProvider)
     {
         return ReturnOnCompleted<T>(result, TimeSpan.Zero, timeProvider);
     }
 
-    public static Event<T> ReturnOnCompleted<T>(Result result, TimeSpan dueTime, TimeProvider timeProvider)
+    public static Observable<T> ReturnOnCompleted<T>(Result result, TimeSpan dueTime, TimeProvider timeProvider)
     {
         if (dueTime == TimeSpan.Zero)
         {
@@ -26,18 +26,18 @@ public static partial class Event
     }
 }
 
-internal class ImmediateScheduleReturnOnCompleted<T>(Result result) : Event<T>
+internal class ImmediateScheduleReturnOnCompleted<T>(Result result) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         subscriber.OnCompleted(result);
         return Disposable.Empty;
     }
 }
 
-internal class ReturnOnCompleted<T>(Result complete, TimeSpan dueTime, TimeProvider timeProvider) : Event<T>
+internal class ReturnOnCompleted<T>(Result complete, TimeSpan dueTime, TimeProvider timeProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _ReturnOnCompleted(complete, subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_ReturnOnCompleted.timerCallback, method);
@@ -45,12 +45,12 @@ internal class ReturnOnCompleted<T>(Result complete, TimeSpan dueTime, TimeProvi
         return method;
     }
 
-    sealed class _ReturnOnCompleted(Result result, Subscriber<T> subscriber) : IDisposable
+    sealed class _ReturnOnCompleted(Result result, Observer<T> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
         readonly Result result = result;
-        readonly Subscriber<T> subscriber = subscriber;
+        readonly Observer<T> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 
@@ -75,16 +75,16 @@ internal class ReturnOnCompleted<T>(Result complete, TimeSpan dueTime, TimeProvi
     }
 }
 
-internal class ThreadPoolScheduleReturnOnCompleted<T>(Result result) : Event<T>
+internal class ThreadPoolScheduleReturnOnCompleted<T>(Result result) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _ReturnOnCompleted(result, subscriber);
         ThreadPool.UnsafeQueueUserWorkItem(method, preferLocal: false);
         return method;
     }
 
-    sealed class _ReturnOnCompleted(Result result, Subscriber<T> subscriber) : IDisposable, IThreadPoolWorkItem
+    sealed class _ReturnOnCompleted(Result result, Observer<T> subscriber) : IDisposable, IThreadPoolWorkItem
     {
         bool stop;
 

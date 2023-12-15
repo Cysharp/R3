@@ -3,20 +3,20 @@
 public static partial class EventExtensions
 {
     // TODO: more overload?
-    public static IObservable<T> ToObservable<T>(this Event<T> source)
+    public static IObservable<T> ToObservable<T>(this Observable<T> source)
     {
         return new ToObservable<T>(source);
     }
 }
 
-internal sealed class ToObservable<T>(Event<T> source) : IObservable<T>
+internal sealed class ToObservable<T>(Observable<T> source) : IObservable<T>
 {
     public IDisposable Subscribe(IObserver<T> observer)
     {
         return source.Subscribe(new ObserverToSubscriber(observer));
     }
 
-    sealed class ObserverToSubscriber(IObserver<T> observer) : Subscriber<T>
+    sealed class ObserverToSubscriber(IObserver<T> observer) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {

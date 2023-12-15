@@ -4,7 +4,7 @@ public static partial class EventExtensions
 {
     // TODO: TState
 
-    public static Event<T> Where<T>(this Event<T> source, Func<T, bool> predicate)
+    public static Observable<T> Where<T>(this Observable<T> source, Func<T, bool> predicate)
     {
         if (source is Where<T> where)
         {
@@ -16,23 +16,23 @@ public static partial class EventExtensions
         return new Where<T>(source, predicate);
     }
 
-    public static Event<T> Where<T>(this Event<T> source, Func<T, int, bool> predicate)
+    public static Observable<T> Where<T>(this Observable<T> source, Func<T, int, bool> predicate)
     {
         return new WhereIndexed<T>(source, predicate);
     }
 }
 
-internal sealed class Where<T>(Event<T> source, Func<T, bool> predicate) : Event<T>
+internal sealed class Where<T>(Observable<T> source, Func<T, bool> predicate) : Observable<T>
 {
-    internal Event<T> source = source;
+    internal Observable<T> source = source;
     internal Func<T, bool> predicate = predicate;
 
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _Where(subscriber, predicate));
     }
 
-    class _Where(Subscriber<T> subscriber, Func<T, bool> predicate) : Subscriber<T>
+    class _Where(Observer<T> subscriber, Func<T, bool> predicate) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
@@ -54,14 +54,14 @@ internal sealed class Where<T>(Event<T> source, Func<T, bool> predicate) : Event
     }
 }
 
-internal sealed class WhereIndexed<T>(Event<T> source, Func<T, int, bool> predicate) : Event<T>
+internal sealed class WhereIndexed<T>(Observable<T> source, Func<T, int, bool> predicate) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _Where(subscriber, predicate));
     }
 
-    class _Where(Subscriber<T> subscriber, Func<T, int, bool> predicate) : Subscriber<T>
+    class _Where(Observer<T> subscriber, Func<T, int, bool> predicate) : Observer<T>
     {
         int index = 0;
 

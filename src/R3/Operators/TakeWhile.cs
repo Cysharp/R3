@@ -2,25 +2,25 @@
 
 public static partial class EventExtensions
 {
-    public static Event<T> TakeWhile<T>(this Event<T> source, Func<T, bool> predicate)
+    public static Observable<T> TakeWhile<T>(this Observable<T> source, Func<T, bool> predicate)
     {
         return new TakeWhile<T>(source, predicate);
     }
 
-    public static Event<T> TakeWhile<T>(this Event<T> source, Func<T, int, bool> predicate)
+    public static Observable<T> TakeWhile<T>(this Observable<T> source, Func<T, int, bool> predicate)
     {
         return new TakeWhileI<T>(source, predicate);
     }
 }
 
-internal sealed class TakeWhile<T>(Event<T> source, Func<T, bool> predicate) : Event<T>
+internal sealed class TakeWhile<T>(Observable<T> source, Func<T, bool> predicate) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _TakeWhile(subscriber, predicate));
     }
 
-    sealed class _TakeWhile(Subscriber<T> subscriber, Func<T, bool> predicate) : Subscriber<T>, IDisposable
+    sealed class _TakeWhile(Observer<T> subscriber, Func<T, bool> predicate) : Observer<T>, IDisposable
     {
         protected override void OnNextCore(T value)
         {
@@ -46,14 +46,14 @@ internal sealed class TakeWhile<T>(Event<T> source, Func<T, bool> predicate) : E
     }
 }
 
-internal sealed class TakeWhileI<T>(Event<T> source, Func<T, int, bool> predicate) : Event<T>
+internal sealed class TakeWhileI<T>(Observable<T> source, Func<T, int, bool> predicate) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         return source.Subscribe(new _TakeWhile(subscriber, predicate));
     }
 
-    sealed class _TakeWhile(Subscriber<T> subscriber, Func<T, int, bool> predicate) : Subscriber<T>, IDisposable
+    sealed class _TakeWhile(Observer<T> subscriber, Func<T, int, bool> predicate) : Observer<T>, IDisposable
     {
         int count;
 

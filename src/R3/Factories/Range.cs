@@ -1,10 +1,10 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
     // no scheduler(TimeProvider) overload
 
-    public static Event<int> Range(int start, int count)
+    public static Observable<int> Range(int start, int count)
     {
         long max = ((long)start) + count - 1;
         if (count < 0 || max > int.MaxValue)
@@ -20,7 +20,7 @@ public static partial class Event
         return new Range(start, count);
     }
 
-    public static Event<int> Range(int start, int count, CancellationToken cancellationToken)
+    public static Observable<int> Range(int start, int count, CancellationToken cancellationToken)
     {
         long max = ((long)start) + count - 1;
         if (count < 0 || max > int.MaxValue)
@@ -37,9 +37,9 @@ public static partial class Event
     }
 }
 
-internal sealed class Range(int start, int count) : Event<int>
+internal sealed class Range(int start, int count) : Observable<int>
 {
-    protected override IDisposable SubscribeCore(Subscriber<int> subscriber)
+    protected override IDisposable SubscribeCore(Observer<int> subscriber)
     {
         for (int i = 0; i < count; i++)
         {
@@ -50,9 +50,9 @@ internal sealed class Range(int start, int count) : Event<int>
     }
 }
 
-internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : Event<int>
+internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : Observable<int>
 {
-    protected override IDisposable SubscribeCore(Subscriber<int> subscriber)
+    protected override IDisposable SubscribeCore(Observer<int> subscriber)
     {
         for (int i = 0; i < count; i++)
         {

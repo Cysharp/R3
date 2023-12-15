@@ -4,10 +4,10 @@ using System.Diagnostics;
 
 namespace R3;
 
-public abstract class Event<T>
+public abstract class Observable<T>
 {
     [StackTraceHidden, DebuggerStepThrough]
-    public IDisposable Subscribe(Subscriber<T> subscriber)
+    public IDisposable Subscribe(Observer<T> subscriber)
     {
         try
         {
@@ -28,10 +28,10 @@ public abstract class Event<T>
         }
     }
 
-    protected abstract IDisposable SubscribeCore(Subscriber<T> subscriber);
+    protected abstract IDisposable SubscribeCore(Observer<T> subscriber);
 }
 
-public abstract class Subscriber<T> : IDisposable
+public abstract class Observer<T> : IDisposable
 {
 #if DEBUG
     [Obsolete("Only allow in Event<T>.")]

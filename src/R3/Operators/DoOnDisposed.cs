@@ -5,27 +5,27 @@ public static partial class EventExtensions
     // TODO: doOnSubscribed
 
     // Finally
-    public static Event<T> DoOnDisposed<T>(this Event<T> source, Action action)
+    public static Observable<T> DoOnDisposed<T>(this Observable<T> source, Action action)
     {
         return new DoOnDisposed<T>(source, action);
     }
 
-    public static Event<T> DoOnDisposed<T, TState>(this Event<T> source, TState state, Action<TState> action)
+    public static Observable<T> DoOnDisposed<T, TState>(this Observable<T> source, TState state, Action<TState> action)
     {
         return new DoOnDisposed<T, TState>(source, action, state);
     }
 }
 
-sealed class DoOnDisposed<T>(Event<T> source, Action action) : Event<T>
+sealed class DoOnDisposed<T>(Observable<T> source, Action action) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(Subscriber<T> subscriber, Action action) : Subscriber<T>, IDisposable
+    class _DoOnDisposed(Observer<T> subscriber, Action action) : Observer<T>, IDisposable
     {
         Action? action = action;
 
@@ -51,16 +51,16 @@ sealed class DoOnDisposed<T>(Event<T> source, Action action) : Event<T>
     }
 }
 
-internal sealed class DoOnDisposed<T, TState>(Event<T> source, Action<TState> action, TState state) : Event<T>
+internal sealed class DoOnDisposed<T, TState>(Observable<T> source, Action<TState> action, TState state) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _DoOnDisposed(subscriber, action, state);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(Subscriber<T> subscriber, Action<TState> action, TState state) : Subscriber<T>, IDisposable
+    class _DoOnDisposed(Observer<T> subscriber, Action<TState> action, TState state) : Observer<T>, IDisposable
     {
         Action<TState>? action = action;
         TState state = state;

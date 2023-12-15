@@ -1,37 +1,37 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
-    public static Event<Unit> EveryUpdate()
+    public static Observable<Unit> EveryUpdate()
     {
         return new EveryUpdate(EventSystem.DefaultFrameProvider, CancellationToken.None, cancelImmediately: false);
     }
 
-    public static Event<Unit> EveryUpdate(CancellationToken cancellationToken)
+    public static Observable<Unit> EveryUpdate(CancellationToken cancellationToken)
     {
         return new EveryUpdate(EventSystem.DefaultFrameProvider, cancellationToken, cancelImmediately: false);
     }
 
-    public static Event<Unit> EveryUpdate(FrameProvider frameProvider)
+    public static Observable<Unit> EveryUpdate(FrameProvider frameProvider)
     {
         return new EveryUpdate(frameProvider, CancellationToken.None, cancelImmediately: false);
     }
 
-    public static Event<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
+    public static Observable<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
     {
         return new EveryUpdate(frameProvider, cancellationToken, cancelImmediately: false);
     }
 
-    public static Event<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken, bool cancelImmediately)
+    public static Observable<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken, bool cancelImmediately)
     {
         return new EveryUpdate(frameProvider, cancellationToken, cancelImmediately: cancelImmediately);
     }
 }
 
 
-internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken, bool cancelImmediately) : Event<Unit>
+internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken, bool cancelImmediately) : Observable<Unit>
 {
-    protected override IDisposable SubscribeCore(Subscriber<Unit> subscriber)
+    protected override IDisposable SubscribeCore(Observer<Unit> subscriber)
     {
         var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken, cancelImmediately);
         frameProvider.Register(runner);
@@ -40,12 +40,12 @@ internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken
 
     class EveryUpdateRunnerWorkItem : IFrameRunnerWorkItem, IDisposable
     {
-        Subscriber<Unit> subscriber;
+        Observer<Unit> subscriber;
         CancellationToken cancellationToken;
         CancellationTokenRegistration cancellationTokenRegistration;
         bool isDisposed;
 
-        public EveryUpdateRunnerWorkItem(Subscriber<Unit> subscriber, CancellationToken cancellationToken, bool cancelImmediately)
+        public EveryUpdateRunnerWorkItem(Observer<Unit> subscriber, CancellationToken cancellationToken, bool cancelImmediately)
         {
             this.subscriber = subscriber;
             this.cancellationToken = cancellationToken;

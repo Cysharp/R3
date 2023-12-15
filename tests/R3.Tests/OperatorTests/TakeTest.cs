@@ -7,7 +7,7 @@ public class TakeTest
     [Fact]
     public async Task Take()
     {
-        var xs = await Event.Range(1, 10).Take(3).ToArrayAsync();
+        var xs = await Observable.Range(1, 10).Take(3).ToArrayAsync();
 
         xs.Should().Equal([1, 2, 3]);
 
@@ -58,7 +58,7 @@ public class TakeTest
     {
         var frameProvider = new ManualFrameProvider();
 
-        var list = Event.EveryUpdate(frameProvider)
+        var list = Observable.EveryUpdate(frameProvider)
             .Select(x => (int)frameProvider.GetFrameCount())
             .TakeFrame(5, frameProvider)
             .ToLiveList();

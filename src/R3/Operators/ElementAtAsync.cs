@@ -2,7 +2,7 @@
 
 public static partial class EventExtensions
 {
-    public static Task<T> ElementAtAsync<T>(this Event<T> source, int index, CancellationToken cancellationToken = default)
+    public static Task<T> ElementAtAsync<T>(this Observable<T> source, int index, CancellationToken cancellationToken = default)
     {
         if (index < 0) throw new ArgumentOutOfRangeException("index");
 
@@ -11,7 +11,7 @@ public static partial class EventExtensions
         return subscriber.Task;
     }
 
-    public static Task<T> ElementAtAsync<T>(this Event<T> source, Index index, CancellationToken cancellationToken = default)
+    public static Task<T> ElementAtAsync<T>(this Observable<T> source, Index index, CancellationToken cancellationToken = default)
     {
         if (index.IsFromEnd)
         {
@@ -26,7 +26,7 @@ public static partial class EventExtensions
         }
     }
 
-    public static Task<T> ElementAtOrDefaultAsync<T>(this Event<T> source, int index, T? defaultValue = default, CancellationToken cancellationToken = default)
+    public static Task<T> ElementAtOrDefaultAsync<T>(this Observable<T> source, int index, T? defaultValue = default, CancellationToken cancellationToken = default)
     {
         if (index < 0) throw new ArgumentOutOfRangeException("index");
         var subscriber = new ElementAtAsync<T>(index, true, defaultValue, cancellationToken);
@@ -34,7 +34,7 @@ public static partial class EventExtensions
         return subscriber.Task;
     }
 
-    public static Task<T> ElementAtOrDefaultAsync<T>(this Event<T> source, Index index, T? defaultValue = default, CancellationToken cancellationToken = default)
+    public static Task<T> ElementAtOrDefaultAsync<T>(this Observable<T> source, Index index, T? defaultValue = default, CancellationToken cancellationToken = default)
     {
         if (index.IsFromEnd)
         {

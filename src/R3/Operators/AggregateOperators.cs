@@ -7,7 +7,7 @@ namespace R3;
 
 public static partial class EventExtensions
 {
-    public static Task<T[]> ToArrayAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<T[]> ToArrayAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, new List<T>(), static (list, message) =>
         {
@@ -16,7 +16,7 @@ public static partial class EventExtensions
         }, (list) => list.ToArray(), cancellationToken); // ignore complete
     }
 
-    public static Task<List<T>> ToListAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<List<T>> ToListAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, new List<T>(), static (list, message) =>
         {
@@ -25,13 +25,13 @@ public static partial class EventExtensions
         }, (list) => list, cancellationToken); // ignore complete
     }
 
-    public static Task<HashSet<T>> ToHashSetAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<HashSet<T>> ToHashSetAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return ToHashSetAsync(source, null, cancellationToken);
     }
 
 
-    public static Task<HashSet<T>> ToHashSetAsync<T>(this Event<T> source, IEqualityComparer<T>? equalityComparer, CancellationToken cancellationToken = default)
+    public static Task<HashSet<T>> ToHashSetAsync<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, new HashSet<T>(equalityComparer), static (value, message) =>
         {
@@ -42,18 +42,18 @@ public static partial class EventExtensions
 
 
     // CountAsync using AggregateAsync
-    public static Task<int> CountAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<int> CountAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, 0, static (count, _) => checked(count + 1), Stubs<int>.ReturnSelf, cancellationToken); // ignore complete
     }
 
     // LongCountAsync using AggregateAsync
-    public static Task<long> LongCountAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<long> LongCountAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, 0L, static (count, _) => checked(count + 1), Stubs<long>.ReturnSelf, cancellationToken); // ignore complete
     }
 
-    public static Task<T> MinAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<T> MinAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, (default(T)!, hasValue: false),
             static (min, message) =>
@@ -69,7 +69,7 @@ public static partial class EventExtensions
     }
 
 
-    public static Task<T> MaxAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<T> MaxAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, (default(T)!, hasValue: false),
             static (max, message) =>
@@ -85,7 +85,7 @@ public static partial class EventExtensions
     }
 
 
-    public static Task<(T Min, T Max)> MinMaxAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<(T Min, T Max)> MinMaxAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source,
             (min: default(T)!, max: default(T)!, hasValue: false),
@@ -104,14 +104,14 @@ public static partial class EventExtensions
     }
 
 
-    public static Task<T> SumAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<T> SumAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
         where T : IAdditionOperators<T, T, T>
     {
         return AggregateAsync(source, default(T)!, static (sum, message) => checked(sum + message), Stubs<T>.ReturnSelf, cancellationToken); // ignore complete
     }
 
 
-    public static Task<double> AverageAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task<double> AverageAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
         where T : INumberBase<T>
     {
         return AggregateAsync(source,
@@ -129,7 +129,7 @@ public static partial class EventExtensions
     }
 
 
-    public static Task WaitAsync<T>(this Event<T> source, CancellationToken cancellationToken = default)
+    public static Task WaitAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source, 0, static (_, _) => 0, Stubs<int>.ReturnSelf, cancellationToken);
     }

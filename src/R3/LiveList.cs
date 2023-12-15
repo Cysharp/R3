@@ -5,12 +5,12 @@ namespace R3;
 
 public static partial class EventExtensions
 {
-    public static LiveList<T> ToLiveList<T>(this Event<T> source)
+    public static LiveList<T> ToLiveList<T>(this Observable<T> source)
     {
         return new LiveList<T>(source);
     }
 
-    public static LiveList<T> ToLiveList<T>(this Event<T> source, int bufferSize)
+    public static LiveList<T> ToLiveList<T>(this Observable<T> source, int bufferSize)
     {
         return new LiveList<T>(source, bufferSize);
     }
@@ -39,7 +39,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         }
     }
 
-    public LiveList(Event<T> source)
+    public LiveList(Observable<T> source)
     {
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = -1;
@@ -47,7 +47,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
     }
 
-    public LiveList(Event<T> source, int bufferSize)
+    public LiveList(Observable<T> source, int bufferSize)
     {
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = bufferSize; // bufferSize must set before Subscribe(sometimes Subscribe run immediately)
@@ -140,7 +140,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         }
     }
 
-    sealed class ListSubscriber(LiveList<T> parent) : Subscriber<T>
+    sealed class ListSubscriber(LiveList<T> parent) : Observer<T>
     {
         protected override void OnNextCore(T message)
         {

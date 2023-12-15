@@ -1,18 +1,18 @@
 ﻿namespace R3;
 
-public static partial class Event
+public static partial class Observable
 {
-    public static Event<T> Return<T>(T value)
+    public static Observable<T> Return<T>(T value)
     {
         return new ImmediateScheduleReturn<T>(value); // immediate
     }
 
-    public static Event<T> Return<T>(T value, TimeProvider timeProvider)
+    public static Observable<T> Return<T>(T value, TimeProvider timeProvider)
     {
         return Return(value, TimeSpan.Zero, timeProvider);
     }
 
-    public static Event<T> Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider)
+    public static Observable<T> Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider)
     {
         if (dueTime == TimeSpan.Zero)
         {
@@ -26,9 +26,9 @@ public static partial class Event
     }
 }
 
-internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) : Event<T>
+internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _Return(value, subscriber);
         method.Timer = timeProvider.CreateStoppedTimer(_Return.timerCallback, method);
@@ -36,12 +36,12 @@ internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) :
         return method;
     }
 
-    sealed class _Return(T value, Subscriber<T> subscriber) : IDisposable
+    sealed class _Return(T value, Observer<T> subscriber) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
         readonly T value = value;
-        readonly Subscriber<T> subscriber = subscriber;
+        readonly Observer<T> subscriber = subscriber;
 
         public ITimer? Timer { get; set; }
 
@@ -60,9 +60,9 @@ internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) :
     }
 }
 
-internal class ImmediateScheduleReturn<T>(T value) : Event<T>
+internal class ImmediateScheduleReturn<T>(T value) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         subscriber.OnNext(value);
         subscriber.OnCompleted();
@@ -70,16 +70,16 @@ internal class ImmediateScheduleReturn<T>(T value) : Event<T>
     }
 }
 
-internal class ThreadPoolScheduleReturn<T>(T value) : Event<T>
+internal class ThreadPoolScheduleReturn<T>(T value) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> subscriber)
     {
         var method = new _Return(value, subscriber);
         ThreadPool.UnsafeQueueUserWorkItem(method, preferLocal: false);
         return method;
     }
 
-    sealed class _Return(T value, Subscriber<T> subscriber) : IDisposable, IThreadPoolWorkItem
+    sealed class _Return(T value, Observer<T> subscriber) : IDisposable, IThreadPoolWorkItem
     {
         bool stop;
 
