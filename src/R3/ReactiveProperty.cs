@@ -33,9 +33,9 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
             }
 
             this.value = value;
-            foreach (var subscriber in list.AsSpan())
+            foreach (var observer in list.AsSpan())
             {
-                subscriber?.OnNext(value);
+                observer?.OnNext(value);
             }
         }
     }
@@ -54,21 +54,21 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
 
     public void PublishOnErrorResume(Exception error)
     {
-        foreach (var subscriber in list.AsSpan())
+        foreach (var observer in list.AsSpan())
         {
-            subscriber?.OnErrorResume(error);
+            observer?.OnErrorResume(error);
         }
     }
 
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         var value = this.value;
         ObjectDisposedException.ThrowIf(list.IsDisposed, this);
 
         // raise latest value on subscribe
-        subscriber.OnNext(value);
+        observer.OnNext(value);
 
-        var subscription = new Subscription(this, subscriber);
+        var subscription = new Subscription(this, observer);
         subscription.removeKey = list.Add(subscription);
         return subscription;
     }
@@ -89,20 +89,20 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, IDisposable
         return (value == null) ? "(null)" : value.ToString();
     }
 
-    sealed class Subscription(ReactiveProperty<T>? parent, Observer<T> subscriber) : IDisposable
+    sealed class Subscription(ReactiveProperty<T>? parent, Observer<T> observer) : IDisposable
     {
         public int removeKey;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnNext(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnErrorResume(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         public void Dispose()

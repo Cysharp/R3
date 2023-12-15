@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     // TODO: TState
 
@@ -27,41 +27,41 @@ internal sealed class Where<T>(Observable<T> source, Func<T, bool> predicate) : 
     internal Observable<T> source = source;
     internal Func<T, bool> predicate = predicate;
 
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _Where(subscriber, predicate));
+        return source.Subscribe(new _Where(observer, predicate));
     }
 
-    class _Where(Observer<T> subscriber, Func<T, bool> predicate) : Observer<T>
+    class _Where(Observer<T> observer, Func<T, bool> predicate) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
             if (predicate(value))
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }
 
 internal sealed class WhereIndexed<T>(Observable<T> source, Func<T, int, bool> predicate) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _Where(subscriber, predicate));
+        return source.Subscribe(new _Where(observer, predicate));
     }
 
-    class _Where(Observer<T> subscriber, Func<T, int, bool> predicate) : Observer<T>
+    class _Where(Observer<T> observer, Func<T, int, bool> predicate) : Observer<T>
     {
         int index = 0;
 
@@ -69,18 +69,18 @@ internal sealed class WhereIndexed<T>(Observable<T> source, Func<T, int, bool> p
         {
             if (predicate(value, index++))
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }

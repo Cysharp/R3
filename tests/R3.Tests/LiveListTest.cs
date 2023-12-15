@@ -5,41 +5,41 @@ public class LiveListTest
     [Fact]
     public void FromEvent()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var list = publisher.ToLiveList();
 
         list.AssertEqual([]);
 
-        publisher.PublishOnNext(10);
+        publisher.OnNext(10);
         list.AssertEqual([10]);
 
-        publisher.PublishOnNext(20);
+        publisher.OnNext(20);
         list.AssertEqual([10, 20]);
 
-        publisher.PublishOnNext(30);
+        publisher.OnNext(30);
         list.AssertEqual([10, 20, 30]);
 
         list.Dispose();
 
-        publisher.PublishOnNext(40);
+        publisher.OnNext(40);
         list.AssertEqual([10, 20, 30]);
     }
 
     [Fact]
     public void BufferSize()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var list = publisher.ToLiveList(bufferSize: 5);
 
-        publisher.PublishOnNext(10);
-        publisher.PublishOnNext(20);
-        publisher.PublishOnNext(30);
-        publisher.PublishOnNext(40);
-        publisher.PublishOnNext(50);
+        publisher.OnNext(10);
+        publisher.OnNext(20);
+        publisher.OnNext(30);
+        publisher.OnNext(40);
+        publisher.OnNext(50);
 
         list.AssertEqual([10, 20, 30, 40, 50]);
 
-        publisher.PublishOnNext(60);
+        publisher.OnNext(60);
 
         list.AssertEqual([20, 30, 40, 50, 60]);
 

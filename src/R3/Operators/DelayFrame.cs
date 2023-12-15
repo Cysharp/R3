@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     //public static Event<T> DelayFrame<T>(this Event<T> source, int delayFrameCount, FrameProvider frameProvider)
     //{
@@ -12,16 +12,16 @@ public static partial class EventExtensions
 // TODO:impl minaosi.
 //internal sealed class DelayFrame<T>(Event<T> source, int delayFrameCount, FrameProvider frameProvider) : Event<T>
 //{
-//    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+//    protected override IDisposable SubscribeCore(observer<T> observer)
 //    {
-//        var delay = new _DelayFrame(subscriber, delayFrameCount, frameProvider);
+//        var delay = new _DelayFrame(observer, delayFrameCount, frameProvider);
 //        source.Subscribe(delay); // source subscription is included in _DelayFrame
 //        return delay;
 //    }
 
-//    class _DelayFrame : Subscriber<T>, IFrameRunnerWorkItem
+//    class _DelayFrame : observer<T>, IFrameRunnerWorkItem
 //    {
-//        readonly Subscriber<T> subscriber;
+//        readonly observer<T> observer;
 //        readonly int delayFrameCount;
 //        readonly FrameProvider frameProvider;
 //        readonly Queue<(long frameCount, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
@@ -30,9 +30,9 @@ public static partial class EventExtensions
 //        long nextTick;
 //        bool stopRunner;
 
-//        public _DelayFrame(Subscriber<T> subscriber, int delayFrameCount, FrameProvider frameProvider)
+//        public _DelayFrame(observer<T> observer, int delayFrameCount, FrameProvider frameProvider)
 //        {
-//            this.subscriber = subscriber;
+//            this.observer = observer;
 //            this.delayFrameCount = delayFrameCount;
 //            this.frameProvider = frameProvider;
 //        }
@@ -111,7 +111,7 @@ public static partial class EventExtensions
 
 //                try
 //                {
-//                    subscriber.OnNext(value);
+//                    observer.OnNext(value);
 //                    continue; // loop to drain all messages
 //                }
 //                catch

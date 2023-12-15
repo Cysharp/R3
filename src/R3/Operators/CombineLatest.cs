@@ -13,16 +13,16 @@
 
 //internal sealed class CombineLatest<TLeft, TRight, TResult>(Event<TLeft> left, Event<TRight> right, Func<TLeft, TRight, TResult> selector) : Event<TResult>
 //{
-//    protected override IDisposable SubscribeCore(Subscriber<TResult> subscriber)
+//    protected override IDisposable SubscribeCore(observer<TResult> observer)
 //    {
-//        var method = new _CombineLatest(subscriber, selector);
-//        var left = new LeftSubscriber(method);
-//        var right = new RightSubscriber(method);
+//        var method = new _CombineLatest(observer, selector);
+//        var left = new Leftobserver(method);
+//        var right = new Rightobserver(method);
 
-//        var leftD = left.Subscribe(new LeftSubscriber(method));
+//        var leftD = left.Subscribe(new Leftobserver(method));
 //        try
 //        {
-//            var rightD = right.Subscribe(new RightSubscriber(method));
+//            var rightD = right.Subscribe(new Rightobserver(method));
 //            return Disposable.Combine(leftD, rightD);
 //        }
 //        catch
@@ -32,7 +32,7 @@
 //        }
 //    }
 
-//    internal sealed class _CombineLatest(Subscriber<TResult> subscriber, Func<TLeft, TRight, TResult> selector)
+//    internal sealed class _CombineLatest(observer<TResult> observer, Func<TLeft, TRight, TResult> selector)
 //    {
 //        internal TLeft? message1;
 //        internal bool hasMessage1;
@@ -44,7 +44,7 @@
 
 //        public void OnErrorResume(Exception error)
 //        {
-//            subscriber.OnErrorResume(error);
+//            observer.OnErrorResume(error);
 //        }
 
 //        internal void Publish()
@@ -52,7 +52,7 @@
 //            if (hasMessage1 && hasMessage2)
 //            {
 //                var result = selector(message1!, message2!);
-//                subscriber.OnNext(result);
+//                observer.OnNext(result);
 //            }
 //        }
 
@@ -61,7 +61,7 @@
 //            if (hasComplete1 && hasComplete2)
 //            {
 //                var result = completeSelector(complete1!, complete2!);
-//                subscriber.OnCompleted(result);
+//                observer.OnCompleted(result);
 //            }
 //        }
 
@@ -70,12 +70,12 @@
 //            if (hasComplete1 && hasComplete2)
 //            {
 //                var result = completeSelector(complete1!, complete2!);
-//                subscriber.OnCompleted(result);
+//                observer.OnCompleted(result);
 //            }
 //        }
 //    }
 
-//    internal sealed class LeftSubscriber(_CombineLatest parent) : Subscriber<TLeft>
+//    internal sealed class Leftobserver(_CombineLatest parent) : observer<TLeft>
 //    {
 //        protected override void OnNextCore(TLeft message)
 //        {
@@ -106,7 +106,7 @@
 //        }
 //    }
 
-//    internal sealed class RightSubscriber(_CombineLatest parent) : Subscriber<TRight>
+//    internal sealed class Rightobserver(_CombineLatest parent) : observer<TRight>
 //    {
 //        protected override void OnNextCore(TRight message)
 //        {

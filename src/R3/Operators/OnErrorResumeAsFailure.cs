@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Observable<T> OnErrorResumeAsFailure<T>(this Observable<T> source)
     {
@@ -10,26 +10,26 @@ public static partial class EventExtensions
 
 internal class OnErrorResumeAsFailure<T>(Observable<T> source) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _OnErrorAsComplete(subscriber));
+        return source.Subscribe(new _OnErrorAsComplete(observer));
     }
 
-    sealed class _OnErrorAsComplete(Observer<T> subscriber) : Observer<T>
+    sealed class _OnErrorAsComplete(Observer<T> observer) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnCompleted(error);
+            observer.OnCompleted(error);
         }
 
         protected override void OnCompletedCore(Result complete)
         {
-            subscriber.OnCompleted(complete);
+            observer.OnCompleted(complete);
         }
     }
 }

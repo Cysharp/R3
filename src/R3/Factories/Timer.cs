@@ -21,19 +21,19 @@ internal sealed class Timer : Observable<Unit>
         this.timeProvider = timeProvider;
     }
 
-    protected override IDisposable SubscribeCore(Observer<Unit> subscriber)
+    protected override IDisposable SubscribeCore(Observer<Unit> observer)
     {
-        var method = new _Timer(subscriber);
+        var method = new _Timer(observer);
         method.Timer = timeProvider.CreateStoppedTimer(_Timer.timerCallback, method);
         method.Timer.InvokeOnce(dueTime);
         return method;
     }
 
-    sealed class _Timer(Observer<Unit> subscriber) : IDisposable
+    sealed class _Timer(Observer<Unit> observer) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
-        Observer<Unit> subscriber = subscriber;
+        Observer<Unit> observer = observer;
 
         public ITimer? Timer { get; set; }
 
@@ -42,8 +42,8 @@ internal sealed class Timer : Observable<Unit>
             var self = (_Timer)state!;
             try
             {
-                self.subscriber.OnNext(default);
-                self.subscriber.OnCompleted();
+                self.observer.OnNext(default);
+                self.observer.OnCompleted();
             }
             finally
             {

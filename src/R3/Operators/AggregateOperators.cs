@@ -5,7 +5,7 @@ namespace R3;
 // TODO: ToDictionary
 // TODO: ToLookup
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Task<T[]> ToArrayAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {

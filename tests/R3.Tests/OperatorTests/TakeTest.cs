@@ -13,18 +13,18 @@ public class TakeTest
 
         var timeProvider = new FakeTimeProvider();
 
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var list = publisher.Take(TimeSpan.FromSeconds(5), timeProvider).ToLiveList();
 
-        publisher.PublishOnNext(1);
-        publisher.PublishOnNext(10);
-        publisher.PublishOnNext(100);
+        publisher.OnNext(1);
+        publisher.OnNext(10);
+        publisher.OnNext(100);
         list.AssertEqual([1, 10, 100]);
 
         timeProvider.Advance(TimeSpan.FromSeconds(3));
 
-        publisher.PublishOnNext(1000);
-        publisher.PublishOnNext(10000);
+        publisher.OnNext(1000);
+        publisher.OnNext(10000);
         list.AssertEqual([1, 10, 100, 1000, 10000]);
 
         timeProvider.Advance(TimeSpan.FromSeconds(2));
@@ -36,16 +36,16 @@ public class TakeTest
     {
         var frameProvider = new ManualFrameProvider();
 
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var list = publisher.TakeFrame(5, frameProvider).ToLiveList();
-        publisher.PublishOnNext(1);
-        publisher.PublishOnNext(10);
-        publisher.PublishOnNext(100);
+        publisher.OnNext(1);
+        publisher.OnNext(10);
+        publisher.OnNext(100);
         list.AssertEqual([1, 10, 100]);
 
         frameProvider.Advance(3);
-        publisher.PublishOnNext(1000);
-        publisher.PublishOnNext(10000);
+        publisher.OnNext(1000);
+        publisher.OnNext(10000);
         list.AssertEqual([1, 10, 100, 1000, 10000]);
         frameProvider.Advance(2);
         list.AssertIsNotCompleted();

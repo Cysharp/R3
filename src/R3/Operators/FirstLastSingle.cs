@@ -2,7 +2,7 @@
 
 using static FirstLastSingleOperation;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Task<T> FirstAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default) => FirstAsync(source, static _ => true, cancellationToken);
     public static Task<T> FirstOrDefaultAsync<T>(this Observable<T> source, T? defaultValue = default, CancellationToken cancellationToken = default) => FirstOrDefaultAsync(source, static _ => true, defaultValue, cancellationToken);
@@ -21,14 +21,14 @@ public static partial class EventExtensions
 
     static Task<T> FirstLastSingleAsync<T>(this Observable<T> source, FirstLastSingleOperation operation, bool useDefaultIfEmpty, T? defaultValue, Func<T, bool> predicate, CancellationToken cancellationToken)
     {
-        var subscriber = new FirstLastSingle<T>(operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
-        source.Subscribe(subscriber);
-        return subscriber.Task;
+        var observer = new FirstLastSingle<T>(operation, useDefaultIfEmpty, defaultValue, predicate, cancellationToken);
+        source.Subscribe(observer);
+        return observer.Task;
     }
 }
 
 internal sealed class FirstLastSingle<T>(FirstLastSingleOperation operation, bool useDefaultIfEmpty, T? defaultValue, Func<T, bool> predicate, CancellationToken cancellationToken)
-    : TaskSubscriberBase<T, T>(cancellationToken)
+    : TaskObserverBase<T, T>(cancellationToken)
 {
     bool hasValue;
     T? latestValue = defaultValue;

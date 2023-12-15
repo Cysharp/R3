@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     // TODO: Optimize Where.Select
     // TODO: Element index overload
@@ -18,52 +18,52 @@ public static partial class EventExtensions
 
 internal sealed class Select<T, TResult>(Observable<T> source, Func<T, TResult> selector) : Observable<TResult>
 {
-    protected override IDisposable SubscribeCore(Observer<TResult> subscriber)
+    protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return source.Subscribe(new _Select(subscriber, selector));
+        return source.Subscribe(new _Select(observer, selector));
     }
 
-    class _Select(Observer<TResult> subscriber, Func<T, TResult> selector) : Observer<T>
+    class _Select(Observer<TResult> observer, Func<T, TResult> selector) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(selector(value));
+            observer.OnNext(selector(value));
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }
 
 internal sealed class Select<T, TResult, TState>(Observable<T> source, Func<T, TState, TResult> selector, TState state) : Observable<TResult>
 {
-    protected override IDisposable SubscribeCore(Observer<TResult> subscriber)
+    protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return source.Subscribe(new _Select(subscriber, selector, state));
+        return source.Subscribe(new _Select(observer, selector, state));
     }
 
-    class _Select(Observer<TResult> subscriber, Func<T, TState, TResult> selector, TState state) : Observer<T>
+    class _Select(Observer<TResult> observer, Func<T, TState, TResult> selector, TState state) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(selector(value, state));
+            observer.OnNext(selector(value, state));
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }

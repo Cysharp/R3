@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Observable<T> TakeLast<T>(this Observable<T> source, int count)
     {
@@ -11,7 +11,7 @@ public static partial class EventExtensions
 
     public static Observable<T> TakeLast<T>(this Observable<T> source, TimeSpan duration)
     {
-        return TakeLast(source, duration, EventSystem.DefaultTimeProvider);
+        return TakeLast(source, duration, ObservableSystem.DefaultTimeProvider);
     }
 
     public static Observable<T> TakeLast<T>(this Observable<T> source, TimeSpan duration, TimeProvider timeProvider)
@@ -23,7 +23,7 @@ public static partial class EventExtensions
 
     public static Observable<T> TakeLastFrame<T>(this Observable<T> source, int frameCount)
     {
-        return TakeLastFrame(source, frameCount, EventSystem.DefaultFrameProvider);
+        return TakeLastFrame(source, frameCount, ObservableSystem.DefaultFrameProvider);
     }
 
     public static Observable<T> TakeLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
@@ -34,12 +34,12 @@ public static partial class EventExtensions
 
 internal sealed class TakeLast<T>(Observable<T> source, int count) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeLast(subscriber, count));
+        return source.Subscribe(new _TakeLast(observer, count));
     }
 
-    sealed class _TakeLast(Observer<T> subscriber, int count) : Observer<T>, IDisposable
+    sealed class _TakeLast(Observer<T> observer, int count) : Observer<T>, IDisposable
     {
         Queue<T> queue = new Queue<T>(count);
 
@@ -54,22 +54,22 @@ internal sealed class TakeLast<T>(Observable<T> source, int count) : Observable<
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
             if (result.IsFailure)
             {
-                subscriber.OnCompleted(result);
+                observer.OnCompleted(result);
                 return;
             }
 
             foreach (var item in queue)
             {
-                subscriber.OnNext(item);
+                observer.OnNext(item);
             }
-            subscriber.OnCompleted();
+            observer.OnCompleted();
         }
 
         protected override void DisposeCore()
@@ -81,22 +81,22 @@ internal sealed class TakeLast<T>(Observable<T> source, int count) : Observable<
 
 internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, TimeProvider timeProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeLastTime(subscriber, duration, timeProvider));
+        return source.Subscribe(new _TakeLastTime(observer, duration, timeProvider));
     }
 
     sealed class _TakeLastTime : Observer<T>, IDisposable
     {
-        readonly Observer<T> subscriber;
+        readonly Observer<T> observer;
         readonly object gate = new object();
         readonly Queue<(long timestamp, T value)> queue = new();
         readonly TimeSpan duration;
         readonly TimeProvider timeProvider;
 
-        public _TakeLastTime(Observer<T> subscriber, TimeSpan duration, TimeProvider timeProvider)
+        public _TakeLastTime(Observer<T> observer, TimeSpan duration, TimeProvider timeProvider)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             this.timeProvider = timeProvider;
             this.duration = duration;
         }
@@ -115,7 +115,7 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
         {
             lock (gate)
             {
-                subscriber.OnErrorResume(error);
+                observer.OnErrorResume(error);
             }
         }
 
@@ -125,16 +125,16 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
             {
                 if (result.IsFailure)
                 {
-                    subscriber.OnCompleted(result);
+                    observer.OnCompleted(result);
                     return;
                 }
 
                 Trim(timeProvider.GetTimestamp());
                 foreach (var item in queue)
                 {
-                    subscriber.OnNext(item.value);
+                    observer.OnNext(item.value);
                 }
-                subscriber.OnCompleted();
+                observer.OnCompleted();
             }
         }
 
@@ -158,22 +158,22 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
 
 internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeLastFrame(subscriber, frameCount, frameProvider));
+        return source.Subscribe(new _TakeLastFrame(observer, frameCount, frameProvider));
     }
 
     sealed class _TakeLastFrame : Observer<T>, IDisposable
     {
-        readonly Observer<T> subscriber;
+        readonly Observer<T> observer;
         readonly object gate = new object();
         readonly Queue<(long frameCount, T value)> queue = new();
         readonly int frameCount;
         readonly FrameProvider frameProvider;
 
-        public _TakeLastFrame(Observer<T> subscriber, int frameCount, FrameProvider frameProvider)
+        public _TakeLastFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             this.frameCount = frameCount;
             this.frameProvider = frameProvider;
         }
@@ -192,7 +192,7 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
         {
             lock (gate)
             {
-                subscriber.OnErrorResume(error);
+                observer.OnErrorResume(error);
             }
         }
 
@@ -202,16 +202,16 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
             {
                 if (result.IsFailure)
                 {
-                    subscriber.OnCompleted(result);
+                    observer.OnCompleted(result);
                     return;
                 }
 
                 Trim(frameProvider.GetFrameCount());
                 foreach (var item in queue)
                 {
-                    subscriber.OnNext(item.value);
+                    observer.OnNext(item.value);
                 }
-                subscriber.OnCompleted();
+                observer.OnCompleted();
             }
         }
 

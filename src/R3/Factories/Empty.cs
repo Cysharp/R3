@@ -23,9 +23,9 @@ internal sealed class Empty<T> : Observable<T>
     // singleton
     public static readonly Empty<T> Instance = new Empty<T>();
 
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        subscriber.OnCompleted();
+        observer.OnCompleted();
         return Disposable.Empty;
     }
 

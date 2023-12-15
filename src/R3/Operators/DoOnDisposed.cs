@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     // TODO: doOnSubscribed
 
@@ -18,30 +18,30 @@ public static partial class EventExtensions
 
 sealed class DoOnDisposed<T>(Observable<T> source, Action action) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var method = new _DoOnDisposed(subscriber, action);
+        var method = new _DoOnDisposed(observer, action);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(Observer<T> subscriber, Action action) : Observer<T>, IDisposable
+    class _DoOnDisposed(Observer<T> observer, Action action) : Observer<T>, IDisposable
     {
         Action? action = action;
 
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()
@@ -53,31 +53,31 @@ sealed class DoOnDisposed<T>(Observable<T> source, Action action) : Observable<T
 
 internal sealed class DoOnDisposed<T, TState>(Observable<T> source, Action<TState> action, TState state) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var method = new _DoOnDisposed(subscriber, action, state);
+        var method = new _DoOnDisposed(observer, action, state);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnDisposed(Observer<T> subscriber, Action<TState> action, TState state) : Observer<T>, IDisposable
+    class _DoOnDisposed(Observer<T> observer, Action<TState> action, TState state) : Observer<T>, IDisposable
     {
         Action<TState>? action = action;
         TState state = state;
 
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()

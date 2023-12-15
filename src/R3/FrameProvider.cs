@@ -66,7 +66,7 @@ public sealed class ManualFrameProvider : FrameProvider
                     list.Remove(i);
                     try
                     {
-                        EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
+                        ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
                     }
                     catch { }
                 }

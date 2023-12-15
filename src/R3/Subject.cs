@@ -2,53 +2,54 @@
 
 namespace R3;
 
-public interface IEventPublisher<T>
+public interface ISubject<T>
 {
-    void PublishOnNext(T value);
-    void PublishOnCompleted(Result complete);
+    void OnNext(T value);
+    void OnErrorResume(Exception error);
+    void OnCompleted(Result complete);
 }
 
-public sealed class Publisher<T> : Observable<T>, IEventPublisher<T>, IDisposable
+public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
 {
     int calledCompleted = 0;
     Result completeValue;
     FreeListCore<_CompletablePublisher> list;
     readonly object completedLock = new object();
 
-    public Publisher()
+    public Subject()
     {
         list = new FreeListCore<_CompletablePublisher>(this);
     }
 
-    public void PublishOnNext(T value)
+    public void OnNext(T value)
     {
         if (list.IsDisposed) ThrowDisposed();
         if (Volatile.Read(ref calledCompleted) != 0) return;
 
-        foreach (var subscriber in list.AsSpan())
+        foreach (var observer in list.AsSpan())
         {
-            if (subscriber != null)
+            if (observer != null)
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
         }
     }
 
-    public void PublishOnErrorResume(Exception error)
+    public void OnErrorResume(Exception error)
     {
         if (list.IsDisposed) ThrowDisposed();
         if (Volatile.Read(ref calledCompleted) != 0) return;
 
-        foreach (var subscriber in list.AsSpan())
+        foreach (var observer in list.AsSpan())
         {
-            if (subscriber != null)
+            if (observer != null)
             {
-                subscriber.OnErrorResume(error);
+                observer.OnErrorResume(error);
             }
         }
     }
 
-    public void PublishOnCompleted(Result complete)
+    public void OnCompleted(Result complete)
     {
         if (list.IsDisposed) ThrowDisposed();
         if (Volatile.Read(ref calledCompleted) != 0) return;
@@ -60,16 +61,16 @@ public sealed class Publisher<T> : Observable<T>, IEventPublisher<T>, IDisposabl
             calledCompleted = 1;
         }
 
-        foreach (var subscriber in list.AsSpan())
+        foreach (var observer in list.AsSpan())
         {
-            if (subscriber != null)
+            if (observer != null)
             {
-                subscriber.OnCompleted(complete);
+                observer.OnCompleted(complete);
             }
         }
     }
 
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         if (list.IsDisposed) ThrowDisposed();
 
@@ -77,12 +78,12 @@ public sealed class Publisher<T> : Observable<T>, IEventPublisher<T>, IDisposabl
         {
             if (Volatile.Read(ref calledCompleted) != 0)
             {
-                subscriber.OnCompleted(completeValue);
+                observer.OnCompleted(completeValue);
                 return Disposable.Empty;
             }
 
             // need lock after Add
-            var subscription = new _CompletablePublisher(this, subscriber);
+            var subscription = new _CompletablePublisher(this, observer);
             subscription.removeKey = list.Add(subscription); // when disposed, may throw DisposedException in this line
             return subscription;
         }
@@ -95,7 +96,7 @@ public sealed class Publisher<T> : Observable<T>, IEventPublisher<T>, IDisposabl
 
     public void Dispose()
     {
-        // TODO: when dispose, call OnCompleted to dispose all subscribers.
+        // TODO: when dispose, call OnCompleted to dispose all observers.
 
         list.Dispose();
     }
@@ -105,26 +106,26 @@ public sealed class Publisher<T> : Observable<T>, IEventPublisher<T>, IDisposabl
         throw new ObjectDisposedException("CompletablePublisher");
     }
 
-    sealed class _CompletablePublisher(Publisher<T>? parent, Observer<T> subscriber) : IDisposable
+    sealed class _CompletablePublisher(Subject<T>? parent, Observer<T> observer) : IDisposable
     {
         public int removeKey;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnNext(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnErrorResume(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void OnCompleted(Result complete)
         {
-            subscriber.OnCompleted(complete);
+            observer.OnCompleted(complete);
         }
 
         public void Dispose()

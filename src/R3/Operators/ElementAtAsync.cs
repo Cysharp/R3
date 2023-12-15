@@ -1,14 +1,14 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Task<T> ElementAtAsync<T>(this Observable<T> source, int index, CancellationToken cancellationToken = default)
     {
         if (index < 0) throw new ArgumentOutOfRangeException("index");
 
-        var subscriber = new ElementAtAsync<T>(index, false, default, cancellationToken);
-        source.Subscribe(subscriber);
-        return subscriber.Task;
+        var observer = new ElementAtAsync<T>(index, false, default, cancellationToken);
+        source.Subscribe(observer);
+        return observer.Task;
     }
 
     public static Task<T> ElementAtAsync<T>(this Observable<T> source, Index index, CancellationToken cancellationToken = default)
@@ -16,9 +16,9 @@ public static partial class EventExtensions
         if (index.IsFromEnd)
         {
             if (index.Value <= 0) throw new ArgumentOutOfRangeException("index");
-            var subscriber = new ElementAtFromEndAsync<T>(index.Value, false, default, cancellationToken);
-            source.Subscribe(subscriber);
-            return subscriber.Task;
+            var observer = new ElementAtFromEndAsync<T>(index.Value, false, default, cancellationToken);
+            source.Subscribe(observer);
+            return observer.Task;
         }
         else
         {
@@ -29,18 +29,18 @@ public static partial class EventExtensions
     public static Task<T> ElementAtOrDefaultAsync<T>(this Observable<T> source, int index, T? defaultValue = default, CancellationToken cancellationToken = default)
     {
         if (index < 0) throw new ArgumentOutOfRangeException("index");
-        var subscriber = new ElementAtAsync<T>(index, true, defaultValue, cancellationToken);
-        source.Subscribe(subscriber);
-        return subscriber.Task;
+        var observer = new ElementAtAsync<T>(index, true, defaultValue, cancellationToken);
+        source.Subscribe(observer);
+        return observer.Task;
     }
 
     public static Task<T> ElementAtOrDefaultAsync<T>(this Observable<T> source, Index index, T? defaultValue = default, CancellationToken cancellationToken = default)
     {
         if (index.IsFromEnd)
         {
-            var subscriber = new ElementAtFromEndAsync<T>(index.Value, true, defaultValue, cancellationToken);
-            source.Subscribe(subscriber);
-            return subscriber.Task;
+            var observer = new ElementAtFromEndAsync<T>(index.Value, true, defaultValue, cancellationToken);
+            source.Subscribe(observer);
+            return observer.Task;
         }
         else
         {
@@ -50,7 +50,7 @@ public static partial class EventExtensions
 }
 
 internal sealed class ElementAtAsync<T>(int index, bool useDefaultValue, T? defaultValue, CancellationToken cancellationToken)
-    : TaskSubscriberBase<T, T>(cancellationToken)
+    : TaskObserverBase<T, T>(cancellationToken)
 {
     int count = 0;
 
@@ -89,7 +89,7 @@ internal sealed class ElementAtAsync<T>(int index, bool useDefaultValue, T? defa
 
 // Index.IsFromEnd
 internal sealed class ElementAtFromEndAsync<T>(int fromEndIndex, bool useDefaultValue, T? defaultValue, CancellationToken cancellationToken)
-    : TaskSubscriberBase<T, T>(cancellationToken)
+    : TaskObserverBase<T, T>(cancellationToken)
 {
     Queue<T> queue = new Queue<T>(fromEndIndex);
 

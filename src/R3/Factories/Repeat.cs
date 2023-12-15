@@ -38,31 +38,31 @@ public static partial class Observable
 
 internal sealed class Repeat<T>(T value, int count) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         for (int i = 0; i < count; i++)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
-        subscriber.OnCompleted(default);
+        observer.OnCompleted(default);
         return Disposable.Empty;
     }
 }
 
 internal sealed class RepeatC<T>(T value, int count, CancellationToken cancellationToken) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         for (int i = 0; i < count; i++)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                subscriber.OnCompleted();
+                observer.OnCompleted();
                 return Disposable.Empty;
             }
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
-        subscriber.OnCompleted(default);
+        observer.OnCompleted(default);
         return Disposable.Empty;
     }
 }

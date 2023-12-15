@@ -16,22 +16,22 @@ public class TakeLastTest
     {
         var timeProvider = new FakeTimeProvider();
 
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var list = publisher.TakeLast(TimeSpan.FromSeconds(3), timeProvider).ToLiveList();
 
-        publisher.PublishOnNext(1);
-        publisher.PublishOnNext(10);
+        publisher.OnNext(1);
+        publisher.OnNext(10);
         list.AssertEqual([]);
 
         timeProvider.Advance(TimeSpan.FromSeconds(2));
-        publisher.PublishOnNext(100);
-        publisher.PublishOnNext(1000);
+        publisher.OnNext(100);
+        publisher.OnNext(1000);
 
         timeProvider.Advance(TimeSpan.FromSeconds(2));
-        publisher.PublishOnNext(2);
-        publisher.PublishOnNext(20);
+        publisher.OnNext(2);
+        publisher.OnNext(20);
 
-        publisher.PublishOnCompleted();
+        publisher.OnCompleted();
 
         list.AssertEqual([100, 1000, 2, 20]);
         list.AssertIsCompleted();

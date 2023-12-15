@@ -2,7 +2,7 @@
 
 namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     //public static Event<T> Delay<T>(this Event<T> source, TimeSpan dueTime, TimeProvider timeProvider)
     //{
@@ -18,18 +18,18 @@ public static partial class EventExtensions
 // TODO:dueTime validation
 //internal sealed class Delay<T>(Event<T> source, TimeSpan dueTime, TimeProvider timeProvider) : Event<T>
 //{
-//    protected override IDisposable SubscribeCore(Subscriber<T> subscriber)
+//    protected override IDisposable SubscribeCore(observer<T> observer)
 //    {
-//        var delay = new _Delay(subscriber, dueTime, timeProvider);
+//        var delay = new _Delay(observer, dueTime, timeProvider);
 //        source.Subscribe(delay);
 //        return delay;
 //    }
 
-//    class _Delay : Subscriber<T>, IDisposable
+//    class _Delay : observer<T>, IDisposable
 //    {
 //        static readonly TimerCallback timerCallback = DrainMessages;
 
-//        readonly Subscriber<T> subscriber;
+//        readonly observer<T> observer;
 //        readonly TimeSpan dueTime;
 //        readonly TimeProvider timeProvider;
 //        ITimer? timer;
@@ -37,9 +37,9 @@ public static partial class EventExtensions
 
 //        bool running;
 
-//        public _Delay(Subscriber<T> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
+//        public _Delay(observer<T> observer, TimeSpan dueTime, TimeProvider timeProvider)
 //        {
-//            this.subscriber = subscriber;
+//            this.observer = observer;
 //            this.dueTime = dueTime;
 //            this.timeProvider = timeProvider;
 //            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
@@ -111,7 +111,7 @@ public static partial class EventExtensions
 
 //                try
 //                {
-//                    self.subscriber.OnNext(value);
+//                    self.observer.OnNext(value);
 //                    continue; // loop to drain all messages
 //                }
 //                catch
@@ -150,22 +150,22 @@ public static partial class EventExtensions
 
 //internal sealed class Delay<T>(ICompletableEvent<T> source, TimeSpan dueTime, TimeProvider timeProvider) : ICompletableEvent<T>
 //{
-//    public IDisposable Subscribe(ISubscriber<T> subscriber)
+//    public IDisposable Subscribe(Iobserver<T> observer)
 //    {
-//        var delay = new _Delay(subscriber, dueTime, timeProvider);
+//        var delay = new _Delay(observer, dueTime, timeProvider);
 //        var sourceSubscription = source.Subscribe(delay);
 //        var delaySubscription = delay.Subscription;
 //        return Disposable.Combine(delaySubscription, sourceSubscription); // call delay's dispose first
 //    }
 
-//    class _Delay : ISubscriber<T>
+//    class _Delay : Iobserver<T>
 //    {
 //        static readonly TimerCallback timerCallback = DrainMessages;
 //        static readonly Action<object?> disposeCallback = OnDisposed;
 
 //        public CallbackDisposable Subscription { get; private set; }
 
-//        readonly ISubscriber<T> subscriber;
+//        readonly Iobserver<T> observer;
 //        readonly TimeSpan dueTime;
 //        readonly TimeProvider timeProvider;
 //        readonly ITimer timer;
@@ -179,10 +179,10 @@ public static partial class EventExtensions
 //        bool isCompleted;
 
 
-//        public _Delay(ISubscriber<T> subscriber, TimeSpan dueTime, TimeProvider timeProvider)
+//        public _Delay(Iobserver<T> observer, TimeSpan dueTime, TimeProvider timeProvider)
 //        {
 //            this.dueTime = dueTime;
-//            this.subscriber = subscriber;
+//            this.observer = observer;
 //            this.timeProvider = timeProvider;
 //            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
 //            this.Subscription = new CallbackDisposable(disposeCallback, this);
@@ -281,7 +281,7 @@ public static partial class EventExtensions
 //                {
 //                    try
 //                    {
-//                        self.subscriber.OnNext(value);
+//                        self.observer.OnNext(value);
 //                        continue; // succeed, loop to drain all messages
 //                    }
 //                    catch
@@ -314,7 +314,7 @@ public static partial class EventExtensions
 //                {
 //                    try
 //                    {
-//                        self.subscriber.OnCompleted(self.completeMessage!);
+//                        self.observer.OnCompleted(self.completeMessage!);
 //                    }
 //                    finally
 //                    {

@@ -19,7 +19,7 @@ internal sealed class Never<T> : Observable<T>
 
     }
 
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         return Disposable.Empty;
     }

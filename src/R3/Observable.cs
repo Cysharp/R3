@@ -4,34 +4,39 @@ using System.Diagnostics;
 
 namespace R3;
 
-public abstract class Observable<T>
+public abstract class Observable<T> : IObservable<T>
 {
     [StackTraceHidden, DebuggerStepThrough]
-    public IDisposable Subscribe(Observer<T> subscriber)
+    public IDisposable Subscribe(Observer<T> observer)
     {
         try
         {
-            var subscription = SubscribeCore(subscriber);
+            var subscription = SubscribeCore(observer);
 
             if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
             {
                 subscription = trackableDisposable;
             }
 
-            subscriber.SourceSubscription.Disposable = subscription;
-            return subscriber; // return subscriber to make subscription chain.
+            observer.SourceSubscription.Disposable = subscription;
+            return observer; // return observer to make subscription chain.
         }
         catch
         {
-            subscriber.Dispose(); // when SubscribeCore failed, auto detach caller subscriber
+            observer.Dispose(); // when SubscribeCore failed, auto detach caller observer
             throw;
         }
     }
 
-    protected abstract IDisposable SubscribeCore(Observer<T> subscriber);
+    protected abstract IDisposable SubscribeCore(Observer<T> observer);
+
+    IDisposable IObservable<T>.Subscribe(IObserver<T> observer)
+    {
+        return Subscribe(observer.ToObserver()); // convert IObserver<T> to Observer<T>
+    }
 }
 
-public abstract class Observer<T> : IDisposable
+public abstract class Observer<T> : IDisposable, IObserver<T>
 {
 #if DEBUG
     [Obsolete("Only allow in Event<T>.")]
@@ -72,7 +77,7 @@ public abstract class Observer<T> : IDisposable
         }
         catch (Exception ex)
         {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
         }
     }
 
@@ -93,7 +98,7 @@ public abstract class Observer<T> : IDisposable
         }
         catch (Exception ex)
         {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(ex);
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
         }
         finally
         {
@@ -117,4 +122,21 @@ public abstract class Observer<T> : IDisposable
 
     [StackTraceHidden, DebuggerStepThrough]
     protected virtual void DisposeCore() { }
+
+    // IObserver<T> bridge
+
+    void IObserver<T>.OnNext(T value)
+    {
+        OnNext(value);
+    }
+
+    void IObserver<T>.OnError(Exception error)
+    {
+        OnCompleted(Result.Failure(error));
+    }
+
+    void IObserver<T>.OnCompleted()
+    {
+        OnCompleted(Result.Success);
+    }
 }

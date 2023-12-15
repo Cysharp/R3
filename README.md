@@ -3,12 +3,12 @@
 Third Generation of Reactive Extensions.
 
 ```csharp
-public abstract class Event<T>
+public abstract class Observable<T>
 {
-    public IDisposable Subscribe(Subscriber<T> subscriber);
+    public IDisposable Subscribe(Observer<T> observer);
 }
 
-public abstract class Subscriber<T> : IDisposable
+public abstract class Observer<T> : IDisposable
 {
     public void OnNext(T value);
     public void OnErrorResume(Exception error);

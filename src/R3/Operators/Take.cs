@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Observable<T> Take<T>(this Observable<T> source, int count)
     {
@@ -16,7 +16,7 @@ public static partial class EventExtensions
 
     public static Observable<T> Take<T>(this Observable<T> source, TimeSpan duration)
     {
-        return Take(source, duration, EventSystem.DefaultTimeProvider);
+        return Take(source, duration, ObservableSystem.DefaultTimeProvider);
     }
 
     public static Observable<T> Take<T>(this Observable<T> source, TimeSpan duration, TimeProvider timeProvider)
@@ -28,7 +28,7 @@ public static partial class EventExtensions
 
     public static Observable<T> TakeFrame<T>(this Observable<T> source, int frameCount)
     {
-        return TakeFrame(source, frameCount, EventSystem.DefaultFrameProvider);
+        return TakeFrame(source, frameCount, ObservableSystem.DefaultFrameProvider);
     }
 
     public static Observable<T> TakeFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
@@ -39,12 +39,12 @@ public static partial class EventExtensions
 
 internal sealed class Take<T>(Observable<T> source, int count) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _Take(subscriber, count));
+        return source.Subscribe(new _Take(observer, count));
     }
 
-    sealed class _Take(Observer<T> subscriber, int count) : Observer<T>, IDisposable
+    sealed class _Take(Observer<T> observer, int count) : Observer<T>, IDisposable
     {
         int remaining = count;
 
@@ -53,44 +53,44 @@ internal sealed class Take<T>(Observable<T> source, int count) : Observable<T>
             if (remaining > 0)
             {
                 remaining--;
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
             else
             {
-                subscriber.OnCompleted();
+                observer.OnCompleted();
             }
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }
 
 internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeProvider timeProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeTime(subscriber, duration, timeProvider));
+        return source.Subscribe(new _TakeTime(observer, duration, timeProvider));
     }
 
     sealed class _TakeTime : Observer<T>, IDisposable
     {
         static readonly TimerCallback timerCallback = TimerStopped;
 
-        readonly Observer<T> subscriber;
+        readonly Observer<T> observer;
         readonly ITimer timer;
         readonly object gate = new object();
 
-        public _TakeTime(Observer<T> subscriber, TimeSpan duration, TimeProvider timeProvider)
+        public _TakeTime(Observer<T> observer, TimeSpan duration, TimeProvider timeProvider)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
             timer.InvokeOnce(duration);
         }
@@ -99,7 +99,7 @@ internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeP
         {
             lock (gate)
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
         }
 
@@ -107,7 +107,7 @@ internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeP
         {
             lock (gate)
             {
-                subscriber.OnErrorResume(error);
+                observer.OnErrorResume(error);
             }
         }
 
@@ -115,7 +115,7 @@ internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeP
         {
             lock (gate)
             {
-                subscriber.OnCompleted(result);
+                observer.OnCompleted(result);
             }
         }
 
@@ -134,20 +134,20 @@ internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeP
 
 internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeFrame(subscriber, frameCount, frameProvider));
+        return source.Subscribe(new _TakeFrame(observer, frameCount, frameProvider));
     }
 
     sealed class _TakeFrame : Observer<T>, IDisposable, IFrameRunnerWorkItem
     {
-        readonly Observer<T> subscriber;
+        readonly Observer<T> observer;
         long remaining;
         readonly object gate = new object();
 
-        public _TakeFrame(Observer<T> subscriber, int frameCount, FrameProvider frameProvider)
+        public _TakeFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             this.remaining = frameProvider.GetFrameCount() + frameCount;
             frameProvider.Register(this);
         }
@@ -156,7 +156,7 @@ internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FramePr
         {
             lock (gate)
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
         }
 
@@ -164,7 +164,7 @@ internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FramePr
         {
             lock (gate)
             {
-                subscriber.OnErrorResume(error);
+                observer.OnErrorResume(error);
             }
         }
 
@@ -172,7 +172,7 @@ internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FramePr
         {
             lock (gate)
             {
-                subscriber.OnCompleted(result);
+                observer.OnCompleted(result);
             }
         }
 

@@ -39,31 +39,31 @@ public static partial class Observable
 
 internal sealed class Range(int start, int count) : Observable<int>
 {
-    protected override IDisposable SubscribeCore(Observer<int> subscriber)
+    protected override IDisposable SubscribeCore(Observer<int> observer)
     {
         for (int i = 0; i < count; i++)
         {
-            subscriber.OnNext(start + i);
+            observer.OnNext(start + i);
         }
-        subscriber.OnCompleted(default);
+        observer.OnCompleted(default);
         return Disposable.Empty;
     }
 }
 
 internal sealed class RangeC(int start, int count, CancellationToken cancellationToken) : Observable<int>
 {
-    protected override IDisposable SubscribeCore(Observer<int> subscriber)
+    protected override IDisposable SubscribeCore(Observer<int> observer)
     {
         for (int i = 0; i < count; i++)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                subscriber.OnCompleted();
+                observer.OnCompleted();
                 return Disposable.Empty;
             }
-            subscriber.OnNext(start + i);
+            observer.OnNext(start + i);
         }
-        subscriber.OnCompleted();
+        observer.OnCompleted();
         return Disposable.Empty;
     }
 }

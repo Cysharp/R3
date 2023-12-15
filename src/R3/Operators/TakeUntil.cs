@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Observable<T> TakeUntil<T, TOther>(this Observable<T> source, Observable<TOther> other)
     {
@@ -29,9 +29,9 @@ public static partial class EventExtensions
 
 internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOther> other) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var takeUntil = new _TakeUntil(subscriber);
+        var takeUntil = new _TakeUntil(observer);
         var stopperSubscription = other.Subscribe(takeUntil.stopper);
         try
         {
@@ -46,28 +46,28 @@ internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOth
 
     sealed class _TakeUntil : Observer<T>
     {
-        readonly Observer<T> subscriber;
-        internal readonly TakeUntilStopperSubscriber stopper; // this instance is not exposed to public so can use lock.
+        readonly Observer<T> observer;
+        internal readonly TakeUntilStopperobserver stopper; // this instance is not exposed to public so can use lock.
 
-        public _TakeUntil(Observer<T> subscriber)
+        public _TakeUntil(Observer<T> observer)
         {
-            this.subscriber = subscriber;
-            this.stopper = new TakeUntilStopperSubscriber(this);
+            this.observer = observer;
+            this.stopper = new TakeUntilStopperobserver(this);
         }
 
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()
@@ -76,7 +76,7 @@ internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOth
         }
     }
 
-    sealed class TakeUntilStopperSubscriber(_TakeUntil parent) : Observer<TOther>
+    sealed class TakeUntilStopperobserver(_TakeUntil parent) : Observer<TOther>
     {
         protected override void OnNextCore(TOther value)
         {
@@ -97,37 +97,37 @@ internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOth
 
 internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken cancellationToken) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeUntil(subscriber, cancellationToken));
+        return source.Subscribe(new _TakeUntil(observer, cancellationToken));
     }
 
     sealed class _TakeUntil : Observer<T>, IDisposable
     {
         static readonly Action<object?> cancellationCallback = CancellationCallback;
 
-        readonly Observer<T> subscriber;
+        readonly Observer<T> observer;
         CancellationTokenRegistration tokenRegistration;
 
-        public _TakeUntil(Observer<T> subscriber, CancellationToken cancellationToken)
+        public _TakeUntil(Observer<T> observer, CancellationToken cancellationToken)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             this.tokenRegistration = cancellationToken.Register(cancellationCallback, this);
         }
 
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
 
         static void CancellationCallback(object? state)
@@ -145,34 +145,34 @@ internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken canc
 
 internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeUntil(subscriber, task));
+        return source.Subscribe(new _TakeUntil(observer, task));
     }
 
     sealed class _TakeUntil : Observer<T>, IDisposable
     {
-        readonly Observer<T> subscriber;
+        readonly Observer<T> observer;
 
-        public _TakeUntil(Observer<T> subscriber, Task task)
+        public _TakeUntil(Observer<T> observer, Task task)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             TaskAwait(task);
         }
 
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
 
         async void TaskAwait(Task task)

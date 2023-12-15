@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     // TODO: more accurate impl
     // TODO: with state
@@ -21,31 +21,31 @@ public static partial class EventExtensions
 
 internal sealed class DoOnCompleted<T>(Observable<T> source, Action<Result> action) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var method = new _DoOnCompleted(subscriber, action);
+        var method = new _DoOnCompleted(observer, action);
         source.Subscribe(method);
         return method;
     }
 
-    class _DoOnCompleted(Observer<T> subscriber, Action<Result> action) : Observer<T>, IDisposable
+    class _DoOnCompleted(Observer<T> observer, Action<Result> action) : Observer<T>, IDisposable
     {
         Action<Result>? action = action;
 
         protected override void OnNextCore(T value)
         {
-            subscriber.OnNext(value);
+            observer.OnNext(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
             Interlocked.Exchange(ref action, null)?.Invoke(result);
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }

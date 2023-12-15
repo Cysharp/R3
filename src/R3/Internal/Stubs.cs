@@ -6,7 +6,7 @@ internal static class Stubs
     {
         if (x.IsFailure)
         {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(x.Exception);
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(x.Exception);
         }
     };
 }
@@ -20,7 +20,7 @@ internal static class Stubs<T>
 
     internal static readonly Action<Exception, T> HandleException = static (x, _) =>
     {
-        EventSystem.GetUnhandledExceptionHandler().Invoke(x);
+        ObservableSystem.GetUnhandledExceptionHandler().Invoke(x);
     };
 
 
@@ -28,7 +28,7 @@ internal static class Stubs<T>
     {
         if (x.IsFailure)
         {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(x.Exception);
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(x.Exception);
         }
     };
 }

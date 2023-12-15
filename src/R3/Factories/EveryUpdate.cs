@@ -4,12 +4,12 @@ public static partial class Observable
 {
     public static Observable<Unit> EveryUpdate()
     {
-        return new EveryUpdate(EventSystem.DefaultFrameProvider, CancellationToken.None, cancelImmediately: false);
+        return new EveryUpdate(ObservableSystem.DefaultFrameProvider, CancellationToken.None, cancelImmediately: false);
     }
 
     public static Observable<Unit> EveryUpdate(CancellationToken cancellationToken)
     {
-        return new EveryUpdate(EventSystem.DefaultFrameProvider, cancellationToken, cancelImmediately: false);
+        return new EveryUpdate(ObservableSystem.DefaultFrameProvider, cancellationToken, cancelImmediately: false);
     }
 
     public static Observable<Unit> EveryUpdate(FrameProvider frameProvider)
@@ -31,23 +31,23 @@ public static partial class Observable
 
 internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken, bool cancelImmediately) : Observable<Unit>
 {
-    protected override IDisposable SubscribeCore(Observer<Unit> subscriber)
+    protected override IDisposable SubscribeCore(Observer<Unit> observer)
     {
-        var runner = new EveryUpdateRunnerWorkItem(subscriber, cancellationToken, cancelImmediately);
+        var runner = new EveryUpdateRunnerWorkItem(observer, cancellationToken, cancelImmediately);
         frameProvider.Register(runner);
         return runner;
     }
 
     class EveryUpdateRunnerWorkItem : IFrameRunnerWorkItem, IDisposable
     {
-        Observer<Unit> subscriber;
+        Observer<Unit> observer;
         CancellationToken cancellationToken;
         CancellationTokenRegistration cancellationTokenRegistration;
         bool isDisposed;
 
-        public EveryUpdateRunnerWorkItem(Observer<Unit> subscriber, CancellationToken cancellationToken, bool cancelImmediately)
+        public EveryUpdateRunnerWorkItem(Observer<Unit> observer, CancellationToken cancellationToken, bool cancelImmediately)
         {
-            this.subscriber = subscriber;
+            this.observer = observer;
             this.cancellationToken = cancellationToken;
 
             if (cancelImmediately && cancellationToken.CanBeCanceled)
@@ -55,7 +55,7 @@ internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken
                 cancellationTokenRegistration = cancellationToken.UnsafeRegister(static state =>
                 {
                     var s = (EveryUpdateRunnerWorkItem)state!;
-                    s.subscriber.OnCompleted();
+                    s.observer.OnCompleted();
                     s.Dispose();
                 }, this);
             }
@@ -70,12 +70,12 @@ internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken
 
             if (cancellationToken.IsCancellationRequested)
             {
-                subscriber.OnCompleted();
+                observer.OnCompleted();
                 Dispose();
                 return false;
             }
 
-            subscriber.OnNext(default);
+            observer.OnNext(default);
             return true;
         }
 

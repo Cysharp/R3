@@ -13,199 +13,199 @@ public class FirstLastSingleTest
     [Fact]
     public async Task First2()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.FirstAsync();
-        publisher.PublishOnNext(10);
+        publisher.OnNext(10);
         (await task).Should().Be(10);
 
         var task2 = publisher.FirstAsync();
-        publisher.PublishOnNext(15);
-        publisher.PublishOnNext(25);
+        publisher.OnNext(15);
+        publisher.OnNext(25);
 
         (await task2).Should().Be(15);
 
         var task3 = publisher.FirstAsync();
 
-        publisher.PublishOnCompleted(default);
+        publisher.OnCompleted(default);
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task3);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task4 = publisher.FirstAsync(x => x % 3 == 0);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(5);
         task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
 
-        publisher.PublishOnNext(99);
+        publisher.OnNext(99);
         (await task4).Should().Be(99);
     }
 
     [Fact]
     public async Task FirstOrDefault()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.FirstOrDefaultAsync();
-        publisher.PublishOnNext(10);
+        publisher.OnNext(10);
         (await task).Should().Be(10);
 
         var task2 = publisher.FirstOrDefaultAsync();
-        publisher.PublishOnNext(15);
-        publisher.PublishOnNext(25);
+        publisher.OnNext(15);
+        publisher.OnNext(25);
 
         (await task2).Should().Be(15);
 
         var task3 = publisher.FirstOrDefaultAsync(9999);
 
-        publisher.PublishOnCompleted(default);
+        publisher.OnCompleted(default);
         (await task3).Should().Be(9999);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task4 = publisher.FirstOrDefaultAsync(x => x % 3 == 0);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(5);
         task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
 
-        publisher.PublishOnNext(99);
+        publisher.OnNext(99);
         (await task4).Should().Be(99);
     }
 
     [Fact]
     public async Task LastAsync()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.LastAsync();
-        publisher.PublishOnNext(10);
-        publisher.PublishOnCompleted(default);
+        publisher.OnNext(10);
+        publisher.OnCompleted(default);
         (await task).Should().Be(10);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task2 = publisher.LastAsync();
-        publisher.PublishOnNext(15);
-        publisher.PublishOnNext(25);
-        publisher.PublishOnCompleted(default);
+        publisher.OnNext(15);
+        publisher.OnNext(25);
+        publisher.OnCompleted(default);
 
         (await task2).Should().Be(25);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task3 = publisher.LastAsync();
 
-        publisher.PublishOnCompleted(default);
+        publisher.OnCompleted(default);
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task3);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task4 = publisher.LastAsync(x => x % 3 == 0);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(5);
         task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
 
-        publisher.PublishOnNext(99);
-        publisher.PublishOnNext(11);
-        publisher.PublishOnCompleted();
+        publisher.OnNext(99);
+        publisher.OnNext(11);
+        publisher.OnCompleted();
         (await task4).Should().Be(99);
     }
 
     [Fact]
     public async Task LastOrDefaultAsync()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.LastOrDefaultAsync();
-        publisher.PublishOnNext(10);
-        publisher.PublishOnCompleted(default);
+        publisher.OnNext(10);
+        publisher.OnCompleted(default);
         (await task).Should().Be(10);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task2 = publisher.LastOrDefaultAsync();
-        publisher.PublishOnNext(15);
-        publisher.PublishOnNext(25);
-        publisher.PublishOnCompleted(default);
+        publisher.OnNext(15);
+        publisher.OnNext(25);
+        publisher.OnCompleted(default);
 
         (await task2).Should().Be(25);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task3 = publisher.LastOrDefaultAsync(9999);
 
-        publisher.PublishOnCompleted(default);
+        publisher.OnCompleted(default);
         (await task3).Should().Be(9999);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task4 = publisher.LastOrDefaultAsync(x => x % 3 == 0);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(5);
         task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
 
-        publisher.PublishOnNext(99);
-        publisher.PublishOnNext(11);
-        publisher.PublishOnCompleted();
+        publisher.OnNext(99);
+        publisher.OnNext(11);
+        publisher.OnCompleted();
         (await task4).Should().Be(99);
     }
 
     [Fact]
     public async Task Single()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.SingleAsync();
-        publisher.PublishOnNext(10);
-        publisher.PublishOnCompleted();
+        publisher.OnNext(10);
+        publisher.OnCompleted();
         (await task).Should().Be(10);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task2 = publisher.SingleAsync();
-        publisher.PublishOnNext(15);
-        publisher.PublishOnNext(25);
+        publisher.OnNext(15);
+        publisher.OnNext(25);
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task2);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task3 = publisher.SingleAsync();
 
-        publisher.PublishOnCompleted(default);
+        publisher.OnCompleted(default);
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task3);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task4 = publisher.SingleAsync(x => x % 3 == 0);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(5);
         task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
 
-        publisher.PublishOnNext(99);
-        publisher.PublishOnCompleted();
+        publisher.OnNext(99);
+        publisher.OnCompleted();
         (await task4).Should().Be(99);
     }
 
     [Fact]
     public async Task SingleOrDefault()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.SingleOrDefaultAsync(9999);
-        publisher.PublishOnNext(10);
-        publisher.PublishOnCompleted();
+        publisher.OnNext(10);
+        publisher.OnCompleted();
         (await task).Should().Be(10);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task2 = publisher.SingleOrDefaultAsync(9999);
-        publisher.PublishOnNext(15);
-        publisher.PublishOnNext(25);
+        publisher.OnNext(15);
+        publisher.OnNext(25);
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task2);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task3 = publisher.SingleOrDefaultAsync(9999);
 
-        publisher.PublishOnCompleted(default);
+        publisher.OnCompleted(default);
         (await task3).Should().Be(9999);
 
-        publisher = new Publisher<int>();
+        publisher = new Subject<int>();
         var task4 = publisher.SingleOrDefaultAsync(x => x % 3 == 0);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(5);
         task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
 
-        publisher.PublishOnNext(99);
-        publisher.PublishOnCompleted();
+        publisher.OnNext(99);
+        publisher.OnCompleted();
         (await task4).Should().Be(99);
     }
 
     [Fact]
     public async Task ErrorStream()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var task = publisher.LastAsync();
 
-        publisher.PublishOnNext(10);
-        publisher.PublishOnNext(20);
-        publisher.PublishOnNext(30);
-        publisher.PublishOnCompleted(Result.Failure(new Exception("foo")));
+        publisher.OnNext(10);
+        publisher.OnNext(20);
+        publisher.OnNext(30);
+        publisher.OnCompleted(Result.Failure(new Exception("foo")));
 
         await Assert.ThrowsAsync<Exception>(async () => await task);
     }

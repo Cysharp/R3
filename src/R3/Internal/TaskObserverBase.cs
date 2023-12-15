@@ -3,7 +3,7 @@
 // for return Task(tcs.TrySet***)
 // include proper Cancel registration
 
-internal abstract class TaskSubscriberBase<T, TTask> : Observer<T>
+internal abstract class TaskObserverBase<T, TTask> : Observer<T>
 {
     TaskCompletionSource<TTask> tcs; // use this field.
 
@@ -12,7 +12,7 @@ internal abstract class TaskSubscriberBase<T, TTask> : Observer<T>
 
     public Task<TTask> Task => tcs.Task;
 
-    public TaskSubscriberBase(CancellationToken cancellationToken)
+    public TaskObserverBase(CancellationToken cancellationToken)
     {
         this.tcs = new TaskCompletionSource<TTask>();
         this.cancellationToken = cancellationToken;
@@ -22,9 +22,9 @@ internal abstract class TaskSubscriberBase<T, TTask> : Observer<T>
             // register before call Subscribe
             this.tokenRegistration = cancellationToken.UnsafeRegister(static state =>
             {
-                var s = (TaskSubscriberBase<T, TTask>)state!;
+                var s = (TaskObserverBase<T, TTask>)state!;
 
-                s.Dispose(); // subscriber is subscription, dispose
+                s.Dispose(); // observer is subscription, dispose
                 s.tcs.TrySetCanceled(s.cancellationToken);
             }, this);
         }

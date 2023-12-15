@@ -7,19 +7,19 @@ public class AggregateTest
     [Fact]
     public async Task Aggreagte()
     {
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
 
         var listTask = publisher.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x);
 
-        publisher.PublishOnNext(1);
-        publisher.PublishOnNext(2);
-        publisher.PublishOnNext(3);
-        publisher.PublishOnNext(4);
-        publisher.PublishOnNext(5);
+        publisher.OnNext(1);
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+        publisher.OnNext(4);
+        publisher.OnNext(5);
 
         listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
 
-        publisher.PublishOnCompleted();
+        publisher.OnCompleted();
 
         (await listTask).Should().Equal(1, 2, 3, 4, 5);
     }
@@ -38,7 +38,7 @@ public class AggregateTest
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
-        var publisher = new Publisher<int>();
+        var publisher = new Subject<int>();
         var isDisposed = false;
 
         var listTask = publisher
@@ -56,7 +56,7 @@ public class AggregateTest
     [Fact]
     public async Task ToHashSet()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var set = await source.ToHashSetAsync();
 
         set.Should().BeEquivalentTo([1, 10, 3, 4, 6, 7]);
@@ -65,7 +65,7 @@ public class AggregateTest
     [Fact]
     public async Task Count()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var count = await source.CountAsync();
 
         count.Should().Be(8);
@@ -77,7 +77,7 @@ public class AggregateTest
     [Fact]
     public async Task LongCount()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var count = await source.LongCountAsync();
 
         count.Should().Be(8);
@@ -93,7 +93,7 @@ public class AggregateTest
     [Fact]
     public async Task Min()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var min = await source.MinAsync();
 
         min.Should().Be(1);
@@ -115,7 +115,7 @@ public class AggregateTest
     [Fact]
     public async Task Max()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var min = await source.MaxAsync();
 
         min.Should().Be(10);
@@ -137,7 +137,7 @@ public class AggregateTest
     [Fact]
     public async Task MinMax()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var minmax = await source.MinMaxAsync();
 
         minmax.Min.Should().Be(1);
@@ -162,7 +162,7 @@ public class AggregateTest
     [Fact]
     public async Task Sum()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var sum = await source.SumAsync();
 
         sum.Should().Be(36);
@@ -183,7 +183,7 @@ public class AggregateTest
     [Fact]
     public async Task Avg()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var avg = await source.AverageAsync();
 
         avg.Should().Be(new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.Average());
@@ -204,16 +204,16 @@ public class AggregateTest
     [Fact]
     public async Task WaitAsync()
     {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToEvent();
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         await source.WaitAsync();
 
-        var p = new Publisher<int>();
+        var p = new Subject<int>();
         var task = p.WaitAsync();
 
-        p.PublishOnNext(10);
-        p.PublishOnNext(20);
-        p.PublishOnNext(30);
-        p.PublishOnCompleted();
+        p.OnNext(10);
+        p.OnNext(20);
+        p.OnNext(30);
+        p.OnCompleted();
 
         await task;
     }

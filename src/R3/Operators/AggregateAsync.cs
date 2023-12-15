@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Task<TResult> AggregateAsync<T, TAccumulate, TResult>
         (this Observable<T> source,
@@ -9,9 +9,9 @@ public static partial class EventExtensions
         Func<TAccumulate, TResult> resultSelector,
         CancellationToken cancellationToken = default)
     {
-        var subscriber = new AggregateAsync<T, TAccumulate, TResult>(seed, func, resultSelector, cancellationToken);
-        source.Subscribe(subscriber);
-        return subscriber.Task;
+        var observer = new AggregateAsync<T, TAccumulate, TResult>(seed, func, resultSelector, cancellationToken);
+        source.Subscribe(observer);
+        return observer.Task;
     }
 }
 
@@ -20,7 +20,7 @@ internal sealed class AggregateAsync<T, TAccumulate, TResult>(
     Func<TAccumulate, T, TAccumulate> func,
     Func<TAccumulate, TResult> resultSelector,
     CancellationToken cancellationToken)
-    : TaskSubscriberBase<T, TResult>(cancellationToken)
+    : TaskObserverBase<T, TResult>(cancellationToken)
 {
     TAccumulate value = seed;
 

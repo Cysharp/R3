@@ -17,13 +17,13 @@ using var factory = LoggerFactory.Create(x =>
     x.SetMinimumLevel(LogLevel.Trace);
     x.AddZLoggerConsole();
 });
-EventSystem.Logger = factory.CreateLogger<EventSystem>();
+ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
 var logger = factory.CreateLogger<Program>();
 
 
 
 var ct = new CancellationTokenSource(1000);
-EventSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
+ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 
 // Enumerable.Empty<int>().ElementAtOrDefault(
@@ -33,7 +33,7 @@ var range = System.Reactive.Linq.Observable.Range(1, 10);
 // range.TakeLast(
 
 
-var publisher = new Publisher<int>();
+var publisher = new R3.Subject<int>();
 //publisher.PublishOnNext(1);
 
 // publisher.Subscribe(new object(), (x,y) => y

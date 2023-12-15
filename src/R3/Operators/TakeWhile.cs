@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static Observable<T> TakeWhile<T>(this Observable<T> source, Func<T, bool> predicate)
     {
@@ -15,45 +15,45 @@ public static partial class EventExtensions
 
 internal sealed class TakeWhile<T>(Observable<T> source, Func<T, bool> predicate) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeWhile(subscriber, predicate));
+        return source.Subscribe(new _TakeWhile(observer, predicate));
     }
 
-    sealed class _TakeWhile(Observer<T> subscriber, Func<T, bool> predicate) : Observer<T>, IDisposable
+    sealed class _TakeWhile(Observer<T> observer, Func<T, bool> predicate) : Observer<T>, IDisposable
     {
         protected override void OnNextCore(T value)
         {
             if (predicate(value))
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
             else
             {
-                subscriber.OnCompleted();
+                observer.OnCompleted();
             }
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }
 
 internal sealed class TakeWhileI<T>(Observable<T> source, Func<T, int, bool> predicate) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeWhile(subscriber, predicate));
+        return source.Subscribe(new _TakeWhile(observer, predicate));
     }
 
-    sealed class _TakeWhile(Observer<T> subscriber, Func<T, int, bool> predicate) : Observer<T>, IDisposable
+    sealed class _TakeWhile(Observer<T> observer, Func<T, int, bool> predicate) : Observer<T>, IDisposable
     {
         int count;
 
@@ -61,22 +61,22 @@ internal sealed class TakeWhileI<T>(Observable<T> source, Func<T, int, bool> pre
         {
             if (predicate(value, count++))
             {
-                subscriber.OnNext(value);
+                observer.OnNext(value);
             }
             else
             {
-                subscriber.OnCompleted();
+                observer.OnCompleted();
             }
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            subscriber.OnErrorResume(error);
+            observer.OnErrorResume(error);
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            subscriber.OnCompleted(result);
+            observer.OnCompleted(result);
         }
     }
 }

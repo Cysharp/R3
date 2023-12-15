@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     public static LiveList<T> ToLiveList<T>(this Observable<T> source)
     {
@@ -44,7 +44,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = -1;
         this.list = new List<T>();
-        this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
+        this.sourceSubscription = source.Subscribe(new ListObserver(this));
     }
 
     public LiveList(Observable<T> source, int bufferSize)
@@ -52,7 +52,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         if (bufferSize == 0) bufferSize = 1;
         this.bufferSize = bufferSize; // bufferSize must set before Subscribe(sometimes Subscribe run immediately)
         this.list = new RingBuffer<T>(bufferSize);
-        this.sourceSubscription = source.Subscribe(new ListSubscriber(this));
+        this.sourceSubscription = source.Subscribe(new ListObserver(this));
     }
 
     public T this[int index]
@@ -140,7 +140,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
         }
     }
 
-    sealed class ListSubscriber(LiveList<T> parent) : Observer<T>
+    sealed class ListObserver(LiveList<T> parent) : Observer<T>
     {
         protected override void OnNextCore(T message)
         {
@@ -165,7 +165,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            EventSystem.GetUnhandledExceptionHandler().Invoke(error);
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(error);
         }
 
         protected override void OnCompletedCore(Result complete)

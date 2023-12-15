@@ -28,28 +28,28 @@ public static partial class Observable
 
 internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var method = new _Return(value, subscriber);
+        var method = new _Return(value, observer);
         method.Timer = timeProvider.CreateStoppedTimer(_Return.timerCallback, method);
         method.Timer.InvokeOnce(dueTime);
         return method;
     }
 
-    sealed class _Return(T value, Observer<T> subscriber) : IDisposable
+    sealed class _Return(T value, Observer<T> observer) : IDisposable
     {
         public static readonly TimerCallback timerCallback = NextTick;
 
         readonly T value = value;
-        readonly Observer<T> subscriber = subscriber;
+        readonly Observer<T> observer = observer;
 
         public ITimer? Timer { get; set; }
 
         static void NextTick(object? state)
         {
             var self = (_Return)state!;
-            self.subscriber.OnNext(self.value);
-            self.subscriber.OnCompleted();
+            self.observer.OnNext(self.value);
+            self.observer.OnCompleted();
         }
 
         public void Dispose()
@@ -62,24 +62,24 @@ internal class Return<T>(T value, TimeSpan dueTime, TimeProvider timeProvider) :
 
 internal class ImmediateScheduleReturn<T>(T value) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        subscriber.OnNext(value);
-        subscriber.OnCompleted();
+        observer.OnNext(value);
+        observer.OnCompleted();
         return Disposable.Empty;
     }
 }
 
 internal class ThreadPoolScheduleReturn<T>(T value) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<T> subscriber)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var method = new _Return(value, subscriber);
+        var method = new _Return(value, observer);
         ThreadPool.UnsafeQueueUserWorkItem(method, preferLocal: false);
         return method;
     }
 
-    sealed class _Return(T value, Observer<T> subscriber) : IDisposable, IThreadPoolWorkItem
+    sealed class _Return(T value, Observer<T> observer) : IDisposable, IThreadPoolWorkItem
     {
         bool stop;
 
@@ -87,8 +87,8 @@ internal class ThreadPoolScheduleReturn<T>(T value) : Observable<T>
         {
             if (stop) return;
 
-            subscriber.OnNext(value);
-            subscriber.OnCompleted();
+            observer.OnNext(value);
+            observer.OnCompleted();
         }
 
         public void Dispose()

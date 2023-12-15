@@ -1,22 +1,22 @@
 ﻿namespace R3;
 
-public static partial class EventExtensions
+public static partial class ObservableExtensions
 {
     // TODO: more overload?
-    public static IObservable<T> ToObservable<T>(this Observable<T> source)
+    public static IObservable<T> ToIObservable<T>(this Observable<T> source)
     {
-        return new ToObservable<T>(source);
+        return new ToIObservable<T>(source);
     }
 }
 
-internal sealed class ToObservable<T>(Observable<T> source) : IObservable<T>
+internal sealed class ToIObservable<T>(Observable<T> source) : IObservable<T>
 {
     public IDisposable Subscribe(IObserver<T> observer)
     {
-        return source.Subscribe(new ObserverToSubscriber(observer));
+        return source.Subscribe(new ObserverToobserver(observer));
     }
 
-    sealed class ObserverToSubscriber(IObserver<T> observer) : Observer<T>
+    sealed class ObserverToobserver(IObserver<T> observer) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
