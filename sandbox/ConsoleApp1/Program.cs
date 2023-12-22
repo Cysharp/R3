@@ -48,8 +48,7 @@ foreach (var item in Enumerable.Range(1, 10).TakeWhile(x => x <= 3))
 var repeat = System.Reactive.Linq.Observable.Repeat("foo", 10);
 // repeat.TakeWhile(
 
-
-
+// System.Reactive.Linq.Observable.FromEvent(
 
 var rp = new ReactiveProperty<int>(999);
 rp.Value += 10;
@@ -61,6 +60,7 @@ public static class Extensions
         return source.Subscribe(x => Console.WriteLine(x), x => Console.WriteLine(x));
     }
 }
+
 
 
 class TestDisposable : IDisposable

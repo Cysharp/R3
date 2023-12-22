@@ -68,6 +68,24 @@ internal class IObservableToObservable<T>(IObservable<T> source) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(observer);
+        return source.Subscribe(new ObserverToObserver(observer));
+    }
+
+    sealed class ObserverToObserver(Observer<T> observer) : IObserver<T>
+    {
+        public void OnNext(T value)
+        {
+            observer.OnNext(value);
+        }
+
+        public void OnError(Exception error)
+        {
+            observer.OnCompleted(error);
+        }
+
+        public void OnCompleted()
+        {
+            observer.OnCompleted();
+        }
     }
 }
