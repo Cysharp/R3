@@ -10,10 +10,6 @@ public static partial class Observable
 
 
     // ToAsyncEnumerable?
-    // ToEvent
-    // ToEventPattern
-
-
 
     // AsObservable
     // AsSingleUnitObservable
@@ -26,7 +22,5 @@ public static partial class Observable
 
 
 
-    
 }
-
 

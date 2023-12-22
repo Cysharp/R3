@@ -30,10 +30,12 @@ ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 var range = System.Reactive.Linq.Observable.Range(1, 10);
 
+
+
 // range.TakeLast(
 
 
-var publisher = new R3.Subject<int>();
+// var publisher = new R3.Subject<int>();
 //publisher.PublishOnNext(1);
 
 // publisher.Subscribe(new object(), (x,y) => y
