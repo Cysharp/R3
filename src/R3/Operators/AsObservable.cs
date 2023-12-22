@@ -3,20 +3,20 @@
 public static partial class ObservableExtensions
 {
     // TODO: more overload?
-    public static IObservable<T> ToIObservable<T>(this Observable<T> source)
+    public static IObservable<T> AsObservable<T>(this Observable<T> source)
     {
-        return new ToIObservable<T>(source);
+        return new AsObservable<T>(source);
     }
 }
 
-internal sealed class ToIObservable<T>(Observable<T> source) : IObservable<T>
+internal sealed class AsObservable<T>(Observable<T> source) : IObservable<T>
 {
     public IDisposable Subscribe(IObserver<T> observer)
     {
-        return source.Subscribe(new ObserverToobserver(observer));
+        return source.Subscribe(new ObserverToObserver(observer));
     }
 
-    sealed class ObserverToobserver(IObserver<T> observer) : Observer<T>
+    sealed class ObserverToObserver(IObserver<T> observer) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {

@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace R3;
 
-public abstract class Observable<T> : IObservable<T>
+public abstract class Observable<T>
 {
     [StackTraceHidden, DebuggerStepThrough]
     public IDisposable Subscribe(Observer<T> observer)
@@ -29,14 +29,9 @@ public abstract class Observable<T> : IObservable<T>
     }
 
     protected abstract IDisposable SubscribeCore(Observer<T> observer);
-
-    IDisposable IObservable<T>.Subscribe(IObserver<T> observer)
-    {
-        return Subscribe(observer.ToObserver()); // convert IObserver<T> to Observer<T>
-    }
 }
 
-public abstract class Observer<T> : IDisposable, IObserver<T>
+public abstract class Observer<T> : IDisposable
 {
 #if DEBUG
     [Obsolete("Only allow in Event<T>.")]
@@ -122,21 +117,4 @@ public abstract class Observer<T> : IDisposable, IObserver<T>
 
     [StackTraceHidden, DebuggerStepThrough]
     protected virtual void DisposeCore() { }
-
-    // IObserver<T> bridge
-
-    void IObserver<T>.OnNext(T value)
-    {
-        OnNext(value);
-    }
-
-    void IObserver<T>.OnError(Exception error)
-    {
-        OnCompleted(Result.Failure(error));
-    }
-
-    void IObserver<T>.OnCompleted()
-    {
-        OnCompleted(Result.Success);
-    }
 }
