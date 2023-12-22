@@ -46,6 +46,10 @@ foreach (var item in Enumerable.Range(1, 10).TakeWhile(x => x <= 3))
 }
 
 var repeat = System.Reactive.Linq.Observable.Repeat("foo", 10);
+
+
+// System.Reactive.Linq.Observable.Append(
+
 // repeat.TakeWhile(
 
 // System.Reactive.Linq.Observable.FromEvent(

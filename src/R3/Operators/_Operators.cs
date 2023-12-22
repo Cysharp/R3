@@ -19,6 +19,6 @@ public static partial class ObservableExtensions
     // Skip, SkipLast, SkipUntil, SkipWhile
 
     // return tasks:
-    // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup, ForEachAsync
+    // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup, 
 }
 
