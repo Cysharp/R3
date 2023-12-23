@@ -1,4 +1,6 @@
-﻿namespace R3.Internal;
+﻿using System.Threading;
+
+namespace R3.Internal;
 
 // for return Task(tcs.TrySet***)
 // include proper Cancel registration

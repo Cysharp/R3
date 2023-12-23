@@ -26,7 +26,6 @@ public static partial class Observable
     }
 }
 
-
 internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken) : Observable<Unit>
 {
     protected override IDisposable SubscribeCore(Observer<Unit> observer)
@@ -36,44 +35,13 @@ internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken
         return runner;
     }
 
-    class EveryUpdateRunnerWorkItem : IFrameRunnerWorkItem, IDisposable
+    class EveryUpdateRunnerWorkItem(Observer<Unit> observer, CancellationToken cancellationToken)
+        : CancellableFrameRunnerWorkItemBase<Unit>(observer, cancellationToken)
     {
-        Observer<Unit> observer;
-        CancellationToken cancellationToken;
-        CancellationTokenRegistration cancellationTokenRegistration;
-        bool isDisposed;
-
-        public EveryUpdateRunnerWorkItem(Observer<Unit> observer, CancellationToken cancellationToken)
+        protected override bool MoveNextCore()
         {
-            this.observer = observer;
-            this.cancellationToken = cancellationToken;
-
-            if (cancellationToken.CanBeCanceled)
-            {
-                cancellationTokenRegistration = cancellationToken.UnsafeRegister(static state =>
-                {
-                    var s = (EveryUpdateRunnerWorkItem)state!;
-                    s.observer.OnCompleted();
-                    s.Dispose();
-                }, this);
-            }
-        }
-
-        public bool MoveNext(long frameCount)
-        {
-            if (isDisposed)
-            {
-                return false;
-            }
-
             observer.OnNext(default);
             return true;
-        }
-
-        public void Dispose()
-        {
-            isDisposed = true;
-            cancellationTokenRegistration.Dispose();
         }
     }
 }
