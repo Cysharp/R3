@@ -10,7 +10,7 @@ public class TakeUntilTest
         var publisher1 = new Subject<int>();
         var publisher2 = new Subject<int>();
         var isDisposed = false;
-        var list = publisher1.TakeUntil(publisher2.DoOnDisposed(() => { isDisposed = true; })).ToLiveList();
+        var list = publisher1.TakeUntil(publisher2.Do(onDispose: () => { isDisposed = true; })).ToLiveList();
 
         publisher1.OnNext(1);
         publisher1.OnNext(2);

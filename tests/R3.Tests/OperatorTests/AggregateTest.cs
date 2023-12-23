@@ -42,7 +42,7 @@ public class AggregateTest
         var isDisposed = false;
 
         var listTask = publisher
-            .DoOnDisposed(() => isDisposed = true)
+            .Do(onDispose: () => isDisposed = true)
             .AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x, cts.Token);
 
 

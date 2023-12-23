@@ -50,7 +50,7 @@ public class ToListTest
 
         var publisher = new Subject<int>();
 
-        var listTask = publisher.DoOnDisposed(() => isDisposed = true).ToListAsync(cts.Token);
+        var listTask = publisher.Do(onDispose: () => isDisposed = true).ToListAsync(cts.Token);
 
         publisher.OnNext(1);
         publisher.OnNext(2);

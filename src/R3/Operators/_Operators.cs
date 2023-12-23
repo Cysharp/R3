@@ -8,7 +8,11 @@ public static partial class ObservableExtensions
     // AsUnitObservable
 
     // Time based
-    // Frame based
+    // Debounce, Throttle, ThrottleFirst, Sample, Delay, DelaySubscription
+    // + frame variation
+
+    // TImeInterval <-> FrameInterval
+
     // OnErrorStop
 
     // Rx Merging:
@@ -21,6 +25,5 @@ public static partial class ObservableExtensions
     // Skip, SkipLast, SkipUntil, SkipWhile
 
     // return tasks:
-    // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup, 
+    // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
 }
-
