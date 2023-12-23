@@ -70,4 +70,25 @@ public class ReturnTest
             list.AssertIsCompleted();
         }
     }
+
+    [Fact]
+    public void Optimized()
+    {
+        for (int i = -10; i < 100; i++)
+        {
+            using var list = Observable.Return(i).ToLiveList(); // int optimized
+            list.AssertEqual([i]);
+            list.AssertIsCompleted();
+        }
+
+        foreach (var item in new bool[] { true, false })
+        {
+            using var list = Observable.Return(item).ToLiveList(); // bool optimized
+            list.AssertEqual([item]);
+            list.AssertIsCompleted();
+        }
+
+        Observable.Return(Unit.Default).ToLiveList().AssertEqual([Unit.Default]);
+        Observable.ReturnUnit().ToLiveList().AssertEqual([Unit.Default]);
+    }
 }

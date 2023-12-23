@@ -38,9 +38,9 @@ internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken
     class EveryUpdateRunnerWorkItem(Observer<Unit> observer, CancellationToken cancellationToken)
         : CancellableFrameRunnerWorkItemBase<Unit>(observer, cancellationToken)
     {
-        protected override bool MoveNextCore()
+        protected override bool MoveNextCore(long _)
         {
-            observer.OnNext(default);
+            PublishOnNext(default);
             return true;
         }
     }

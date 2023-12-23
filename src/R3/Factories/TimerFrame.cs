@@ -47,18 +47,17 @@ internal sealed class TimerFrame(int dueTimeFrame, int? periodFrame, FrameProvid
         return runner;
     }
 
-    class SingleTimerFrameRunnerWorkItem(int dueTimeFrame, Observer<Unit> observer, CancellationToken cancellationToken)
+    sealed class SingleTimerFrameRunnerWorkItem(int dueTimeFrame, Observer<Unit> observer, CancellationToken cancellationToken)
         : CancellableFrameRunnerWorkItemBase<Unit>(observer, cancellationToken)
     {
         int currentFrame;
 
-        protected override bool MoveNextCore()
+        protected override bool MoveNextCore(long _)
         {
             if (++currentFrame == dueTimeFrame)
             {
-                observer.OnNext(default);
-                observer.OnCompleted();
-                Dispose();
+                PublishOnNext(default);
+                PublishOnCompleted();
                 return false;
             }
 
@@ -66,20 +65,20 @@ internal sealed class TimerFrame(int dueTimeFrame, int? periodFrame, FrameProvid
         }
     }
 
-    class MultiTimerFrameRunnerWorkItem(int dueTimeFrame, int periodFrame, Observer<Unit> observer, CancellationToken cancellationToken)
+    sealed class MultiTimerFrameRunnerWorkItem(int dueTimeFrame, int periodFrame, Observer<Unit> observer, CancellationToken cancellationToken)
         : CancellableFrameRunnerWorkItemBase<Unit>(observer, cancellationToken)
     {
         int currentFrame;
         bool isPeriodPhase;
 
-        protected override bool MoveNextCore()
+        protected override bool MoveNextCore(long _)
         {
             // initial phase
             if (!isPeriodPhase)
             {
                 if (++currentFrame == dueTimeFrame)
                 {
-                    observer.OnNext(default);
+                    PublishOnNext(default);
                     isPeriodPhase = true;
                     currentFrame = 0;
                 }
@@ -89,7 +88,7 @@ internal sealed class TimerFrame(int dueTimeFrame, int? periodFrame, FrameProvid
             // period phase
             if (++currentFrame == periodFrame)
             {
-                observer.OnNext(default);
+                PublishOnNext(default);
                 currentFrame = 0;
             }
             return true;

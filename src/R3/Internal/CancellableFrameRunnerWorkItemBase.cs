@@ -3,7 +3,7 @@
 // when Canceled, publish OnCompleted.
 internal abstract class CancellableFrameRunnerWorkItemBase<T> : IFrameRunnerWorkItem, IDisposable
 {
-    protected readonly Observer<T> observer;
+    readonly Observer<T> observer;
     CancellationTokenRegistration cancellationTokenRegistration;
     bool isDisposed;
 
@@ -29,10 +29,10 @@ internal abstract class CancellableFrameRunnerWorkItemBase<T> : IFrameRunnerWork
             return false;
         }
 
-        return MoveNextCore();
+        return MoveNextCore(frameCount);
     }
 
-    protected abstract bool MoveNextCore();
+    protected abstract bool MoveNextCore(long frameCount);
 
     public void Dispose()
     {
@@ -45,4 +45,28 @@ internal abstract class CancellableFrameRunnerWorkItemBase<T> : IFrameRunnerWork
     }
 
     protected virtual void DisposeCore() { }
+
+    // Observer
+
+    protected void PublishOnNext(T value)
+    {
+        observer.OnNext(value);
+    }
+
+    protected void PublishOnErrorResume(Exception error)
+    {
+        observer.OnErrorResume(error);
+    }
+
+    protected void PublishOnCompleted(Exception error)
+    {
+        observer.OnCompleted(error);
+        Dispose();
+    }
+
+    protected void PublishOnCompleted()
+    {
+        observer.OnCompleted();
+        Dispose();
+    }
 }
