@@ -37,8 +37,8 @@ internal sealed class TimerFrame(int dueTimeFrame, int? periodFrame, FrameProvid
 {
     protected override IDisposable SubscribeCore(Observer<Unit> observer)
     {
-        dueTimeFrame = dueTimeFrame.Normalize();
-        periodFrame = periodFrame?.Normalize();
+        dueTimeFrame = dueTimeFrame.NormalizeFrame();
+        periodFrame = periodFrame?.NormalizeFrame();
 
         CancellableFrameRunnerWorkItemBase<Unit> runner = (periodFrame == null)
             ? new SingleTimerFrameRunnerWorkItem(dueTimeFrame, observer, cancellationToken)
