@@ -30,7 +30,7 @@ ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 var range = System.Reactive.Linq.Observable.Range(1, 10);
 
-
+System.Reactive.Linq.Observable.Defer(
 
 // range.TakeLast(
 

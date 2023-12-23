@@ -2,6 +2,8 @@
 
 public static partial class Observable
 {
+    // TODO: not tested.
+
     public static Observable<T> ToObservable<T>(this Task<T> task)
     {
         return new TaskToObservable<T>(task);

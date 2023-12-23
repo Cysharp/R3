@@ -4,7 +4,14 @@ public static partial class Observable
 {
     public static Observable<T> ReturnOnCompleted<T>(Result result)
     {
-        return new ImmediateScheduleReturnOnCompleted<T>(result); // immediate
+        if (result.IsSuccess)
+        {
+            return ImmediateScheduleReturnOnCompletedSuccess<T>.Instance; // singleton
+        }
+        else
+        {
+            return new ImmediateScheduleReturnOnCompleted<T>(result); // immediate
+        }
     }
 
     public static Observable<T> ReturnOnCompleted<T>(Result result, TimeProvider timeProvider)
@@ -23,6 +30,22 @@ public static partial class Observable
         }
 
         return new ReturnOnCompleted<T>(result, dueTime, timeProvider); // use ITimer
+    }
+}
+
+internal class ImmediateScheduleReturnOnCompletedSuccess<T> : Observable<T>
+{
+    public static readonly Observable<T> Instance = new ImmediateScheduleReturnOnCompletedSuccess<T>();
+
+    ImmediateScheduleReturnOnCompletedSuccess()
+    {
+
+    }
+
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        observer.OnCompleted(Result.Success);
+        return Disposable.Empty;
     }
 }
 
