@@ -2,9 +2,15 @@
 
 public static partial class Observable
 {
-    // TODO: test
-    // TODO: Interval
+    public static Observable<Unit> Interval(TimeSpan period, CancellationToken cancellationToken = default)
+    {
+        return Timer(period, period, cancellationToken);
+    }
 
+    public static Observable<Unit> Interval(TimeSpan period, TimeProvider timeProvider, CancellationToken cancellationToken = default)
+    {
+        return Timer(period, period, timeProvider, cancellationToken);
+    }
 
     public static Observable<Unit> Timer(TimeSpan dueTime, CancellationToken cancellationToken = default)
     {
@@ -18,11 +24,13 @@ public static partial class Observable
 
     public static Observable<Unit> Timer(TimeSpan dueTime, TimeSpan period, CancellationToken cancellationToken = default)
     {
+        if (period < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(period));
         return Timer(dueTime, period, ObservableSystem.DefaultTimeProvider, cancellationToken);
     }
 
     public static Observable<Unit> Timer(DateTimeOffset dueTime, TimeSpan period, CancellationToken cancellationToken = default)
     {
+        if (period < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(period));
         return Timer(dueTime, period, ObservableSystem.DefaultTimeProvider, cancellationToken);
     }
 
@@ -38,11 +46,13 @@ public static partial class Observable
 
     public static Observable<Unit> Timer(TimeSpan dueTime, TimeSpan period, TimeProvider timeProvider, CancellationToken cancellationToken = default)
     {
+        if (period < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(period));
         return new Timer(dueTime, period, timeProvider, cancellationToken);
     }
 
     public static Observable<Unit> Timer(DateTimeOffset dueTime, TimeSpan period, TimeProvider timeProvider, CancellationToken cancellationToken = default)
     {
+        if (period < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(period));
         return new Timer(dueTime, period, timeProvider, cancellationToken);
     }
 }
