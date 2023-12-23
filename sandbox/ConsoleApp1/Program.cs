@@ -30,7 +30,7 @@ ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 var range = System.Reactive.Linq.Observable.Range(1, 10);
 
-System.Reactive.Linq.Observable.Defer(
+
 
 // range.TakeLast(
 
@@ -41,6 +41,8 @@ System.Reactive.Linq.Observable.Defer(
 // publisher.Subscribe(new object(), (x,y) => y
 
 //var xs = await publisher.Take(TimeSpan.FromSeconds(5));
+
+
 
 foreach (var item in Enumerable.Range(1, 10).TakeWhile(x => x <= 3))
 {

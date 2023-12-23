@@ -12,6 +12,12 @@ public static class ObserverExtensions
         observer.OnCompleted(Result.Failure(exception));
     }
 
+    public static Observer<T> Wrap<T>(this Observer<T> observer)
+    {
+        return new WrappedObserver<T>(observer);
+    }
+
+
     public static Observer<T> ToObserver<T>(this IObserver<T> observer)
     {
         return new IObserverToObserver<T>(observer);
@@ -40,5 +46,28 @@ internal sealed class IObserverToObserver<T>(IObserver<T> observer) : Observer<T
         {
             observer.OnCompleted();
         }
+    }
+}
+
+internal sealed class WrappedObserver<T>(Observer<T> observer) : Observer<T>
+{
+    protected override void OnNextCore(T value)
+    {
+        observer.OnNext(value);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        observer.OnErrorResume(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        observer.OnCompleted(result);
+    }
+
+    protected override void DisposeCore()
+    {
+        observer.Dispose();
     }
 }

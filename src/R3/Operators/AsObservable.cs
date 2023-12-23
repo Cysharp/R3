@@ -2,14 +2,33 @@
 
 public static partial class ObservableExtensions
 {
-    // TODO: more overload?
-    public static IObservable<T> AsObservable<T>(this Observable<T> source)
+    // TODO: test
+
+    public static Observable<T> AsObservable<T>(this Observable<T> source)
     {
+        if (source is AsObservable<T>) // already hide
+        {
+            return source;
+        }
+
         return new AsObservable<T>(source);
+    }
+
+    public static IObservable<T> AsIObservable<T>(this Observable<T> source)
+    {
+        return new AsIObservable<T>(source);
     }
 }
 
-internal sealed class AsObservable<T>(Observable<T> source) : IObservable<T>
+internal sealed class AsObservable<T>(Observable<T> observable) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        return observable.Subscribe(observer.Wrap());
+    }
+}
+
+internal sealed class AsIObservable<T>(Observable<T> source) : IObservable<T>
 {
     public IDisposable Subscribe(IObserver<T> observer)
     {
