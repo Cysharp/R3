@@ -46,6 +46,17 @@ public sealed class ManualFrameProvider : FrameProvider
         }
     }
 
+    public int GetRegisteredCount()
+    {
+        var span = list.AsSpan();
+        var count = 0;
+        foreach (ref readonly var item in span)
+        {
+            if (item != null) count++;
+        }
+        return count;
+    }
+
     void RunLoop()
     {
         var span = list.AsSpan();

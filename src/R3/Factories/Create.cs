@@ -28,4 +28,3 @@ internal sealed class AnonymousObservable<T, TState>(TState state, Func<Observer
         return subscribe(observer, state);
     }
 }
-

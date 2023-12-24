@@ -35,7 +35,7 @@ internal sealed class EveryUpdate(FrameProvider frameProvider, CancellationToken
         return runner;
     }
 
-    class EveryUpdateRunnerWorkItem(Observer<Unit> observer, CancellationToken cancellationToken)
+    sealed class EveryUpdateRunnerWorkItem(Observer<Unit> observer, CancellationToken cancellationToken)
         : CancellableFrameRunnerWorkItemBase<Unit>(observer, cancellationToken)
     {
         protected override bool MoveNextCore(long _)

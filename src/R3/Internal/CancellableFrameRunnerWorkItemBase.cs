@@ -29,6 +29,12 @@ internal abstract class CancellableFrameRunnerWorkItemBase<T> : IFrameRunnerWork
             return false;
         }
 
+        if (observer.IsDisposed)
+        {
+            Dispose();
+            return false;
+        }
+
         return MoveNextCore(frameCount);
     }
 
