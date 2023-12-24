@@ -2,17 +2,19 @@
 
 public static partial class Observable
 {
-    // TODO: not tested.
-
     public static Observable<T> ToObservable<T>(this Task<T> task)
     {
         return new TaskToObservable<T>(task);
     }
 
-    // TODO: CancellationToken
-    public static Observable<T> ToObservable<T>(this IEnumerable<T> source)
+    public static Observable<T> ToObservable<T>(this IEnumerable<T> source, CancellationToken cancellationToken = default)
     {
-        return new EnumerableToObservable<T>(source);
+        return new EnumerableToObservable<T>(source, cancellationToken);
+    }
+
+    public static Observable<T> ToObservable<T>(this IAsyncEnumerable<T> source)
+    {
+        return new AsyncEnumerableToObservable<T>(source);
     }
 
     public static Observable<T> ToObservable<T>(this IObservable<T> source)
@@ -53,16 +55,50 @@ internal sealed class TaskToObservable<T>(Task<T> task) : Observable<T>
     }
 }
 
-internal class EnumerableToObservable<T>(IEnumerable<T> source) : Observable<T>
+internal class EnumerableToObservable<T>(IEnumerable<T> source, CancellationToken cancellationToken) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         foreach (var message in source)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                observer.OnCompleted();
+                return Disposable.Empty;
+            }
             observer.OnNext(message);
         }
         observer.OnCompleted();
         return Disposable.Empty;
+    }
+}
+
+internal class AsyncEnumerableToObservable<T>(IAsyncEnumerable<T> source) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        var cancellationDisposable = new CancellationDisposable();
+        RunAsync(observer, cancellationDisposable.Token);
+        return cancellationDisposable;
+    }
+
+    async void RunAsync(Observer<T> observer, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await foreach (var message in source.WithCancellation(cancellationToken))
+            {
+                observer.OnNext(message);
+            }
+            observer.OnCompleted();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+        }
     }
 }
 
