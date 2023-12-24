@@ -17,7 +17,7 @@ public class DeferTest
         var list = def.ToLiveList();
 
         called.Should().BeTrue();
-
+        
         list.AssertEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 }

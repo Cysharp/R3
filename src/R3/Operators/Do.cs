@@ -14,7 +14,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> CancelOnCompleted<T>(this Observable<T> source, CancellationTokenSource cancellationTokenSource)
     {
-        return Do(source, cancellationTokenSource, onCompleted: (_, state) => state.Cancel());
+        return Do(source, cancellationTokenSource, onCompleted: static (_, state) => state.Cancel());
     }
 }
 

@@ -90,4 +90,32 @@ public class WhereTest(ITestOutputHelper output)
 
         list.AssertIsCompleted();
     }
+
+    // test where with state
+    [Fact]
+    public void WhereState()
+    {
+        var p = new Subject<int>();
+
+        var state = new { x = 2, y = 0 };
+        using var list = p.Where(state, static (x, s) => x % s.x != s.y).ToLiveList();
+
+        p.OnNext(2);
+        list.AssertEqual([]);
+
+        p.OnNext(1);
+        list.AssertEqual([1]);
+
+        p.OnNext(3);
+        list.AssertEqual([1, 3]);
+
+        p.OnNext(30);
+        list.AssertEqual([1, 3]);
+
+        list.AssertIsNotCompleted();
+
+        p.OnCompleted(default);
+
+        list.AssertIsCompleted();
+    }
 }
