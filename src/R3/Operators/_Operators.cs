@@ -33,12 +33,38 @@ public static partial class ObservableExtensions
 
     // return tasks:
     // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
+
+
+
+    // ObserveOn extension method
+    public static Observable<T> ObserveOn<T>(this Observable<T> source, SynchronizationContext? synchronizationContext)
+    {
+        if (synchronizationContext == null)
+        {
+            return ObserveOn<T>(source, TimeProvider.System); // use ThreadPool instead
+        }
+
+        return new ObserveOnSynchronizationContext<T>(source, synchronizationContext);
+    }
+
+    public static Observable<T> ObserveOn<T>(this Observable<T> source, TimeProvider timeProvider)
+    {
+        if (timeProvider == TimeProvider.System)
+        {
+            return new ObserveOnThreadPool<T>(source);
+        }
+
+        return new ObserveOnTimeProvider<T>(source, timeProvider);
+    }
+
+    public static Observable<T> ObserveOn<T>(this Observable<T> source, FrameProvider frameProvider)
+    {
+        return new ObserveOnFrameProvider<T>(source, frameProvider);
+    }
 }
 
 
 
-// ObserveOnFrameProvider
-// ObserveOnTimeProvider
 
 internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, SynchronizationContext synchronizationContext) : Observable<T>
 {
