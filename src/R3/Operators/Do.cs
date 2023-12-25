@@ -43,7 +43,7 @@ internal sealed class Do<T>(Observable<T> source, Action<T>? onNext, Action<Exce
         protected override void OnCompletedCore(Result result)
         {
             onCompleted?.Invoke(result);
-            observer.OnCompleted();
+            observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()
@@ -78,7 +78,7 @@ internal sealed class Do<T, TState>(Observable<T> source, TState state, Action<T
         protected override void OnCompletedCore(Result result)
         {
             onCompleted?.Invoke(result, state);
-            observer.OnCompleted();
+            observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()
