@@ -8,7 +8,6 @@ public static partial class ObservableExtensions
     }
 }
 
-
 internal sealed class Concat<T>(Observable<T> source, Observable<T> second) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
