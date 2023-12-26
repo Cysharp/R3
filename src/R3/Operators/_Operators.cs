@@ -21,7 +21,7 @@ public static partial class ObservableExtensions
     //CombineLatest, Merge, Zip, WithLatestFrom, ZipLatest, Switch, MostRecent
 
     // Standard Query:
-    // Concat, Append, Prepend, Distinct, DistinctUntilChanged, Scan
+    // Distinct, DistinctUntilChanged, Scan
 
     // SkipTake:
     // Skip, SkipLast, SkipUntil, SkipWhile

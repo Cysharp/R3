@@ -27,6 +27,7 @@ public static class SubscriptionTracker
     static bool dirty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [DebuggerStepThrough]
     internal static bool TryTrackActiveSubscription(IDisposable subscription, int skipFrame, [NotNullWhen(true)] out TrackableDisposable? trackableDisposable)
     {
         if (!EnableTracking)
@@ -37,6 +38,7 @@ public static class SubscriptionTracker
         return TryTrackActiveSubscriptionCore(subscription, skipFrame, out trackableDisposable);
     }
 
+    [DebuggerStepThrough]
     internal static bool TryTrackActiveSubscriptionCore(IDisposable subscription, int skipFrame, [NotNullWhen(true)] out TrackableDisposable? trackableDisposable)
     {
         dirty = true;

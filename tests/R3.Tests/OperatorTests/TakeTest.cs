@@ -48,8 +48,6 @@ public class TakeTest
         publisher.OnNext(10000);
         list.AssertEqual([1, 10, 100, 1000, 10000]);
         frameProvider.Advance(2);
-        list.AssertIsNotCompleted();
-        frameProvider.Advance(1);
         list.AssertIsCompleted();
     }
 
@@ -67,9 +65,9 @@ public class TakeTest
         list.AssertEqual([0, 1, 2]);
 
         frameProvider.Advance(2);
-        list.AssertEqual([0, 1, 2, 3, 4]);
-        frameProvider.Advance(1);
 
+        // not guranteed everyupdate and takeframe which call first
+        // list.AssertEqual([0, 1, 2, 3]);
         list.AssertIsCompleted();
     }
 }

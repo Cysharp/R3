@@ -34,7 +34,7 @@ public abstract class Observable<T>
 public abstract class Observer<T> : IDisposable
 {
 #if DEBUG
-    [Obsolete("Only allow in Event<T>.")]
+    [Obsolete("Only allow in Observable<T>.")]
 #endif
     internal SingleAssignmentDisposableCore SourceSubscription;
 

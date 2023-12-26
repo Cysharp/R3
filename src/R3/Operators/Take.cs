@@ -54,10 +54,10 @@ internal sealed class Take<T>(Observable<T> source, int count) : Observable<T>
             {
                 remaining--;
                 observer.OnNext(value);
-            }
-            else
-            {
-                observer.OnCompleted();
+                if (remaining == 0)
+                {
+                    observer.OnCompleted();
+                }
             }
         }
 
@@ -183,13 +183,18 @@ internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FramePr
             if (remaining > 0)
             {
                 remaining--;
-                return true;
+                if (remaining == 0)
+                {
+                    OnCompleted(Result.Success);
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
-            else
-            {
-                OnCompleted(Result.Success);
-                return false;
-            }
+
+            return false;
         }
     }
 }

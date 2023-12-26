@@ -30,6 +30,9 @@ ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 var range = System.Reactive.Linq.Observable.Range(1, 10);
 
+// range.Append(
+
+
 // range.SelectMany(
 
 // range.TakeLast(
