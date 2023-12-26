@@ -29,5 +29,4 @@ public static partial class ObservableExtensions
     // return tasks:
     // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
 
-    
 }
