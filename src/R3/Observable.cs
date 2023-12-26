@@ -44,6 +44,9 @@ public abstract class Observer<T> : IDisposable
     public bool IsDisposed => Volatile.Read(ref disposed) != 0;
     bool IsCalledCompleted => Volatile.Read(ref calledOnCompleted) != 0;
 
+    // enable/disable auto dispose on completed.
+    protected virtual bool AutoDisposeOnCompleted => true;
+
     [StackTraceHidden, DebuggerStepThrough]
     public void OnNext(T value)
     {
@@ -87,17 +90,22 @@ public abstract class Observer<T> : IDisposable
         }
         if (IsDisposed) return;
 
+        var disposeOnFinally = AutoDisposeOnCompleted;
         try
         {
             OnCompletedCore(result);
         }
         catch (Exception ex)
         {
+            disposeOnFinally = true;
             ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
         }
         finally
         {
-            Dispose();
+            if (disposeOnFinally)
+            {
+                Dispose();
+            }
         }
     }
 
