@@ -1,10 +1,15 @@
 ﻿using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
 
 namespace R3;
 
 public static partial class ObservableExtensions
 {
+    /// <summary>ObserveOn SynchronizationContext.Current</summary>
+    public static Observable<T> ObserveOnCurrent<T>(this Observable<T> source)
+    {
+        return ObserveOn<T>(source, SynchronizationContext.Current);
+    }
+
     public static Observable<T> ObserveOn<T>(this Observable<T> source, SynchronizationContext? synchronizationContext)
     {
         if (synchronizationContext == null)
@@ -31,7 +36,6 @@ public static partial class ObservableExtensions
     }
 }
 
-// TODO: use local-queue(careful re-entrant) implementation
 internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, SynchronizationContext synchronizationContext) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
@@ -41,10 +45,13 @@ internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, S
 
     sealed class _ObserveOn : Observer<T>
     {
+        static readonly SendOrPostCallback postCallback = DrainMessages;
+
         readonly Observer<T> observer;
         readonly SynchronizationContext synchronizationContext;
-        SendOrPostCallback onNext;
-        SendOrPostCallback onErrorResume;
+        readonly object gate = new object();
+        SwapListCore<Notification<T>> list;
+        bool running;
 
         protected override bool AutoDisposeOnCompleted => false;
 
@@ -52,46 +59,121 @@ internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, S
         {
             this.observer = observer;
             this.synchronizationContext = synchronizationContext;
-            // make closure(capture observer)
-            onNext = PostOnNext;
-            onErrorResume = PostOnErrorResume;
         }
 
 
         protected override void OnNextCore(T value)
         {
-            synchronizationContext.Post(onNext, value);
+            EnqueueValue(new(value));
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            synchronizationContext.Post(onErrorResume, error);
+            EnqueueValue(new(error));
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            // OnCompletedCore is call once, observer capture here.
-            synchronizationContext.Post(_ =>
+            EnqueueValue(new(result));
+        }
+
+        void EnqueueValue(Notification<T> value)
+        {
+            lock (gate)
+            {
+                if (IsDisposed) return;
+                list.Add(value);
+
+                if (!running)
+                {
+                    running = true;
+                    synchronizationContext.Post(postCallback, this);
+                }
+            }
+        }
+
+        protected override void DisposeCore()
+        {
+            lock (gate)
+            {
+                list.Dispose();
+            }
+        }
+
+        static void DrainMessages(object? state)
+        {
+            var self = (_ObserveOn)state!;
+
+            ReadOnlySpan<Notification<T>> values;
+            bool token;
+            lock (self.gate)
+            {
+                values = self.list.Swap(out token);
+                if (values.Length == 0)
+                {
+                    goto FINALIZE;
+                }
+            }
+
+            foreach (var value in values)
             {
                 try
                 {
-                    observer.OnCompleted(result);
+                    switch (value.Kind)
+                    {
+                        case NotificationKind.OnNext:
+                            self.observer.OnNext(value.Value!);
+                            break;
+                        case NotificationKind.OnErrorResume:
+                            self.observer.OnErrorResume(value.Error!);
+                            break;
+                        case NotificationKind.OnCompleted:
+                            try
+                            {
+                                self.observer.OnCompleted(value.Result!.Value);
+                            }
+                            finally
+                            {
+                                self.Dispose();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                finally
+                catch (Exception ex)
                 {
-                    Dispose();
+                    try
+                    {
+                        ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+                    }
+                    catch { }
                 }
-            }, null);
-        }
+            }
 
-        void PostOnNext(object? state)
-        {
-            observer.OnNext((T)state!);
-        }
+        FINALIZE:
+            lock (self.gate)
+            {
+                self.list.Clear(token);
 
-        void PostOnErrorResume(object? state)
-        {
-            observer.OnErrorResume((Exception)state!);
+                if (self.IsDisposed)
+                {
+                    self.running = false;
+                    return;
+                }
+
+                if (self.list.HasValue)
+                {
+                    // post again
+                    self.synchronizationContext.Post(postCallback, self);
+                    return;
+                }
+                else
+                {
+                    self.running = false;
+                    return;
+                }
+            }
         }
     }
 }
@@ -103,10 +185,8 @@ internal sealed class ObserveOnThreadPool<T>(Observable<T> source) : Observable<
         return source.Subscribe(new _ObserveOn(observer));
     }
 
-    sealed class _ObserveOn(Observer<T> observer) : Observer<T>
+    sealed class _ObserveOn(Observer<T> observer) : Observer<T>, IThreadPoolWorkItem
     {
-        static readonly Action<_ObserveOn> drainMessages = DrainMessages;
-
         Observer<T> observer = observer;
         ConcurrentQueue<Notification<T>> q = new();
         bool running = false;
@@ -138,44 +218,44 @@ internal sealed class ObserveOnThreadPool<T>(Observable<T> source) : Observable<
                 if (!running)
                 {
                     running = true;
-                    ThreadPool.UnsafeQueueUserWorkItem(drainMessages, this, preferLocal: false);
+                    ThreadPool.UnsafeQueueUserWorkItem(this, preferLocal: false);
                 }
             }
         }
 
-        static void DrainMessages(_ObserveOn state)
+        void IThreadPoolWorkItem.Execute()
         {
         AGAIN:
-            while (state.q.TryDequeue(out var item))
+            while (q.TryDequeue(out var item))
             {
                 switch (item.Kind)
                 {
                     case NotificationKind.OnNext:
-                        state.observer.OnNext(item.Value!);
+                        observer.OnNext(item.Value!);
                         break;
                     case NotificationKind.OnErrorResume:
-                        state.observer.OnErrorResume(item.Error!);
+                        observer.OnErrorResume(item.Error!);
                         break;
                     case NotificationKind.OnCompleted:
                         try
                         {
-                            state.observer.OnCompleted(item.Result!.Value);
+                            observer.OnCompleted(item.Result!.Value);
                         }
                         finally
                         {
-                            state.Dispose();
+                            Dispose();
                         }
                         break;
                 }
             }
 
-            lock (state.q)
+            lock (q)
             {
-                if (state.q.Count != 0)
+                if (q.Count != 0)
                 {
                     goto AGAIN;
                 }
-                state.running = false;
+                running = false;
                 return;
             }
         }
@@ -343,10 +423,8 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
         readonly object gate = new object();
-        List<Notification<T>>? listA;
-        List<Notification<T>>? listB;
+        SwapListCore<Notification<T>> list;
         bool running;
-        bool useListA;
 
         protected override bool AutoDisposeOnCompleted => false;
 
@@ -355,7 +433,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
             this.observer = observer;
             this.frameProvider = frameProvider;
             this.running = false;
-            this.useListA = true;
+            this.list = new SwapListCore<Notification<T>>();
         }
 
         protected override void OnNextCore(T value)
@@ -378,16 +456,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
             lock (gate)
             {
                 if (IsDisposed) return;
-                if (useListA)
-                {
-                    if (listA == null) listA = new();
-                    listA.Add(value);
-                }
-                else
-                {
-                    if (listB == null) listB = new();
-                    listB.Add(value);
-                }
+                list.Add(value);
 
                 if (!running)
                 {
@@ -399,27 +468,18 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
 
         public bool MoveNext(long frameCount)
         {
-            List<Notification<T>>? list = null;
+            ReadOnlySpan<Notification<T>> values;
+            bool token;
             lock (gate)
             {
-                if (useListA)
+                values = list.Swap(out token);
+                if (values.Length == 0)
                 {
-                    list = listA;
-                    useListA = false; // switch to listB
-                }
-                else
-                {
-                    list = listB;
-                    useListA = true; // swith to listA
+                    goto FINALIZE;
                 }
             }
 
-            if (list == null)
-            {
-                goto FINALIZE;
-            }
-
-            foreach (var value in CollectionsMarshal.AsSpan(list))
+            foreach (var value in values)
             {
                 try
                 {
@@ -458,10 +518,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
         FINALIZE:
             lock (gate)
             {
-                if (list != null)
-                {
-                    list.Clear();
-                }
+                list.Clear(token);
 
                 if (IsDisposed)
                 {
@@ -469,14 +526,15 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
                     return false;
                 }
 
-                if ((listA?.Count ?? 0) == 0 && (listB?.Count ?? 0) == 0)
+                if (list.HasValue)
+                {
+                    return true;
+                }
+                else
                 {
                     running = false;
-                    useListA = true;
                     return false;
                 }
-
-                return true;
             }
         }
 
@@ -484,8 +542,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
         {
             lock (gate)
             {
-                listA = null; // not call Clear, because list is used in MoveNext
-                listB = null;
+                list.Dispose();
             }
         }
     }
