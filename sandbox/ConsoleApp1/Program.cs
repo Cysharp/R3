@@ -46,14 +46,12 @@ var range = System.Reactive.Linq.Observable.Range(1, 10);
 //var xs = await publisher.Take(TimeSpan.FromSeconds(5));
 
 
-
 foreach (var item in Enumerable.Range(1, 10).TakeWhile(x => x <= 3))
 {
     Console.WriteLine(item);
 }
 
 var repeat = System.Reactive.Linq.Observable.Repeat("foo", 10);
-
 
 // System.Reactive.Linq.Observable.Append(
 

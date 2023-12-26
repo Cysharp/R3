@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 
 namespace R3;
 
@@ -30,6 +31,7 @@ public static partial class ObservableExtensions
     }
 }
 
+// TODO: use local-queue(careful re-entrant) implementation
 internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, SynchronizationContext synchronizationContext) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
@@ -103,51 +105,78 @@ internal sealed class ObserveOnThreadPool<T>(Observable<T> source) : Observable<
 
     sealed class _ObserveOn(Observer<T> observer) : Observer<T>
     {
-        static readonly Action<(_ObserveOn, T)> onNext = PostOnNext;
-        static readonly Action<(_ObserveOn, Exception)> onErrorResume = PostOnErrorResume;
-        static readonly Action<(_ObserveOn, Result)> onCompleted = PostOnCompleted;
+        static readonly Action<_ObserveOn> drainMessages = DrainMessages;
 
         Observer<T> observer = observer;
+        ConcurrentQueue<Notification<T>> q = new();
+        bool running = false;
 
         protected override bool AutoDisposeOnCompleted => false;
 
         protected override void OnNextCore(T value)
         {
-            var item = PooledThreadPoolWorkItem<(_ObserveOn, T)>.Create(onNext, (this, value));
-            ThreadPool.UnsafeQueueUserWorkItem(item, preferLocal: false);
+            q.Enqueue(new(value));
+            TryStartWorker();
         }
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            var item = PooledThreadPoolWorkItem<(_ObserveOn, Exception)>.Create(onErrorResume, (this, error));
-            ThreadPool.UnsafeQueueUserWorkItem(item, preferLocal: false);
+            q.Enqueue(new(error));
+            TryStartWorker();
         }
 
         protected override void OnCompletedCore(Result result)
         {
-            var item = PooledThreadPoolWorkItem<(_ObserveOn, Result)>.Create(onCompleted, (this, result));
-            ThreadPool.UnsafeQueueUserWorkItem(item, preferLocal: false);
+            q.Enqueue(new(result));
+            TryStartWorker();
         }
 
-        static void PostOnNext((_ObserveOn, T) state)
+        void TryStartWorker()
         {
-            state.Item1.observer.OnNext(state.Item2);
-        }
-
-        static void PostOnErrorResume((_ObserveOn, Exception) state)
-        {
-            state.Item1.observer.OnErrorResume(state.Item2);
-        }
-
-        static void PostOnCompleted((_ObserveOn, Result) state)
-        {
-            try
+            lock (q)
             {
-                state.Item1.observer.OnCompleted(state.Item2);
+                if (!running)
+                {
+                    running = true;
+                    ThreadPool.UnsafeQueueUserWorkItem(drainMessages, this, preferLocal: false);
+                }
             }
-            finally
+        }
+
+        static void DrainMessages(_ObserveOn state)
+        {
+        AGAIN:
+            while (state.q.TryDequeue(out var item))
             {
-                state.Item1.Dispose();
+                switch (item.Kind)
+                {
+                    case NotificationKind.OnNext:
+                        state.observer.OnNext(item.Value!);
+                        break;
+                    case NotificationKind.OnErrorResume:
+                        state.observer.OnErrorResume(item.Error!);
+                        break;
+                    case NotificationKind.OnCompleted:
+                        try
+                        {
+                            state.observer.OnCompleted(item.Result!.Value);
+                        }
+                        finally
+                        {
+                            state.Dispose();
+                        }
+                        break;
+                }
+            }
+
+            lock (state.q)
+            {
+                if (state.q.Count != 0)
+                {
+                    goto AGAIN;
+                }
+                state.running = false;
+                return;
             }
         }
     }
@@ -433,7 +462,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
                 {
                     list.Clear();
                 }
-                
+
                 if (IsDisposed)
                 {
                     running = false;
