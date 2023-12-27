@@ -2,8 +2,6 @@
 
 public static partial class ObservableExtensions
 {
-    // TODO: test
-
     public static Observable<T> AsObservable<T>(this Observable<T> source)
     {
         if (source is AsObservable<T>) // already hide

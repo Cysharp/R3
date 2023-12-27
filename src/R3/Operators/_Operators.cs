@@ -20,7 +20,7 @@ public static partial class ObservableExtensions
     // Buffer + BUfferFrame => Chunk, ChunkFrame
 
     // Rx Merging:
-    //CombineLatest, Merge, Zip, WithLatestFrom, ZipLatest, Switch
+    // CombineLatest, Zip, WithLatestFrom, ZipLatest, Switch
 
     // Standard Query:
     // Distinct, DistinctBy, DistinctUntilChanged, Scan
