@@ -1,4 +1,6 @@
-﻿namespace R3;
+﻿
+
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public static partial class Observable
 {
@@ -61,12 +63,21 @@ internal sealed class Amb<T>(IEnumerable<Observable<T>> sources) : Observable<T>
 
     sealed class _AmbObserver(_Amb parent, int index) : Observer<T>
     {
+        bool won;
+
         protected override void OnNextCore(T value)
         {
+            if (won)
+            {
+                parent.observer.OnNext(value);
+                return;
+            }
+
             var field = Interlocked.CompareExchange(ref parent.winner, this, null);
             if (field == null)
             {
                 // first, dispose others.
+                won = true;
                 parent.disposables.RemoveAllExceptAt(index);
                 parent.observer.OnNext(value);
             }
@@ -83,10 +94,17 @@ internal sealed class Amb<T>(IEnumerable<Observable<T>> sources) : Observable<T>
 
         protected override void OnErrorResumeCore(Exception error)
         {
+            if (won)
+            {
+                parent.observer.OnErrorResume(error);
+                return;
+            }
+
             var field = Interlocked.CompareExchange(ref parent.winner, this, null);
             if (field == null)
             {
                 // first, dispose others.
+                won = true;
                 parent.disposables.RemoveAllExceptAt(index);
                 parent.observer.OnErrorResume(error);
             }
@@ -103,10 +121,17 @@ internal sealed class Amb<T>(IEnumerable<Observable<T>> sources) : Observable<T>
 
         protected override void OnCompletedCore(Result result)
         {
+            if (won)
+            {
+                parent.observer.OnCompleted(result);
+                return;
+            }
+
             var field = Interlocked.CompareExchange(ref parent.winner, this, null);
             if (field == null)
             {
                 // first, dispose others.
+                won = true;
                 parent.disposables.RemoveAllExceptAt(index);
                 parent.observer.OnCompleted(result);
             }

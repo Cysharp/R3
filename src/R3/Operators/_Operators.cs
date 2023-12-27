@@ -17,6 +17,8 @@ public static partial class ObservableExtensions
 
     // TImeInterval <-> FrameInterval
 
+    // Buffer + BUfferFrame
+
     // OnErrorStop
 
     // Observe
