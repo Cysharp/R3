@@ -2,13 +2,6 @@
 
 namespace R3;
 
-public interface ISubject<T>
-{
-    void OnNext(T value);
-    void OnErrorResume(Exception error);
-    void OnCompleted(Result complete);
-}
-
 public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
 {
     int calledCompleted = 0;

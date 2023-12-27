@@ -28,56 +28,24 @@ ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 
 // Enumerable.Empty<int>().ElementAtOrDefault(
 
-var range = System.Reactive.Linq.Observable.Range(1, 10);
+var publisher = new System.Reactive.Subjects.Subject<int>();
+
+var connectable = publisher.Multicast(new System.Reactive.Subjects.Subject<int>());
 
 
-Enumerable.Range(1, 10).Cast<int>();
+connectable.Subscribe(x => Console.WriteLine(x));
+
+var d= connectable.Connect();
 
 
-var a = range.Publish();
+publisher.OnNext(100);
+
+d.Dispose();
 
 
-// BehaviourSubject -> ReactiveProperty
-// ReplaySubject
+//var d2 = connectable.Connect();
 
-
-
-
-a.Connect();
-
-
-// range.Catch(
-// range.Append(
-
-// Enumerable.Range(1,10).Min(
-// range.SelectMany(
-
-// range.TakeLast(
-
-
-// var publisher = new R3.Subject<int>();
-//publisher.PublishOnNext(1);
-
-// publisher.Subscribe(new object(), (x,y) => y
-
-//var xs = await publisher.Take(TimeSpan.FromSeconds(5));
-
-
-foreach (var item in Enumerable.Range(1, 10).TakeWhile(x => x <= 3))
-{
-    Console.WriteLine(item);
-}
-
-var repeat = System.Reactive.Linq.Observable.Repeat("foo", 10);
-
-// System.Reactive.Linq.Observable.Append(
-
-// repeat.TakeWhile(
-
-// System.Reactive.Linq.Observable.FromEvent(
-
-var rp = new ReactiveProperty<int>(999);
-rp.Value += 10;
+publisher.OnNext(200);
 
 public static class Extensions
 {
