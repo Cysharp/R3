@@ -4,6 +4,7 @@ namespace R3;
 
 // TODO: ToDictionary
 // TODO: ToLookup
+// TODO: Selector APIs
 
 public static partial class ObservableExtensions
 {
@@ -39,7 +40,6 @@ public static partial class ObservableExtensions
             return value;
         }, (value) => value, cancellationToken); // ignore complete
     }
-
 
     // CountAsync using AggregateAsync
     public static Task<int> CountAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)

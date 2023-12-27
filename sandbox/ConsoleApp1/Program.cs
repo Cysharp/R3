@@ -31,10 +31,12 @@ ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
 var range = System.Reactive.Linq.Observable.Range(1, 10);
 
 
+
+
 // range.Catch(
 // range.Append(
 
-
+// Enumerable.Range(1,10).Min(
 // range.SelectMany(
 
 // range.TakeLast(

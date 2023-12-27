@@ -17,17 +17,13 @@ public static partial class ObservableExtensions
 
     // TImeInterval <-> FrameInterval
 
-    // Buffer + BUfferFrame
-
-    // OnErrorStop
-
-    // Observe
+    // Buffer + BUfferFrame => Chunk, ChunkFrame
 
     // Rx Merging:
     //CombineLatest, Merge, Zip, WithLatestFrom, ZipLatest, Switch
 
     // Standard Query:
-    // Distinct, DistinctUntilChanged, Scan
+    // Distinct, DistinctBy, DistinctUntilChanged, Scan
 
     // SkipTake:
     // Skip, SkipLast, SkipUntil, SkipWhile

@@ -1,6 +1,4 @@
-﻿
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿namespace R3;
 
 public static partial class Observable
 {
