@@ -1,4 +1,5 @@
-﻿namespace R3;
+﻿
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -18,7 +19,7 @@ public static partial class ObservableExtensions
     // Observe
 
     // Rx Merging:
-    //CombineLatest, Merge, Zip, WithLatestFrom, ZipLatest, Switch, MostRecent
+    //CombineLatest, Merge, Zip, WithLatestFrom, ZipLatest, Switch
 
     // Standard Query:
     // Distinct, DistinctUntilChanged, Scan

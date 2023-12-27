@@ -32,7 +32,7 @@ public static class Disposable
             return default;
         }
 
-        return cancellationToken.Register(state =>
+        return cancellationToken.UnsafeRegister(state =>
         {
             var d = ((IDisposable)state!);
             d.Dispose();
@@ -160,14 +160,14 @@ public static class Disposable
     }
 }
 
-internal class EmptyDisposable : IDisposable
+internal sealed class EmptyDisposable : IDisposable
 {
     public void Dispose()
     {
     }
 }
 
-internal class CombinedDisposable2(IDisposable disposable1, IDisposable disposable2) : IDisposable
+internal sealed class CombinedDisposable2(IDisposable disposable1, IDisposable disposable2) : IDisposable
 {
     public void Dispose()
     {
@@ -176,7 +176,7 @@ internal class CombinedDisposable2(IDisposable disposable1, IDisposable disposab
     }
 }
 
-internal class CombinedDisposable3(IDisposable disposable1, IDisposable disposable2, IDisposable disposable3) : IDisposable
+internal sealed class CombinedDisposable3(IDisposable disposable1, IDisposable disposable2, IDisposable disposable3) : IDisposable
 {
     public void Dispose()
     {
@@ -186,7 +186,7 @@ internal class CombinedDisposable3(IDisposable disposable1, IDisposable disposab
     }
 }
 
-internal class CombinedDisposable4(
+internal sealed class CombinedDisposable4(
     IDisposable disposable1,
     IDisposable disposable2,
     IDisposable disposable3,
@@ -202,7 +202,7 @@ internal class CombinedDisposable4(
 }
 
 
-internal class CombinedDisposable5(
+internal sealed class CombinedDisposable5(
     IDisposable disposable1,
     IDisposable disposable2,
     IDisposable disposable3,
@@ -220,7 +220,7 @@ internal class CombinedDisposable5(
 }
 
 
-internal class CombinedDisposable6(
+internal sealed class CombinedDisposable6(
     IDisposable disposable1,
     IDisposable disposable2,
     IDisposable disposable3,
@@ -239,7 +239,7 @@ internal class CombinedDisposable6(
     }
 }
 
-internal class CombinedDisposable7(
+internal sealed class CombinedDisposable7(
     IDisposable disposable1,
     IDisposable disposable2,
     IDisposable disposable3,
@@ -260,7 +260,7 @@ internal class CombinedDisposable7(
     }
 }
 
-internal class CombinedDisposable8(
+internal sealed class CombinedDisposable8(
     IDisposable disposable1,
     IDisposable disposable2,
     IDisposable disposable3,
@@ -353,6 +353,7 @@ public ref struct DisposableBuilder()
         if (count == 8)
         {
             var newDisposables = ArrayPool<IDisposable>.Shared.Rent(16);
+            newDisposables[8] = disposable; // JIT optimize
             newDisposables[0] = disposable1!;
             newDisposables[1] = disposable2!;
             newDisposables[2] = disposable3!;
@@ -362,16 +363,18 @@ public ref struct DisposableBuilder()
             newDisposables[6] = disposable7!;
             newDisposables[7] = disposable8!;
             disposable1 = disposable2 = disposable3 = disposable4 = disposable5 = disposable6 = disposable7 = disposable8 = null;
-
-            newDisposables[8] = disposable;
+            disposables = newDisposables; // assign
         }
         else
         {
-            var newDisposables = ArrayPool<IDisposable>.Shared.Rent(disposables!.Length * 2);
-            Array.Copy(disposables, newDisposables, disposables.Length);
-            ArrayPool<IDisposable>.Shared.Return(disposables, clearArray: true);
-            newDisposables[count] = disposable;
-            disposables = newDisposables;
+            if (disposables!.Length == count)
+            {
+                var newDisposables = ArrayPool<IDisposable>.Shared.Rent(count * 2);
+                Array.Copy(disposables, newDisposables, disposables.Length);
+                ArrayPool<IDisposable>.Shared.Return(disposables, clearArray: true);
+                disposables = newDisposables;
+            }
+            disposables[count] = disposable;
         }
     }
 
@@ -452,7 +455,7 @@ public ref struct DisposableBuilder()
                 );
                 break;
             default:
-                result = new CombinedDisposable(disposables!);
+                result = new CombinedDisposable(disposables!.AsSpan(0, count).ToArray());
                 break;
         }
 
