@@ -54,4 +54,34 @@ public class ConcatAppendPrependTest
 
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public void ConcatMany()
+    {
+        var subject1 = new Subject<int>();
+        var subject2 = new Subject<int>();
+        var subject3 = new Subject<int>();
+        using var list = Observable.Concat(subject1, subject2, subject3).ToLiveList();
+
+        subject1.OnNext(10);
+        subject2.OnNext(9999);
+
+        list.AssertEqual([10]);
+
+        subject1.OnCompleted();
+
+        subject2.OnNext(11111);
+
+        list.AssertEqual([10, 11111]);
+
+        subject2.OnCompleted();
+
+        subject3.OnNext(9999999);
+
+        list.AssertEqual([10, 11111, 9999999]);
+
+        subject3.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
 }

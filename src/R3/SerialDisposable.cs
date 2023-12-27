@@ -1,7 +1,25 @@
 ﻿namespace R3;
 
+public sealed class SerialDisposable : IDisposable
+{
+    SerialDisposableCore core;
+
+    public bool IsDisposed => core.IsDisposed;
+
+    public IDisposable? Disposable
+    {
+        get => core.Disposable;
+        set => core.Disposable = value;
+    }
+
+    public void Dispose()
+    {
+        core.Dispose();
+    }
+}
+
 // struct, be carefult to use
-public struct SingleAssignmentDisposableCore
+public struct SerialDisposableCore
 {
     IDisposable? current;
 
@@ -34,8 +52,8 @@ public struct SingleAssignmentDisposableCore
                 return;
             }
 
-            // otherwise, invalid assignment
-            ThrowAlreadyAssignment();
+            // otherwise, dispose previous disposable
+            field.Dispose();
         }
     }
 
@@ -46,11 +64,6 @@ public struct SingleAssignmentDisposableCore
         {
             field?.Dispose();
         }
-    }
-
-    static void ThrowAlreadyAssignment()
-    {
-        throw new InvalidOperationException("Disposable is already assigned.");
     }
 
     sealed class DisposedSentinel : IDisposable
