@@ -2,6 +2,7 @@
 
 namespace R3;
 
+//TODO:not yet implemented.
 public static partial class ObservableExtensions
 {
     //public static Event<T> Delay<T>(this Event<T> source, TimeSpan dueTime, TimeProvider timeProvider)

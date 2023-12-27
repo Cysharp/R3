@@ -1,5 +1,6 @@
 ﻿//namespace R3;
 
+//TODO:not yet implemented.
 //public static partial class EventExtensions
 //{
 //    public static Event<TResult> CombineLatest<TLeft, TRight, TResult>(

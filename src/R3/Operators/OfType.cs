@@ -36,4 +36,3 @@ internal sealed class OfType<T, TResult>(Observable<T> source) : Observable<TRes
         }
     }
 }
-

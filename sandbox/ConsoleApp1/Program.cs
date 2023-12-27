@@ -33,6 +33,19 @@ var range = System.Reactive.Linq.Observable.Range(1, 10);
 
 Enumerable.Range(1, 10).Cast<int>();
 
+
+var a = range.Publish();
+
+
+// BehaviourSubject -> ReactiveProperty
+// ReplaySubject
+
+
+
+
+a.Connect();
+
+
 // range.Catch(
 // range.Append(
 

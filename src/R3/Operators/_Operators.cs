@@ -30,4 +30,7 @@ public static partial class ObservableExtensions
 
     // return tasks:
     // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
+
+    // Multicast
+    // Multicast, Publish, Replay, RefCount, Share(Publish().RefCount()), AutoConnect
 }
