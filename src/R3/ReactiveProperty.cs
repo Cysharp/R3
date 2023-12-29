@@ -5,6 +5,8 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>
     public abstract T CurrentValue { get; }
 }
 
+// almostly same code as Subject<T>.
+
 // allow inherit
 public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDisposable
 {
