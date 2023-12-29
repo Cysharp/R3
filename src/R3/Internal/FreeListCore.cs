@@ -7,8 +7,6 @@ namespace R3.Internal;
 internal struct FreeListCore<T>
     where T : class
 {
-    const int InitialArraySize = 4;
-
     readonly object gate;
     T?[]? values = null;
     int lastIndex;
@@ -17,40 +15,6 @@ internal struct FreeListCore<T>
     {
         // don't create values at initialize
         this.gate = gate;
-    }
-
-    public FreeListCore(object gate, int capacity)
-    {
-        this.gate = gate;
-        this.values = new T[capacity];
-    }
-
-    public FreeListCore(object gate, T[] items)
-    {
-        this.gate = gate;
-        this.values = new T[items.Length];
-        for (int i = 0; i < items.Length; i++)
-        {
-            this.values[i] = items[i];
-        }
-    }
-
-    public FreeListCore(object gate, IEnumerable<T> items)
-    {
-        this.gate = gate;
-        if (items.TryGetNonEnumeratedCount(out var count))
-        {
-            this.values = new T[count];
-        }
-        else
-        {
-            this.values = new T[InitialArraySize];
-        }
-        var i = 0;
-        foreach (var item in items)
-        {
-            this.values[i++] = item;
-        }
     }
 
     public bool IsDisposed => lastIndex == -2;
@@ -71,16 +35,16 @@ internal struct FreeListCore<T>
 
             if (values == null)
             {
-                values = new T[InitialArraySize];
+                values = new T[1]; // initial size is 1.
             }
 
             // try find blank
             var index = FindNullIndex(values);
             if (index == -1)
             {
-                // full, resize(x1.5)
+                // full, 1, 4, 6,...resize(x1.5)
                 var len = values.Length;
-                var newValues = new T[len + (len / 2)];
+                var newValues = len == 1 ? new T[4] : new T[len + (len / 2)];
                 Array.Copy(values, newValues, len);
                 Volatile.Write(ref values, newValues);
                 index = len;
@@ -92,7 +56,7 @@ internal struct FreeListCore<T>
                 Volatile.Write(ref lastIndex, index);
             }
 
-            removeKey =  index; // index is remove key.
+            removeKey = index; // index is remove key.
         }
     }
 
