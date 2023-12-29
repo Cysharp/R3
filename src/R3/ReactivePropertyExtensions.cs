@@ -14,7 +14,7 @@ public static class ReactivePropertyExtensions
             return rrp;
         }
 
-        // for use hack, allow to cast ReactiveProperty<T>
+        // allow to cast ReactiveProperty<T>
         return new ConnectedReactiveProperty<T>(source, initialValue, equalityComparer);
     }
 }

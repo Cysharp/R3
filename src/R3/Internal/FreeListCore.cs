@@ -63,7 +63,7 @@ internal struct FreeListCore<T>
         return xs.AsSpan(0, last + 1);
     }
 
-    public int Add(T item)
+    public void Add(T item, out int removeKey)
     {
         lock (gate)
         {
@@ -92,7 +92,7 @@ internal struct FreeListCore<T>
                 Volatile.Write(ref lastIndex, index);
             }
 
-            return index; // index is remove key.
+            removeKey =  index; // index is remove key.
         }
     }
 
@@ -100,8 +100,6 @@ internal struct FreeListCore<T>
     {
         lock (gate)
         {
-            ObjectDisposedException.ThrowIf(IsDisposed, typeof(FreeListCore<T>));
-
             if (values == null) return;
 
             if (index < values.Length)
@@ -122,7 +120,6 @@ internal struct FreeListCore<T>
     {
         lock (gate)
         {
-            ObjectDisposedException.ThrowIf(IsDisposed, typeof(FreeListCore<T>));
             if (values == null) return false;
 
             var index = -1;

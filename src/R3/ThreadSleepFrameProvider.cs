@@ -31,7 +31,7 @@ public sealed class ThreadSleepFrameProvider : FrameProvider, IDisposable
     public override void Register(IFrameRunnerWorkItem callback)
     {
         ObjectDisposedException.ThrowIf(disposed, typeof(ThreadSleepFrameProvider));
-        list.Add(callback);
+        list.Add(callback, out _);
     }
 
     public void Dispose()

@@ -1,124 +1,107 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace R3;
+﻿namespace R3;
 
 public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
 {
-    int calledCompleted = 0;
-    Result completeValue;
-    FreeListCore<_CompletablePublisher> list;
-    readonly object completedLock = new object();
+    FreeListCore<Subscription> list; // struct(array, int)
+    CompleteState completeState;     // struct(int, IntPtr)
 
     public Subject()
     {
-        list = new FreeListCore<_CompletablePublisher>(this);
+        list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
     }
+
+    public bool IsDisposed => completeState.IsDisposed;
 
     public void OnNext(T value)
     {
-        if (list.IsDisposed) ThrowDisposed();
-        if (Volatile.Read(ref calledCompleted) != 0) return;
+        if (completeState.IsCompleted) return;
 
-        foreach (var observer in list.AsSpan())
+        foreach (var subscription in list.AsSpan())
         {
-            if (observer != null)
-            {
-                observer.OnNext(value);
-            }
+            subscription?.observer.OnNext(value);
         }
     }
 
     public void OnErrorResume(Exception error)
     {
-        if (list.IsDisposed) ThrowDisposed();
-        if (Volatile.Read(ref calledCompleted) != 0) return;
+        if (completeState.IsCompleted) return;
 
-        foreach (var observer in list.AsSpan())
+        foreach (var subscription in list.AsSpan())
         {
-            if (observer != null)
-            {
-                observer.OnErrorResume(error);
-            }
+            subscription?.observer.OnErrorResume(error);
         }
     }
 
-    public void OnCompleted(Result complete)
+    public void OnCompleted(Result result)
     {
-        if (list.IsDisposed) ThrowDisposed();
-        if (Volatile.Read(ref calledCompleted) != 0) return;
-
-        // need lock for Subscribe after OnCompleted
-        lock (completedLock)
+        var status = completeState.TrySetResult(result);
+        if (status != CompleteState.ResultStatus.Done)
         {
-            completeValue = complete;
-            calledCompleted = 1;
+            return; // already completed
         }
 
-        foreach (var observer in list.AsSpan())
+        foreach (var subscription in list.AsSpan())
         {
-            if (observer != null)
-            {
-                observer.OnCompleted(complete);
-            }
+            subscription?.observer.OnCompleted(result);
         }
     }
 
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        if (list.IsDisposed) ThrowDisposed();
-
-        lock (completedLock)
+        var result = completeState.TryGetResult();
+        if (result != null)
         {
-            if (Volatile.Read(ref calledCompleted) != 0)
-            {
-                observer.OnCompleted(completeValue);
-                return Disposable.Empty;
-            }
-
-            // need lock after Add
-            var subscription = new _CompletablePublisher(this, observer);
-            subscription.removeKey = list.Add(subscription); // when disposed, may throw DisposedException in this line
-            return subscription;
+            observer.OnCompleted(result.Value);
+            return Disposable.Empty;
         }
-    }
 
-    void Unsubscribe(_CompletablePublisher subscription)
-    {
-        list.Remove(subscription.removeKey);
+        var subscription = new Subscription(this, observer); // create subscription and add observer to list.
+
+        // need to check called completed during adding
+        result = completeState.TryGetResult();
+        if (result != null)
+        {
+            subscription.observer.OnCompleted(result.Value);
+            subscription.Dispose();
+            return Disposable.Empty;
+        }
+
+        return subscription;
     }
 
     public void Dispose()
     {
-        // TODO: when dispose, call OnCompleted to dispose all observers.
-
-        list.Dispose();
+        Dispose(true);
     }
 
-    static void ThrowDisposed()
+    public void Dispose(bool callOnCompleted)
     {
-        throw new ObjectDisposedException("CompletablePublisher");
+        if (completeState.TrySetDisposed(out var alreadyCompleted))
+        {
+            if (callOnCompleted && !alreadyCompleted)
+            {
+                // not yet disposed so can call list iteration
+                foreach (var subscription in list.AsSpan())
+                {
+                    subscription?.observer.OnCompleted();
+                }
+            }
+
+            list.Dispose();
+        }
     }
 
-    sealed class _CompletablePublisher(Subject<T>? parent, Observer<T> observer) : IDisposable
+    sealed class Subscription : IDisposable
     {
-        public int removeKey;
+        public readonly Observer<T> observer;
+        readonly int removeKey;
+        Subject<T>? parent;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnNext(T value)
+        public Subscription(Subject<T> parent, Observer<T> observer)
         {
-            observer.OnNext(value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnErrorResume(Exception error)
-        {
-            observer.OnErrorResume(error);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnCompleted(Result complete)
-        {
-            observer.OnCompleted(complete);
+            this.parent = parent;
+            this.observer = observer;
+            parent.list.Add(this, out removeKey); // for the thread-safety, add and set removeKey in same lock.
         }
 
         public void Dispose()
@@ -126,7 +109,8 @@ public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
             var p = Interlocked.Exchange(ref parent, null);
             if (p == null) return;
 
-            p.Unsubscribe(this);
+            // removeKey is index, will reuse if remove completed so only allows to call from here and must not call twice.
+            p.list.Remove(removeKey);
         }
     }
 }

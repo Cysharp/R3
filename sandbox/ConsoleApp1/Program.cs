@@ -21,6 +21,9 @@ ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
 var logger = factory.CreateLogger<Program>();
 
 
+var rp = new ReactiveProperty<int>(9999);
+
+
 
 var ct = new CancellationTokenSource(1000);
 ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);

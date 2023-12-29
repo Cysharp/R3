@@ -1,6 +1,8 @@
 ﻿namespace R3;
 
 // NOTE: implement type must inherit from Observable<T>
+// Subject<T>, ReactiveProperty<T>(as BehaviorSubject<T>), ReplaySubject<T>, ReplayFrameSubject<T>.
+// All subjects, when disposed, call OnCompleted().
 public interface ISubject<T>
 {
     // Observable
@@ -10,11 +12,23 @@ public interface ISubject<T>
     void OnNext(T value);
     void OnErrorResume(Exception error);
     void OnCompleted(Result complete);
+}
 
-    // Conversion
-    public Observer<T> AsObserver()
+public static class SubjectExtensions
+{
+    public static Observer<T> AsObserver<T>(this ISubject<T> subject)
     {
-        return new SubjectToObserver<T>(this);
+        return new SubjectToObserver<T>(subject);
+    }
+
+    public static void OnCompleted<T>(this ISubject<T> subject)
+    {
+        subject.OnCompleted(default);
+    }
+
+    public static void OnCompleted<T>(this ISubject<T> subject, Exception exception)
+    {
+        subject.OnCompleted(Result.Failure(exception));
     }
 }
 

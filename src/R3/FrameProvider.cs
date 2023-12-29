@@ -30,7 +30,7 @@ public sealed class ManualFrameProvider : FrameProvider
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        list.Add(callback);
+        list.Add(callback, out _);
     }
 
     public void Advance()

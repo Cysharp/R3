@@ -38,7 +38,7 @@ public sealed class TimerFrameProvider : FrameProvider, IDisposable
     public override void Register(IFrameRunnerWorkItem callback)
     {
         ObjectDisposedException.ThrowIf(disposed, typeof(TimerFrameProvider));
-        list.Add(callback);
+        list.Add(callback, out _);
     }
 
     public void Dispose()

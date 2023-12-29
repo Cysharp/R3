@@ -1,7 +1,4 @@
-﻿using R3.Internal;
-using System.Runtime.CompilerServices;
-
-namespace R3;
+﻿namespace R3;
 
 public abstract class ReadOnlyReactiveProperty<T> : Observable<T>
 {
@@ -13,11 +10,14 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
-    FreeListCore<Subscription> list;
+    FreeListCore<Subscription> list; // struct(array, int)
+    CompleteState completeState;     // struct(int, IntPtr)
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
 
     public override T CurrentValue => value;
+
+    public bool IsDisposed => completeState.IsDisposed;
 
     public T Value
     {
@@ -45,89 +45,110 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     {
         this.value = value;
         this.equalityComparer = equalityComparer;
-        this.list = new FreeListCore<Subscription>(this);
+        this.list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
     }
 
     public void OnNext(T value)
     {
-        this.value = value;
-        foreach (var observer in list.AsSpan())
+        if (completeState.IsCompleted) return;
+
+        foreach (var subscription in list.AsSpan())
         {
-            observer?.OnNext(value);
+            subscription?.observer.OnNext(value);
         }
     }
 
     public void OnErrorResume(Exception error)
     {
-        foreach (var observer in list.AsSpan())
+        if (completeState.IsCompleted) return;
+
+        foreach (var subscription in list.AsSpan())
         {
-            observer?.OnErrorResume(error);
+            subscription?.observer.OnErrorResume(error);
         }
     }
 
-    // TODO: OnCompleted lock? same as Subject
     public void OnCompleted(Result result)
     {
-        foreach (var observer in list.AsSpan())
+        var status = completeState.TrySetResult(result);
+        if (status != CompleteState.ResultStatus.Done)
         {
-            observer?.OnCompleted(result);
+            return; // already completed
+        }
+
+        foreach (var subscription in list.AsSpan())
+        {
+            subscription?.observer.OnCompleted(result);
         }
     }
 
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var value = this.value;
-        ObjectDisposedException.ThrowIf(list.IsDisposed, this);
+        var result = completeState.TryGetResult();
+        if (result != null)
+        {
+            observer.OnCompleted(result.Value);
+            return Disposable.Empty;
+        }
 
-        // raise latest value on subscribe
+        // raise latest value on subscribe(before add observer to list)
         observer.OnNext(value);
 
-        var subscription = new Subscription(this, observer);
-        subscription.removeKey = list.Add(subscription);
-        return subscription;
-    }
+        var subscription = new Subscription(this, observer); // create subscription and add observer to list.
 
-    void Unsubscribe(Subscription subscription)
-    {
-        list.Remove(subscription.removeKey);
+        // need to check called completed during adding
+        result = completeState.TryGetResult();
+        if (result != null)
+        {
+            subscription.observer.OnCompleted(result.Value);
+            subscription.Dispose();
+            return Disposable.Empty;
+        }
+
+        return subscription;
     }
 
     public void Dispose()
     {
-        // TODO: call OnCompleted on Dispose.
-        DisposeCore();
-        list.Dispose();
+        Dispose(true);
     }
 
-    protected virtual void DisposeCore()
+    public void Dispose(bool callOnCompleted)
     {
+        if (completeState.TrySetDisposed(out var alreadyCompleted))
+        {
+            if (callOnCompleted && !alreadyCompleted)
+            {
+                // not yet disposed so can call list iteration
+                foreach (var subscription in list.AsSpan())
+                {
+                    subscription?.observer.OnCompleted();
+                }
+            }
+
+            DisposeCore();
+            list.Dispose();
+        }
     }
+
+    protected virtual void DisposeCore() { }
 
     public override string? ToString()
     {
         return (value == null) ? "(null)" : value.ToString();
     }
 
-    sealed class Subscription(ReactiveProperty<T>? parent, Observer<T> observer) : IDisposable
+    sealed class Subscription : IDisposable
     {
-        public int removeKey;
+        public readonly Observer<T> observer;
+        readonly int removeKey;
+        ReactiveProperty<T>? parent;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnNext(T value)
+        public Subscription(ReactiveProperty<T> parent, Observer<T> observer)
         {
-            observer.OnNext(value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnErrorResume(Exception error)
-        {
-            observer.OnErrorResume(error);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void OnCompleted(Result result)
-        {
-            observer.OnCompleted(result);
+            this.parent = parent;
+            this.observer = observer;
+            parent.list.Add(this, out removeKey); // for the thread-safety, add and set removeKey in same lock.
         }
 
         public void Dispose()
@@ -135,7 +156,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
             var p = Interlocked.Exchange(ref parent, null);
             if (p == null) return;
 
-            p.Unsubscribe(this);
+            // removeKey is index, will reuse if remove completed so only allows to call from here and must not call twice.
+            p.list.Remove(removeKey);
         }
     }
 }

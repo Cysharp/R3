@@ -19,6 +19,7 @@ public readonly struct Result
 
     public Result(Exception exception)
     {
+        if (exception == null) throw new ArgumentNullException(nameof(exception));
         this.Exception = exception;
     }
 
