@@ -11,12 +11,10 @@ public static partial class ObservableExtensions
     // Debounce, Throttle, ThrottleFirst, Sample, Delay, DelaySubscription, Timeout
     // + frame variation
 
-    // TImeInterval <-> FrameInterval
-
     // Buffer + BUfferFrame => Chunk, ChunkFrame
 
     // Rx Merging:
-    // CombineLatest, Zip, WithLatestFrom, ZipLatest, Switch
+    // CombineLatest, Zip, WithLatestFrom, ZipLatest, Switch, Pairwise
 
     // Standard Query:
     // Distinct, DistinctBy, DistinctUntilChanged, Scan, DefaultIfEmpty

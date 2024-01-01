@@ -4,6 +4,8 @@ public static partial class ObservableExtensions
 {
     public static Observable<T> Take<T>(this Observable<T> source, int count)
     {
+        if (count < 0) throw new ArgumentOutOfRangeException("count");
+
         if (count == 0)
         {
             return Observable.Empty<T>();

@@ -4,6 +4,7 @@ public static partial class ObservableExtensions
 {
     public static Observable<T> TakeLast<T>(this Observable<T> source, int count)
     {
+        if (count < 0) throw new ArgumentOutOfRangeException("count");
         return new TakeLast<T>(source, count);
     }
 

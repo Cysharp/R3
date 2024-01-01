@@ -1,12 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using R3;
-using R3.Internal;
-using System.Diagnostics;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Channels;
 using ZLogger;
 
 SubscriptionTracker.EnableTracking = true;
@@ -33,10 +27,11 @@ rep.OnNext(100);
 rep.OnNext(1000);
 rep.OnCompleted();
 
-rep.Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("completed"));
 
 
 
+
+//rep.TimeInterval()
 
 
 public static class Extensions
