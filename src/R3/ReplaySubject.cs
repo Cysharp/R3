@@ -31,6 +31,11 @@ public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
     {
     }
 
+    public ReplaySubject(int bufferSize, TimeSpan window)
+        : this(bufferSize, window, ObservableSystem.DefaultTimeProvider)
+    {
+    }
+
     // full constructor
     public ReplaySubject(int bufferSize, TimeSpan window, TimeProvider timeProvider)
     {
