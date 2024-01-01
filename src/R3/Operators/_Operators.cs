@@ -19,9 +19,6 @@ public static partial class ObservableExtensions
     // Standard Query:
     // Distinct, DistinctBy, DistinctUntilChanged, Scan, DefaultIfEmpty
 
-    // SkipTake:
-    // Skip, SkipLast, SkipUntil, SkipWhile
-
     // return tasks:
     // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
 }

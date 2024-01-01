@@ -2,62 +2,59 @@
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> TakeUntil<T, TOther>(this Observable<T> source, Observable<TOther> other)
+    public static Observable<T> SkipUntil<T, TOther>(this Observable<T> source, Observable<TOther> other)
     {
-        return new TakeUntil<T, TOther>(source, other);
+        return new SkipUntil<T, TOther>(source, other);
     }
 
-    public static Observable<T> TakeUntil<T>(this Observable<T> source, CancellationToken cancellationToken)
+    public static Observable<T> SkipUntil<T>(this Observable<T> source, CancellationToken cancellationToken)
     {
-        if (!cancellationToken.CanBeCanceled)
-        {
-            return source;
-        }
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return Observable.Empty<T>();
-        }
-
-        return new TakeUntilC<T>(source, cancellationToken);
+        if (!cancellationToken.CanBeCanceled) throw new ArgumentException("cancellationToken must be cancellable", nameof(cancellationToken));
+        return new SkipUntilC<T>(source, cancellationToken);
     }
 
-    public static Observable<T> TakeUntil<T>(this Observable<T> source, Task task)
+    public static Observable<T> SkipUntil<T>(this Observable<T> source, Task task)
     {
-        return new TakeUntilT<T>(source, task);
+        return new SkipUntilT<T>(source, task);
     }
 }
 
-internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOther> other) : Observable<T>
+internal sealed class SkipUntil<T, TOther>(Observable<T> source, Observable<TOther> other) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var takeUntil = new _TakeUntil(observer);
-        var stopperSubscription = other.Subscribe(takeUntil.stopper);
+        var skipUntil = new _SkipUntil(observer);
+        var otherSubscription = other.Subscribe(skipUntil.otherObserver);
         try
         {
-            return source.Subscribe(takeUntil); // subscription contains self and stopper.
+            return source.Subscribe(skipUntil); // subscription contains self and other.
         }
         catch
         {
-            stopperSubscription.Dispose();
+            otherSubscription.Dispose();
             throw;
         }
     }
 
-    sealed class _TakeUntil : Observer<T>
+    sealed class _SkipUntil : Observer<T>
     {
         readonly Observer<T> observer;
-        internal readonly TakeUntilStopperObserver stopper;
+        internal readonly SkipUntilOtherObserver otherObserver;
 
-        public _TakeUntil(Observer<T> observer)
+        internal bool open;
+
+        public _SkipUntil(Observer<T> observer)
         {
             this.observer = observer;
-            this.stopper = new TakeUntilStopperObserver(this);
+            this.otherObserver = new SkipUntilOtherObserver(this);
         }
 
         protected override void OnNextCore(T value)
         {
-            observer.OnNext(value);
+            if (Volatile.Read(ref open))
+            {
+                observer.OnNext(value);
+            }
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -72,15 +69,15 @@ internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOth
 
         protected override void DisposeCore()
         {
-            stopper.Dispose();
+            otherObserver.Dispose();
         }
     }
 
-    sealed class TakeUntilStopperObserver(_TakeUntil parent) : Observer<TOther>
+    sealed class SkipUntilOtherObserver(_SkipUntil parent) : Observer<TOther>
     {
         protected override void OnNextCore(TOther value)
         {
-            parent.OnCompleted(Result.Success);
+            Volatile.Write(ref parent.open, true);
             Dispose();
         }
 
@@ -96,21 +93,22 @@ internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOth
     }
 }
 
-internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken cancellationToken) : Observable<T>
+internal sealed class SkipUntilC<T>(Observable<T> source, CancellationToken cancellationToken) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeUntil(observer, cancellationToken));
+        return source.Subscribe(new _SkipUntil(observer, cancellationToken));
     }
 
-    sealed class _TakeUntil : Observer<T>, IDisposable
+    sealed class _SkipUntil : Observer<T>, IDisposable
     {
         static readonly Action<object?> cancellationCallback = CancellationCallback;
 
         readonly Observer<T> observer;
         CancellationTokenRegistration tokenRegistration;
+        bool open;
 
-        public _TakeUntil(Observer<T> observer, CancellationToken cancellationToken)
+        public _SkipUntil(Observer<T> observer, CancellationToken cancellationToken)
         {
             this.observer = observer;
             this.tokenRegistration = cancellationToken.Register(cancellationCallback, this);
@@ -118,7 +116,10 @@ internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken canc
 
         protected override void OnNextCore(T value)
         {
-            observer.OnNext(value);
+            if (Volatile.Read(ref open))
+            {
+                observer.OnNext(value);
+            }
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -133,8 +134,8 @@ internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken canc
 
         static void CancellationCallback(object? state)
         {
-            var self = (_TakeUntil)state!;
-            self.OnCompleted();
+            var self = (_SkipUntil)state!;
+            Volatile.Write(ref self.open, true);
         }
 
         protected override void DisposeCore()
@@ -144,18 +145,19 @@ internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken canc
     }
 }
 
-internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observable<T>
+internal sealed class SkipUntilT<T>(Observable<T> source, Task task) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeUntil(observer, task));
+        return source.Subscribe(new _SkipUntil(observer, task));
     }
 
-    sealed class _TakeUntil : Observer<T>, IDisposable
+    sealed class _SkipUntil : Observer<T>, IDisposable
     {
         readonly Observer<T> observer;
+        bool open;
 
-        public _TakeUntil(Observer<T> observer, Task task)
+        public _SkipUntil(Observer<T> observer, Task task)
         {
             this.observer = observer;
             TaskAwait(task);
@@ -163,7 +165,10 @@ internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observabl
 
         protected override void OnNextCore(T value)
         {
-            observer.OnNext(value);
+            if (Volatile.Read(ref open))
+            {
+                observer.OnNext(value);
+            }
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -181,7 +186,7 @@ internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observabl
             try
             {
                 await task.ConfigureAwait(false);
-                OnCompleted(Result.Success);
+                Volatile.Write(ref open, true);
             }
             catch (Exception ex)
             {
