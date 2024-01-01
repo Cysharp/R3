@@ -54,6 +54,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     {
         if (completeState.IsCompleted) return;
 
+        this.value = value; // different from Subject<T>; set value before raise OnNext
+
         foreach (var subscription in list.AsSpan())
         {
             subscription?.observer.OnNext(value);

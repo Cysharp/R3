@@ -21,34 +21,23 @@ ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
 var logger = factory.CreateLogger<Program>();
 
 
-var rp = new ReactiveProperty<int>(9999);
+// dvar rp = new ReactiveProperty<int>(9999);
 
 
 
-var ct = new CancellationTokenSource(1000);
-ObservableSystem.DefaultFrameProvider = new ThreadSleepFrameProvider(60);
+ var rep = new System.Reactive.Subjects.ReplaySubject<int>();
+//var rep = new System.Reactive.Subjects.BehaviorSubject<int>(10);
+
+rep.OnNext(10);
+rep.OnNext(100);
+rep.OnNext(1000);
+rep.OnCompleted();
+
+rep.Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("completed"));
 
 
-// Enumerable.Empty<int>().ElementAtOrDefault(
-
-var publisher = new System.Reactive.Subjects.Subject<int>();
-
-var connectable = publisher.Multicast(new System.Reactive.Subjects.Subject<int>());
 
 
-connectable.Subscribe(x => Console.WriteLine(x));
-
-var d= connectable.Connect();
-
-
-publisher.OnNext(100);
-
-d.Dispose();
-
-
-//var d2 = connectable.Connect();
-
-publisher.OnNext(200);
 
 public static class Extensions
 {
