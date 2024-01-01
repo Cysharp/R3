@@ -15,8 +15,6 @@ public static partial class ObservableExtensions
 
     // Buffer + BUfferFrame => Chunk, ChunkFrame
 
-    // SubscribeOn, Synchronize
-
     // Rx Merging:
     // CombineLatest, Zip, WithLatestFrom, ZipLatest, Switch
 

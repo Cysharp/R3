@@ -5,16 +5,21 @@ namespace R3;
 public static partial class ObservableExtensions
 {
     /// <summary>ObserveOn SynchronizationContext.Current</summary>
-    public static Observable<T> ObserveOnCurrent<T>(this Observable<T> source)
+    public static Observable<T> ObserveOnCurrentSynchronizationContext<T>(this Observable<T> source)
     {
         return ObserveOn<T>(source, SynchronizationContext.Current);
+    }
+
+    public static Observable<T> ObserveOnThreadPool<T>(this Observable<T> source)
+    {
+        return new ObserveOnThreadPool<T>(source);
     }
 
     public static Observable<T> ObserveOn<T>(this Observable<T> source, SynchronizationContext? synchronizationContext)
     {
         if (synchronizationContext == null)
         {
-            return ObserveOn<T>(source, TimeProvider.System); // use ThreadPool instead
+            return new ObserveOnThreadPool<T>(source); // use ThreadPool instead
         }
 
         return new ObserveOnSynchronizationContext<T>(source, synchronizationContext);
