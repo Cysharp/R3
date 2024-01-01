@@ -223,5 +223,13 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
                 queue.Dequeue();
             }
         }
+
+        protected override void DisposeCore()
+        {
+            lock (gate)
+            {
+                queue.Clear();
+            }
+        }
     }
 }
