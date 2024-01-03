@@ -21,19 +21,18 @@ var logger = factory.CreateLogger<Program>();
 
 
 var sw = Stopwatch.StartNew();
- var subject = new System.Reactive.Subjects.Subject<int>();
-subject.Buffer(TimeSpan.FromSeconds(5), 3).Subscribe(x=> Console.WriteLine("[" + string.Join(", ", x) + "]" + sw.Elapsed));
-
-
-await Task.Delay(TimeSpan.FromSeconds(4));
+var subject = new System.Reactive.Subjects.Subject<int>();
+subject.Sample(TimeSpan.FromSeconds(3)).Subscribe(x => Console.WriteLine(x));
 
 subject.OnNext(1);
-subject.OnNext(2);
-// subject.OnNext(3);
 
 Console.ReadLine();
 
+subject.OnNext(2);
+
 subject.OnCompleted();
+
+
 
 
 
