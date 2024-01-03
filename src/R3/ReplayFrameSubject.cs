@@ -1,47 +1,37 @@
 ﻿namespace R3;
 
-public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
+public sealed class ReplayFrameSubject<T> : Observable<T>, ISubject<T>, IDisposable
 {
     readonly int bufferSize;
-    readonly TimeSpan window;
-    readonly TimeProvider? timeProvider;
+    readonly int window;
+    readonly FrameProvider frameProvider;
     readonly RingBuffer<(long timestamp, T value)> replayBuffer; // lock object
 
     // Subject
     FreeListCore<Subscription> list;
     CompleteState completeState;
 
-    public ReplaySubject()
-         : this(int.MaxValue, TimeSpan.MaxValue, null!) // allow null internally
+    public ReplayFrameSubject(int window)
+        : this(int.MaxValue, int.MaxValue, ObservableSystem.DefaultFrameProvider)
     {
     }
 
-    public ReplaySubject(int bufferSize)
-        : this(bufferSize, TimeSpan.MaxValue, null!)
+    public ReplayFrameSubject(int window, FrameProvider frameProvider)
+        : this(int.MaxValue, window, frameProvider)
     {
     }
 
-    public ReplaySubject(TimeSpan window)
-        : this(int.MaxValue, window, ObservableSystem.DefaultTimeProvider)
-    {
-    }
-
-    public ReplaySubject(TimeSpan window, TimeProvider timeProvider)
-        : this(int.MaxValue, window, timeProvider)
-    {
-    }
-
-    public ReplaySubject(int bufferSize, TimeSpan window)
-        : this(bufferSize, window, ObservableSystem.DefaultTimeProvider)
+    public ReplayFrameSubject(int bufferSize, int window)
+        : this(bufferSize, window, ObservableSystem.DefaultFrameProvider)
     {
     }
 
     // full constructor
-    public ReplaySubject(int bufferSize, TimeSpan window, TimeProvider timeProvider)
+    public ReplayFrameSubject(int bufferSize, int window, FrameProvider frameProvider)
     {
         this.bufferSize = bufferSize;
         this.window = window;
-        this.timeProvider = timeProvider;
+        this.frameProvider = frameProvider;
         this.replayBuffer = new RingBuffer<(long, T)>(bufferSize < 8 ? bufferSize : 8);
         this.list = new FreeListCore<Subscription>(replayBuffer);
     }
@@ -55,7 +45,7 @@ public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
         lock (replayBuffer)
         {
             Trim();
-            replayBuffer.AddLast((timeProvider?.GetTimestamp() ?? 0, value));
+            replayBuffer.AddLast((frameProvider?.GetFrameCount() ?? 0, value));
         }
 
         foreach (var subscription in list.AsSpan())
@@ -161,21 +151,18 @@ public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
         }
 
         // Trim by Time
-        if (timeProvider != null)
+        var now = frameProvider.GetFrameCount();
+        while (replayBuffer.Count > 0)
         {
-            var now = timeProvider.GetTimestamp();
-            while (replayBuffer.Count > 0)
+            var value = replayBuffer[0]; // peek first
+            var elapsed = now - value.timestamp;
+            if (elapsed >= window)
             {
-                var value = replayBuffer[0]; // peek first
-                var elapsed = timeProvider.GetElapsedTime(value.timestamp, now);
-                if (elapsed >= window)
-                {
-                    replayBuffer.RemoveFirst();
-                }
-                else
-                {
-                    break;
-                }
+                replayBuffer.RemoveFirst();
+            }
+            else
+            {
+                break;
             }
         }
     }
@@ -184,9 +171,9 @@ public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
     {
         public readonly Observer<T> observer;
         readonly int removeKey;
-        ReplaySubject<T>? parent;
+        ReplayFrameSubject<T>? parent;
 
-        public Subscription(ReplaySubject<T> parent, Observer<T> observer)
+        public Subscription(ReplayFrameSubject<T> parent, Observer<T> observer)
         {
             this.parent = parent;
             this.observer = observer;

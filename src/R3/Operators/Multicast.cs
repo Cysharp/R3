@@ -2,7 +2,7 @@
 
 public static partial class ObservableExtensions
 {
-    // Multicast, Publish, Replay, Share
+    // Multicast, Publish, Replay, ReplayFrame, Share
 
     public static ConnectableObservable<T> Multicast<T>(this Observable<T> source, ISubject<T> subject)
     {
@@ -49,7 +49,25 @@ public static partial class ObservableExtensions
         return source.Multicast(new ReplaySubject<T>(bufferSize, window, timeProvider));
     }
 
-    // TODO: ReplayFrame
+    public static ConnectableObservable<T> ReplayFrame<T>(this Observable<T> source, int window)
+    {
+        return source.Multicast(new ReplayFrameSubject<T>(window));
+    }
+
+    public static ConnectableObservable<T> ReplayFrame<T>(this Observable<T> source, int window, FrameProvider frameProvider)
+    {
+        return source.Multicast(new ReplayFrameSubject<T>(window, frameProvider));
+    }
+
+    public static ConnectableObservable<T> ReplayFrame<T>(this Observable<T> source, int bufferSize, int window)
+    {
+        return source.Multicast(new ReplayFrameSubject<T>(bufferSize, window));
+    }
+
+    public static ConnectableObservable<T> ReplayFrame<T>(this Observable<T> source, int bufferSize, int window, FrameProvider frameProvider)
+    {
+        return source.Multicast(new ReplayFrameSubject<T>(bufferSize, window, frameProvider));
+    }
 
     public static Observable<T> Share<T>(this Observable<T> source)
     {
