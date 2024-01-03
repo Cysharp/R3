@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using R3;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Threading.Channels;
 using ZLogger;
 
 SubscriptionTracker.EnableTracking = true;
@@ -15,23 +18,23 @@ ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
 var logger = factory.CreateLogger<Program>();
 
 
-// dvar rp = new ReactiveProperty<int>(9999);
 
 
-
- var rep = new System.Reactive.Subjects.ReplaySubject<int>();
-//var rep = new System.Reactive.Subjects.BehaviorSubject<int>(10);
-
-rep.OnNext(10);
-rep.OnNext(100);
-rep.OnNext(1000);
-rep.OnCompleted();
+var sw = Stopwatch.StartNew();
+ var subject = new System.Reactive.Subjects.Subject<int>();
+subject.Buffer(TimeSpan.FromSeconds(5), 3).Subscribe(x=> Console.WriteLine("[" + string.Join(", ", x) + "]" + sw.Elapsed));
 
 
+await Task.Delay(TimeSpan.FromSeconds(4));
 
+subject.OnNext(1);
+subject.OnNext(2);
+// subject.OnNext(3);
 
+Console.ReadLine();
 
-//rep.TimeInterval()
+subject.OnCompleted();
+
 
 
 public static class Extensions

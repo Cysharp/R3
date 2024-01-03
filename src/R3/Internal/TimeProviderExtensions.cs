@@ -16,6 +16,11 @@ internal static class TimeProviderExtensions
     {
         timer.Change(dueTime, Timeout.InfiniteTimeSpan);
     }
+
+    public static void Stop(this ITimer timer)
+    {
+        timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+    }
 }
 
 

@@ -10,6 +10,16 @@ public static class _TestHelper
         list.Should().Equal(expected);
     }
 
+    public static void AssertEqual<T>(this LiveList<T[]> list, params T[][] expected)
+    {
+        list.Count.Should().Be(expected.Length);
+
+        for (int i = 0; i < expected.Length; i++)
+        {
+            list[i].Should().Equal(expected[i]);
+        }
+    }
+
     public static void AssertIsCompleted<T>(this LiveList<T> list)
     {
         list.IsCompleted.Should().BeTrue();
