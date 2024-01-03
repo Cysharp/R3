@@ -36,7 +36,7 @@ public class MaterializeTest
         publisher.OnCompleted(new Exception("comp"));
 
         list.AssertEqual([10, 20, 30]);
-        list.CompletedValue.IsFailure.Should().BeTrue();
+        list.Result.IsFailure.Should().BeTrue();
         list.AssertIsCompleted();
     }
 }

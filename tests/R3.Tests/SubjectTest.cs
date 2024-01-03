@@ -81,7 +81,7 @@ public class SubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.CompletedValue.IsSuccess.Should().BeTrue();
+            l.Result.IsSuccess.Should().BeTrue();
         }
         {
             // after Failure
@@ -91,8 +91,8 @@ public class SubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.CompletedValue.IsFailure.Should().BeTrue();
-            l.CompletedValue.Exception!.Message.Should().Be("foo");
+            l.Result.IsFailure.Should().BeTrue();
+            l.Result.Exception!.Message.Should().Be("foo");
         }
     }
 }

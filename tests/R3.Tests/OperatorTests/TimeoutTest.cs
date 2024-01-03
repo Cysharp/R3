@@ -25,7 +25,7 @@ public class TimeoutTest
         list.AssertEqual([1, 1000, 10000]);
         timeProvider.Advance(TimeSpan.FromSeconds(1));
         list.AssertIsCompleted();
-        list.CompletedValue.Exception!.Should().BeOfType<TimeoutException>();
+        list.Result.Exception!.Should().BeOfType<TimeoutException>();
     }
 
     [Fact]
@@ -51,6 +51,6 @@ public class TimeoutTest
         list.AssertEqual([1, 1000, 10000]);
         frameProvider.Advance(1);
         list.AssertIsCompleted();
-        list.CompletedValue.Exception!.Should().BeOfType<TimeoutException>();
+        list.Result.Exception!.Should().BeOfType<TimeoutException>();
     }
 }

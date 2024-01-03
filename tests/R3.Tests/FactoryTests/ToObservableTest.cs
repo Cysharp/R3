@@ -58,7 +58,7 @@ public class ToObservableTest
         var l2 = new FaileObservable().ToObservable().ToLiveList();
         l2.AssertEqual([1, 2, 3]);
         l2.AssertIsCompleted();
-        l2.CompletedValue.IsFailure.Should().BeTrue();
+        l2.Result.IsFailure.Should().BeTrue();
     }
 
     [Fact]

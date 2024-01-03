@@ -27,7 +27,7 @@ public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
 
     public bool IsCompleted => isCompleted;
 
-    public Result CompletedValue
+    public Result Result
     {
         get
         {
