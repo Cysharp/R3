@@ -2,145 +2,154 @@
 
 public static partial class ObservableExtensions
 {
-    //public static Event<T> DelayFrame<T>(this Event<T> source, int delayFrameCount, FrameProvider frameProvider)
-    //{
-    //    return new DelayFrame<T>(source, delayFrameCount, frameProvider);
-    //}
+    public static Observable<T> DelayFrame<T>(this Observable<T> source, int frameCount)
+    {
+        return new DelayFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
+    }
+
+    public static Observable<T> DelayFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
+    {
+        return new DelayFrame<T>(source, frameCount, frameProvider);
+    }
 }
 
-// TODO:dueTime validation
-// TODO:impl minaosi.
-//internal sealed class DelayFrame<T>(Event<T> source, int delayFrameCount, FrameProvider frameProvider) : Event<T>
-//{
-//    protected override IDisposable SubscribeCore(observer<T> observer)
-//    {
-//        var delay = new _DelayFrame(observer, delayFrameCount, frameProvider);
-//        source.Subscribe(delay); // source subscription is included in _DelayFrame
-//        return delay;
-//    }
+internal sealed class DelayFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        return source.Subscribe(new _DelayFrame(observer, frameCount.NormalizeFrame(), frameProvider));
+    }
 
-//    class _DelayFrame : observer<T>, IFrameRunnerWorkItem
-//    {
-//        readonly observer<T> observer;
-//        readonly int delayFrameCount;
-//        readonly FrameProvider frameProvider;
-//        readonly Queue<(long frameCount, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
+    sealed class _DelayFrame : Observer<T>, IFrameRunnerWorkItem
+    {
+        readonly Observer<T> observer;
+        readonly int frameCount;
+        readonly FrameProvider frameProvider;
+        readonly Queue<(long timestamp, Notification<T> value)> queue = new(); // lock gate
+        bool running;
+        long currentFrame;
 
-//        bool running;
-//        long nextTick;
-//        bool stopRunner;
+        protected override bool AutoDisposeOnCompleted => false;
 
-//        public _DelayFrame(observer<T> observer, int delayFrameCount, FrameProvider frameProvider)
-//        {
-//            this.observer = observer;
-//            this.delayFrameCount = delayFrameCount;
-//            this.frameProvider = frameProvider;
-//        }
+        public _DelayFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
+        {
+            this.frameCount = frameCount;
+            this.observer = observer;
+            this.frameProvider = frameProvider;
+        }
 
-//        protected override void OnNextCore(T value)
-//        {
-//            var currentCount = frameProvider.GetFrameCount();
-//            lock (queue)
-//            {
-//                if (IsDisposed)
-//                {
-//                    return;
-//                }
+        protected override void OnNextCore(T value)
+        {
+            lock (queue)
+            {
+                queue.Enqueue((frameProvider.GetFrameCount(), new(value)));
+                if (queue.Count == 1 && !running)
+                {
+                    running = true;
+                    currentFrame = frameProvider.GetFrameCount();
+                    frameProvider.Register(this);
+                }
+            }
+        }
 
-//                queue.Enqueue((currentCount, message));
-//                if (queue.Count == 1 && !running)
-//                {
-//                    // invoke timer
-//                    running = true;
-//                    nextTick = currentCount + delayFrameCount;
-//                    frameProvider.Register(this); // start runner
-//                }
-//            }
-//        }
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            lock (queue)
+            {
+                queue.Enqueue((frameProvider.GetFrameCount(), new(error)));
+                if (queue.Count == 1 && !running)
+                {
+                    running = true;
+                    currentFrame = frameProvider.GetFrameCount();
+                    frameProvider.Register(this);
+                }
+            }
+        }
 
-//        protected override void OnErrorResumeCore(Exception error)
-//        {
-//            // TODO:not yet
-//            throw new NotImplementedException();
-//        }
+        protected override void OnCompletedCore(Result result)
+        {
+            lock (queue)
+            {
+                queue.Enqueue((frameProvider.GetFrameCount(), new(result)));
+                if (queue.Count == 1 && !running)
+                {
+                    running = true;
+                    currentFrame = frameProvider.GetFrameCount();
+                    frameProvider.Register(this);
+                }
+            }
+        }
 
-//        public bool MoveNext(long framecount)
-//        {
-//            if (stopRunner)
-//            {
-//                return false;
-//            }
+        protected override void DisposeCore()
+        {
+            lock (queue)
+            {
+                queue.Clear();
+            }
+        }
 
-//            if (nextTick < framecount)
-//            {
-//                return true;
-//            }
+        bool IFrameRunnerWorkItem.MoveNext(long _)
+        {
+            currentFrame++; // incr frame manually in local queue
 
-//            T value;
-//            while (true)
-//            {
-//                lock (queue)
-//                {
-//                    if (IsDisposed)
-//                    {
-//                        running = false;
-//                        return false;
-//                    }
+            Notification<T> value;
+            while (true)
+            {
+                if (IsDisposed) return false;
 
-//                    if (queue.TryPeek(out var msg))
-//                    {
-//                        var elapsed = framecount - msg.frameCount;
-//                        if (delayFrameCount <= elapsed)
-//                        {
-//                            message = queue.Dequeue().message;
-//                        }
-//                        else
-//                        {
-//                            // invoke timer again
-//                            nextTick = framecount + (delayFrameCount - elapsed);
-//                            return true;
-//                        }
-//                    }
-//                    else
-//                    {
-//                        // queue is empty, stop timer
-//                        running = false;
-//                        return false;
-//                    }
-//                }
+                lock (queue)
+                {
+                    if (!queue.TryPeek(out var msg))
+                    {
+                        running = false;
+                        return false;
+                    }
 
-//                try
-//                {
-//                    observer.OnNext(value);
-//                    continue; // loop to drain all messages
-//                }
-//                catch
-//                {
-//                    lock (queue)
-//                    {
-//                        if (queue.Count != 0)
-//                        {
-//                            nextTick = queue.Peek().frameCount + delayFrameCount;
-//                            frameProvider.Register(this); // register once more(this loop will be stopped soon)
-//                        }
-//                        else
-//                        {
-//                            running = false;
-//                        }
-//                    }
+                    // check timestamp
+                    var elapsed = currentFrame - msg.timestamp;
+                    if (elapsed >= frameCount)
+                    {
+                        value = queue.Dequeue().value;
+                    }
+                    else
+                    {
+                        // continue next frame
+                        return true;
+                    }
+                }
 
-//                    throw; // go to IFrameTimer UnhandledException handler and will Remove this work item
-//                }
-//            }
-//        }
+                try
+                {
+                    switch (value.Kind)
+                    {
+                        case NotificationKind.OnNext:
+                            observer.OnNext(value.Value!);
+                            break;
+                        case NotificationKind.OnErrorResume:
+                            observer.OnErrorResume(value.Error!);
+                            break;
+                        case NotificationKind.OnCompleted:
+                            try
+                            {
+                                observer.OnCompleted(value.Result!.Value);
+                            }
+                            finally
+                            {
+                                Dispose();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
 
-//        protected override void DisposeCore()
-//        {
-//            lock (queue)
-//            {
-//                stopRunner = true;
-//                queue.Clear();
-//            }
-//        }
-//    }
-//}
+                    continue; // loop to drain all messages
+                }
+                catch (Exception ex)
+                {
+                    ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+                    continue;
+                }
+            }
+        }
+    }
+}

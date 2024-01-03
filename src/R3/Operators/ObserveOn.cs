@@ -379,24 +379,10 @@ internal sealed class ObserveOnTimeProvider<T>(Observable<T> source, TimeProvide
 
                     continue; // loop to drain all messages
                 }
-                catch
+                catch (Exception ex)
                 {
-                    lock (queue)
-                    {
-                        if (self.timer != null)
-                        {
-                            if (queue.Count != 0)
-                            {
-                                self.timer.RestartImmediately(); // reserve next timer
-                            }
-                            else
-                            {
-                                self.running = false;
-                            }
-                        }
-                    }
-
-                    throw; // go to ITimer UnhandledException handler
+                    ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+                    continue;
                 }
             }
         }

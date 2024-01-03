@@ -1,339 +1,158 @@
-﻿using R3.Internal;
+﻿namespace R3;
 
-namespace R3;
-
-//TODO:not yet implemented.
 public static partial class ObservableExtensions
 {
-    //public static Event<T> Delay<T>(this Event<T> source, TimeSpan dueTime, TimeProvider timeProvider)
-    //{
-    //    return new Delay<T>(source, dueTime, timeProvider);
-    //}
+    public static Observable<T> Delay<T>(this Observable<T> source, TimeSpan dueTime)
+    {
+        return new Delay<T>(source, dueTime, ObservableSystem.DefaultTimeProvider);
+    }
 
-    //public static ICompletableEvent<T> Delay<T>(this ICompletableEvent<T> source, TimeSpan dueTime, TimeProvider timeProvider)
-    //{
-    //    return new Delay<T>(source, dueTime, timeProvider);
-    //}
+    public static Observable<T> Delay<T>(this Observable<T> source, TimeSpan dueTime, TimeProvider timeProvider)
+    {
+        return new Delay<T>(source, dueTime, timeProvider);
+    }
 }
 
-// TODO:dueTime validation
-//internal sealed class Delay<T>(Event<T> source, TimeSpan dueTime, TimeProvider timeProvider) : Event<T>
-//{
-//    protected override IDisposable SubscribeCore(observer<T> observer)
-//    {
-//        var delay = new _Delay(observer, dueTime, timeProvider);
-//        source.Subscribe(delay);
-//        return delay;
-//    }
+internal sealed class Delay<T>(Observable<T> source, TimeSpan dueTime, TimeProvider timeProvider) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        return source.Subscribe(new _Delay(observer, dueTime.Normalize(), timeProvider));
+    }
 
-//    class _Delay : observer<T>, IDisposable
-//    {
-//        static readonly TimerCallback timerCallback = DrainMessages;
+    sealed class _Delay : Observer<T>
+    {
+        static readonly TimerCallback timerCallback = DrainMessages;
 
-//        readonly observer<T> observer;
-//        readonly TimeSpan dueTime;
-//        readonly TimeProvider timeProvider;
-//        ITimer? timer;
-//        readonly Queue<(long timestamp, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
+        readonly Observer<T> observer;
+        readonly TimeSpan dueTime;
+        readonly TimeProvider timeProvider;
+        readonly Queue<(long timestamp, Notification<T> value)> queue = new(); // lock gate
+        ITimer timer;
+        bool running;
 
-//        bool running;
+        protected override bool AutoDisposeOnCompleted => false;
 
-//        public _Delay(observer<T> observer, TimeSpan dueTime, TimeProvider timeProvider)
-//        {
-//            this.observer = observer;
-//            this.dueTime = dueTime;
-//            this.timeProvider = timeProvider;
-//            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-//        }
+        public _Delay(Observer<T> observer, TimeSpan dueTime, TimeProvider timeProvider)
+        {
+            this.dueTime = dueTime;
+            this.observer = observer;
+            this.timeProvider = timeProvider;
+            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
+        }
 
-//        protected override void OnNextCore(T value)
-//        {
-//            var timestamp = timeProvider.GetTimestamp();
-//            lock (queue)
-//            {
-//                if (timer == null)
-//                {
-//                    return;
-//                }
+        protected override void OnNextCore(T value)
+        {
+            lock (queue)
+            {
+                queue.Enqueue((timeProvider.GetTimestamp(), new(value)));
+                if (queue.Count == 1 && !running)
+                {
+                    running = true;
+                    timer.RestartImmediately();
+                }
+            }
+        }
 
-//                queue.Enqueue((timestamp, message));
-//                if (queue.Count == 1 && !running)
-//                {
-//                    // invoke timer
-//                    running = true;
-//                    timer.InvokeOnce(dueTime);
-//                }
-//            }
-//        }
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            lock (queue)
+            {
+                queue.Enqueue((timeProvider.GetTimestamp(), new(error)));
+                if (queue.Count == 1 && !running)
+                {
+                    running = true;
+                    timer.RestartImmediately();
+                }
+            }
+        }
 
-//        protected override void OnErrorResumeCore(Exception error)
-//        {
-//            // TODO: what should we do?
-//            throw new NotImplementedException();
-//        }
+        protected override void OnCompletedCore(Result result)
+        {
+            lock (queue)
+            {
+                queue.Enqueue((timeProvider.GetTimestamp(), new(result)));
+                if (queue.Count == 1 && !running)
+                {
+                    running = true;
+                    timer.RestartImmediately();
+                }
+            }
+        }
 
-//        static void DrainMessages(object? state)
-//        {
-//            var self = (_Delay)state!;
-//            var queue = self.queue;
+        protected override void DisposeCore()
+        {
+            lock (queue)
+            {
+                timer.Dispose(); // stop timer.
+                queue.Clear();
+            }
+        }
 
-//            T value;
-//            while (true)
-//            {
-//                lock (queue)
-//                {
-//                    if (self.timer == null)
-//                    {
-//                        self.running = false;
-//                        return;
-//                    }
+        static void DrainMessages(object? state)
+        {
+            var self = (_Delay)state!;
+            var queue = self.queue;
 
-//                    if (queue.TryPeek(out var msg))
-//                    {
-//                        var elapsed = self.timeProvider.GetElapsedTime(msg.timestamp);
-//                        if (self.dueTime <= elapsed)
-//                        {
-//                            message = queue.Dequeue().message;
-//                        }
-//                        else
-//                        {
-//                            // invoke timer again
-//                            self.timer.InvokeOnce(self.dueTime - elapsed);
-//                            return;
-//                        }
-//                    }
-//                    else
-//                    {
-//                        // queue is empty, stop timer
-//                        self.running = false;
-//                        return;
-//                    }
-//                }
+            Notification<T> value;
+            while (true)
+            {
+                if (self.IsDisposed) return;
 
-//                try
-//                {
-//                    self.observer.OnNext(value);
-//                    continue; // loop to drain all messages
-//                }
-//                catch
-//                {
-//                    lock (queue)
-//                    {
-//                        if (self.timer != null)
-//                        {
-//                            if (queue.Count != 0)
-//                            {
-//                                self.timer.RestartImmediately(); // reserve next timer
-//                            }
-//                            else
-//                            {
-//                                self.running = false;
-//                            }
-//                        }
-//                    }
+                lock (queue)
+                {
+                    if (!queue.TryPeek(out var msg))
+                    {
+                        self.running = false;
+                        return;
+                    }
 
-//                    throw; // go to ITimer UnhandledException handler
-//                }
-//            }
-//        }
+                    // check timestamp
+                    var elapsed = self.timeProvider.GetElapsedTime(msg.timestamp);
+                    if (elapsed >= self.dueTime)
+                    {
+                        value = queue.Dequeue().value;
+                    }
+                    else
+                    {
+                        // invoke timer again
+                        self.timer.InvokeOnce(self.dueTime - elapsed);
+                        return;
+                    }
+                }
 
-//        protected override void DisposeCore()
-//        {
-//            lock (queue)
-//            {
-//                timer?.Dispose();
-//                timer = null!;
-//                queue.Clear();
-//            }
-//        }
-//    }
-//}
+                try
+                {
+                    switch (value.Kind)
+                    {
+                        case NotificationKind.OnNext:
+                            self.observer.OnNext(value.Value!);
+                            break;
+                        case NotificationKind.OnErrorResume:
+                            self.observer.OnErrorResume(value.Error!);
+                            break;
+                        case NotificationKind.OnCompleted:
+                            try
+                            {
+                                self.observer.OnCompleted(value.Result!.Value);
+                            }
+                            finally
+                            {
+                                self.Dispose();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
 
-//internal sealed class Delay<T>(ICompletableEvent<T> source, TimeSpan dueTime, TimeProvider timeProvider) : ICompletableEvent<T>
-//{
-//    public IDisposable Subscribe(Iobserver<T> observer)
-//    {
-//        var delay = new _Delay(observer, dueTime, timeProvider);
-//        var sourceSubscription = source.Subscribe(delay);
-//        var delaySubscription = delay.Subscription;
-//        return Disposable.Combine(delaySubscription, sourceSubscription); // call delay's dispose first
-//    }
-
-//    class _Delay : Iobserver<T>
-//    {
-//        static readonly TimerCallback timerCallback = DrainMessages;
-//        static readonly Action<object?> disposeCallback = OnDisposed;
-
-//        public CallbackDisposable Subscription { get; private set; }
-
-//        readonly Iobserver<T> observer;
-//        readonly TimeSpan dueTime;
-//        readonly TimeProvider timeProvider;
-//        readonly ITimer timer;
-//        readonly Queue<(long timestamp, T value)> queue = new Queue<(long, TMessage)>(); // lock gate
-
-//        bool running;
-
-//        // for Completed event
-//        Result? completeMessage;
-//        DateTimeOffset completeAt;
-//        bool isCompleted;
-
-
-//        public _Delay(Iobserver<T> observer, TimeSpan dueTime, TimeProvider timeProvider)
-//        {
-//            this.dueTime = dueTime;
-//            this.observer = observer;
-//            this.timeProvider = timeProvider;
-//            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-//            this.Subscription = new CallbackDisposable(disposeCallback, this);
-//        }
-
-//        public void OnNext(T value)
-//        {
-//            var current = timeProvider.GetTimestamp();
-//            lock (queue)
-//            {
-//                if (Subscription.IsDisposed)
-//                {
-//                    return;
-//                }
-
-//                queue.Enqueue((current, message));
-//                if (queue.Count == 1 && !running)
-//                {
-//                    // invoke timer
-//                    running = true;
-//                    timer.Change(dueTime, dueTime);
-//                }
-//            }
-//        }
-
-//        public void OnCompleted(Result complete)
-//        {
-//            var completeAt = timeProvider.GetUtcNow() + dueTime;
-//            lock (queue)
-//            {
-//                if (Subscription.IsDisposed)
-//                {
-//                    return;
-//                }
-
-//                this.completeAt = completeAt;
-//                this.completeMessage = complete;
-//                this.isCompleted = true;
-
-//                if (queue.Count == 0 && !running)
-//                {
-//                    // invoke timer
-//                    running = true;
-//                    timer.Change(dueTime, dueTime);
-//                }
-//            }
-//        }
-
-//        static void DrainMessages(object? state)
-//        {
-//            var self = (_Delay)state!;
-//            var queue = self.queue;
-
-//            T value;
-//            bool invokeCompleted = false;
-//            while (true)
-//            {
-//                lock (queue)
-//                {
-//                    if (self.Subscription.IsDisposed)
-//                    {
-//                        self.running = false;
-//                        return;
-//                    }
-
-//                    if (queue.TryPeek(out var msg))
-//                    {
-//                        var elapsed = self.timeProvider.GetElapsedTime(msg.timestamp);
-//                        if (elapsed <= self.dueTime)
-//                        {
-//                            message = queue.Dequeue().message;
-//                        }
-//                        else
-//                        {
-//                            // invoke timer again
-//                            self.timer.InvokeOnce(self.dueTime - elapsed);
-//                            return;
-//                        }
-//                    }
-//                    else
-//                    {
-//                        // queue is empty, check completed
-//                        if (self.isCompleted)
-//                        {
-//                            invokeCompleted = true;
-//                            break;
-//                        }
-
-//                        // queue is empty, stop timer
-//                        self.running = false;
-//                        return;
-//                    }
-//                }
-
-//                if (!invokeCompleted)
-//                {
-//                    try
-//                    {
-//                        self.observer.OnNext(value);
-//                        continue; // succeed, loop to drain all messages
-//                    }
-//                    catch
-//                    {
-//                        lock (queue)
-//                        {
-//                            if (queue.TryPeek(out var msg))
-//                            {
-//                                var now = self.timeProvider.GetUtcNow();
-//                                if (msg.nextTime <= now)
-//                                {
-//                                    // yield timer immediately
-//                                    self.timer.RestartImmediately();
-//                                }
-//                                else
-//                                {
-//                                    // invoke timer again
-//                                    self.timer.InvokeOnce(msg.nextTime - now);
-//                                }
-//                            }
-//                            else
-//                            {
-//                                self.running = false;
-//                            }
-//                        }
-//                        return;
-//                    }
-//                }
-//                else
-//                {
-//                    try
-//                    {
-//                        self.observer.OnCompleted(self.completeMessage!);
-//                    }
-//                    finally
-//                    {
-//                        self.Subscription.Dispose(); // stop self
-//                    }
-//                    return;
-//                }
-//            }
-//        }
-
-//        static void OnDisposed(object? state)
-//        {
-//            var self = (_Delay)state!;
-//            lock (self.queue)
-//            {
-//                self.timer.Dispose();
-//                self.queue.Clear();
-//            }
-//        }
-//    }
-//}
+                    continue; // loop to drain all messages
+                }
+                catch (Exception ex)
+                {
+                    ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+                    continue;
+                }
+            }
+        }
+    }
+}
