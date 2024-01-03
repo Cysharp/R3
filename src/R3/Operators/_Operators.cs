@@ -4,12 +4,10 @@ public static partial class ObservableExtensions
 {
 }
 
-
 // TODO: this is working space, will remove this file after complete.
 
 // Time based
-// Delay, DelaySubscription
-// + frame variation
+// Delay, DelayFrame
 
 // Rx Merging:
 // CombineLatest, Zip, WithLatestFrom, ZipLatest, Switch, Pairwise
@@ -19,5 +17,4 @@ public static partial class ObservableExtensions
 
 // return tasks:
 // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
-
 
