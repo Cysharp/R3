@@ -8,7 +8,7 @@ public static partial class ObservableExtensions
 // TODO: this is working space, will remove this file after complete.
 
 // Time based
-// Delay, DelaySubscription, Timeout
+// Delay, DelaySubscription
 // + frame variation
 
 // Rx Merging:

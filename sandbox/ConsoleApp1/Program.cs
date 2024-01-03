@@ -22,7 +22,7 @@ var logger = factory.CreateLogger<Program>();
 
 var sw = Stopwatch.StartNew();
 var subject = new System.Reactive.Subjects.Subject<int>();
-subject.Sample(TimeSpan.FromSeconds(3)).Subscribe(x => Console.WriteLine(x));
+subject.Timeout(TimeSpan.FromSeconds(3)).Subscribe(x => Console.WriteLine(x));
 
 subject.OnNext(1);
 
