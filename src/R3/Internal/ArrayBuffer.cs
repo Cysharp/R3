@@ -1,5 +1,6 @@
 ﻿namespace R3.Internal;
 
+// TODO: remove this if not using
 internal struct ArrayBuffer<T>
 {
     public readonly T[] Array;
