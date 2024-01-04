@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public sealed class ThreadSleepFrameProvider : FrameProvider, IDisposable
+public sealed class NewThreadSleepFrameProvider : FrameProvider, IDisposable
 {
     readonly int sleepMilliseconds;
     bool disposed;
@@ -9,12 +9,12 @@ public sealed class ThreadSleepFrameProvider : FrameProvider, IDisposable
     FreeListCore<IFrameRunnerWorkItem> list;
     Thread thread;
 
-    public ThreadSleepFrameProvider()
+    public NewThreadSleepFrameProvider()
         : this(1)
     {
     }
 
-    public ThreadSleepFrameProvider(int sleepMilliseconds)
+    public NewThreadSleepFrameProvider(int sleepMilliseconds)
     {
         this.sleepMilliseconds = sleepMilliseconds;
         this.list = new FreeListCore<IFrameRunnerWorkItem>(this);
@@ -24,13 +24,13 @@ public sealed class ThreadSleepFrameProvider : FrameProvider, IDisposable
 
     public override long GetFrameCount()
     {
-        ObjectDisposedException.ThrowIf(disposed, typeof(ThreadSleepFrameProvider));
+        ObjectDisposedException.ThrowIf(disposed, typeof(NewThreadSleepFrameProvider));
         return frameCount;
     }
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        ObjectDisposedException.ThrowIf(disposed, typeof(ThreadSleepFrameProvider));
+        ObjectDisposedException.ThrowIf(disposed, typeof(NewThreadSleepFrameProvider));
         list.Add(callback, out _);
     }
 
