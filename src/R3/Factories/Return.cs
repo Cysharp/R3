@@ -1,7 +1,11 @@
-﻿namespace R3;
+﻿using System;
+
+namespace R3;
 
 public static partial class Observable
 {
+    // TODO: CancellationToken?
+
     public static Observable<T> Return<T>(T value)
     {
         return new ImmediateScheduleReturn<T>(value); // immediate
@@ -22,7 +26,7 @@ public static partial class Observable
             }
         }
 
-        return new Return<T>(value, dueTime, timeProvider); // use ITimer
+        return new Return<T>(value, dueTime.Normalize(), timeProvider); // use ITimer
     }
 
     // Optimized case
@@ -45,6 +49,22 @@ public static partial class Observable
     public static Observable<int> Return(int value)
     {
         return ReturnInt32.GetObservable(value); // -1~9 singleton
+    }
+
+    // util
+
+    public static Observable<Unit> Yield()
+    {
+        return new ThreadPoolScheduleReturn<Unit>(default);
+    }
+
+    public static Observable<Unit> Yield(TimeProvider timeProvider)
+    {
+        if (timeProvider == TimeProvider.System)
+        {
+            return new ThreadPoolScheduleReturn<Unit>(default);
+        }
+        return new Return<Unit>(default, TimeSpan.Zero, timeProvider);
     }
 }
 

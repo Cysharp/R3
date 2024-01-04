@@ -2,16 +2,6 @@
 
 public static partial class Observable
 {
-    public static Observable<Unit> ReturnUnitFrame(CancellationToken cancellationToken = default)
-    {
-        return ReturnFrame(Unit.Default, ObservableSystem.DefaultFrameProvider, cancellationToken);
-    }
-
-    public static Observable<Unit> ReturnUnitFrame(FrameProvider frameProvider, CancellationToken cancellationToken = default)
-    {
-        return ReturnFrame(Unit.Default, frameProvider, cancellationToken);
-    }
-
     public static Observable<T> ReturnFrame<T>(T value, CancellationToken cancellationToken = default)
     {
         return ReturnFrame(value, ObservableSystem.DefaultFrameProvider, cancellationToken);
@@ -40,6 +30,18 @@ public static partial class Observable
     public static Observable<Unit> NextFrame(FrameProvider frameProvider, CancellationToken cancellationToken = default)
     {
         return new NextFrame(frameProvider, cancellationToken);
+    }
+
+    // util
+
+    public static Observable<Unit> YieldFrame(CancellationToken cancellationToken = default)
+    {
+        return ReturnFrame(Unit.Default, ObservableSystem.DefaultFrameProvider, cancellationToken);
+    }
+
+    public static Observable<Unit> YieldFrame(FrameProvider frameProvider, CancellationToken cancellationToken = default)
+    {
+        return ReturnFrame(Unit.Default, frameProvider, cancellationToken);
     }
 }
 
