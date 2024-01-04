@@ -12,6 +12,8 @@ public static partial class ObservableExtensions
 // TODO:not-tested:CombineLatest, Zip, ZipLatest, WithLatestFrom
 // Switch, Pairwise
 
+// IgnoreElements
+
 // Standard Query:
 // Distinct, DistinctBy, DistinctUntilChanged, Scan, DefaultIfEmpty
 
