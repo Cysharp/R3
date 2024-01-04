@@ -2,8 +2,6 @@
 
 namespace R3;
 
-// TODO: ToDictionary
-// TODO: ToLookup
 // TODO: Selector APIs
 
 public static partial class ObservableExtensions

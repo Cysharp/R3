@@ -33,7 +33,7 @@ subject1.OnNext(10);
 //subject1.OnNext(10);
 //subject1.OnNext(100);
 
-
+// subject1.SequenceEqual(
 
 
 // System.Reactive.Linq.Observable.Switch(
