@@ -2,6 +2,8 @@
 
 public static partial class ObservableExtensions
 {
+    // TODO: standard overload
+
     public static Task<TResult> AggregateAsync<T, TAccumulate, TResult>
         (this Observable<T> source,
         TAccumulate seed,

@@ -23,25 +23,18 @@ var logger = factory.CreateLogger<Program>();
 var sw = Stopwatch.StartNew();
 var subject1 = new System.Reactive.Subjects.Subject<int>();
 var subject2 = new System.Reactive.Subjects.Subject<int>();
-subject1.WithLatestFrom(subject2.Finally(() => Console.WriteLine("finally subject2")), (x, y) => (x, y)).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
+//subject1.WithLatestFrom(subject2.Finally(() => Console.WriteLine("finally subject2")), (x, y) => (x, y)).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
+
+subject1.Scan((x, y) => x + y).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
+
 
 subject1.OnNext(1);
 subject1.OnNext(10);
-subject1.OnNext(100);
+//subject1.OnNext(10);
+//subject1.OnNext(100);
 
 
-// subject2.OnNext(2);
 
-subject1.OnNext(1000);
-
-// subject2.OnError(new Exception());
-
-subject1.OnNext(100000);
-subject1.OnNext(1000000);
-subject1.OnNext(10000000);
-subject1.OnNext(100000000);
-
-subject1.OnCompleted();
 
 // System.Reactive.Linq.Observable.Switch(
 
