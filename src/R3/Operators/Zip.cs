@@ -1,30 +1,27 @@
-﻿
-using System.Diagnostics.CodeAnalysis;
-
-namespace R3;
+﻿namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static Observable<TResult> CombineLatest<T1, T2, TResult>(
+    public static Observable<TResult> Zip<T1, T2, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
         Func<T1, T2, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, TResult>(source1, source2, resultSelector);
+        return new Zip<T1, T2, TResult>(source1, source2, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
         Observable<T3> source3,
         Func<T1, T2, T3, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, TResult>(source1, source2, source3, resultSelector);
+        return new Zip<T1, T2, T3, TResult>(source1, source2, source3, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -32,10 +29,10 @@ public static partial class ObservableExtensions
         Observable<T4> source4,
         Func<T1, T2, T3, T4, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, TResult>(source1, source2, source3, source4, resultSelector);
+        return new Zip<T1, T2, T3, T4, TResult>(source1, source2, source3, source4, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -44,10 +41,10 @@ public static partial class ObservableExtensions
         Observable<T5> source5,
         Func<T1, T2, T3, T4, T5, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, TResult>(source1, source2, source3, source4, source5, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, TResult>(source1, source2, source3, source4, source5, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -57,10 +54,10 @@ public static partial class ObservableExtensions
         Observable<T6> source6,
         Func<T1, T2, T3, T4, T5, T6, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(source1, source2, source3, source4, source5, source6, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, TResult>(source1, source2, source3, source4, source5, source6, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -71,10 +68,10 @@ public static partial class ObservableExtensions
         Observable<T7> source7,
         Func<T1, T2, T3, T4, T5, T6, T7, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(source1, source2, source3, source4, source5, source6, source7, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, TResult>(source1, source2, source3, source4, source5, source6, source7, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -86,10 +83,10 @@ public static partial class ObservableExtensions
         Observable<T8> source8,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -102,10 +99,10 @@ public static partial class ObservableExtensions
         Observable<T9> source9,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -119,10 +116,10 @@ public static partial class ObservableExtensions
         Observable<T10> source10,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -137,10 +134,10 @@ public static partial class ObservableExtensions
         Observable<T11> source11,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -156,10 +153,10 @@ public static partial class ObservableExtensions
         Observable<T12> source12,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -176,10 +173,10 @@ public static partial class ObservableExtensions
         Observable<T13> source13,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -197,10 +194,10 @@ public static partial class ObservableExtensions
         Observable<T14> source14,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, resultSelector);
     }
 
-    public static Observable<TResult> CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(
+    public static Observable<TResult> Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(
         this
         Observable<T1> source1,
         Observable<T2> source2,
@@ -219,22 +216,22 @@ public static partial class ObservableExtensions
         Observable<T15> source15,
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> resultSelector)
     {
-        return new CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, source15, resultSelector);
+        return new Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, source15, resultSelector);
     }
 
 }
 
-internal sealed class CombineLatest<T1, T2, TResult>(
+internal sealed class Zip<T1, T2, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Func<T1, T2, TResult> resultSelector) : Observable<TResult>
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, resultSelector).Run();
+        return new _Zip(observer, source1, source2, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 2;
 
@@ -242,14 +239,13 @@ internal sealed class CombineLatest<T1, T2, TResult>(
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
         readonly Func<T1, T2, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -259,8 +255,8 @@ internal sealed class CombineLatest<T1, T2, TResult>(
             this.source1 = source1;
             this.source2 = source2;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
         }
 
         public IDisposable Run()
@@ -280,20 +276,11 @@ internal sealed class CombineLatest<T1, T2, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -319,19 +306,16 @@ internal sealed class CombineLatest<T1, T2, TResult>(
             observer2.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -349,7 +333,7 @@ internal sealed class CombineLatest<T1, T2, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, TResult>(
+internal sealed class Zip<T1, T2, T3, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -357,10 +341,10 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 3;
 
@@ -369,15 +353,14 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
         readonly Observable<T2> source2;
         readonly Observable<T3> source3;
         readonly Func<T1, T2, T3, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -389,9 +372,9 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
             this.source2 = source2;
             this.source3 = source3;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
         }
 
         public IDisposable Run()
@@ -412,20 +395,11 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -452,19 +426,16 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
             observer3.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -482,7 +453,7 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -491,10 +462,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 4;
 
@@ -504,16 +475,15 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
         readonly Observable<T3> source3;
         readonly Observable<T4> source4;
         readonly Func<T1, T2, T3, T4, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -527,10 +497,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
             this.source3 = source3;
             this.source4 = source4;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
         }
 
         public IDisposable Run()
@@ -552,20 +522,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -593,19 +554,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
             observer4.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -623,7 +581,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -633,10 +591,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 5;
 
@@ -647,17 +605,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
         readonly Observable<T4> source4;
         readonly Observable<T5> source5;
         readonly Func<T1, T2, T3, T4, T5, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -673,11 +630,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
             this.source4 = source4;
             this.source5 = source5;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
         }
 
         public IDisposable Run()
@@ -700,20 +657,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -742,19 +690,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
             observer5.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -772,7 +717,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -783,10 +728,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 6;
 
@@ -798,18 +743,17 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
         readonly Observable<T5> source5;
         readonly Observable<T6> source6;
         readonly Func<T1, T2, T3, T4, T5, T6, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -827,12 +771,12 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
             this.source5 = source5;
             this.source6 = source6;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
         }
 
         public IDisposable Run()
@@ -856,20 +800,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -899,19 +834,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
             observer6.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -929,7 +861,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -941,10 +873,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 7;
 
@@ -957,19 +889,18 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
         readonly Observable<T6> source6;
         readonly Observable<T7> source7;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -989,13 +920,13 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
             this.source6 = source6;
             this.source7 = source7;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
         }
 
         public IDisposable Run()
@@ -1020,20 +951,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -1064,19 +986,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
             observer7.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -1094,7 +1013,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -1107,10 +1026,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 8;
 
@@ -1124,20 +1043,19 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
         readonly Observable<T7> source7;
         readonly Observable<T8> source8;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -1159,14 +1077,14 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             this.source7 = source7;
             this.source8 = source8;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
         }
 
         public IDisposable Run()
@@ -1192,20 +1110,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -1237,19 +1146,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             observer8.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -1267,7 +1173,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -1281,10 +1187,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 9;
 
@@ -1299,21 +1205,20 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
         readonly Observable<T8> source8;
         readonly Observable<T9> source9;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -1337,15 +1242,15 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
             this.source8 = source8;
             this.source9 = source9;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
         }
 
         public IDisposable Run()
@@ -1372,20 +1277,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -1418,19 +1314,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
             observer9.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -1448,7 +1341,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -1463,10 +1356,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 10;
 
@@ -1482,22 +1375,21 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
         readonly Observable<T9> source9;
         readonly Observable<T10> source10;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
-        readonly CombineLatestObserver<T10> observer10;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
+        readonly ZipObserver<T10> observer10;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -1523,16 +1415,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
             this.source9 = source9;
             this.source10 = source10;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
-            this.observer10 = new CombineLatestObserver<T10>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
+            this.observer10 = new ZipObserver<T10>(this);
         }
 
         public IDisposable Run()
@@ -1560,20 +1452,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue(), observer10.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!, observer10.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -1607,19 +1490,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
             observer10.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -1637,7 +1517,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -1653,10 +1533,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 11;
 
@@ -1673,23 +1553,22 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly Observable<T10> source10;
         readonly Observable<T11> source11;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
-        readonly CombineLatestObserver<T10> observer10;
-        readonly CombineLatestObserver<T11> observer11;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
+        readonly ZipObserver<T10> observer10;
+        readonly ZipObserver<T11> observer11;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -1717,17 +1596,17 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             this.source10 = source10;
             this.source11 = source11;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
-            this.observer10 = new CombineLatestObserver<T10>(this);
-            this.observer11 = new CombineLatestObserver<T11>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
+            this.observer10 = new ZipObserver<T10>(this);
+            this.observer11 = new ZipObserver<T11>(this);
         }
 
         public IDisposable Run()
@@ -1756,20 +1635,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue(), observer10.Values.Dequeue(), observer11.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!, observer10.Value!, observer11.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -1804,19 +1674,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer11.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -1834,7 +1701,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -1851,10 +1718,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 12;
 
@@ -1872,24 +1739,23 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly Observable<T11> source11;
         readonly Observable<T12> source12;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
-        readonly CombineLatestObserver<T10> observer10;
-        readonly CombineLatestObserver<T11> observer11;
-        readonly CombineLatestObserver<T12> observer12;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
+        readonly ZipObserver<T10> observer10;
+        readonly ZipObserver<T11> observer11;
+        readonly ZipObserver<T12> observer12;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -1919,18 +1785,18 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             this.source11 = source11;
             this.source12 = source12;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
-            this.observer10 = new CombineLatestObserver<T10>(this);
-            this.observer11 = new CombineLatestObserver<T11>(this);
-            this.observer12 = new CombineLatestObserver<T12>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
+            this.observer10 = new ZipObserver<T10>(this);
+            this.observer11 = new ZipObserver<T11>(this);
+            this.observer12 = new ZipObserver<T12>(this);
         }
 
         public IDisposable Run()
@@ -1960,20 +1826,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue(), observer10.Values.Dequeue(), observer11.Values.Dequeue(), observer12.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!, observer10.Value!, observer11.Value!, observer12.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -2009,19 +1866,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer12.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -2039,7 +1893,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -2057,10 +1911,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 13;
 
@@ -2079,25 +1933,24 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly Observable<T12> source12;
         readonly Observable<T13> source13;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
-        readonly CombineLatestObserver<T10> observer10;
-        readonly CombineLatestObserver<T11> observer11;
-        readonly CombineLatestObserver<T12> observer12;
-        readonly CombineLatestObserver<T13> observer13;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
+        readonly ZipObserver<T10> observer10;
+        readonly ZipObserver<T11> observer11;
+        readonly ZipObserver<T12> observer12;
+        readonly ZipObserver<T13> observer13;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -2129,19 +1982,19 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             this.source12 = source12;
             this.source13 = source13;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
-            this.observer10 = new CombineLatestObserver<T10>(this);
-            this.observer11 = new CombineLatestObserver<T11>(this);
-            this.observer12 = new CombineLatestObserver<T12>(this);
-            this.observer13 = new CombineLatestObserver<T13>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
+            this.observer10 = new ZipObserver<T10>(this);
+            this.observer11 = new ZipObserver<T11>(this);
+            this.observer12 = new ZipObserver<T12>(this);
+            this.observer13 = new ZipObserver<T13>(this);
         }
 
         public IDisposable Run()
@@ -2172,20 +2025,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue && observer13.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue && observer13.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue(), observer10.Values.Dequeue(), observer11.Values.Dequeue(), observer12.Values.Dequeue(), observer13.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!, observer10.Value!, observer11.Value!, observer12.Value!, observer13.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -2222,19 +2066,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer13.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -2252,7 +2093,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -2271,10 +2112,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 14;
 
@@ -2294,26 +2135,25 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly Observable<T13> source13;
         readonly Observable<T14> source14;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
-        readonly CombineLatestObserver<T10> observer10;
-        readonly CombineLatestObserver<T11> observer11;
-        readonly CombineLatestObserver<T12> observer12;
-        readonly CombineLatestObserver<T13> observer13;
-        readonly CombineLatestObserver<T14> observer14;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
+        readonly ZipObserver<T10> observer10;
+        readonly ZipObserver<T11> observer11;
+        readonly ZipObserver<T12> observer12;
+        readonly ZipObserver<T13> observer13;
+        readonly ZipObserver<T14> observer14;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -2347,20 +2187,20 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             this.source13 = source13;
             this.source14 = source14;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
-            this.observer10 = new CombineLatestObserver<T10>(this);
-            this.observer11 = new CombineLatestObserver<T11>(this);
-            this.observer12 = new CombineLatestObserver<T12>(this);
-            this.observer13 = new CombineLatestObserver<T13>(this);
-            this.observer14 = new CombineLatestObserver<T14>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
+            this.observer10 = new ZipObserver<T10>(this);
+            this.observer11 = new ZipObserver<T11>(this);
+            this.observer12 = new ZipObserver<T12>(this);
+            this.observer13 = new ZipObserver<T13>(this);
+            this.observer14 = new ZipObserver<T14>(this);
         }
 
         public IDisposable Run()
@@ -2392,20 +2232,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue && observer13.HasValue && observer14.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue && observer13.HasValue && observer14.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue(), observer10.Values.Dequeue(), observer11.Values.Dequeue(), observer12.Values.Dequeue(), observer13.Values.Dequeue(), observer14.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!, observer10.Value!, observer11.Value!, observer12.Value!, observer13.Value!, observer14.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -2443,19 +2274,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer14.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }
@@ -2473,7 +2301,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
     }
 }
 
-internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(
+internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(
     Observable<T1> source1,
     Observable<T2> source2,
     Observable<T3> source3,
@@ -2493,10 +2321,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        return new _CombineLatest(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, source15, resultSelector).Run();
+        return new _Zip(observer, source1, source2, source3, source4, source5, source6, source7, source8, source9, source10, source11, source12, source13, source14, source15, resultSelector).Run();
     }
 
-    sealed class _CombineLatest : IDisposable
+    sealed class _Zip : IDisposable
     {
         const int SourceCount = 15;
 
@@ -2517,27 +2345,26 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly Observable<T14> source14;
         readonly Observable<T15> source15;
         readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> resultSelector;
-        readonly CombineLatestObserver<T1> observer1;
-        readonly CombineLatestObserver<T2> observer2;
-        readonly CombineLatestObserver<T3> observer3;
-        readonly CombineLatestObserver<T4> observer4;
-        readonly CombineLatestObserver<T5> observer5;
-        readonly CombineLatestObserver<T6> observer6;
-        readonly CombineLatestObserver<T7> observer7;
-        readonly CombineLatestObserver<T8> observer8;
-        readonly CombineLatestObserver<T9> observer9;
-        readonly CombineLatestObserver<T10> observer10;
-        readonly CombineLatestObserver<T11> observer11;
-        readonly CombineLatestObserver<T12> observer12;
-        readonly CombineLatestObserver<T13> observer13;
-        readonly CombineLatestObserver<T14> observer14;
-        readonly CombineLatestObserver<T15> observer15;
+        readonly ZipObserver<T1> observer1;
+        readonly ZipObserver<T2> observer2;
+        readonly ZipObserver<T3> observer3;
+        readonly ZipObserver<T4> observer4;
+        readonly ZipObserver<T5> observer5;
+        readonly ZipObserver<T6> observer6;
+        readonly ZipObserver<T7> observer7;
+        readonly ZipObserver<T8> observer8;
+        readonly ZipObserver<T9> observer9;
+        readonly ZipObserver<T10> observer10;
+        readonly ZipObserver<T11> observer11;
+        readonly ZipObserver<T12> observer12;
+        readonly ZipObserver<T13> observer13;
+        readonly ZipObserver<T14> observer14;
+        readonly ZipObserver<T15> observer15;
         
         readonly object gate = new object();
-        bool hasValueAll;
         int completedCount;
 
-        public _CombineLatest(
+        public _Zip(
             Observer<TResult> observer,
             Observable<T1> source1,
             Observable<T2> source2,
@@ -2573,21 +2400,21 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             this.source14 = source14;
             this.source15 = source15;
             this.resultSelector = resultSelector;
-            this.observer1 = new CombineLatestObserver<T1>(this);
-            this.observer2 = new CombineLatestObserver<T2>(this);
-            this.observer3 = new CombineLatestObserver<T3>(this);
-            this.observer4 = new CombineLatestObserver<T4>(this);
-            this.observer5 = new CombineLatestObserver<T5>(this);
-            this.observer6 = new CombineLatestObserver<T6>(this);
-            this.observer7 = new CombineLatestObserver<T7>(this);
-            this.observer8 = new CombineLatestObserver<T8>(this);
-            this.observer9 = new CombineLatestObserver<T9>(this);
-            this.observer10 = new CombineLatestObserver<T10>(this);
-            this.observer11 = new CombineLatestObserver<T11>(this);
-            this.observer12 = new CombineLatestObserver<T12>(this);
-            this.observer13 = new CombineLatestObserver<T13>(this);
-            this.observer14 = new CombineLatestObserver<T14>(this);
-            this.observer15 = new CombineLatestObserver<T15>(this);
+            this.observer1 = new ZipObserver<T1>(this);
+            this.observer2 = new ZipObserver<T2>(this);
+            this.observer3 = new ZipObserver<T3>(this);
+            this.observer4 = new ZipObserver<T4>(this);
+            this.observer5 = new ZipObserver<T5>(this);
+            this.observer6 = new ZipObserver<T6>(this);
+            this.observer7 = new ZipObserver<T7>(this);
+            this.observer8 = new ZipObserver<T8>(this);
+            this.observer9 = new ZipObserver<T9>(this);
+            this.observer10 = new ZipObserver<T10>(this);
+            this.observer11 = new ZipObserver<T11>(this);
+            this.observer12 = new ZipObserver<T12>(this);
+            this.observer13 = new ZipObserver<T13>(this);
+            this.observer14 = new ZipObserver<T14>(this);
+            this.observer15 = new ZipObserver<T15>(this);
         }
 
         public IDisposable Run()
@@ -2620,20 +2447,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
         public void TryPublishOnNext()
         {
-            if (!hasValueAll)
+            if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue && observer13.HasValue && observer14.HasValue && observer15.HasValue)
             {
-                if (observer1.HasValue && observer2.HasValue && observer3.HasValue && observer4.HasValue && observer5.HasValue && observer6.HasValue && observer7.HasValue && observer8.HasValue && observer9.HasValue && observer10.HasValue && observer11.HasValue && observer12.HasValue && observer13.HasValue && observer14.HasValue && observer15.HasValue)
-                {
-                    hasValueAll = true;
-                }
-                else
-                {
-                    return;
-                }
+                var result = resultSelector(observer1.Values.Dequeue(), observer2.Values.Dequeue(), observer3.Values.Dequeue(), observer4.Values.Dequeue(), observer5.Values.Dequeue(), observer6.Values.Dequeue(), observer7.Values.Dequeue(), observer8.Values.Dequeue(), observer9.Values.Dequeue(), observer10.Values.Dequeue(), observer11.Values.Dequeue(), observer12.Values.Dequeue(), observer13.Values.Dequeue(), observer14.Values.Dequeue(), observer15.Values.Dequeue());
+                observer.OnNext(result);
             }
-
-            var result = resultSelector(observer1.Value!, observer2.Value!, observer3.Value!, observer4.Value!, observer5.Value!, observer6.Value!, observer7.Value!, observer8.Value!, observer9.Value!, observer10.Value!, observer11.Value!, observer12.Value!, observer13.Value!, observer14.Value!, observer15.Value!);
-            observer.OnNext(result);
         }
 
         public void TryPublishOnCompleted(Result result)
@@ -2672,19 +2490,16 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer15.Dispose();
         }
 
-        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public T? Value { get; private set; }
-
-            [MemberNotNullWhen(true, nameof(Value))]
-            public bool HasValue { get; private set; }
+            public Queue<T> Values { get; private set; } = new Queue<T>();
+            public bool HasValue => Values.Count != 0;
 
             protected override void OnNextCore(T value)
             {
                 lock (parent.gate)
                 {
-                    this.Value = value;
-                    this.HasValue = true;
+                    this.Values.Enqueue(value);
                     parent.TryPublishOnNext();
                 }
             }

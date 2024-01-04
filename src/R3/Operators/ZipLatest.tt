@@ -1,0 +1,162 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+    var GenerateTCount = 15;
+
+    var generateT = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"T{i}").ToArray());
+    var generateSources = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"source{i}").ToArray());
+    var generateHasValue = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.HasValue").ToArray());
+    var generateValue = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"observer{i}.GetValue()").ToArray());
+#>
+namespace R3;
+
+public static partial class ObservableExtensions
+{
+<# for (var i = 2; i <= GenerateTCount; i++ ) { #>
+    public static Observable<TResult> ZipLatest<<#= generateT(i) #>, TResult>(
+        this
+<# for (var j = 1; j <= i; j++ ) { #>
+        Observable<T<#= j #>> source<#= j #>,
+<# } #>
+        Func<<#= generateT(i) #>, TResult> resultSelector)
+    {
+        return new ZipLatest<<#= generateT(i) #>, TResult>(<#= generateSources(i) #>, resultSelector);
+    }
+
+<# } #>
+}
+
+<# for (var i = 2; i <= GenerateTCount; i++ ) { #>
+internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
+<# for (var j = 1; j <= i; j++ ) { #>
+    Observable<T<#= j #>> source<#= j #>,
+<# } #>
+    Func<<#= generateT(i) #>, TResult> resultSelector) : Observable<TResult>
+{
+    protected override IDisposable SubscribeCore(Observer<TResult> observer)
+    {
+        return new _ZipLatest(observer, <#= generateSources(i) #>, resultSelector).Run();
+    }
+
+    sealed class _ZipLatest : IDisposable
+    {
+        const int SourceCount = <#= i #>;
+
+        readonly Observer<TResult> observer;
+<# for (var j = 1; j <= i; j++ ) { #>
+        readonly Observable<T<#= j #>> source<#= j #>;
+<# } #>
+        readonly Func<<#= generateT(i) #>, TResult> resultSelector;
+<# for (var j = 1; j <= i; j++ ) { #>
+        readonly ZipLatestObserver<T<#= j #>> observer<#= j #>;
+<# } #>        
+        readonly object gate = new object();
+        int completedCount;
+
+        public _ZipLatest(
+            Observer<TResult> observer,
+<# for (var j = 1; j <= i; j++ ) { #>
+            Observable<T<#= j #>> source<#= j #>,
+<# } #>
+            Func<<#= generateT(i) #>, TResult> resultSelector)
+        {
+            this.observer = observer;
+<# for (var j = 1; j <= i; j++ ) { #>
+            this.source<#= j #> = source<#= j #>;
+<# } #>
+            this.resultSelector = resultSelector;
+<# for (var j = 1; j <= i; j++ ) { #>
+            this.observer<#= j #> = new ZipLatestObserver<T<#= j #>>(this);
+<# } #>
+        }
+
+        public IDisposable Run()
+        {
+            try
+            {
+<# for (var j = 1; j <= i; j++ ) { #>
+                source<#= j #>.Subscribe(observer<#= j #>);
+<# } #>
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+            return this;
+        }
+
+        public void TryPublishOnNext()
+        {
+            if (<#= generateHasValue(i) #>)
+            {
+                var result = resultSelector(<#= generateValue(i) #>);
+                observer.OnNext(result);
+            }
+        }
+
+        public void TryPublishOnCompleted(Result result)
+        {
+            if (result.IsFailure)
+            {
+                observer.OnCompleted(result);
+                Dispose();
+            }
+            else
+            {
+                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                {
+                    observer.OnCompleted();
+                    Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+<# for (var j = 1; j <= i; j++ ) { #>
+            observer<#= j #>.Dispose();
+<# } #>
+        }
+
+        sealed class ZipLatestObserver<T>(_ZipLatest parent) : Observer<T>
+        {
+            T? value;
+            public bool HasValue { get; private set; }
+
+            public T GetValue()
+            {
+                var v = this.value;
+                this.value = default;
+                this.HasValue = false;
+                return v!;
+            }
+
+            protected override void OnNextCore(T value)
+            {
+                lock (parent.gate)
+                {
+                    this.value = value;
+                    this.HasValue = true;
+                    parent.TryPublishOnNext();
+                }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                parent.observer.OnErrorResume(error);
+            }
+
+            protected override void OnCompletedCore(Result result)
+            {
+                parent.TryPublishOnCompleted(result);
+            }
+        }
+    }
+}
+
+<# } #>

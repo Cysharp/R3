@@ -4,17 +4,16 @@ public static partial class ObservableExtensions
 {
 }
 
+
+
 // TODO: this is working space, will remove this file after complete.
 
-// Timebased
-// ReplayFrameSubject, ReplayFrame
-
 // Rx Merging:
-// CombineLatest, Zip, WithLatestFrom, ZipLatest, Switch, Pairwise
+// TODO:not-tested:CombineLatest, Zip, ZipLatest, WithLatestFrom
+// Switch, Pairwise
 
 // Standard Query:
 // Distinct, DistinctBy, DistinctUntilChanged, Scan, DefaultIfEmpty
 
 // return tasks:
 // All, Any, Contains, SequenceEqual, IsEmpty, MaxBy, MinBy, ToDictionary, ToLookup,
-
