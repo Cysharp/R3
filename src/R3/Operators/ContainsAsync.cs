@@ -15,12 +15,12 @@ public static partial class ObservableExtensions
     }
 }
 
-internal sealed class ContainsAsync<T>(T value, IEqualityComparer<T> equalityComparer, CancellationToken cancellationToken)
+internal sealed class ContainsAsync<T>(T compareValue, IEqualityComparer<T> equalityComparer, CancellationToken cancellationToken)
 : TaskObserverBase<T, bool>(cancellationToken)
 {
     protected override void OnNextCore(T value)
     {
-        if (!equalityComparer.Equals(value))
+        if (!equalityComparer.Equals(value, compareValue))
         {
             TrySetResult(true);
         }

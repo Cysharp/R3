@@ -341,7 +341,7 @@ internal sealed class ObserveOnTimeProvider<T>(Observable<T> source, TimeProvide
             var self = (_ObserveOn)state!;
             var queue = self.queue;
 
-            Notification<T> value;
+            Notification<T> value = default;
             while (true)
             {
                 lock (queue)

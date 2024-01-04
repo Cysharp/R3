@@ -1,4 +1,6 @@
-﻿using System.Threading.Channels;
+﻿#if !NETSTANDARD2_0
+
+using System.Threading.Channels;
 
 namespace R3;
 
@@ -59,3 +61,5 @@ sealed class ToAsyncEnumerable<T>(ChannelWriter<T> writer) : Observer<T>
         registration.Dispose();
     }
 }
+
+#endif

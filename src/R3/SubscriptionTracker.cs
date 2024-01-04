@@ -92,8 +92,7 @@ public static class SubscriptionTracker
         lock (iterateCache)
         {
             var count = tracking.CaptureSnapshot(ref iterateCache, clear: false);
-            var span = CollectionsMarshal.AsSpan(iterateCache).Slice(0, count);
-            span.Sort();
+            iterateCache.Sort(0, count, Comparer<TrackingState>.Default);
             try
             {
                 for (int i = 0; i < count; i++)
@@ -103,7 +102,7 @@ public static class SubscriptionTracker
             }
             finally
             {
-                span.Clear();
+                iterateCache.Clear();
             }
         }
     }

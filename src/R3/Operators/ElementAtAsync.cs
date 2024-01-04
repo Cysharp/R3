@@ -11,6 +11,8 @@ public static partial class ObservableExtensions
         return observer.Task;
     }
 
+#if !NETSTANDARD2_0
+
     public static Task<T> ElementAtAsync<T>(this Observable<T> source, Index index, CancellationToken cancellationToken = default)
     {
         if (index.IsFromEnd)
@@ -26,6 +28,8 @@ public static partial class ObservableExtensions
         }
     }
 
+#endif
+
     public static Task<T> ElementAtOrDefaultAsync<T>(this Observable<T> source, int index, T? defaultValue = default, CancellationToken cancellationToken = default)
     {
         if (index < 0) throw new ArgumentOutOfRangeException("index");
@@ -33,6 +37,8 @@ public static partial class ObservableExtensions
         source.Subscribe(observer);
         return observer.Task;
     }
+
+#if !NETSTANDARD2_0
 
     public static Task<T> ElementAtOrDefaultAsync<T>(this Observable<T> source, Index index, T? defaultValue = default, CancellationToken cancellationToken = default)
     {
@@ -47,6 +53,9 @@ public static partial class ObservableExtensions
             return ElementAtOrDefaultAsync(source, index.Value, defaultValue, cancellationToken);
         }
     }
+
+#endif
+
 }
 
 internal sealed class ElementAtAsync<T>(int index, bool useDefaultValue, T? defaultValue, CancellationToken cancellationToken)
