@@ -1,0 +1,169 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+    var GenerateTCount = 15;
+
+    var generateT = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"T{i}").ToArray());
+    var generateSources = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"source{i}").ToArray());
+    var generateHasValue = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.HasValue").ToArray());
+    var generateValue = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"observer{i}.Value!").ToArray());
+#>
+
+using System.Diagnostics.CodeAnalysis;
+
+namespace R3;
+
+public static partial class ObservableExtensions
+{
+<# for (var i = 2; i <= GenerateTCount; i++ ) { #>
+    public static Observable<TResult> CombineLatest<<#= generateT(i) #>, TResult>(
+        this
+<# for (var j = 1; j <= i; j++ ) { #>
+        Observable<T<#= j #>> source<#= j #>,
+<# } #>
+        Func<<#= generateT(i) #>, TResult> resultSelector)
+    {
+        return new CombineLatest<<#= generateT(i) #>, TResult>(<#= generateSources(i) #>, resultSelector);
+    }
+
+<# } #>
+}
+
+<# for (var i = 2; i <= GenerateTCount; i++ ) { #>
+internal sealed class CombineLatest<<#= generateT(i) #>, TResult>(
+<# for (var j = 1; j <= i; j++ ) { #>
+    Observable<T<#= j #>> source<#= j #>,
+<# } #>
+    Func<<#= generateT(i) #>, TResult> resultSelector) : Observable<TResult>
+{
+    protected override IDisposable SubscribeCore(Observer<TResult> observer)
+    {
+        return new _CombineLatest(observer, <#= generateSources(i) #>, resultSelector).Run();
+    }
+
+    sealed class _CombineLatest : IDisposable
+    {
+        const int SourceCount = <#= i #>;
+
+        readonly Observer<TResult> observer;
+<# for (var j = 1; j <= i; j++ ) { #>
+        readonly Observable<T<#= j #>> source<#= j #>;
+<# } #>
+        readonly Func<<#= generateT(i) #>, TResult> resultSelector;
+<# for (var j = 1; j <= i; j++ ) { #>
+        readonly CombineLatestObserver<T<#= j #>> observer<#= j #>;
+<# } #>        
+        readonly object gate = new object();
+        bool hasValueAll;
+        int completedCount;
+
+        public _CombineLatest(
+            Observer<TResult> observer,
+<# for (var j = 1; j <= i; j++ ) { #>
+            Observable<T<#= j #>> source<#= j #>,
+<# } #>
+            Func<<#= generateT(i) #>, TResult> resultSelector)
+        {
+            this.observer = observer;
+<# for (var j = 1; j <= i; j++ ) { #>
+            this.source<#= j #> = source<#= j #>;
+<# } #>
+            this.resultSelector = resultSelector;
+<# for (var j = 1; j <= i; j++ ) { #>
+            this.observer<#= j #> = new CombineLatestObserver<T<#= j #>>(this);
+<# } #>
+        }
+
+        public IDisposable Run()
+        {
+            try
+            {
+<# for (var j = 1; j <= i; j++ ) { #>
+                source<#= j #>.Subscribe(observer<#= j #>);
+<# } #>
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+            return this;
+        }
+
+        public void TryPublishOnNext()
+        {
+            if (!hasValueAll)
+            {
+                if (<#= generateHasValue(i) #>)
+                {
+                    hasValueAll = true;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            var result = resultSelector(<#= generateValue(i) #>);
+            observer.OnNext(result);
+        }
+
+        public void TryPublishOnCompleted(Result result)
+        {
+            if (result.IsFailure)
+            {
+                observer.OnCompleted(result);
+                Dispose();
+            }
+            else
+            {
+                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                {
+                    observer.OnCompleted();
+                    Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+<# for (var j = 1; j <= i; j++ ) { #>
+            observer<#= j #>.Dispose();
+<# } #>
+        }
+
+        sealed class CombineLatestObserver<T>(_CombineLatest parent) : Observer<T>
+        {
+            public T? Value { get; private set; }
+
+            [MemberNotNullWhen(true, nameof(Value))]
+            public bool HasValue { get; private set; }
+
+            protected override void OnNextCore(T value)
+            {
+                lock (parent.gate)
+                {
+                    this.Value = value;
+                    this.HasValue = true;
+                    parent.TryPublishOnNext();
+                }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                parent.observer.OnErrorResume(error);
+            }
+
+            protected override void OnCompletedCore(Result result)
+            {
+                parent.TryPublishOnCompleted(result);
+            }
+        }
+    }
+}
+
+<# } #>
