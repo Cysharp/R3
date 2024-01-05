@@ -31,13 +31,13 @@ public sealed class TimerFrameProvider : FrameProvider, IDisposable
 
     public override long GetFrameCount()
     {
-        ObjectDisposedException.ThrowIf(disposed, typeof(TimerFrameProvider));
+        ThrowHelper.ThrowObjectDisposedIf(disposed, typeof(TimerFrameProvider));
         return frameCount;
     }
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        ObjectDisposedException.ThrowIf(disposed, typeof(TimerFrameProvider));
+        ThrowHelper.ThrowObjectDisposedIf(disposed, typeof(TimerFrameProvider));
         list.Add(callback, out _);
     }
 

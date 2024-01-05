@@ -24,13 +24,13 @@ public sealed class NewThreadSleepFrameProvider : FrameProvider, IDisposable
 
     public override long GetFrameCount()
     {
-        ObjectDisposedException.ThrowIf(disposed, typeof(NewThreadSleepFrameProvider));
+        ThrowHelper.ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
         return frameCount;
     }
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        ObjectDisposedException.ThrowIf(disposed, typeof(NewThreadSleepFrameProvider));
+        ThrowHelper.ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
         list.Add(callback, out _);
     }
 

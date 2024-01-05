@@ -31,7 +31,7 @@ internal struct FreeListCore<T>
     {
         lock (gate)
         {
-            ObjectDisposedException.ThrowIf(IsDisposed, typeof(FreeListCore<T>));
+            ThrowHelper.ThrowObjectDisposedIf(IsDisposed, typeof(FreeListCore<T>));
 
             if (values == null)
             {
@@ -127,12 +127,39 @@ internal struct FreeListCore<T>
         }
     }
 
+#if NET6_0_OR_GREATER
+
     static int FindNullIndex(T?[] target)
     {
         var span = MemoryMarshal.CreateReadOnlySpan(
             ref Unsafe.As<T?, IntPtr>(ref MemoryMarshal.GetArrayDataReference(target)), target.Length);
         return span.IndexOf(IntPtr.Zero);
     }
+
+#else
+
+    static unsafe int FindNullIndex(T?[] target)
+    {
+        ref var head = ref Unsafe.As<T?, IntPtr>(ref MemoryMarshal.GetReference(target.AsSpan()));
+        fixed (void* p = &head)
+        {
+            var span = new ReadOnlySpan<IntPtr>(p, target.Length);
+
+#if NETSTANDARD2_1
+            return span.IndexOf(IntPtr.Zero);
+#else
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] == IntPtr.Zero) return i;
+            }
+            return -1;
+#endif
+        }
+    }
+
+#endif
+
+#if NET8_0_OR_GREATER
 
     static int FindLastNonNullIndex(T?[] target, int lastIndex)
     {
@@ -141,4 +168,24 @@ internal struct FreeListCore<T>
         var index = span.LastIndexOfAnyExcept(IntPtr.Zero);
         return index; // return -1 is ok(means empty)
     }
+
+#else
+
+    static unsafe int FindLastNonNullIndex(T?[] target, int lastIndex)
+    {
+        ref var head = ref Unsafe.As<T?, IntPtr>(ref MemoryMarshal.GetReference(target.AsSpan()));
+        fixed (void* p = &head)
+        {
+            var span = new ReadOnlySpan<IntPtr>(p, lastIndex); // without lastIndexed value.
+
+            for (var i = span.Length - 1; i >= 0; i--)
+            {
+                if (span[i] != IntPtr.Zero) return i;
+            }
+
+            return -1;
+        }
+    }
+
+#endif
 }

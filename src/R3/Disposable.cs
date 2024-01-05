@@ -311,8 +311,8 @@ public ref struct DisposableBuilder()
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(IDisposable disposable)
     {
-        ArgumentNullException.ThrowIfNull(disposable);
-        ObjectDisposedException.ThrowIf(count == -1, typeof(DisposableBuilder));
+        ThrowHelper.ThrowArgumentNullIfNull(disposable);
+        ThrowHelper.ThrowObjectDisposedIf(count == -1, typeof(DisposableBuilder));
 
         switch (count)
         {
@@ -380,7 +380,7 @@ public ref struct DisposableBuilder()
 
     public IDisposable Build()
     {
-        ObjectDisposedException.ThrowIf(count == -1, typeof(DisposableBuilder));
+        ThrowHelper.ThrowObjectDisposedIf(count == -1, typeof(DisposableBuilder));
 
         IDisposable result;
         switch (count)
