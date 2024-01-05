@@ -20,7 +20,7 @@ internal sealed class ContainsAsync<T>(T compareValue, IEqualityComparer<T> equa
 {
     protected override void OnNextCore(T value)
     {
-        if (!equalityComparer.Equals(value, compareValue))
+        if (equalityComparer.Equals(value, compareValue))
         {
             TrySetResult(true);
         }
