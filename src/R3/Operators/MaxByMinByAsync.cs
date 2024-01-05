@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -51,8 +51,6 @@ internal sealed class MaxByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
             latestKey = key;
             hasValue = true;
         }
-
-        TrySetResult(value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
