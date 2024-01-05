@@ -10,7 +10,7 @@ public class ReturnFrameTest
         var frameProvider = new ManualFrameProvider();
         var cts = new CancellationTokenSource();
 
-        var list = Observable.ReturnUnitFrame(frameProvider, cts.Token).ToLiveList();
+        var list = Observable.YieldFrame(frameProvider, cts.Token).ToLiveList();
         list.AssertIsNotCompleted();
 
         frameProvider.Advance();
@@ -82,7 +82,7 @@ public class ReturnFrameTest
             var frameProvider = new ManualFrameProvider(); // use custom fake
             var cts = new CancellationTokenSource();
 
-            var list = Observable.ReturnUnitFrame(frameProvider, cts.Token).ToLiveList();
+            var list = Observable.YieldFrame(frameProvider, cts.Token).ToLiveList();
             list.AssertIsNotCompleted();
 
             // ReturnFrame run same frame.
