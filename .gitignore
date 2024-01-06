@@ -108,12 +108,6 @@ UpgradeLog*.XML
 .vs/config/applicationhost.config
 .vs/restore.dg
 
-# Unity
-src/MasterMemory.UnityClient/bin/*
-src/MasterMemory.UnityClient/Library/*
-src/MasterMemory.UnityClient/obj/*
-src/MasterMemory.UnityClient/Temp/*
-
 # OTHER
 nuget/tools/*
 *.nupkg
@@ -122,9 +116,15 @@ nuget/tools/*
 **/.DS_Store
 .idea
 
-#Grpc Bigfile
-sandbox/CloudProfiler.UnitySandbox/Assets/Plugins/Grpc.Core/runtimes/ios
-
 # publish directory
 out/
 *.tsbuildinfo
+
+# Unity
+src/R3.Unity/bin/*
+src/R3.Unity/Library/*
+src/R3.Unity/obj/*
+src/R3.Unity/Temp/*
+src/R3.Unity/UserSettings/*
+src/R3.Unity/*.sln
+src/R3.Unity/*.csproj
