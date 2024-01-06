@@ -1,23 +1,27 @@
-﻿using System.Windows.Threading;
+﻿using System.Windows;
+using System.Windows.Threading;
 
 namespace R3.WPF;
 
 public static class WpfProviderInitializer
 {
-    public static void SetDefaultProviders()
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new WpfDispatcherTimerProvider();
         ObservableSystem.DefaultFrameProvider = new WpfRenderingFrameProvider();
     }
 
-    public static void SetDefaultProviders(DispatcherPriority priority)
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, DispatcherPriority priority)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new WpfDispatcherTimerProvider(priority);
         ObservableSystem.DefaultFrameProvider = new WpfRenderingFrameProvider();
     }
 
-    public static void SetDefaultProviders(DispatcherPriority priority, Dispatcher dispatcher)
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, DispatcherPriority priority, Dispatcher dispatcher)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new WpfDispatcherTimerProvider(priority, dispatcher);
         ObservableSystem.DefaultFrameProvider = new WpfRenderingFrameProvider();
     }

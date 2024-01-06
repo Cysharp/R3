@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Logging;
 using R3;
 using System;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ public partial class MainWindow : Window
 
 
 
-
+        
 
 
 

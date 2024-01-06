@@ -4,26 +4,30 @@ namespace R3.Avalonia;
 
 public static class AvaloniaProviderInitializer
 {
-    public static void SetDefaultProviders()
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider();
     }
 
-    public static void SetDefaultProviders(DispatcherPriority priority)
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, DispatcherPriority priority)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider(priority);
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider(priority);
     }
 
-    public static void SetDefaultProviders(int framesPerSecond)
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, int framesPerSecond)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider(framesPerSecond);
     }
 
-    public static void SetDefaultProviders(DispatcherPriority priority, int framesPerSecond)
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, DispatcherPriority priority, int framesPerSecond)
     {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider(priority);
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider(framesPerSecond, priority);
     }
