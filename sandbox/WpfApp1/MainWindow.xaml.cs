@@ -32,8 +32,8 @@ public partial class MainWindow : Window
         //{
         //    textBlock.Text = "Hello World:" + sw.Elapsed;
         //});
-        Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5), TimeProvider.System)
-            .ObserveOnCurrentDispatcher()
+        Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5))
+        //    // .ObserveOnCurrentDispatcher()
             .Subscribe(_ =>
             {
                 textBlock.Text = "Hello World:" + sw.Elapsed;

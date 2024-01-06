@@ -1,37 +1,28 @@
-﻿using System.Windows.Threading;
+﻿using Avalonia.Threading;
 
-namespace R3.WPF;
+namespace R3.Avalonia;
 
-public sealed class WpfDispatcherTimerProvider : TimeProvider
+public sealed class AvaloniaDispatcherTimerProvider : TimeProvider
 {
     readonly DispatcherPriority? priority;
-    readonly Dispatcher? dispatcher;
 
-    public WpfDispatcherTimerProvider()
+    public AvaloniaDispatcherTimerProvider()
     {
         this.priority = null;
-        this.dispatcher = null;
     }
 
-    public WpfDispatcherTimerProvider(DispatcherPriority priority)
+    public AvaloniaDispatcherTimerProvider(DispatcherPriority priority)
     {
         this.priority = priority;
-        this.dispatcher = null;
-    }
-
-    public WpfDispatcherTimerProvider(DispatcherPriority priority, Dispatcher dispatcher)
-    {
-        this.priority = priority;
-        this.dispatcher = dispatcher;
     }
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        return new WpfDispatcherTimerProviderTimer(priority, dispatcher, callback, state, dueTime, period);
+        return new AvaloniaDispatcherTimerProviderTimer(priority, callback, state, dueTime, period);
     }
 }
 
-internal sealed class WpfDispatcherTimerProviderTimer : ITimer
+internal sealed class AvaloniaDispatcherTimerProviderTimer : ITimer
 {
     DispatcherTimer? timer;
     TimerCallback callback;
@@ -39,22 +30,18 @@ internal sealed class WpfDispatcherTimerProviderTimer : ITimer
     EventHandler timerTick;
     TimeSpan? period;
 
-    public WpfDispatcherTimerProviderTimer(DispatcherPriority? priority, Dispatcher? dispatcher, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+    public AvaloniaDispatcherTimerProviderTimer(DispatcherPriority? priority, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         this.timerTick = Timer_Tick;
         this.callback = callback;
         this.state = state;
-        if (priority == null && dispatcher == null)
+        if (priority == null)
         {
             this.timer = new DispatcherTimer();
         }
-        else if (dispatcher == null) // priority is not null
-        {
-            this.timer = new DispatcherTimer(priority!.Value);
-        }
         else
         {
-            this.timer = new DispatcherTimer(priority!.Value, dispatcher);
+            this.timer = new DispatcherTimer(priority!.Value);
         }
 
         timer.Tick += timerTick;
@@ -93,7 +80,6 @@ internal sealed class WpfDispatcherTimerProviderTimer : ITimer
             {
                 timer.Interval = period.Value;
                 period = null;
-                timer.Start();
             }
         }
     }
