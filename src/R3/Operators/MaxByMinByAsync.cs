@@ -51,8 +51,6 @@ internal sealed class MaxByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
             latestKey = key;
             hasValue = true;
         }
-
-        TrySetResult(value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -103,8 +101,6 @@ internal sealed class MinByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
             latestKey = key;
             hasValue = true;
         }
-
-        TrySetResult(value);
     }
 
     protected override void OnErrorResumeCore(Exception error)

@@ -4,7 +4,7 @@ public static partial class ObservableExtensions
 {
     public static Task<bool> SequenceEqualAsync<T>(this Observable<T> source, Observable<T> second, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return SequenceEqualAsync(source, second, EqualityComparer<T>.Default, cancellationToken);
     }
 
     public static Task<bool> SequenceEqualAsync<T>(this Observable<T> source, Observable<T> second, IEqualityComparer<T> equalityComparer, CancellationToken cancellationToken = default)

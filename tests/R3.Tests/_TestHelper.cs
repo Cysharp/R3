@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-
-namespace R3.Tests;
+﻿namespace R3.Tests;
 
 public static class _TestHelper
 {
@@ -18,6 +15,11 @@ public static class _TestHelper
         {
             list[i].Should().Equal(expected[i]);
         }
+    }
+
+    public static void AssertEmpty<T>(this LiveList<T> list)
+    {
+        list.Count.Should().Be(0);
     }
 
     public static void AssertIsCompleted<T>(this LiveList<T> list)
