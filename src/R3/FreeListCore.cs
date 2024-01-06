@@ -1,10 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace R3.Internal;
+namespace R3;
 
 [StructLayout(LayoutKind.Auto)]
-internal struct FreeListCore<T>
+public struct FreeListCore<T>
     where T : class
 {
     readonly object gate;
@@ -44,7 +44,7 @@ internal struct FreeListCore<T>
             {
                 // full, 1, 4, 6,...resize(x1.5)
                 var len = values.Length;
-                var newValues = len == 1 ? new T[4] : new T[len + (len / 2)];
+                var newValues = len == 1 ? new T[4] : new T[len + len / 2];
                 Array.Copy(values, newValues, len);
                 Volatile.Write(ref values, newValues);
                 index = len;

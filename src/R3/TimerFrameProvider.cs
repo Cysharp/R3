@@ -64,6 +64,8 @@ public sealed class TimerFrameProvider : FrameProvider, IDisposable
 
         lock (self.gate)
         {
+            self.frameCount++;
+
             var span = self.list.AsSpan();
             for (int i = 0; i < span.Length; i++)
             {
@@ -88,8 +90,6 @@ public sealed class TimerFrameProvider : FrameProvider, IDisposable
                     }
                 }
             }
-
-            self.frameCount++;
         }
     }
 }

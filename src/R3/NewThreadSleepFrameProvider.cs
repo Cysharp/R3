@@ -43,6 +43,8 @@ public sealed class NewThreadSleepFrameProvider : FrameProvider, IDisposable
     {
         while (!disposed)
         {
+            frameCount++;
+
             var span = list.AsSpan();
             for (int i = 0; i < span.Length; i++)
             {
@@ -69,7 +71,6 @@ public sealed class NewThreadSleepFrameProvider : FrameProvider, IDisposable
             }
 
             Thread.Sleep(sleepMilliseconds);
-            frameCount++;
         }
         list.Dispose();
     }
