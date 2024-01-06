@@ -1,9 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using R3.Internal;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace R3;
@@ -65,7 +62,6 @@ public static class SubscriptionTracker
 
         var id = Interlocked.Increment(ref trackingIdCounter);
         trackableDisposable = new TrackableDisposable(subscription, id);
-        ObservableSystem.Logger.AddTracking(id);
         tracking.TryAdd(trackableDisposable, new TrackingState(id, typeName, DateTime.Now, stackTrace)); // use local now.
 
         return true;
@@ -167,7 +163,6 @@ internal sealed class TrackableDisposable(IDisposable disposable, int trackingId
         var field = Interlocked.CompareExchange(ref disposed, 1, 0);
         if (field == 0)
         {
-            ObservableSystem.Logger.RemoveTracking(trackingId);
             SubscriptionTracker.RemoveTracking(this);
         }
 

@@ -14,7 +14,7 @@ using var factory = LoggerFactory.Create(x =>
     x.SetMinimumLevel(LogLevel.Trace);
     x.AddZLoggerConsole();
 });
-ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
+// ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
 var logger = factory.CreateLogger<Program>();
 
 
