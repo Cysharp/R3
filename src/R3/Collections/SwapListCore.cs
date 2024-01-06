@@ -1,6 +1,6 @@
-﻿namespace R3.Internal;
+﻿namespace R3.Collections;
 
-internal struct SwapListCore<T>
+public struct SwapListCore<T>
 {
     const int InitialArraySize = 4;
 

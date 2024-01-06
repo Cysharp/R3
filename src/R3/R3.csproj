@@ -39,6 +39,7 @@
     <ItemGroup>
         <Using Include="R3" />
         <Using Include="R3.Internal" />
+        <Using Include="R3.Collections" />
     </ItemGroup>
 
     <ItemGroup>

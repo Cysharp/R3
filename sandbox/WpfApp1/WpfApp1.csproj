@@ -10,6 +10,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="System.Reactive.Linq" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\src\R3.WPF\R3.WPF.csproj" />
         <ProjectReference Include="..\..\src\R3\R3.csproj" />
     </ItemGroup>

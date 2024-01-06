@@ -1,4 +1,6 @@
-﻿namespace R3.Tests;
+﻿using R3.Collections;
+
+namespace R3.Tests;
 
 public static class _TestHelper
 {

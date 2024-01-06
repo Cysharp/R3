@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace R3;
+namespace R3.Collections;
 
 [StructLayout(LayoutKind.Auto)]
 public struct FreeListCore<T>
