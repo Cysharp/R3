@@ -1,17 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.6" />
-  </ItemGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>1701;1702;1591;1573</NoWarn>
 
-  <ItemGroup>
-    <ProjectReference Include="..\R3\R3.csproj" />
-  </ItemGroup>
+        <!-- NuGet Packaging -->
+        <PackageTags>rx</PackageTags>
+        <Description>Avalonia Provider and Methods for R3.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\R3\R3.csproj" />
+    </ItemGroup>
 
 </Project>
