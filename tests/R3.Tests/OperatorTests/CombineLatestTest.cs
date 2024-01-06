@@ -5,8 +5,6 @@ public class CombineLatestTest
     [Fact]
     public void CombineLatest()
     {
-        // どちらかに値が入ってきた時点で他方の最新の値とペアにして吐き出す
-
         var source1 = new Subject<int>();
         var source2 = new Subject<string>();
 

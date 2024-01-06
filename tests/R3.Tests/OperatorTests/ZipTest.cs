@@ -5,8 +5,6 @@ public class ZipTest
     [Fact]
     public void Zip()
     {
-        // 2つペアになった時点で古いほうから吐き出されていく
-
         var source1 = new Subject<int>();
         var source2 = new Subject<string>();
 

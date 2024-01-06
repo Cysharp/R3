@@ -5,9 +5,6 @@ public class ZipLatestTest
     [Fact]
     public void ZipLatest()
     {
-        // 2つペアになった時点で新しい方から吐き出されていく
-        // 新しい要素が入ってきたら古いものは捨てられる
-
         var source1 = new Subject<int>();
         var source2 = new Subject<string>();
 

@@ -5,8 +5,6 @@ public class WithLatestFromTest
     [Fact]
     public void WithLatestFrom()
     {
-        // 最初のストリームに値が発行されたタイミングで、2 番目のストリームの最新の値を併せて出力する
-
         var source1 = new Subject<int>();
         var source2 = new Subject<string>();
 
