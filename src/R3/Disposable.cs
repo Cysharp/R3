@@ -17,6 +17,11 @@ public static class Disposable
         builder.Add(disposable);
     }
 
+    public static void AddTo(this IDisposable disposable, ref DisposableBag bag)
+    {
+        bag.Add(disposable);
+    }
+
     public static void AddTo(this IDisposable disposable, ICollection<IDisposable> disposables)
     {
         disposables.Add(disposable);

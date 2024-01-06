@@ -7,7 +7,7 @@ public static class ObservableSubscribeExtensions
     [DebuggerStepThrough]
     public static IDisposable Subscribe<T>(this Observable<T> source)
     {
-        return source.Subscribe(NopObserver<T>.Instance);
+        return source.Subscribe(new NopObserver<T>());
     }
 
     [DebuggerStepThrough]
@@ -52,9 +52,7 @@ public static class ObservableSubscribeExtensions
 [DebuggerStepThrough]
 internal sealed class NopObserver<T> : Observer<T>
 {
-    public static readonly NopObserver<T> Instance = new();
-
-    private NopObserver()
+    public NopObserver()
     {
     }
 
