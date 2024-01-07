@@ -18,7 +18,7 @@ public partial class MainWindow : Window
 
 
 
-        R3.WPF.WpfProviderInitializer.SetDefaultObservableSystem(ex => Trace.WriteLine($"R3 UnhandledException:{ex}"));
+        WpfProviderInitializer.SetDefaultObservableSystem(ex => Trace.WriteLine($"R3 UnhandledException:{ex}"));
 
 
 

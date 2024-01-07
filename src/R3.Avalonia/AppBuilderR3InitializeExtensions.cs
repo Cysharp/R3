@@ -1,5 +1,5 @@
 ﻿using Avalonia.Threading;
-using R3.Avalonia;
+using R3;
 
 namespace Avalonia; // Avalonia namespace
 
