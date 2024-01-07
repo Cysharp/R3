@@ -1,9 +1,9 @@
 # R3
 
+The evolution of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including Unity, Godot, Avalonia, WPF, etc(planning MAUI, Stride, LogicLooper).
+
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10) and others, if you have any opinions, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
-
-The evolution of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including Unity, Godot, Avalonia, WPF, etc(planning MAUI, Stride, LogicLooper).
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime (UniRx) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
@@ -14,7 +14,7 @@ I have over 10 years of experience with Rx, experience in implementing a custom 
 * Synchronous APIs should not be implemented.
 * The Necessity of a subscription list to prevent subscription leaks (similar to a Parallel Debugger)
 * Backpressure should be left to [IAsyncEnumerable](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream) and [Channels](https://devblogs.microsoft.com/dotnet/an-introduction-to-system-threading-channels/).
-* For distributed processing and transparent queries, there are [GraphQL](https://graphql.org/), [Kubernetes](https://kubernetes.io/), [Orleans](https://learn.microsoft.com/en-us/dotnet/orleans/), [gRPC](https://grpc.io/), and [MagicOnion](https://github.com/Cysharp/MagicOnion).
+* For distributed processing and queries, there are [GraphQL](https://graphql.org/), [Kubernetes](https://kubernetes.io/), [Orleans](https://learn.microsoft.com/en-us/dotnet/orleans/), [gRPC](https://grpc.io/), and [MagicOnion](https://github.com/Cysharp/MagicOnion).
 
 In other words, LINQ is not for EveryThing, and we believe that the essence of Rx lies in the processing of in-memory messaging (LINQ to Events), which will be our focus. Our main intended uses are UI frameworks and game engines, and we are not concerned with communication processes like [Reactive Streams](https://www.reactive-streams.org/).
 
