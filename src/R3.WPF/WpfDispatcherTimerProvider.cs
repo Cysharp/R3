@@ -1,6 +1,6 @@
 ﻿using System.Windows.Threading;
 
-namespace R3.WPF;
+namespace R3;
 
 public sealed class WpfDispatcherTimerProvider : TimeProvider
 {

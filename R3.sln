@@ -26,9 +26,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R3.WPF", "src\R3.WPF\R3.WPF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApp1", "sandbox\WpfApp1\WpfApp1.csproj", "{BA40E541-3BCD-438A-B966-2FC7BE80AB80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R3.Avalonia", "src\R3.Avalonia\R3.Avalonia.csproj", "{C492C048-732F-4F0D-AC09-03F3187ABB17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R3.Avalonia", "src\R3.Avalonia\R3.Avalonia.csproj", "{C492C048-732F-4F0D-AC09-03F3187ABB17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaApplication1", "sandbox\AvaloniaApplication1\AvaloniaApplication1.csproj", "{978BECEF-5217-4531-B0B7-45BC8D820A28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaApplication1", "sandbox\AvaloniaApplication1\AvaloniaApplication1.csproj", "{978BECEF-5217-4531-B0B7-45BC8D820A28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R3.Godot", "src\R3.Godot\R3.Godot.csproj", "{B7A5DDB0-5F43-49D0-A047-D0D26626BE30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,6 +66,10 @@ Global
 		{978BECEF-5217-4531-B0B7-45BC8D820A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{978BECEF-5217-4531-B0B7-45BC8D820A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{978BECEF-5217-4531-B0B7-45BC8D820A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7A5DDB0-5F43-49D0-A047-D0D26626BE30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7A5DDB0-5F43-49D0-A047-D0D26626BE30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7A5DDB0-5F43-49D0-A047-D0D26626BE30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7A5DDB0-5F43-49D0-A047-D0D26626BE30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{BA40E541-3BCD-438A-B966-2FC7BE80AB80} = {FAB2137C-1DBA-4F2F-8E22-DF3521C9B365}
 		{C492C048-732F-4F0D-AC09-03F3187ABB17} = {9FA6D327-728B-4436-AE3A-9E46D8FEF591}
 		{978BECEF-5217-4531-B0B7-45BC8D820A28} = {FAB2137C-1DBA-4F2F-8E22-DF3521C9B365}
+		{B7A5DDB0-5F43-49D0-A047-D0D26626BE30} = {9FA6D327-728B-4436-AE3A-9E46D8FEF591}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {84B77761-6B9E-46BA-B132-6C77B0B6E4FA}

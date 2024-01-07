@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- Currently no packable -->
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="GodotSharp" Version="4.2.1" />
+        <!--<PackageReference Include="Godot.SourceGenerators" Version="4.2.1" />-->
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\R3\R3.csproj" />
+    </ItemGroup>
+
+</Project>

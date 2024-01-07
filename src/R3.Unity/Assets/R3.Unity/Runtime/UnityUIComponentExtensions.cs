@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UniRx
+namespace R3
 {
     public static partial class UnityUIComponentExtensions
     {

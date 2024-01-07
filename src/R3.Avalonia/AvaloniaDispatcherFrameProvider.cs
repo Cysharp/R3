@@ -2,7 +2,7 @@
 using R3.Collections;
 using System.Diagnostics.CodeAnalysis;
 
-namespace R3.Avalonia;
+namespace R3;
 
 // like the Avalonia.Rendering.UiThreadRenderTimer
 

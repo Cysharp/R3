@@ -54,7 +54,7 @@ namespace R3.Unity.Editor
 
     public class ObservableTrackerTreeView : TreeView
     {
-        const string sortedColumnIndexStateKey = "UniTaskTrackerTreeView_sortedColumnIndex";
+        const string sortedColumnIndexStateKey = "ObservableTrackerTreeView_sortedColumnIndex";
 
         public IReadOnlyList<TreeViewItem> CurrentBindingItems;
 

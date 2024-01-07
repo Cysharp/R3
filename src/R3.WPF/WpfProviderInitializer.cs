@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
-namespace R3.WPF;
+namespace R3;
 
 public static class WpfProviderInitializer
 {

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using R3.Collections;
 
-namespace R3.WPF;
+namespace R3;
 
 public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
 {

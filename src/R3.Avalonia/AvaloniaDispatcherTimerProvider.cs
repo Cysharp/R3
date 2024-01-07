@@ -1,6 +1,6 @@
 ﻿using Avalonia.Threading;
 
-namespace R3.Avalonia;
+namespace R3;
 
 public sealed class AvaloniaDispatcherTimerProvider : TimeProvider
 {

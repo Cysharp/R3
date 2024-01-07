@@ -56,14 +56,15 @@ namespace R3
 
         public override long GetTimestamp()
         {
+            // need to convert ticks(used TimeSpan ctor)
             if (frameProvider.PlayerLoopTiming == PlayerLoopTiming.FixedUpdate)
             {
                 switch (timeKind)
                 {
                     case TimeKind.Time:
-                        return (long)(Time.fixedTimeAsDouble * 100);
+                        return TimeSpan.FromSeconds(Time.fixedTimeAsDouble).Ticks;
                     case TimeKind.UnscaledTime:
-                        return (long)(Time.fixedUnscaledTimeAsDouble * 100);
+                        return TimeSpan.FromSeconds(Time.fixedUnscaledTimeAsDouble).Ticks;
                     default:
                         break;
                 }
@@ -73,15 +74,15 @@ namespace R3
                 switch (timeKind)
                 {
                     case TimeKind.Time:
-                        return (long)(Time.timeAsDouble * 100);
+                        return TimeSpan.FromSeconds(Time.timeAsDouble).Ticks;
                     case TimeKind.UnscaledTime:
-                        return (long)(Time.unscaledTimeAsDouble * 100);
+                        return TimeSpan.FromSeconds(Time.unscaledTimeAsDouble).Ticks;
                     default:
                         break;
                 }
             }
 
-            return (long)(Time.realtimeSinceStartupAsDouble * 100);
+            return TimeSpan.FromSeconds(Time.realtimeSinceStartupAsDouble).Ticks;
         }
 
         public override ITimer CreateTimer(TimerCallback callback, object state, TimeSpan dueTime, TimeSpan period)
