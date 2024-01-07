@@ -27,7 +27,7 @@ public static class Disposable
         disposables.Add(disposable);
     }
 
-    public static CancellationTokenRegistration RegisterTo(this IDisposable disposable, CancellationToken cancellationToken)
+    public static CancellationTokenRegistration AddTo(this IDisposable disposable, CancellationToken cancellationToken)
     {
         if (!cancellationToken.CanBeCanceled) throw new ArgumentException("Require CancellationToken CanBeCanceled");
 
@@ -468,9 +468,9 @@ public ref struct DisposableBuilder()
         return result;
     }
 
-    public CancellationTokenRegistration RegisterTo(CancellationToken cancellationToken)
+    public CancellationTokenRegistration AddTo(CancellationToken cancellationToken)
     {
-        return Build().RegisterTo(cancellationToken);
+        return Build().AddTo(cancellationToken);
     }
 
     public void Dispose()
