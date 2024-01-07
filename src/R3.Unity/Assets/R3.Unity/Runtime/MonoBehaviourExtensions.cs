@@ -20,10 +20,7 @@ namespace R3
 
         public static CancellationTokenRegistration AddTo(this IDisposable disposable, MonoBehaviour value)
         {
-            return value.destroyCancellationToken.Register(state =>
-            {
-                ((IDisposable)state!).Dispose();
-            }, disposable, false);
+            return disposable.AddTo(value.destroyCancellationToken);
         }
 
 #endif
