@@ -1,6 +1,9 @@
 # R3
 
-Third Generation of Reactive Extensions.
+> [!NOTE]
+> This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10).
+
+The evolution of dotnet/reactive and UniRx.
 
 
 * LINQ is not for EveryThing
