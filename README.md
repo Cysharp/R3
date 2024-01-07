@@ -14,7 +14,7 @@ I have over 10 years of experience with Rx, experience in implementing a custom 
 * Synchronous APIs should not be implemented.
 * The Necessity of a subscription list to prevent subscription leaks (similar to a Parallel Debugger)
 * Backpressure should be left to [IAsyncEnumerable](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream) and [Channels](https://devblogs.microsoft.com/dotnet/an-introduction-to-system-threading-channels/).
-* For distributed processing and queries, there are [GraphQL](https://graphql.org/), [Kubernetes](https://kubernetes.io/), [Orleans](https://learn.microsoft.com/en-us/dotnet/orleans/), [Akka.NET](https://getakka.net/), [gRPC](https://grpc.io/), and [MagicOnion](https://github.com/Cysharp/MagicOnion).
+* For distributed processing and queries, there are [GraphQL](https://graphql.org/), [Kubernetes](https://kubernetes.io/), [Orleans](https://learn.microsoft.com/en-us/dotnet/orleans/), [Akka.NET](https://getakka.net/), [gRPC](https://grpc.io/), [MagicOnion](https://github.com/Cysharp/MagicOnion).
 
 In other words, LINQ is not for EveryThing, and we believe that the essence of Rx lies in the processing of in-memory messaging (LINQ to Events), which will be our focus. Our main intended uses are UI frameworks and game engines, and we are not concerned with communication processes like [Reactive Streams](https://www.reactive-streams.org/).
 
