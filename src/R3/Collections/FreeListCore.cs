@@ -85,6 +85,7 @@ public struct FreeListCore<T>
         lock (gate)
         {
             if (values == null) return false;
+            if (lastIndex < 0) return false;
 
             var index = -1;
             var span = values.AsSpan(0, lastIndex);
@@ -110,7 +111,10 @@ public struct FreeListCore<T>
     {
         lock (gate)
         {
-            values.AsSpan(0, lastIndex).Clear();
+            if (lastIndex > 0)
+            {
+                values.AsSpan(0, lastIndex).Clear();
+            }
             if (removeArray)
             {
                 values = null;

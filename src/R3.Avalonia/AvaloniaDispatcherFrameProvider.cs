@@ -8,7 +8,7 @@ namespace R3.Avalonia;
 
 // NOTE: idially, not polling, use like the WPF's CompositionTarget.Rendering
 
-public sealed class AvaloniaDispatcherFrameProvider : FrameProvider
+public sealed class AvaloniaDispatcherFrameProvider : FrameProvider, IDisposable
 {
     bool disposed;
     long frameCount;

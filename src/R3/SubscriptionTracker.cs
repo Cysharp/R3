@@ -9,11 +9,8 @@ public static class SubscriptionTracker
 {
     static int trackingIdCounter = 0;
 
-    // TODO: UnityEditor? AppSwitch?
-    // public static bool EnableAutoReload = false;
     public static bool EnableTracking = false;
     public static bool EnableStackTrace = false;
-    // TODO: EnableStackTraceFileLink
 
     static readonly WeakDictionary<TrackableDisposable, TrackingState> tracking = new();
 

@@ -3,7 +3,7 @@ using R3.Collections;
 
 namespace R3.WPF;
 
-public sealed class WpfRenderingFrameProvider : FrameProvider
+public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
 {
     bool disposed;
     long frameCount;

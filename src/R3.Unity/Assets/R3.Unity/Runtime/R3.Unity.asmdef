@@ -1,0 +1,18 @@
+{
+    "name": "R3.Unity",
+    "rootNamespace": "R3",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "R3.dll",
+        "Microsoft.Bcl.TimeProvider.dll",
+        "Microsoft.Bcl.AsyncInterfaces.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

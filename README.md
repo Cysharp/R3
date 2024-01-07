@@ -18,3 +18,10 @@ public abstract class Observer<T> : IDisposable
     public void OnCompleted(Result result);
 }
 ```
+
+
+
+## Unity
+
+lower supported version: Unity 2021.3
+
