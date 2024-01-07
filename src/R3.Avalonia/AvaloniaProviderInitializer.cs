@@ -1,9 +1,15 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Logging;
+using Avalonia.Threading;
 
 namespace R3.Avalonia;
 
 public static class AvaloniaProviderInitializer
 {
+    public static void SetDefaultObservableSystem()
+    {
+        SetDefaultObservableSystem(ex => Logger.Sink?.Log(LogEventLevel.Error, "R3", null, "R3 Unhandled Exception {0}", ex));
+    }
+
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
