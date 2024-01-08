@@ -168,7 +168,7 @@ public class ChunkTest
     [Fact]
     public void ChunkFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.ChunkFrame(3, frameProvider).ToLiveList();
@@ -208,7 +208,7 @@ public class ChunkTest
     [Fact]
     public void ChunkFrameAndCount()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.ChunkFrame(3, 2, frameProvider).ToLiveList();

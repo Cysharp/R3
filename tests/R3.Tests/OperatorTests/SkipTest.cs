@@ -52,7 +52,7 @@ public class SkipTest
     [Fact]
     public void SkipFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.SkipFrame(3, frameProvider).ToLiveList();

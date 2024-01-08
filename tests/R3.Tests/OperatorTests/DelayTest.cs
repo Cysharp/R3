@@ -54,7 +54,7 @@ public class DelayTest
     [Fact]
     public void DelayFrame()
     {
-        var provider = new ManualFrameProvider();
+        var provider = new FakeFrameProvider();
         var subject = new Subject<int>();
 
         var e = new List<Exception>();

@@ -7,21 +7,21 @@ public class TimerFrameTest
     public void TimerSingle()
     {
         {
-            var fakeTime = new ManualFrameProvider();
+            var fakeTime = new FakeFrameProvider();
             var list = Observable.TimerFrame(0, fakeTime).ToLiveList();
             fakeTime.Advance(1);
             list.AssertIsCompleted();
             list.AssertEqual([Unit.Default]);
         }
         {
-            var fakeTime = new ManualFrameProvider();
+            var fakeTime = new FakeFrameProvider();
             var list = Observable.TimerFrame(1, fakeTime).ToLiveList();
             fakeTime.Advance(1);
             list.AssertIsCompleted();
             list.AssertEqual([Unit.Default]);
         }
         {
-            var fakeTime = new ManualFrameProvider();
+            var fakeTime = new FakeFrameProvider();
             var list = Observable.TimerFrame(2, fakeTime).ToLiveList();
             fakeTime.Advance(2);
             list.AssertIsCompleted();
@@ -32,7 +32,7 @@ public class TimerFrameTest
     [Fact]
     public void TimerSingle2()
     {
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
 
         var list = Observable.TimerFrame(5, fakeTime).ToLiveList();
 
@@ -48,7 +48,7 @@ public class TimerFrameTest
     public void TimerMulti()
     {
         var cts = new CancellationTokenSource();
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
 
         var list = Observable.TimerFrame(5, 8, fakeTime, cts.Token).ToLiveList();
 
@@ -76,7 +76,7 @@ public class TimerFrameTest
     public void Interval()
     {
         var cts = new CancellationTokenSource();
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
 
         var list = Observable.IntervalFrame(5, fakeTime, cts.Token).ToLiveList();
 

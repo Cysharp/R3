@@ -12,13 +12,13 @@ public interface IFrameRunnerWorkItem
     bool MoveNext(long frameCount);
 }
 
-public sealed class ManualFrameProvider : FrameProvider
+public sealed class FakeFrameProvider : FrameProvider
 {
     long frameCount;
     readonly object gate = new object();
     FreeListCore<IFrameRunnerWorkItem> list;
 
-    public ManualFrameProvider()
+    public FakeFrameProvider()
     {
         list = new FreeListCore<IFrameRunnerWorkItem>(gate);
     }

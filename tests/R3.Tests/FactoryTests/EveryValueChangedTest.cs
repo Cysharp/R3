@@ -6,7 +6,7 @@ public class EveryValueChangedTest
     [Fact]
     public void EveryValueChanged()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var t = new Target();
         t.MyProperty = 99;

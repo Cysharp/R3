@@ -6,7 +6,7 @@ public class EveryUpdateTest
     public void EveryUpdateCancelImmediate()
     {
         var cts = new CancellationTokenSource();
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var list = Observable.EveryUpdate(frameProvider, cts.Token).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
 
@@ -29,7 +29,7 @@ public class EveryUpdateTest
     [Fact]
     public void EveryUpdateDispose()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var list = Observable.EveryUpdate(frameProvider).Select(_ => frameProvider.GetFrameCount()).ToLiveList();
 

@@ -7,7 +7,7 @@ public class ReturnFrameTest
     [Fact]
     public void UnitTest()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
         var cts = new CancellationTokenSource();
 
         var list = Observable.YieldFrame(frameProvider, cts.Token).ToLiveList();
@@ -22,7 +22,7 @@ public class ReturnFrameTest
     public void ValueTest()
     {
         {
-            var frameProvider = new ManualFrameProvider();
+            var frameProvider = new FakeFrameProvider();
             var cts = new CancellationTokenSource();
 
             var list = Observable.ReturnFrame(10, frameProvider, cts.Token).ToLiveList();
@@ -33,7 +33,7 @@ public class ReturnFrameTest
             list.AssertEqual([10]);
         }
         {
-            var frameProvider = new ManualFrameProvider();
+            var frameProvider = new FakeFrameProvider();
             var cts = new CancellationTokenSource();
 
             var list = Observable.ReturnFrame(10, frameProvider, cts.Token).ToLiveList();
@@ -47,7 +47,7 @@ public class ReturnFrameTest
     [Fact]
     public void TimeTest()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
         var cts = new CancellationTokenSource();
 
         var list = Observable.ReturnFrame(10, 5, frameProvider, cts.Token).ToLiveList();
@@ -65,7 +65,7 @@ public class ReturnFrameTest
     public void NextFrameTest()
     {
         {
-            var frameProvider = new ManualFrameProvider();
+            var frameProvider = new FakeFrameProvider();
             var cts = new CancellationTokenSource();
 
             var list = Observable.NextFrame(frameProvider, cts.Token).ToLiveList();
@@ -79,7 +79,7 @@ public class ReturnFrameTest
             list.AssertEqual(Unit.Default);
         }
         {
-            var frameProvider = new ManualFrameProvider(); // use custom fake
+            var frameProvider = new FakeFrameProvider(); // use custom fake
             var cts = new CancellationTokenSource();
 
             var list = Observable.YieldFrame(frameProvider, cts.Token).ToLiveList();

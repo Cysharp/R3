@@ -52,7 +52,7 @@ public class ObserveOnTest
     [Fact]
     public void FrameProvider()
     {
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
         var publisher = new Subject<int>();
 
         using var list = publisher.ObserveOn(fakeTime).ToLiveList();
@@ -77,7 +77,7 @@ public class ObserveOnTest
     public void FrameProvider2()
     {
 
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
         var publisher = new Subject<int>();
 
         using var list = publisher.ObserveOn(fakeTime)

@@ -34,7 +34,7 @@ public class TakeTest
     [Fact]
     public void TakeFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.TakeFrame(5, frameProvider).ToLiveList();
@@ -54,7 +54,7 @@ public class TakeTest
     [Fact]
     public void TakeFrame2()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var list = Observable.EveryUpdate(frameProvider)
             .Select(x => frameProvider.GetFrameCount())

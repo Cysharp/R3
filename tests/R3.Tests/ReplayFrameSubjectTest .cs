@@ -5,7 +5,7 @@ public class ReplayFrameSubjectTest
     [Fact]
     public void ReplayTime()
     {
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
 
         var subject = new ReplayFrameSubject<int>((3), fakeTime);
 

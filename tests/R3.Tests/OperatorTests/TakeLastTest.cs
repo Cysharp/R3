@@ -40,7 +40,7 @@ public class TakeLastTest
     [Fact]
     public void TakeFrame2()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
         var cts = new CancellationTokenSource();
 
         var list = Observable.EveryUpdate(frameProvider, cts.Token)

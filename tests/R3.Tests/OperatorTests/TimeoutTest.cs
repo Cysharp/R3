@@ -31,7 +31,7 @@ public class TimeoutTest
     [Fact]
     public void TimeoutFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.TimeoutFrame(3, frameProvider).ToLiveList();

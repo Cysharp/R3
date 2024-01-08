@@ -38,7 +38,7 @@ public class DelaySubscriptionTest
     [Fact]
     public void DelaySubscriptionFrame()
     {
-        var provider = new ManualFrameProvider();
+        var provider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var subscribed = false;

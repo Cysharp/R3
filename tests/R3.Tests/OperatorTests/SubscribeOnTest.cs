@@ -53,7 +53,7 @@ public class SubscribeOnTest
     public void FrameProvider()
     {
 
-        var fakeTime = new ManualFrameProvider();
+        var fakeTime = new FakeFrameProvider();
         var subscribed = false;
         using var list = Observable.Range(1, 10)
             .Do(onSubscribe: () => subscribed = true)

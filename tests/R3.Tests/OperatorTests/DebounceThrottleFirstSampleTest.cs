@@ -124,7 +124,7 @@ public class DebounceThrottleFirstSampleTest
     [Fact]
     public void DebounceFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.DebounceFrame(3, frameProvider).ToLiveList();
@@ -170,7 +170,7 @@ public class DebounceThrottleFirstSampleTest
     [Fact]
     public void ThrottleFirstFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.ThrottleFirstFrame(3, frameProvider).ToLiveList();
@@ -205,7 +205,7 @@ public class DebounceThrottleFirstSampleTest
     [Fact]
     public void SampleFrame()
     {
-        var frameProvider = new ManualFrameProvider();
+        var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
         var list = publisher.ThrottleLastFrame(3, frameProvider).ToLiveList();
