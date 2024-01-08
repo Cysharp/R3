@@ -1,61 +1,70 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using ConsoleApp1;
 using R3;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reactive.Linq;
-using System.Threading.Channels;
-using ZLogger;
 
-SubscriptionTracker.EnableTracking = true;
-SubscriptionTracker.EnableStackTrace = true;
 
-using var factory = LoggerFactory.Create(x =>
-{
-    x.SetMinimumLevel(LogLevel.Trace);
-    x.AddZLoggerConsole();
-});
-// ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
-var logger = factory.CreateLogger<Program>();
+
+//Dump.Factory();
+
+Dump.Operator();
 
 
 
 
-var sw = Stopwatch.StartNew();
-var subject1 = new System.Reactive.Subjects.Subject<int>();
-var subject2 = new System.Reactive.Subjects.Subject<int>();
-//subject1.WithLatestFrom(subject2.Finally(() => Console.WriteLine("finally subject2")), (x, y) => (x, y)).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
-
-subject1.Scan((x, y) => x + y).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
 
 
-subject1.OnNext(1);
-subject1.OnNext(10);
+
+
+
+//SubscriptionTracker.EnableTracking = true;
+//SubscriptionTracker.EnableStackTrace = true;
+
+//using var factory = LoggerFactory.Create(x =>
+//{
+//    x.SetMinimumLevel(LogLevel.Trace);
+//    x.AddZLoggerConsole();
+//});
+//// ObservableSystem.Logger = factory.CreateLogger<ObservableSystem>();
+//var logger = factory.CreateLogger<Program>();
+
+
+
+
+//var sw = Stopwatch.StartNew();
+//var subject1 = new System.Reactive.Subjects.Subject<int>();
+//var subject2 = new System.Reactive.Subjects.Subject<int>();
+////subject1.WithLatestFrom(subject2.Finally(() => Console.WriteLine("finally subject2")), (x, y) => (x, y)).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
+
+//subject1.Scan((x, y) => x + y).Subscribe(x => Console.WriteLine(x), () => Console.WriteLine("end"));
+
+
+//subject1.OnNext(1);
 //subject1.OnNext(10);
-//subject1.OnNext(100);
+////subject1.OnNext(10);
+////subject1.OnNext(100);
 
-// subject1.SequenceEqual(
-
-
-// System.Reactive.Linq.Observable.Switch(
+//// subject1.SequenceEqual(
 
 
-public static class Extensions
-{
-    public static IDisposable WriteLine<T>(this Observable<T> source)
-    {
-        return source.Subscribe(x => Console.WriteLine(x), x => Console.WriteLine(x));
-    }
-}
+//// System.Reactive.Linq.Observable.Switch(
+
+
+//public static class Extensions
+//{
+//    public static IDisposable WriteLine<T>(this Observable<T> source)
+//    {
+//        return source.Subscribe(x => Console.WriteLine(x), x => Console.WriteLine(x));
+//    }
+//}
 
 
 
-class TestDisposable : IDisposable
-{
-    public int CalledCount = 0;
+//class TestDisposable : IDisposable
+//{
+//    public int CalledCount = 0;
 
-    public void Dispose()
-    {
-        CalledCount += 1;
-    }
-}
+//    public void Dispose()
+//    {
+//        CalledCount += 1;
+//    }
+//}
 
