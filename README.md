@@ -356,7 +356,7 @@ Result Handling
 The `Result` received by OnCompleted has a field `Exception?`, where it's null in case of success and contains the Exception in case of failure.
 
 ```csharp
-// 典型的な処理コード例
+// Typical processing code example
 void OnCompleted(Result result)
 {
     if (result.IsFailure)
