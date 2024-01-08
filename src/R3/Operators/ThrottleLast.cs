@@ -2,26 +2,25 @@
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> Sample<T>(this Observable<T> source, TimeSpan timeSpan)
+    public static Observable<T> ThrottleLast<T>(this Observable<T> source, TimeSpan timeSpan)
     {
-        return new Sample<T>(source, timeSpan, ObservableSystem.DefaultTimeProvider);
+        return new ThrottleLast<T>(source, timeSpan, ObservableSystem.DefaultTimeProvider);
     }
 
-    public static Observable<T> Sample<T>(this Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider)
+    public static Observable<T> ThrottleLast<T>(this Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider)
     {
-        return new Sample<T>(source, timeSpan, timeProvider);
+        return new ThrottleLast<T>(source, timeSpan, timeProvider);
     }
 }
 
-// Sample(ThrottleLast)
-internal sealed class Sample<T>(Observable<T> source, TimeSpan interval, TimeProvider timeProvider) : Observable<T>
+internal sealed class ThrottleLast<T>(Observable<T> source, TimeSpan interval, TimeProvider timeProvider) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _Sample(observer, interval.Normalize(), timeProvider));
+        return source.Subscribe(new _ThrottleLast(observer, interval.Normalize(), timeProvider));
     }
 
-    sealed class _Sample : Observer<T>
+    sealed class _ThrottleLast : Observer<T>
     {
         static readonly TimerCallback timerCallback = RaiseOnNext;
 
@@ -31,7 +30,7 @@ internal sealed class Sample<T>(Observable<T> source, TimeSpan interval, TimePro
         T? lastValue;
         bool hasValue;
 
-        public _Sample(Observer<T> observer, TimeSpan interval, TimeProvider timeProvider)
+        public _ThrottleLast(Observer<T> observer, TimeSpan interval, TimeProvider timeProvider)
         {
             this.observer = observer;
             this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
@@ -64,7 +63,7 @@ internal sealed class Sample<T>(Observable<T> source, TimeSpan interval, TimePro
 
         static void RaiseOnNext(object? state)
         {
-            var self = (_Sample)state!;
+            var self = (_ThrottleLast)state!;
             lock (self.gate)
             {
                 if (self.hasValue)

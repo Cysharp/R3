@@ -40,7 +40,7 @@ public class ToObservableTest
             var list = Enumerable.Range(0, int.MaxValue)
                 .ToObservable(cts.Token)
                 .Take(10)
-                .CancelOnCompleted(cts)
+                .DoCancelOnCompleted(cts)
                 .ToLiveList();
 
             list.AssertEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);

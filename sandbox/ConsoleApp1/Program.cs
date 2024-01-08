@@ -5,7 +5,13 @@ using R3;
 
 //Dump.Factory();
 
-Dump.Operator();
+var cts = new CancellationTokenSource();
+
+Observable.Range(0, int.MaxValue, cts.Token)
+    .Do(onNext: x => Console.WriteLine($"Do:{x}"))
+    .Take(10)
+    .DoCancelOnCompleted(cts)
+    .Subscribe(x => Console.WriteLine($"Subscribe:{x}"));
 
 
 

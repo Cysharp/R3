@@ -24,7 +24,7 @@ public class RepeatTest
 
         using var list = Observable.Repeat("foo", int.MaxValue, cts.Token)
             .Take(5)
-            .CancelOnCompleted(cts)
+            .DoCancelOnCompleted(cts)
             .ToLiveList();
 
         list.AssertEqual(["foo", "foo", "foo", "foo", "foo"]);

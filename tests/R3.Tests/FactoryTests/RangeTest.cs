@@ -33,7 +33,7 @@ public class RangeTest
 
         using var list = Observable.Range(0, int.MaxValue, cts.Token)
             .Take(5)
-            .CancelOnCompleted(cts)
+            .DoCancelOnCompleted(cts)
             .ToLiveList();
 
         list.AssertEqual([0, 1, 2, 3, 4]);

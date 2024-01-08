@@ -2,25 +2,25 @@
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> SampleFrame<T>(this Observable<T> source, int frameCount)
+    public static Observable<T> ThrottleLastFrame<T>(this Observable<T> source, int frameCount)
     {
-        return new SampleFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
+        return new ThrottleLastFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
     }
 
-    public static Observable<T> SampleFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
+    public static Observable<T> ThrottleLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
-        return new SampleFrame<T>(source, frameCount, frameProvider);
+        return new ThrottleLastFrame<T>(source, frameCount, frameProvider);
     }
 }
 
-internal sealed class SampleFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
+internal sealed class ThrottleLastFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _SampleFrame(observer, frameCount.NormalizeFrame(), frameProvider));
+        return source.Subscribe(new _ThrottleLastFrame(observer, frameCount.NormalizeFrame(), frameProvider));
     }
 
-    sealed class _SampleFrame : Observer<T>, IFrameRunnerWorkItem
+    sealed class _ThrottleLastFrame : Observer<T>, IFrameRunnerWorkItem
     {
         readonly Observer<T> observer;
         readonly int frameCount;
@@ -29,7 +29,7 @@ internal sealed class SampleFrame<T>(Observable<T> source, int frameCount, Frame
         bool hasValue;
         int currentFrame;
 
-        public _SampleFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
+        public _ThrottleLastFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
             this.frameCount = frameCount;

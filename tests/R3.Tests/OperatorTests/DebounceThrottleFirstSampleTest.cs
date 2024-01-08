@@ -92,7 +92,7 @@ public class DebounceThrottleFirstSampleTest
         var timeProvider = new FakeTimeProvider();
 
         var publisher = new Subject<int>();
-        var list = publisher.Sample(TimeSpan.FromSeconds(3), timeProvider).ToLiveList();
+        var list = publisher.ThrottleLast(TimeSpan.FromSeconds(3), timeProvider).ToLiveList();
 
         publisher.OnNext(1);
         publisher.OnNext(10);
@@ -208,7 +208,7 @@ public class DebounceThrottleFirstSampleTest
         var frameProvider = new ManualFrameProvider();
 
         var publisher = new Subject<int>();
-        var list = publisher.SampleFrame(3, frameProvider).ToLiveList();
+        var list = publisher.ThrottleLastFrame(3, frameProvider).ToLiveList();
 
         publisher.OnNext(1);
         publisher.OnNext(10);

@@ -111,6 +111,13 @@ Disposables
 ---
 
 
+Subjects(ReactiveProperty)
+---
+
+
+Android LiveData, Kotlin StateFlow
+
+
 Subscription Management
 ---
 
@@ -143,8 +150,15 @@ lower supported version: Unity 2021.3
 
 Operator Reference
 ---
+The standard operators in ReactiveX follow the behavior described in the [Reactive X Operator documentation](https://reactivex.io/documentation/operators.html).
+
+Methods that accept a Scheduler will take a `TimeProvider`. Additionally, methods that receive a `TimeProvider` have an added method called `***Frame` that accepts a `FrameProvider`.
+
+For default time based operations that do not take a provider, `ObservableSystem.DefaultTimeProvider` is used, and for frame based operations without provider, `ObservableSystem.DefaultFrameProvider` is used.
 
 ### Factory
+
+Factory methods are defined as static methods in the static class `Observable`.
 
 | Name(Parameter) | ReturnType |
 | --- | --- |
@@ -229,7 +243,36 @@ Operator Reference
 | **ZipLatest**(params `Observable<T>[]` sources) | `Observable<T[]>` |
 | **ZipLatest**(`IEnumerable<Observable<T>>` sources) | `Observable<T[]>` |
 
+Methods that accept a `CancellationToken` will emit `OnCompleted` when a Cancel is issued. This allows for unsubscribing in event source.
+
+`Range`, `Repeat`, `Return/Empty/Throw` (which do not take a `TimeProvider`) issue values immediately. This means that even if disposed of midway, the emission of values cannot be stopped. For example,
+
+```csharp
+Observable.Range(0, int.MaxValue)
+    .Do(onNext: x => Console.WriteLine($"Do:{x}"))
+    .Take(10)
+    .Subscribe(x => Console.WriteLine($"Subscribe:{x}"));
+```
+
+In this case, since the disposal of `Take(10)` is conveyed after the emission of `Range`, the stream does not stop. In dotnet/reactive, this could be avoided by specifying `CurrentThreadScheduler`, but it was not adopted in R3 due to a significant performance decrease.
+
+If you want to avoid such cases, you can stop the Range by conveying a cancellation command through a `CancellationToken`.
+
+```csharp
+var cts = new CancellationTokenSource();
+
+Observable.Range(0, int.MaxValue, cts.Token)
+    .Do(onNext: x => Console.WriteLine($"Do:{x}"))
+    .Take(10)
+    .DoCancelOnCompleted(cts)
+    .Subscribe(x => Console.WriteLine($"Subscribe:{x}"));
+```
+
+Among our custom frame-based methods, `EveryUpdate` emits values every frame. `Yield` and `NextFrame` are similar, but `Yield` emits on the first frame loop after subscribing, while `NextFrame` delays emission to the next frame if it's in the same frame as the `FrameProvider.GetFrameCount()` value obtained at the time of subscription. `EveryValueChanged` compares values every frame and notifies when there is a change.
+
 ### Operator
+
+Operator methods are defined as extension methods to `Observable<T>` in the static class `ObservableExtensions`.
 
 | Name(Parameter) | ReturnType |
 | --- | --- |
@@ -243,7 +286,6 @@ Operator Reference
 | **AsObservable**(this `Observable<T>` source) | `Observable<T>` |
 | **AsUnitObservable**(this `Observable<T>` source) | `Observable<Unit>` |
 | **AverageAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` |
-| **CancelOnCompleted**(this `Observable<T>` source, `CancellationTokenSource` cancellationTokenSource) | `Observable<T>` |
 | **Cast**(this `Observable<T>` source) | `Observable<TResult>` |
 | **Catch**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` |
 | **Catch**(this `Observable<T>` source, `Func<TException, Observable<T>>` errorHandler) | `Observable<T>` |
@@ -301,6 +343,7 @@ Operator Reference
 | **DistinctUntilChangedBy**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IEqualityComparer<TKey>` comparer) | `Observable<T>` |
 | **Do**(this `Observable<T>` source, `Action<T>` onNext = default, `Action<Exception>` onErrorResume = default, `Action<Result>` onCompleted = default, `Action` onDispose = default, `Action` onSubscribe = default) | `Observable<T>` |
 | **Do**(this `Observable<T>` source, `TState` state, `Action<T, TState>` onNext = default, `Action<Exception, TState>` onErrorResume = default, `Action<Result, TState>` onCompleted = default, `Action<TState>` onDispose = default, `Action<TState>` onSubscribe = default) | `Observable<T>` |
+| **DoCancelOnCompleted**(this `Observable<T>` source, `CancellationTokenSource` cancellationTokenSource) | `Observable<T>` |
 | **ElementAtAsync**(this `Observable<T>` source, `Int32` index, `CancellationToken` cancellationToken = default) | `Task<T>` |
 | **ElementAtAsync**(this `Observable<T>` source, `Index` index, `CancellationToken` cancellationToken = default) | `Task<T>` |
 | **ElementAtOrDefaultAsync**(this `Observable<T>` source, `Int32` index, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` |
@@ -353,10 +396,6 @@ Operator Reference
 | **ReplayFrame**(this `Observable<T>` source, `Int32` window, `FrameProvider` frameProvider) | `ConnectableObservable<T>` |
 | **ReplayFrame**(this `Observable<T>` source, `Int32` bufferSize, `Int32` window) | `ConnectableObservable<T>` |
 | **ReplayFrame**(this `Observable<T>` source, `Int32` bufferSize, `Int32` window, `FrameProvider` frameProvider) | `ConnectableObservable<T>` |
-| **Sample**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` |
-| **Sample**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` |
-| **SampleFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` |
-| **SampleFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` |
 | **Scan**(this `Observable<TSource>` source, `Func<TSource, TSource, TSource>` accumulator) | `Observable<TSource>` |
 | **Scan**(this `Observable<TSource>` source, `TAccumulate` seed, `Func<TAccumulate, TSource, TAccumulate>` accumulator) | `Observable<TAccumulate>` |
 | **Select**(this `Observable<T>` source, `Func<T, TResult>` selector) | `Observable<TResult>` |
@@ -417,6 +456,10 @@ Operator Reference
 | **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` |
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` |
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` |
+| **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` |
+| **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` |
+| **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` |
+| **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` |
 | **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` |
 | **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime, `TimeProvider` timeProvider) | `Observable<T>` |
 | **TimeoutFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` |
@@ -471,20 +514,25 @@ Operator Reference
 | **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>` resultSelector) | `Observable<TResult>` |
 | **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Observable<T15>` source15, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>` resultSelector) | `Observable<TResult>` |
 
+In dotnet/reactive, methods that return a single `IObservable<T>` (such as `First`) are all provided only as `***Async`, returning `Task<T>`. Additionally, to align with the naming of Enumerable, `Buffer` has been changed to `Chunk`.
 
+`Throttle` has been changed to `Debounce`, and `Sample` has been changed to `ThrottleLast`. Originally in dotnet/reactive, there were only `Throttle` and `Sample`, but later `ThrottleFirst` was added, leading to inconsistency in behavior and naming. The behavior of `ThrottleFirst` is similar to `Sample` (which is `ThrottleLast`), whereas `Throttle` has a completely different behavior. Therefore, `Throttle` was changed to the more commonly used `Debounce`, and `Sample` was changed to `ThrottleLast` for symmetry with `ThrottleFirst`. Additionally, I am opposed to keeping `Sample` as an alias for `ThrottleLast`. As a result of such methods being maintained, other libraries often receive questions like "What is the difference between `ThrottleLast` and `Sample`?"
 
-Class/Method name changes from dotnet/reactive and UniRx
+Class/Method name changes from dotnet/reactive and neuecc/UniRx
 ---
 * `Buffer` -> `Chunk`
 * `BatchFrame` -> `ChunkFrame`
 * `Throttle` -> `Debounce`
 * `ThrottleFrame` -> `DebounceFrame`
+* `Sample` -> `ThrottleLast`
+* `SampleFrame` -> `ThrottleLastFrame`
 * `ObserveEveryValueChanged(this T value)` -> `Observable.EveryValueChanged(T value)`
 * `Finally` -> `Do(onDisposed:)`
 * `Do***` -> `Do(on***:)`
 * `BehaviorSubject` -> `ReactiveProperty`
 * `StableCompositeDisposable` -> `Disposable.Combine`
 * `IScheduler` -> `TimeProvider`
+* Return single value methods -> `***Async`
 
 License
 ---

@@ -12,7 +12,7 @@ public static partial class ObservableExtensions
         return new Do<T, TState>(source, state, onNext, onErrorResume, onCompleted, onDispose, onSubscribe);
     }
 
-    public static Observable<T> CancelOnCompleted<T>(this Observable<T> source, CancellationTokenSource cancellationTokenSource)
+    public static Observable<T> DoCancelOnCompleted<T>(this Observable<T> source, CancellationTokenSource cancellationTokenSource)
     {
         return Do(source, cancellationTokenSource, onCompleted: static (_, state) => state.Cancel());
     }
