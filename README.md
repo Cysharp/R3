@@ -1,6 +1,6 @@
 # R3
 
-The evolution of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](https://unity.com/), [Godot](https://godotengine.org/), [Avalonia](https://avaloniaui.net/), WPF, etc(planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper)).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](https://unity.com/), [Godot](https://godotengine.org/), [Avalonia](https://avaloniaui.net/), WPF, etc(planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper)).
 
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10) and others, if you have any opinions, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
@@ -356,7 +356,7 @@ Result Handling
 The `Result` received by OnCompleted has a field `Exception?`, where it's null in case of success and contains the Exception in case of failure.
 
 ```csharp
-// 典型的な処理コード例
+// Typical processing code example
 void OnCompleted(Result result)
 {
     if (result.IsFailure)
