@@ -68,7 +68,7 @@ public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
         }
     }
 
-    static void ThrowObjectDisposedIf([DoesNotReturnIf(true)] bool condition, Type type)
+    static void ThrowObjectDisposedIf(/*[DoesNotReturnIf(true)]*/ bool condition, Type type)
     {
         if (condition)
         {
@@ -76,6 +76,6 @@ public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
         }
     }
 
-    [DoesNotReturn]
+    // [DoesNotReturn]
     internal static void ThrowObjectDisposedException(Type? type) => throw new ObjectDisposedException(type?.FullName);
 }

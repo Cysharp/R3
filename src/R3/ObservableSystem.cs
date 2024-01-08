@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public class ObservableSystem
+public static class ObservableSystem
 {
     public static TimeProvider DefaultTimeProvider { get; set; } = TimeProvider.System;
     public static FrameProvider DefaultFrameProvider { get; set; } = new NotSupportedFrameProvider();

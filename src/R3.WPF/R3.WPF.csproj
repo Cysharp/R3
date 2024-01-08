@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0-windows;</TargetFrameworks>
+        <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows;net472;</TargetFrameworks>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
+        <LangVersion>12</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
