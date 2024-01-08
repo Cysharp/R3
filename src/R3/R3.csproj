@@ -12,7 +12,7 @@
 
         <!-- NuGet Packaging -->
         <PackageTags>rx</PackageTags>
-        <Description>Third Generation of Reactive Extensions.</Description>
+        <Description>The evolution of dotnet/reactive and UniRx.</Description>
     </PropertyGroup>
 
     <ItemGroup>

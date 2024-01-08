@@ -20,10 +20,19 @@ In other words, LINQ is not for EveryThing, and we believe that the essence of R
 
 To address the shortcomings of dotnet/reactive, we have made changes to the core interfaces. In recent years, Rx-like frameworks optimized for language features, such as [Kotlin Flow](https://kotlinlang.org/docs/flow.html) and [Swift Combine](https://developer.apple.com/documentation/combine), have been standardized. C# has also evolved significantly, now at C# 12, and we believe there is a need for an Rx that aligns with the latest C#.
 
-> [!NOTE]
-> TODO: mention about perfomrance and subscription tracker.
+Improving performance was also a theme in the reimplementation. For example, this is the result of the terrible performance of IScheudler and the performance difference caused by its removal.
 
-Getting Started
+![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)  
+`Observable.Range(1, 10000).Subscribe()`
+
+You can also see interesting results in allocations with the addition and deletion to Subject.
+
+![image](https://github.com/Cysharp/ZLogger/assets/46207/2194c086-37a3-44d6-8642-5fd0fa91b168)  
+`x10000 subject.Subscribe() -> x10000 subscription.Dispose()`
+
+This is because dotnet/reactive has adopted ImmutableArray (or its equivalent) for Subject, which results in the allocation of a new array every time one is added or removed. Depending on the design of the application, a large number of subscriptions can occur (we have seen this especially in the complexity of games), which can be a critical issue. In R3, we have devised a way to achieve high performance while avoiding ImmutableArray.
+
+Core Interface
 ---
 This library is distributed via NuGet, supporting .NET Standard 2.0, .NET Standard 2.1, .NET 6(.NET 7) and .NET 8 or above.
 
@@ -51,29 +60,9 @@ await Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(3))
 subscription.Dispose();
 ```
 
+The surface API remains the same as normal Rx, but the interfaces used internally are different and are not `IObservable<T>/IObserver<T>`.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-----
-
-
-
+`IObservable<T>` being the dual of `IEnumerable<T>` is a beautiful definition, but it was not very practical in use.
 
 ```csharp
 public abstract class Observable<T>
@@ -85,42 +74,361 @@ public abstract class Observer<T> : IDisposable
 {
     public void OnNext(T value);
     public void OnErrorResume(Exception error);
-    public void OnCompleted(Result result);
+    public void OnCompleted(Result result); // Result is () | Exception
 }
-
-public static Observable<Unit> Interval(TimeSpan period, TimeProvider timeProvider);
-public static Observable<Unit> IntervalFrame(int periodFrame, FrameProvider frameProvider);
 ```
 
+The biggest difference is that in normal Rx, when an exception occurs in the pipeline, it flows to `OnError` and the subscription is unsubscribed, but in R3, it flows to `OnErrorResume` and the subscription is not unsubscribed.
 
+I consider the automatic unsubscription by OnError to be a bad design for event handling. It's very difficult and risky to resolve it within an operator like Retry, and it also led to poor performance (there are many questions and complex answers about stopping and resubscribing all over the world). Also, converting OnErrorResume to OnError(OnCompleted(Result.Failure)) is easy and does not degrade performance, but the reverse is impossible. Therefore, the design was changed to not stop by default and give users the choice to stop.
 
-`IObservable<T>` being the dual of `IEnumerable<T>` is a beautiful definition, but it was not very practical in use.
+Since the original Rx contract was `OnError | OnCompleted`, it was changed to `OnCompleted(Result result)` to consolidate into one method. Result is a readonly struct with two states: `Failure(Exception) | Success()`.
 
+The reason for changing to an abstract class instead of an interface is that Rx has implicit complex contracts that interfaces do not guarantee. By making it an abstract class, we fully controlled the behavior of Subscribe, OnNext, and Dispose. This made it possible to manage the list of all subscriptions and prevent subscription leaks.
 
+![image](https://github.com/Cysharp/ZLogger/assets/46207/149abca5-6d84-44ea-8373-b0e8cd2dc46a)
 
+Subscription leaks are a common problem in applications with long lifecycles, such as GUIs or games. Tracking all subscriptions makes it easy to prevent leaks.
 
+Internally, when subscribing, an Observer is always linked to the target Observable and doubles as a Subscription. This ensures that Observers are reliably connected from top to bottom, making tracking certain and clear that they are released on OnCompleted/Dispose. In terms of performance, because the Observer itself always becomes a Subscription, there is no need for unnecessary IDisposable allocations.
 
 TimeProvider instead of IScheduler
 ---
+In traditional Rx, `IScheduler` was used as an abstraction for time-based processing, but in R3, we have discontinued its use and instead opted for the [TimeProvider](https://learn.microsoft.com/en-us/dotnet/api/system.timeprovider?view=net-8.0) introduced in .NET 8. For example, the operators are defined as follows:
+
+```csharp
+public static Observable<Unit> Interval(TimeSpan period, TimeProvider timeProvider);
+public static Observable<T> Delay<T>(this Observable<T> source, TimeSpan dueTime, TimeProvider timeProvider)
+public static Observable<T> Debounce<T>(this Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider) // same as Throttle in dotnet/reactive
+```
+
+Originally, `IScheduler` had performance issues, and the internal implementation of dotnet/reactive was peppered with code that circumvented these issues using `PeriodicTimer` and `IStopwatch`, leading to unnecessary complexity. These can be better expressed with TimeProvider (`TimeProvider.CreateTimer()`, `TimeProvider.GetTimestamp()`).
+
+While TimeProvider is an abstraction for asynchronous operations, excluding the Fake for testing purposes, `IScheduler` included synchronous schedulers like `ImmediateScheduler` and `CurrentThreadScheduler`. However, these were also meaningless as applying them to time-based operators would cause blocking, and `CurrentThreadScheduler` had poor performance.
+
+![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)  
+`Observable.Range(1, 10000).Subscribe()`
+
+In R3, anything that requires synchronous execution (like Range) is treated as Immediate, and everything else is considered asynchronous and handled through TimeProvider.
+
+As for the implementation of TimeProvider, the standard TimeProvider.System using the ThreadPool is the default. For unit testing, FakeTimeProvider (Microsoft.Extensions.TimeProvider.Testing) is available. Additionally, many TimeProvider implementations are provided for different platforms, such as DispatcherTimerProvider for WPF and UpdateTimerProvider for Unity, enhancing ease of use tailored to each platform.
 
 Frame based operations
 ---
+In GUI applications, there's the message loop, and in game engines, there's the game loop. Platforms that operate based on loops are not uncommon. The idea of executing something after a few seconds or frames fits very well with Rx. Just as time has been abstracted through TimeProvider, we introduced a layer of abstraction for frames called FrameProvider, and added frame-based operators corresponding to all methods that accept TimeProvider.
 
+```csharp
+public static Observable<Unit> IntervalFrame(int periodFrame, FrameProvider frameProvider);
+public static Observable<T> DelayFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
+public static Observable<T> DebounceFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
+```
 
-Disposables
----
+The effectiveness of frame-based processing has been proven in Unity's Rx implementation, [neuecc/UniRx](https://github.com/neuecc/UniRx), which is one of the reasons why UniRx has gained strong support.
 
+There are also several operators unique to frame-based processing.
+
+```csharp
+// push OnNext every frame.
+Observable.EveryUpdate().Subscribe(x => Console.WriteLine(x));
+
+// take value until next frame
+_eventSoure.TakeUntil(Obserable.NextFrame()).Subscribe();
+
+// polling value changed
+Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => WidthText.Text = x.ToString());
+Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => HeightText.Text = x.ToString());
+```
+
+`EveryValueChanged` could be interesting, as it converts properties without Push-based notifications like `INotifyPropertyChanged`.
+
+![](https://cloud.githubusercontent.com/assets/46207/15827886/1573ff16-2c48-11e6-9876-4e4455d7eced.gif)`
 
 Subjects(ReactiveProperty)
 ---
+In R3, there are four types of Subjects: `Subject`, `ReactiveProperty`, `ReplaySubject`, and `ReplayFrameSubject`. `ReactiveProperty` corresponds to what would be a `BehaviorSubject`, but with the added functionality of eliminating duplicate values. Since you can choose to enable or disable duplicate elimination, it effectively becomes a superior alternative to `BehaviorSubject`, leading to the removal of `BehaviorSubject`.
 
+`ReactiveProperty` has equivalents in other frameworks as well, such as [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow), particularly effective for data binding in UI contexts. In .NET, there is a library called [runceel/ReactiveProperty](https://github.com/runceel/ReactiveProperty), which I originally created.
 
-Android LiveData, Kotlin StateFlow
+Unlike dotnet/reactive's Subject, all Subjects in R3 (Subject, ReactiveProperty, ReplaySubject, ReplayFrameSubject) are designed to call OnCompleted upon disposal. This is because R3 is designed with a focus on subscription management and unsubscription. By calling OnCompleted, it ensures that all subscriptions are unsubscribed from the Subject, the upstream source of events, by default. If you wish to avoid calling OnCompleted, you can do so by calling `Dispose(false)`.
 
+Disposable
+---
+To bundle multiple IDisposables (Subscriptions), it's good to use Disposable's methods. In R3, depending on the performance, 
+
+```csharp
+Disposable.Combine(IDisposable d1, ..., IDisposable d8);
+Disposable.Combine(params IDisposable[]);
+Disposable.CreateBuilder();
+CompositeDisposable
+DisposableBag
+```
+
+five types are available for use. In terms of performance advantages, the order is `Combine(d1,...,d8) (>= CreateBuilder) > Combine(IDisposable[]) >= CreateBuilder > DisposableBag > CompositeDisposable`.
+
+When the number of subscriptions is statically determined, Combine offers the best performance. Internally, for less than 8 arguments, it uses fields, and for 9 or more arguments, it uses an array, making Combine especially efficient for 8 arguments or less.
+
+```csharp
+public partial class MainWindow : Window
+{
+    IDisposable disposable;
+
+    public MainWindow()
+    {
+        var d1 = Observable.IntervalFrame(1).Subscribe();
+        var d2 = Observable.IntervalFrame(1).Subscribe();
+        var d3 = Observable.IntervalFrame(1).Subscribe();
+
+        disposable = Disposable.Combine(d1, d2, d3);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        disposable.Dispose();
+    }
+}
+```
+
+If there are many subscriptions and it's cumbersome to hold each one in a variable, `CreateBuilder` can be used instead. At build time, it combines according to the number of items added to it. Since the Builder itself is a struct, there are no allocations.
+
+```csharp
+public partial class MainWindow : Window
+{
+    IDisposable disposable;
+
+    public MainWindow()
+    {
+        var d = Disposable.CreateBuilder();
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref d);
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref d);
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref d);
+
+        disposable = d.Build();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        disposable.Dispose();
+    }
+}
+```
+
+For dynamically added items, using `DisposableBag` is advisable. This is an add-only struct with only `Add/Clear/Dispose` methods. It can be used relatively quickly and with low allocation by holding it in a class field and passing it around by reference. However, it is not thread-safe.
+
+```csharp
+public partial class MainWindow : Window
+{
+    DisposableBag disposable; // DisposableBag is struct, no need new and don't copy
+
+    public MainWindow()
+    {
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref disposable);
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref disposable);
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref disposable);
+    }
+
+    void OnClick()
+    {
+        Observable.IntervalFrame(1).Subscribe().AddTo(ref disposable);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        disposable.Dispose();
+    }
+}
+```
+
+`CompositeDisposable` is a class that also supports `Remove` and is thread-safe. It is the most feature-rich, but comparatively, it has the lowest performance.
+
+```csharp
+public partial class MainWindow : Window
+{
+    CompositeDisposable disposable = new CompositeDisposable();
+
+    public MainWindow()
+    {
+        Observable.IntervalFrame(1).Subscribe().AddTo(disposable);
+        Observable.IntervalFrame(1).Subscribe().AddTo(disposable);
+        Observable.IntervalFrame(1).Subscribe().AddTo(disposable);
+    }
+
+    void OnClick()
+    {
+        Observable.IntervalFrame(1).Subscribe().AddTo(disposable);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        disposable.Dispose();
+    }
+}
+```
+
+Additionally, there are other utilities for Disposables as follows.
+
+```
+Disposable.Create(Action);
+SerialDisposable
+SingleAssignmentDisposableCore // struct
+SerialDisposableCore
+SingleAssignmentDisposable // struct
+```
 
 Subscription Management
 ---
+Managing subscriptions is one of the most crucial aspects of Rx, and inadequate management can lead to memory leaks. There are two patterns for unsubscribing in Rx. One is by disposing of the IDisposable (Subscription) returned by Subscribe. The other is by receiving OnCompleted.
 
+In R3, to enhance subscription cancellation on both fronts, it's now possible to bundle subscriptions using a variety of Disposable classes for Subscriptions, and for OnCompleted, the upstream side of events (such as Subject or Factory) has been made capable of emitting OnCompleted. Especially, Factories that receive a TimeProvider or FrameProvider can now take a CancellationToken.
+
+```csharp
+public static Observable<Unit> Interval(TimeSpan period, TimeProvider timeProvider, CancellationToken cancellationToken)
+public static Observable<Unit> EveryUpdate(FrameProvider frameProvider, CancellationToken cancellationToken)
+```
+
+When cancelled, OnCompleted is sent, and all subscriptions are unsubscribed.
+
+### SubscriptionTracker
+
+R3 incorporates a system called SubscriptionTracker. When activated, it allows you to view all subscription statuses.
+
+```
+SubscriptionTracker.EnableTracking = true; // default is false
+SubscriptionTracker.EnableStackTrace = true;
+
+using var d = Observable.Interval(TimeSpan.FromSeconds(1))
+    .Where(x => true)
+    .Take(10000)
+    .Subscribe();
+
+// check subscription
+SubscriptionTracker.ForEachActiveTask(x =>
+{
+    Console.WriteLine(x);
+});
+```
+
+```
+TrackingState { TrackingId = 1, FormattedType = Timer._Timer, AddTime = 2024/01/09 4:11:39, StackTrace =... }
+TrackingState { TrackingId = 2, FormattedType = Where`1._Where<Unit>, AddTime = 2024/01/09 4:11:39, StackTrace =... }
+TrackingState { TrackingId = 3, FormattedType = Take`1._Take<Unit>, AddTime = 2024/01/09 4:11:39, StackTrace =... }
+```
+
+Besides directly calling `ForEachActiveTask`, making it more accessible through a GUI can make it easier to check for subscription leaks. Currently, there is an integrated GUI for Unity, and there are plans to provide a screen using Blazor for other platforms.
+
+ObservableSystem, UnhandledExceptionHandler
+---
+For time-based operators that do not specify a TimeProvider or FrameProvider, the default Provider of ObservableSystem is used. This is settable, so if there is a platform-specific Provider (for example, DispatcherTimeProvider in WPF), you can swap it out to create a more user-friendly environment.
+
+```csharp
+public static class ObservableSystem
+{
+    public static TimeProvider DefaultTimeProvider { get; set; } = TimeProvider.System;
+    public static FrameProvider DefaultFrameProvider { get; set; } = new NotSupportedFrameProvider();
+
+    static Action<Exception> unhandledException = DefaultUnhandledExceptionHandler;
+
+    // Prevent +=, use Set and Get method.
+    public static void RegisterUnhandledExceptionHandler(Action<Exception> unhandledExceptionHandler)
+    {
+        unhandledException = unhandledExceptionHandler;
+    }
+
+    public static Action<Exception> GetUnhandledExceptionHandler()
+    {
+        return unhandledException;
+    }
+
+    static void DefaultUnhandledExceptionHandler(Exception exception)
+    {
+        Console.WriteLine("R3 UnhandleException: " + exception.ToString());
+    }
+}
+```
+
+In CUI environments, by default, the FrameProvider will throw an exception. If you want to use FrameProvider in a CUI environment, you can set either `NewThreadSleepFrameProvider`, which sleeps in a new thread for a specified number of seconds, or `TimerFrameProvider`, which executes every specified number of seconds.
+
+### UnhandledExceptionHandler
+
+When an exception passes through OnErrorResume and is not ultimately handled by Subscribe, the UnhandledExceptionHandler of ObservableSystem is called. This can be set with `RegisterUnhandledExceptionHandler`. By default, it writes to `Console.WriteLine`, but it may need to be changed to use `ILogger` or something else as required.
+
+Result Handling
+---
+The `Result` received by OnCompleted has a field `Exception?`, where it's null in case of success and contains the Exception in case of failure.
+
+```csharp
+// 典型的な処理コード例
+void OnCompleted(Result result)
+{
+    if (result.IsFailure)
+    {
+        // do failure
+        _ = result.Exception;
+    }
+    else // result.IsSuccess
+    {
+        // do success
+    }
+}
+```
+
+To generate a `Result`, in addition to using `Result.Success` and `Result.Failure(exception)`, Observer has OnCompleted() and OnCompleted(exception) as shortcuts for Success and Failure, respectively.
+
+```csharp
+observer.OnCompleted(Result.Success);
+observer.OnCompleted(Result.Failure(exception));
+
+observer.OnCompleted(); // same as Result.Success
+observer.OnCompleted(exception); // same as Result.Failure(exception)
+```
+
+Unit Testing
+---
+For unit testing, you can use [FakeTimeProvider](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.time.testing.faketimeprovider) of Microsoft.Extensions.TimeProvider.Testing.
+
+Additionally, in R3, there is a collection called LiveList, which allows you to obtain subscription statuses as a list. Combining these two features can be very useful for unit testing.
+
+```csharp
+var fakeTime = new FakeTimeProvider();
+
+var list = Observable.Timer(TimeSpan.FromSeconds(5), fakeTime).ToLiveList();
+
+fakeTime.Advance(TimeSpan.FromSeconds(4));
+list.AssertIsNotCompleted();
+
+fakeTime.Advance(TimeSpan.FromSeconds(1));
+list.AssertIsCompleted();
+list.AssertEqual([Unit.Default]);
+```
+
+For FrameProvider, a `FakeFrameProvider` is provided as standard, and it can be used in the same way as `FakeTimeProvider`.
+
+```csharp
+var cts = new CancellationTokenSource();
+var frameProvider = new FakeFrameProvider();
+
+var list = Observable.EveryUpdate(frameProvider, cts.Token)
+    .Select(_ => frameProvider.GetFrameCount())
+    .ToLiveList();
+
+list.AssertEqual([]); // list.Should().Equal(expected);
+
+frameProvider.Advance();
+list.AssertEqual([0]);
+
+frameProvider.Advance(3);
+list.AssertEqual([0, 1, 2, 3]);
+
+cts.Cancel();
+list.AssertIsCompleted(); // list.IsCompleted.Should().BeTrue();
+
+frameProvider.Advance();
+list.AssertEqual([0, 1, 2, 3]);
+list.AssertIsCompleted();
+```
+
+Implement Custom Operator Guide
+---
+TODO:
 
 Platform Supports
 ---

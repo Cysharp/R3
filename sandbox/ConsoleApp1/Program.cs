@@ -5,20 +5,17 @@ using R3;
 
 //Dump.Factory();
 
-var cts = new CancellationTokenSource();
-
-Observable.Range(0, int.MaxValue, cts.Token)
-    .Do(onNext: x => Console.WriteLine($"Do:{x}"))
-    .Take(10)
-    .DoCancelOnCompleted(cts)
-    .Subscribe(x => Console.WriteLine($"Subscribe:{x}"));
 
 
+var subject = new Subject<int>();
+for (int i = 0; i < 10000; i++)
+{
+    subject.Subscribe();
+}
 
-
-
-
-
+subject.Subscribe();
+subject.OnCompleted();
+Console.WriteLine(subject);
 
 
 //SubscriptionTracker.EnableTracking = true;
