@@ -5,7 +5,7 @@ The evolution of [dotnet/reactive](https://github.com/dotnet/reactive/) and [Uni
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10) and others, if you have any opinions, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
 
-I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime (UniRx) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
+I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
 * Stopping the pipeline at OnError is a billion-dollar mistake.
 * IScheduler is the root of poor performance.
@@ -16,7 +16,7 @@ I have over 10 years of experience with Rx, experience in implementing a custom 
 * Backpressure should be left to [IAsyncEnumerable](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream) and [Channels](https://devblogs.microsoft.com/dotnet/an-introduction-to-system-threading-channels/).
 * For distributed processing and queries, there are [GraphQL](https://graphql.org/), [Kubernetes](https://kubernetes.io/), [Orleans](https://learn.microsoft.com/en-us/dotnet/orleans/), [Akka.NET](https://getakka.net/), [gRPC](https://grpc.io/), [MagicOnion](https://github.com/Cysharp/MagicOnion).
 
-In other words, LINQ is not for EveryThing, and we believe that the essence of Rx lies in the processing of in-memory messaging (LINQ to Events), which will be our focus. Our main intended uses are UI frameworks and game engines, and we are not concerned with communication processes like [Reactive Streams](https://www.reactive-streams.org/).
+In other words, LINQ is not for EveryThing, and we believe that the essence of Rx lies in the processing of in-memory messaging (LINQ to Events), which will be our focus. We are not concerned with communication processes like [Reactive Streams](https://www.reactive-streams.org/).
 
 To address the shortcomings of dotnet/reactive, we have made changes to the core interfaces. In recent years, Rx-like frameworks optimized for language features, such as [Kotlin Flow](https://kotlinlang.org/docs/flow.html) and [Swift Combine](https://developer.apple.com/documentation/combine), have been standardized. C# has also evolved significantly, now at C# 12, and we believe there is a need for an Rx that aligns with the latest C#.
 
@@ -31,7 +31,7 @@ This library is distributed via NuGet, supporting .NET Standard 2.0, .NET Standa
 
 Some platforms(WPF, Avalonia, Unity, Godot) requires additional step to install. Please see [Platform Supports](#platform-supports) section in below.
 
-R3 code is almostly same as standard Rx. Make the Observable via factory methods(Timer, Interval, FromEvent, Subject, etc...) and chain operator via LINQ methods. Therefore, your knowledge about Rx and documentation on Rx can be almost directly applied.
+R3 code is almostly same as standard Rx. Make the Observable via factory methods(Timer, Interval, FromEvent, Subject, etc...) and chain operator via LINQ methods. Therefore, your knowledge about Rx and documentation on Rx can be almost directly applied. If you are new to Rx, the [ReactiveX](https://reactivex.io/intro.html) website and [Introduction to Rx.NET](https://introtorx.com/) would be useful resources for reference.
 
 ```csharp
 using R3;
@@ -124,29 +124,322 @@ Subscription Management
 
 Platform Supports
 ---
+Even without adding specific platform support, it is possible to use only the core library. However, Rx becomes more user-friendly by replacing the standard `TimeProvider` and `FrameProvider` with those optimized for each platform. For example, while the standard `TimeProvider` is thread-based, using a UI thread-based `TimeProvider` for each platform can eliminate the need for dispatch through `ObserveOn`, enhancing usability. Additionally, since message loops differ across platforms, the use of individual `FrameProvider` is essential.
 
+Although standard support is provided for the following platforms, by implementing `TimeProvider` and `FrameProvider`, it is possible to support any environment, including in-house game engine or other frameworks.
+
+* [WPF](#wpf)
+* [Avalonia](#avalonia)
+* [Unity](#unity)
+* [Godot](#godot)
+
+Add support planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper).
 
 ### WPF
 
+> PM> Install-Package [R3.WPF](https://www.nuget.org/packages/R3.WPF)
+
+R3.WPF package has two providers.
+
+* WpfDispatcherTimerProvider
+* WpfRenderingFrameProvider
+
+Calling `WpfProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with the aforementioned providers.
+
+```csharp
+public partial class App : Application
+{
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        // You need to set UnhandledExceptionHandler
+        WpfProviderInitializer.SetDefaultObservableSystem(ex => Trace.WriteLine($"R3 UnhandledException:{ex}"));
+    }
+}
+```
+
+As a result, time based operations are replaced with `DispatcherTimer`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+
+`WpfRenderingFrameProvider` is a frame-based loop system synchronized with the `CompositionTarget.Rendering` event. This allows for writing code that, for example, reads and reflects changes in values that do not implement `INotifyPropertyChanged`.
+
+```csharp
+public partial class MainWindow : Window
+{
+    IDisposable disposable;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+
+        var d1 = Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => WidthText.Text = x.ToString());
+        var d2 = Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => HeightText.Text = x.ToString());
+
+        disposable = Disposable.Combine(d1, d2);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        disposable.Dispose();
+    }
+}
+```
+
+![](https://cloud.githubusercontent.com/assets/46207/15827886/1573ff16-2c48-11e6-9876-4e4455d7eced.gif)
+
+In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have been added.
+
+* ObserveOnDispatcher
+* ObserveOnCurrentDispatcher
+* SubscribeOnDispatcher
+* SubscribeOnCurrentDispatcher
 
 ### Avalonia
 
+> PM> Install-Package [R3.Avalonia](https://www.nuget.org/packages/R3.Avalonia)
 
+R3.Avalonia package has two providers.
 
+* AvaloniaDispatcherTimerProvider
+* AvaloniaDispatcherFrameProvider
+
+Calling `AvaloniaProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with the aforementioned providers.
+
+Additionally, calling `UseR3()` in `ApplicationBuilder` sets the default providers, making it a recommended approach.
+
+```csharp
+public static AppBuilder BuildAvaloniaApp()
+    => AppBuilder.Configure<App>()
+        .UsePlatformDetect()
+        .WithInterFont()
+        .LogToTrace()
+        .UseR3(); // add this line
+```
+
+As a result, time based operations are replaced with `DispatcherTimer`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+
+In the case of methods without arguments, integrate the following method into `ObservableSystem.RegisterUnhandledExceptionHandler`. Please customize this as necessary.
+
+```csharp
+ex => Logger.Sink?.Log(LogEventLevel.Error, "R3", null, "R3 Unhandled Exception {0}", ex);
+```
+
+`AvaloniaDispatcherFrameProvider` calculates a frame by polling with `DispatcherTimer`. By default, it updates at 60fps.
+
+In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have been added.
+
+* ObserveOnDispatcher
+* ObserveOnUIThreadDispatcher
+* SubscribeOnDispatcher
+* SubscribeOnUIThreadDispatcher
 
 ### Unity
 
-lower supported version: Unity 2021.3
+The minimum Unity support for R3 is **Unity 2021.3**. However, **Unity 2022.2** is required to use all features.
 
+There are two installation steps required to use it in Unity.
 
+1. Install `R3` from NuGet using [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)
 
+* Open Window from NuGet -> Manage NuGet Packages, Search "R3" and Press Install.
+![](https://github.com/Cysharp/ZLogger/assets/46207/dbad9bf7-28e3-4856-b0a8-0ff8a2a01d67)
 
+* If you encount version conflicts error, please disable version validation in Player Settings(Edit -> Project Settings -> Player -> Scroll down and expand "Other Settings" than uncheck "Assembly Version Validation" under the "Configuration" section).
+
+2. Install the `R3.Unity` package by referencing the git URL
+
+* `https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity`
+![image](https://github.com/Cysharp/ZLogger/assets/46207/7325d266-05b4-47c9-b06a-a67a40368dd2)
+![image](https://github.com/Cysharp/ZLogger/assets/46207/29bf5636-4d6a-4e75-a3d8-3f8408bd8c51)
+
+R3 uses the *.*.* release tag, so you can specify a version like #1.0.0. For example: `https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity#1.0.0`
+
+Unity's TimeProvider and FrameProvider is PlayerLoop based. Additionally, there are variations of TimeProvider that correspond to the TimeScale.
+
+```
+UnityTimeProvider.Initialization
+UnityTimeProvider.EarlyUpdate
+UnityTimeProvider.FixedUpdate
+UnityTimeProvider.PreUpdate
+UnityTimeProvider.Update
+UnityTimeProvider.PreLateUpdate
+UnityTimeProvider.PostLateUpdate
+UnityTimeProvider.TimeUpdate
+
+UnityTimeProvider.InitializationIgnoreTimeScale
+UnityTimeProvider.EarlyUpdateIgnoreTimeScale
+UnityTimeProvider.FixedUpdateIgnoreTimeScale
+UnityTimeProvider.PreUpdateIgnoreTimeScale
+UnityTimeProvider.UpdateIgnoreTimeScale
+UnityTimeProvider.PreLateUpdateIgnoreTimeScale
+UnityTimeProvider.PostLateUpdateIgnoreTimeScale
+UnityTimeProvider.TimeUpdateIgnoreTimeScale
+
+UnityTimeProvider.InitializationRealtime
+UnityTimeProvider.EarlyUpdateRealtime
+UnityTimeProvider.FixedUpdateRealtime
+UnityTimeProvider.PreUpdateRealtime
+UnityTimeProvider.UpdateRealtime
+UnityTimeProvider.PreLateUpdateRealtime
+UnityTimeProvider.PostLateUpdateRealtime
+UnityTimeProvider.TimeUpdateRealtime
+```
+
+```
+UnityFrameProvider.Initialization
+UnityFrameProvider.EarlyUpdate
+UnityFrameProvider.FixedUpdate
+UnityFrameProvider.PreUpdate
+UnityFrameProvider.Update
+UnityFrameProvider.PreLateUpdate
+UnityFrameProvider.PostLateUpdate
+UnityFrameProvider.TimeUpdate
+```
+
+You can write it like this using these:
+
+```csharp
+// ignore-timescale based interval
+Observable.Interval(TimeSpan.FromSeconds(5), UnityTimeProvider.UpdateIgnoreTimeScale);
+
+// fixed-update loop
+Observable.EveryUpdate(UnityFrameProvider.FixedUpdate);
+
+// observe PostLateUpdate
+Observable.Return(42).ObserveOn(UnityFrameProvider.PostLateUpdate);
+```
+
+In the case of Unity, `UnityTimeProvider.Update` and `UnityFrameProvider.Update` are automatically set at startup by default.
+
+```csharp
+public static class UnityProviderInitializer
+{
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+    public static void SetDefaultObservableSystem()
+    {
+        SetDefaultObservableSystem(static ex => UnityEngine.Debug.LogException(ex));
+    }
+    
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
+    {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
+        ObservableSystem.DefaultTimeProvider = UnityTimeProvider.Update;
+        ObservableSystem.DefaultFrameProvider = UnityFrameProvider.Update;
+    }
+}
+```
+
+A method has been added to convert from UnityEvent to AsObservable. If a CancellationToken is passed, it allows the event source to call for event unsubscription by issuing OnCompleted when Cancel is invoked. For example, if you pass `MonoBehaviour.destroyCancellationToken`, it will be reliably unsubscribed in conjunction with the GameObject's lifecycle.
+
+```csharp
+public static Observable<Unit> AsObservable(this UnityEngine.Events.UnityEvent unityEvent, CancellationToken cancellationToken = default)
+public static Observable<T> AsObservable<T>(this UnityEngine.Events.UnityEvent<T> unityEvent, CancellationToken cancellationToken = default)
+public static Observable<(T0 Arg0, T1 Arg1)> AsObservable<T0, T1>(this UnityEngine.Events.UnityEvent<T0, T1> unityEvent, CancellationToken cancellationToken = default)
+public static Observable<(T0 Arg0, T1 Arg1, T2 Arg2)> AsObservable<T0, T1, T2>(this UnityEngine.Events.UnityEvent<T0, T1, T2> unityEvent, CancellationToken cancellationToken = default)
+public static Observable<(T0 Arg0, T1 Arg1, T2 Arg2, T3 Arg3)> AsObservable<T0, T1, T2, T3>(this UnityEngine.Events.UnityEvent<T0, T1, T2, T3> unityEvent, CancellationToken cancellationToken = default)
+```
+
+Additionally, with extension methods for uGUI, uGUI events can be easily converted to Observables. OnValueChangedAsObservable starts the subscription by first emitting the latest value at the time of subscription. Moreover, in Unity 2022.2 or later, when the associated component is destroyed, it emits an OnCompleted event to ensure the subscription is reliably cancelled.
+
+```csharp
+public static IDisposable SubscribeToText(this Observable<string> source, Text text)
+public static IDisposable SubscribeToText<T>(this Observable<T> source, Text text)
+public static IDisposable SubscribeToText<T>(this Observable<T> source, Text text, Func<T, string> selector)
+public static IDisposable SubscribeToInteractable(this Observable<bool> source, Selectable selectable)
+public static Observable<Unit> OnClickAsObservable(this Button button)
+public static Observable<bool> OnValueChangedAsObservable(this Toggle toggle)
+public static Observable<float> OnValueChangedAsObservable(this Scrollbar scrollbar)
+public static Observable<Vector2> OnValueChangedAsObservable(this ScrollRect scrollRect)
+public static Observable<float> OnValueChangedAsObservable(this Slider slider)
+public static Observable<string> OnEndEditAsObservable(this InputField inputField)
+public static Observable<string> OnValueChangedAsObservable(this InputField inputField)
+public static Observable<int> OnValueChangedAsObservable(this Dropdown dropdown)
+```
+
+In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have been added.
+
+* ObserveOnMainThread
+* SubscribeOnMainThread
+
+Only Unity 2022.2 or later, in MonoBehavior, you can use `.AddTo(this)` to manage subscription to GameObject lifecycle. This is because only in Unity 2022.2 and later versions, MonoBehavior implements `destroyCancellationToken`.
+
+```csharp
+// simple pattern
+Observable.EveryUpdate().Subscribe().AddTo(this);
+Observable.EveryUpdate().Subscribe().AddTo(this);
+Observable.EveryUpdate().Subscribe().AddTo(this);
+
+// better performance(use CancellationToken.Register once)
+var d = Disposable.CreateBuilder();
+Observable.EveryUpdate().Subscribe().AddTo(ref d);
+Observable.EveryUpdate().Subscribe().AddTo(ref d);
+Observable.EveryUpdate().Subscribe().AddTo(ref d);
+d.AddTo(destroyCancellationToken); // Build and Register
+```
+
+You open tracker window in `Window -> Observable Tracker`. It enables watch `SubscriptionTracker` list in editor window.
+
+![image](https://github.com/Cysharp/ZLogger/assets/46207/149abca5-6d84-44ea-8373-b0e8cd2dc46a)
+
+* Enable AutoReload(Toggle) - Reload automatically.
+* Reload - Reload view.
+* GC.Collect - Invoke GC.Collect.
+* Enable Tracking(Toggle) - Start to track subscription. Performance impact: low.
+* Enable StackTrace(Toggle) - Capture StackTrace when observable is subscribed. Performance impact: high.
+
+Observable Tracker is intended for debugging use only as enabling tracking and capturing stacktraces is useful but has a heavy performance impact. Recommended usage is to enable both tracking and stacktraces to find subscription leaks and to disable them both when done.
 
 ### Godot
 
+Godot support is for Godot 4.x.
 
+There are some installation steps required to use it in Godot.
 
+1. Install `R3` from NuGet.
+2. Download(or clone git submodule) the repository and move the `src/R3.Godot/addons/R3.Godot` directory to your project.
+3. Add `addons/R3.Godot/FrameProviderDispatcher.cs / FrameProviderDispatcher` as an autoload
 
+![image](https://github.com/Cysharp/ZLogger/assets/46207/9aa524fd-6717-4a84-8ce3-4bfc7d2098e6)
+
+Godot support has these TimeProvider and FrameProvider.
+
+```
+GodotTimeProvider.Process
+GodotTimeProvider.PhysicsProcess
+```
+
+```
+GodotFrameProvider.Process
+GodotFrameProvider.PhysicsProcess
+```
+
+autoloaded `FrameProviderDispatcher` set `GodotTimeProvider.Process` and `GodotFrameProvider.Process` as default providers. Additionally, UnhandledException is written to `GD.PrintErr`.
+
+This is the minimal sample to use R3.Godot.
+
+```csharp
+using Godot;
+using R3;
+using System;
+
+public partial class Node2D : Godot.Node2D
+{
+    IDisposable subscription;
+
+    public override void _Ready()
+    {
+        subscription = Observable.EveryUpdate()
+            .SampleFrame(10)
+            .Subscribe(x =>
+            {
+                GD.Print($"Observable.EveryUpdate: {GodotFrameProvider.Process.GetFrameCount()}");
+            });
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        subscription?.Dispose();
+    }
+}
+```
 
 Operator Reference
 ---
@@ -243,7 +536,7 @@ Factory methods are defined as static methods in the static class `Observable`.
 | **ZipLatest**(params `Observable<T>[]` sources) | `Observable<T[]>` |
 | **ZipLatest**(`IEnumerable<Observable<T>>` sources) | `Observable<T[]>` |
 
-Methods that accept a `CancellationToken` will emit `OnCompleted` when a Cancel is issued. This allows for unsubscribing in event source.
+Methods that accept a `CancellationToken` will emit `OnCompleted` when a Cancel is issued. This allows you to unsubscribe all subscriptions from the event source.
 
 `Range`, `Repeat`, `Return/Empty/Throw` (which do not take a `TimeProvider`) issue values immediately. This means that even if disposed of midway, the emission of values cannot be stopped. For example,
 
@@ -527,6 +820,7 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `Sample` -> `ThrottleLast`
 * `SampleFrame` -> `ThrottleLastFrame`
 * `ObserveEveryValueChanged(this T value)` -> `Observable.EveryValueChanged(T value)`
+* `DistinctUntilChanged(selector)` -> `DistinctUntilChangedBy`
 * `Finally` -> `Do(onDisposed:)`
 * `Do***` -> `Do(on***:)`
 * `BehaviorSubject` -> `ReactiveProperty`
