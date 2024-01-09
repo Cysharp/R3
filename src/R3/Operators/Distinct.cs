@@ -14,7 +14,7 @@ public static partial class ObservableExtensions
 
     public static Observable<TSource> DistinctBy<TSource, TKey>(this Observable<TSource> source, Func<TSource, TKey> keySelector)
     {
-        return DistinctBy(source, keySelector);
+        return DistinctBy(source, keySelector, EqualityComparer<TKey>.Default);
     }
 
     public static Observable<TSource> DistinctBy<TSource, TKey>(this Observable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)

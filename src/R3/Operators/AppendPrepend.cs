@@ -21,6 +21,7 @@ internal sealed class AppendPrepend<T>(Observable<T> source, T value, bool appen
         if (!append) // prepend
         {
             observer.OnNext(value);
+            return source.Subscribe(observer.Wrap());
         }
 
         return source.Subscribe(new _Append(observer, value));
