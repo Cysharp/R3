@@ -20,12 +20,13 @@ internal sealed class AppendPrepend<T>(Observable<T> source, T value, bool appen
         if (!append) // prepend
         {
             observer.OnNext(value);
+            return source.Subscribe(observer);
         }
 
-        return source.Subscribe(new _Append(observer, value, append));
+        return source.Subscribe(new _Append(observer, value));
     }
 
-    sealed class _Append(Observer<T> observer, T value, bool append) : Observer<T>
+    sealed class _Append(Observer<T> observer, T value) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
@@ -45,11 +46,7 @@ internal sealed class AppendPrepend<T>(Observable<T> source, T value, bool appen
             }
             else
             {
-                if (append)
-                {
-                    observer.OnNext(value);
-                }
-
+                observer.OnNext(value);
                 observer.OnCompleted();
             }
         }
