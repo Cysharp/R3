@@ -426,6 +426,10 @@ list.AssertEqual([0, 1, 2, 3]);
 list.AssertIsCompleted();
 ```
 
+Interoperability with `IObservable<T>`
+---
+`Observable<T>` is not `IObservable<T>`. You can convert `Observable<T>.AsIObserable()` or `IObservable<T>.AsObservable()`.
+
 Implement Custom Operator Guide
 ---
 TODO:
