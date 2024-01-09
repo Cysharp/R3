@@ -268,10 +268,10 @@ Additionally, there are other utilities for Disposables as follows.
 
 ```
 Disposable.Create(Action);
-SerialDisposable
+SingleAssignmentDisposable 
 SingleAssignmentDisposableCore // struct
-SerialDisposableCore
-SingleAssignmentDisposable // struct
+SerialDisposable
+SerialDisposableCore// struct
 ```
 
 Subscription Management
