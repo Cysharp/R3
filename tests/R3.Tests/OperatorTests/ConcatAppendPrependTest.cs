@@ -16,6 +16,14 @@ public class ConcatAppendPrependTest
         list.AssertIsCompleted();
     }
 
+    [Fact(Skip = "test fails.")]
+    public void Prepend2()
+    {
+        using var list = Observable.Range(1, 3).Prepend(9999).ToLiveList();
+
+        list.AssertEqual([9999, 1, 2, 3]);
+    }
+
     [Fact]
     public void Append()
     {
