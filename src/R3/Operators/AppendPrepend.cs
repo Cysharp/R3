@@ -13,7 +13,6 @@ public static partial class ObservableExtensions
     }
 }
 
-
 internal sealed class AppendPrepend<T>(Observable<T> source, T value, bool append) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
@@ -23,10 +22,10 @@ internal sealed class AppendPrepend<T>(Observable<T> source, T value, bool appen
             observer.OnNext(value);
         }
 
-        return source.Subscribe(new _Append(observer, value));
+        return source.Subscribe(new _Append(observer, value, append));
     }
 
-    sealed class _Append(Observer<T> observer, T value) : Observer<T>
+    sealed class _Append(Observer<T> observer, T value, bool append) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
@@ -46,7 +45,11 @@ internal sealed class AppendPrepend<T>(Observable<T> source, T value, bool appen
             }
             else
             {
-                observer.OnNext(value);
+                if (append)
+                {
+                    observer.OnNext(value);
+                }
+
                 observer.OnCompleted();
             }
         }
