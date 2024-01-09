@@ -430,6 +430,10 @@ Interoperability with `IObservable<T>`
 ---
 `Observable<T>` is not `IObservable<T>`. You can convert `Observable<T>.AsIObserable()` or `IObservable<T>.AsObservable()`.
 
+Concurrency Policy
+---
+TODO:
+
 Implement Custom Operator Guide
 ---
 TODO:

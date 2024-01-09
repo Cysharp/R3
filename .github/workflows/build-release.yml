@@ -17,7 +17,15 @@ env:
   DRY_RUN: ${{ github.event.inputs.dry-run }}
 
 jobs:
+  update-packagejson:
+    uses: Cysharp/Actions/.github/workflows/update-packagejson.yaml@main
+    with:
+      file-path: ./src/R3.Unity/Assets/R3.Unity/package.json
+      tag: ${{ github.event.inputs.tag }}
+      dry-run: ${{ fromJson(github.event.inputs.dry-run) }}
+
   build-dotnet:
+    needs: [update-packagejson]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,7 +42,7 @@ jobs:
 
   create-release:
     if: github.event.inputs.dry-run == 'false'
-    needs: [build-dotnet]
+    needs: [update-packagejson, build-dotnet]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -53,3 +61,10 @@ jobs:
       - uses: actions/download-artifact@v2
       # Upload to NuGet
       - run: dotnet nuget push "./nuget/*.nupkg" --skip-duplicate -s https://www.nuget.org/api/v2/package -k ${{ secrets.NUGET_KEY }}
+
+  cleanup:
+    if: needs.update-packagejson.outputs.is-branch-created == 'true'
+    needs: [update-packagejson, build-dotnet]
+    uses: Cysharp/Actions/.github/workflows/clean-packagejson-branch.yaml@main
+    with:
+      branch: ${{ needs.update-packagejson.outputs.branch-name }}a
