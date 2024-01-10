@@ -30,4 +30,16 @@ public class ReactivePropertyTest
         list.AssertIsCompleted();
         list2.AssertIsCompleted();
     }
+
+    [Fact]
+    public void SubscribeAfterCompleted()
+    {
+        var rp = new ReactiveProperty<string>("foo");
+        rp.OnCompleted();
+
+        using var list = rp.ToLiveList();
+
+        list.AssertIsCompleted();
+        list.AssertEqual(["foo"]);
+    }
 }
