@@ -91,6 +91,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
         var result = completeState.TryGetResult();
         if (result != null)
         {
+            observer.OnNext(value);
             observer.OnCompleted(result.Value);
             return Disposable.Empty;
         }
