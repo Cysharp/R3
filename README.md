@@ -136,7 +136,7 @@ _eventSoure.TakeUntil(Obserable.NextFrame()).Subscribe();
 
 // polling value changed
 Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => WidthText.Text = x.ToString());
-Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => HeightText.Text = x.ToString());
+Observable.EveryValueChanged(this, x => x.Height).Subscribe(x => HeightText.Text = x.ToString());
 ```
 
 `EveryValueChanged` could be interesting, as it converts properties without Push-based notifications like `INotifyPropertyChanged`.
@@ -487,7 +487,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         var d1 = Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => WidthText.Text = x.ToString());
-        var d2 = Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => HeightText.Text = x.ToString());
+        var d2 = Observable.EveryValueChanged(this, x => x.Height).Subscribe(x => HeightText.Text = x.ToString());
 
         disposable = Disposable.Combine(d1, d2);
     }
