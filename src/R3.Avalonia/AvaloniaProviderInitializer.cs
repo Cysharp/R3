@@ -1,5 +1,7 @@
-﻿using Avalonia.Logging;
+﻿using Avalonia.Controls;
+using Avalonia.Logging;
 using Avalonia.Threading;
+using R3.Avalonia;
 
 namespace R3;
 
@@ -7,7 +9,7 @@ public static class AvaloniaProviderInitializer
 {
     public static void SetDefaultObservableSystem()
     {
-        SetDefaultObservableSystem(ex => Logger.Sink?.Log(LogEventLevel.Error, "R3", null, "R3 Unhandled Exception {0}", ex));
+        SetDefaultObservableSystem(AvaloniaLoggerUnhandledExceptionHandler);
     }
 
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
@@ -15,6 +17,20 @@ public static class AvaloniaProviderInitializer
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider();
+    }
+
+    public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, Func<TopLevel> topLevel)
+    {
+        ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
+        ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
+        ObservableSystem.DefaultFrameProvider = new AvaloniaRenderingFrameProvider(topLevel);
+    }
+
+    public static void SetDefaultObservableSystem(Func<TopLevel> topLevel)
+    {
+        ObservableSystem.RegisterUnhandledExceptionHandler(AvaloniaLoggerUnhandledExceptionHandler);
+        ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
+        ObservableSystem.DefaultFrameProvider = new AvaloniaRenderingFrameProvider(topLevel);
     }
 
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, DispatcherPriority priority)
@@ -36,5 +52,10 @@ public static class AvaloniaProviderInitializer
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider(priority);
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider(framesPerSecond, priority);
+    }
+
+    private static void AvaloniaLoggerUnhandledExceptionHandler(Exception ex)
+    {
+        Logger.Sink?.Log(LogEventLevel.Error, "R3", null, "R3 Unhandled Exception {0}", ex);
     }
 }

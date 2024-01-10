@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Logging;
 using System;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace AvaloniaApplication1;
 
@@ -19,5 +20,5 @@ internal class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
-            .UseR3(); // add this line
+            .UseR3(app => ((IClassicDesktopStyleApplicationLifetime)app.ApplicationLifetime).MainWindow); // add this line
 }
