@@ -5,7 +5,7 @@ namespace R3.Avalonia;
 
 public class AvaloniaRenderingFrameProvider : FrameProvider, IDisposable
 {
-    Func<TopLevel> topLevelFactory;
+    Func<TopLevel>? topLevelFactory;
     TopLevel? topLevel;
     bool disposed;
     long frameCount;
@@ -14,11 +14,20 @@ public class AvaloniaRenderingFrameProvider : FrameProvider, IDisposable
 
     Action<TimeSpan> messageLoop;
 
-    public AvaloniaRenderingFrameProvider(Func<TopLevel> topLevelFactory)
+    private AvaloniaRenderingFrameProvider()
     {
-        this.topLevelFactory = topLevelFactory;
         this.messageLoop = Run;
         this.list = new FreeListCore<IFrameRunnerWorkItem>(gate);
+    }
+
+    public AvaloniaRenderingFrameProvider(TopLevel topLevel) : this()
+    {
+        this.topLevel = topLevel;
+    }
+
+    public AvaloniaRenderingFrameProvider(Func<TopLevel> topLevelFactory) : this()
+    {
+        this.topLevelFactory = topLevelFactory;
     }
 
     public override long GetFrameCount()
@@ -32,7 +41,7 @@ public class AvaloniaRenderingFrameProvider : FrameProvider, IDisposable
         ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
         list.Add(callback, out _);
 
-        (topLevel ??= topLevelFactory()).RequestAnimationFrame(this.messageLoop);
+        (topLevel ??= topLevelFactory!()).RequestAnimationFrame(this.messageLoop);
     }
 
     public void Dispose()
@@ -41,7 +50,7 @@ public class AvaloniaRenderingFrameProvider : FrameProvider, IDisposable
         list.Dispose();
     }
 
-    void Run(TimeSpan tick)
+    void Run(TimeSpan _)
     {
         if (disposed) return;
 
