@@ -22,12 +22,12 @@ To address the shortcomings of dotnet/reactive, we have made changes to the core
 
 Improving performance was also a theme in the reimplementation. For example, this is the result of the terrible performance of IScheudler and the performance difference caused by its removal.
 
-![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)  
+![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)
 `Observable.Range(1, 10000).Subscribe()`
 
 You can also see interesting results in allocations with the addition and deletion to Subject.
 
-![image](https://github.com/Cysharp/ZLogger/assets/46207/2194c086-37a3-44d6-8642-5fd0fa91b168)  
+![image](https://github.com/Cysharp/ZLogger/assets/46207/2194c086-37a3-44d6-8642-5fd0fa91b168)
 `x10000 subject.Subscribe() -> x10000 subscription.Dispose()`
 
 This is because dotnet/reactive has adopted ImmutableArray (or its equivalent) for Subject, which results in the allocation of a new array every time one is added or removed. Depending on the design of the application, a large number of subscriptions can occur (we have seen this especially in the complexity of games), which can be a critical issue. In R3, we have devised a way to achieve high performance while avoiding ImmutableArray.
@@ -106,7 +106,7 @@ Originally, `IScheduler` had performance issues, and the internal implementation
 
 While TimeProvider is an abstraction for asynchronous operations, excluding the Fake for testing purposes, `IScheduler` included synchronous schedulers like `ImmediateScheduler` and `CurrentThreadScheduler`. However, these were also meaningless as applying them to time-based operators would cause blocking, and `CurrentThreadScheduler` had poor performance.
 
-![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)  
+![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)
 `Observable.Range(1, 10000).Subscribe()`
 
 In R3, anything that requires synchronous execution (like Range) is treated as Immediate, and everything else is considered asynchronous and handled through TimeProvider.
@@ -153,7 +153,7 @@ Unlike dotnet/reactive's Subject, all Subjects in R3 (Subject, ReactiveProperty,
 
 Disposable
 ---
-To bundle multiple IDisposables (Subscriptions), it's good to use Disposable's methods. In R3, depending on the performance, 
+To bundle multiple IDisposables (Subscriptions), it's good to use Disposable's methods. In R3, depending on the performance,
 
 ```csharp
 Disposable.Combine(IDisposable d1, ..., IDisposable d8);
@@ -268,7 +268,7 @@ Additionally, there are other utilities for Disposables as follows.
 
 ```
 Disposable.Create(Action);
-SingleAssignmentDisposable 
+SingleAssignmentDisposable
 SingleAssignmentDisposableCore // struct
 SerialDisposable
 SerialDisposableCore// struct
@@ -633,7 +633,7 @@ public static class UnityProviderInitializer
     {
         SetDefaultObservableSystem(static ex => UnityEngine.Debug.LogException(ex));
     }
-    
+
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
@@ -743,7 +743,7 @@ public partial class Node2D : Godot.Node2D
     public override void _Ready()
     {
         subscription = Observable.EveryUpdate()
-            .SampleFrame(10)
+            .ThrottleLastFrame(10)
             .Subscribe(x =>
             {
                 GD.Print($"Observable.EveryUpdate: {GodotFrameProvider.Process.GetFrameCount()}");
