@@ -512,12 +512,13 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 
 > PM> Install-Package [R3.Avalonia](https://www.nuget.org/packages/R3.Avalonia)
 
-R3.Avalonia package has two providers.
+R3.Avalonia package has these providers.
 
 * AvaloniaDispatcherTimerProvider
 * AvaloniaDispatcherFrameProvider
+* AvaloniaRenderingFrameProvider
 
-Calling `AvaloniaProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with the aforementioned providers.
+Calling `AvaloniaProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `AvaloniaDispatcherTimerProvider` and `AvaloniaDispatcherFrameProvider`.
 
 Additionally, calling `UseR3()` in `ApplicationBuilder` sets the default providers, making it a recommended approach.
 
@@ -539,6 +540,37 @@ ex => Logger.Sink?.Log(LogEventLevel.Error, "R3", null, "R3 Unhandled Exception 
 ```
 
 `AvaloniaDispatcherFrameProvider` calculates a frame by polling with `DispatcherTimer`. By default, it updates at 60fps.
+
+Using `AvaloniaRenderingFrameProvider` is more performant however it needs `TopLevel`.
+
+```csharp
+public partial class MainWindow : Window
+{
+    AvaloniaRenderingFrameProvider frameProvider;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+
+        // initialize RenderingFrameProvider
+        var topLevel = TopLevel.GetTopLevel(this);
+        this.frameProvider = new AvaloniaRenderingFrameProvider(topLevel!);
+    }
+
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        // pass frameProvider
+        Observable.EveryValueChanged(this, x => x.Width, frameProvider)
+            .Subscribe(x => textBlock.Text = x.ToString());
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        frameProvider.Dispose();
+    }
+}
+```
 
 In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have been added.
 

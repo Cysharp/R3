@@ -32,13 +32,13 @@ public class AvaloniaRenderingFrameProvider : FrameProvider, IDisposable
 
     public override long GetFrameCount()
     {
-        ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
+        ThrowObjectDisposedIf(disposed, typeof(AvaloniaRenderingFrameProvider));
         return frameCount;
     }
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
+        ThrowObjectDisposedIf(disposed, typeof(AvaloniaRenderingFrameProvider));
         list.Add(callback, out _);
 
         (topLevel ??= topLevelFactory!()).RequestAnimationFrame(this.messageLoop);
