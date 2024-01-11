@@ -56,4 +56,91 @@ public class MergeTest
 
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public void NestedSources()
+    {
+        var outerSubject = new Subject<Observable<int>>();
+
+        using var list = Observable.Merge(outerSubject).ToLiveList();
+
+        var innerSubject1 = new Subject<int>();
+        var innerSubject2 = new Subject<int>();
+        var innerSubject3 = new Subject<int>();
+
+        outerSubject.OnNext(innerSubject1);
+        innerSubject1.OnNext(10);
+        innerSubject1.OnNext(11);
+
+        outerSubject.OnNext(innerSubject2);
+        innerSubject2.OnNext(20);
+        innerSubject1.OnNext(12);
+        innerSubject2.OnNext(21);
+
+        outerSubject.OnNext(innerSubject3);
+        innerSubject3.OnNext(30);
+        innerSubject2.OnNext(22);
+        innerSubject1.OnNext(12);
+
+        innerSubject1.OnCompleted();
+        innerSubject2.OnCompleted();
+        innerSubject3.OnCompleted();
+
+        list.AssertIsNotCompleted();
+
+        outerSubject.OnCompleted();
+
+        list.AssertIsCompleted();
+        list.AssertEqual([10, 11, 20, 12, 21, 30, 22, 12]);
+    }
+
+    [Fact]
+    public void NestedSources_WaitForInners()
+    {
+        var outerSubject = new Subject<Observable<int>>();
+
+        using var list = Observable.Merge(outerSubject).ToLiveList();
+
+        var innerSubject1 = new Subject<int>();
+        var innerSubject2 = new Subject<int>();
+        var innerSubject3 = new Subject<int>();
+
+        outerSubject.OnNext(innerSubject1);
+        innerSubject1.OnNext(10);
+        innerSubject1.OnNext(11);
+
+        outerSubject.OnNext(innerSubject2);
+        innerSubject2.OnNext(20);
+        innerSubject1.OnNext(12);
+        innerSubject2.OnNext(21);
+
+        outerSubject.OnNext(innerSubject3);
+        innerSubject3.OnNext(30);
+        innerSubject2.OnNext(22);
+        innerSubject1.OnNext(12);
+
+        innerSubject1.OnCompleted();
+        innerSubject3.OnCompleted();
+        outerSubject.OnCompleted();
+
+        list.AssertIsNotCompleted();
+
+        innerSubject2.OnCompleted();
+
+        list.AssertIsCompleted();
+        list.AssertEqual([10, 11, 20, 12, 21, 30, 22, 12]);
+    }
+
+    [Fact]
+    public void NestedSources_Empty()
+    {
+        var outerSubject = new Subject<Observable<int>>();
+
+        using var list = Observable.Merge(outerSubject).ToLiveList();
+        list.AssertIsNotCompleted();
+        outerSubject.OnCompleted();
+
+        list.AssertIsCompleted();
+        list.AssertEqual([]);
+    }
 }
