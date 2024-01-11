@@ -23,6 +23,7 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
         public readonly Observer<T> observer = observer;
         public readonly object gate = new();
         public readonly CompositeDisposable subscriptions = new();
+        public bool stopped;
 
         protected override void OnNextCore(Observable<T> value)
         {
@@ -61,6 +62,7 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
                     return;
                 }
 
+                stopped = true;
                 // when no running inner
                 if (subscriptions.Count <= 0)
                 {
@@ -114,7 +116,7 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
                 else
                 {
                     // when all sources are completed, then this observer is completed
-                    if (outer.subscriptions.Count <= 0)
+                    if (outer is { stopped: true, subscriptions.Count: <= 0 })
                     {
                         outer.observer.OnCompleted();
                     }
