@@ -92,4 +92,92 @@ public class ConcatAppendPrependTest
 
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public void ConcatNestedSources()
+    {
+        var outerSubject = new Subject<Observable<int>>();
+        using var list = outerSubject.Concat().ToLiveList();
+
+        var subject1 = new Subject<int>();
+        var subject2 = new Subject<int>();
+        var subject3 = new Subject<int>();
+
+        outerSubject.OnNext(subject1);
+        outerSubject.OnNext(subject2);
+        outerSubject.OnNext(subject3);
+
+        subject1.OnNext(10);
+        subject2.OnNext(9999);
+
+        list.AssertEqual([10]);
+
+        subject1.OnCompleted();
+
+        subject2.OnNext(11111);
+
+        list.AssertEqual([10, 11111]);
+
+        subject2.OnCompleted();
+
+        subject3.OnNext(9999999);
+
+        list.AssertEqual([10, 11111, 9999999]);
+
+        subject3.OnCompleted();
+
+        outerSubject.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ConcatNestedSources_WaitForInner()
+    {
+        var outerSubject = new Subject<Observable<int>>();
+        using var list = outerSubject.Concat().ToLiveList();
+
+        var subject1 = new Subject<int>();
+        var subject2 = new Subject<int>();
+        var subject3 = new Subject<int>();
+
+        outerSubject.OnNext(subject1);
+        outerSubject.OnNext(subject2);
+        outerSubject.OnNext(subject3);
+
+        subject1.OnNext(10);
+        subject2.OnNext(9999);
+
+        list.AssertEqual([10]);
+
+        subject1.OnCompleted();
+
+        subject2.OnNext(11111);
+
+        list.AssertEqual([10, 11111]);
+
+        subject2.OnCompleted();
+
+        subject3.OnNext(9999999);
+        outerSubject.OnCompleted();
+
+        list.AssertIsNotCompleted();
+        list.AssertEqual([10, 11111, 9999999]);
+
+        subject3.OnCompleted();
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ConcatNestedSources_Empty()
+    {
+        var outerSubject = new Subject<Observable<int>>();
+
+        using var list = outerSubject.Concat().ToLiveList();
+        list.AssertIsNotCompleted();
+        outerSubject.OnCompleted();
+
+        list.AssertIsCompleted();
+        list.AssertEqual([]);
+    }
 }
