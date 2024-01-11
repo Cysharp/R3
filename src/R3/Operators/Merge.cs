@@ -2,7 +2,7 @@
 
 public static partial class Observable
 {
-    public static Observable<T> Merge<T>(Observable<Observable<T>> sources)
+    public static Observable<T> Merge<T>(this Observable<Observable<T>> sources)
     {
         return new MergeMany<T>(sources);
     }
