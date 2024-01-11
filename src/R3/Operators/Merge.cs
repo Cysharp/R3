@@ -27,13 +27,12 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
 
         protected override void OnNextCore(Observable<T> value)
         {
-            var subscription = new SingleAssignmentDisposableCore();
-            var innerObserver = new _MergeInner(this, subscription);
-            subscription.Disposable = value.Subscribe(innerObserver);
+            var innerObserver = new _MergeInner(this);
+            var subscription = value.Subscribe(innerObserver);
 
             lock (gate)
             {
-                subscriptions.Add(subscription.Disposable);
+                subscriptions.Add(subscription);
             }
         }
 
@@ -84,7 +83,7 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
         }
     }
 
-    sealed class _MergeInner(_MergeOuter outer, SingleAssignmentDisposableCore subscriptionSelf) : Observer<T>
+    sealed class _MergeInner(_MergeOuter outer) : Observer<T>
     {
         protected override void OnNextCore(T value)
         {
@@ -106,8 +105,9 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
         {
             lock (outer.gate)
             {
-                // this inner is disposed of by SourceSubscription on the outside.
-                outer.subscriptions.Remove(subscriptionSelf.Disposable!);
+                // this(Observer) and SourceSubscription handled by outside are the same. So Remove(this) works.
+                // this inner is disposed of by SourceSubscription when Dispose.
+                outer.subscriptions.Remove(this);
 
                 if (result.IsFailure)
                 {
