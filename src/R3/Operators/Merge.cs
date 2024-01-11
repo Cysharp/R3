@@ -105,7 +105,7 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
         {
             lock (outer.gate)
             {
-                // this(Observer) and SourceSubscription handled by outside are the same. So Remove(this) works.
+                // this(Observer) and subscription handled by outside are the same. So Remove(this) works.
                 // this inner is disposed of by SourceSubscription when Dispose.
                 outer.subscriptions.Remove(this);
 
