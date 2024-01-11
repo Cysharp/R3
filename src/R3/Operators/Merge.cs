@@ -4,30 +4,30 @@ public static partial class Observable
 {
     public static Observable<T> Merge<T>(Observable<Observable<T>> sources)
     {
-        return new MergeOuter<T>(sources);
+        return new MergeNested<T>(sources);
     }
 }
 
-internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observable<T>
+internal sealed class MergeNested<T>(Observable<Observable<T>> sources) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return sources.Subscribe(new _MergeOuter(observer));
+        return sources.Subscribe(new MergeOuter(observer));
     }
 
-    sealed class _MergeOuter(Observer<T> observer) : Observer<Observable<T>>
+    sealed class MergeOuter(Observer<T> observer) : Observer<Observable<T>>
     {
         // keep when inner is running
         protected override bool AutoDisposeOnCompleted => false;
 
-        public readonly Observer<T> observer = observer;
-        public readonly object gate = new();
-        public readonly CompositeDisposable subscriptions = new();
-        public bool stopped;
+        readonly Observer<T> observer = observer;
+        readonly object gate = new();
+        readonly CompositeDisposable subscriptions = new();
+        bool isStopped;
 
         protected override void OnNextCore(Observable<T> value)
         {
-            var innerObserver = new _MergeInner(this);
+            var innerObserver = new MergeInner(this);
             var subscription = value.Subscribe(innerObserver);
 
             lock (gate)
@@ -50,28 +50,15 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
             {
                 if (result.IsFailure)
                 {
-                    try
-                    {
-                        observer.OnCompleted(result);
-                    }
-                    finally
-                    {
-                        Dispose();
-                    }
-                    return;
+                    PublishCompleted(result);
                 }
-
-                stopped = true;
-                // when no running inner
-                if (subscriptions.Count <= 0)
+                else
                 {
-                    try
+                    isStopped = true;
+                    // when no running inner
+                    if (subscriptions.Count <= 0)
                     {
-                        observer.OnCompleted(result);
-                    }
-                    finally
-                    {
-                        Dispose();
+                        PublishCompleted(result);
                     }
                 }
             }
@@ -81,46 +68,62 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
         {
             subscriptions.Dispose();
         }
-    }
 
-    sealed class _MergeInner(_MergeOuter outer) : Observer<T>
-    {
-        protected override void OnNextCore(T value)
+        void PublishCompleted(Result result)
         {
-            lock (outer.gate)
+            try
             {
-                outer.observer.OnNext(value);
-            }
-        }
-
-        protected override void OnErrorResumeCore(Exception error)
-        {
-            lock (outer.gate)
-            {
-                outer.observer.OnErrorResume(error);
-            }
-        }
-
-        protected override void OnCompletedCore(Result result)
-        {
-            lock (outer.gate)
-            {
-                // this(Observer) and subscription handled by outside are the same. So Remove(this) works.
-                // this inner is disposed of by SourceSubscription when Dispose.
-                outer.subscriptions.Remove(this);
-
-                if (result.IsFailure)
+                lock (gate)
                 {
-                    outer.observer.OnCompleted(result);
+                    observer.OnCompleted(result);
                 }
-                else
+            }
+            finally
+            {
+                Dispose();
+            }
+        }
+
+        sealed class MergeInner(MergeOuter parent) : Observer<T>
+        {
+            protected override void OnNextCore(T value)
+            {
+                lock (parent.gate)
                 {
-                    // when all sources are completed, then this observer is completed
-                    if (outer is { stopped: true, subscriptions.Count: <= 0 })
+                    parent.observer.OnNext(value);
+                }
+            }
+
+            protected override void OnErrorResumeCore(Exception error)
+            {
+                lock (parent.gate)
+                {
+                    parent.observer.OnErrorResume(error);
+                }
+            }
+
+            protected override void OnCompletedCore(Result result)
+            {
+                lock (parent.gate)
+                {
+                    if (result.IsFailure)
                     {
-                        outer.observer.OnCompleted();
+                        parent.observer.OnCompleted(result);
+                    }
+                    else
+                    {
+                        // when all sources are completed, then this observer is completed
+                        if (parent is { isStopped: true, subscriptions.Count: 1 }) // only self
+                        {
+                            parent.PublishCompleted(result);
+                        }
                     }
                 }
+            }
+
+            protected override void DisposeCore()
+            {
+                parent.subscriptions.Remove(this);
             }
         }
     }
