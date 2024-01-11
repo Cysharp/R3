@@ -4,18 +4,18 @@ public static partial class Observable
 {
     public static Observable<T> Merge<T>(Observable<Observable<T>> sources)
     {
-        return new MergeNested<T>(sources);
+        return new MergeMany<T>(sources);
     }
 }
 
-internal sealed class MergeNested<T>(Observable<Observable<T>> sources) : Observable<T>
+internal sealed class MergeMany<T>(Observable<Observable<T>> sources) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return sources.Subscribe(new MergeOuter(observer));
+        return sources.Subscribe(new _MergeMany(observer));
     }
 
-    sealed class MergeOuter(Observer<T> observer) : Observer<Observable<T>>
+    sealed class _MergeMany(Observer<T> observer) : Observer<Observable<T>>
     {
         // keep when inner is running
         protected override bool AutoDisposeOnCompleted => false;
@@ -84,7 +84,7 @@ internal sealed class MergeNested<T>(Observable<Observable<T>> sources) : Observ
             }
         }
 
-        sealed class MergeInner(MergeOuter parent) : Observer<T>
+        sealed class MergeInner(_MergeMany parent) : Observer<T>
         {
             protected override void OnNextCore(T value)
             {
