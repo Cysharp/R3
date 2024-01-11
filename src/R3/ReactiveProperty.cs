@@ -3,6 +3,7 @@
 public abstract class ReadOnlyReactiveProperty<T> : Observable<T>
 {
     public abstract T CurrentValue { get; }
+    public ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty() => this;
 }
 
 // almostly same code as Subject<T>.
