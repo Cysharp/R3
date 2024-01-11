@@ -32,6 +32,13 @@ public class ReactivePropertyTest
     }
 
     [Fact]
+    public void DefaultValueTest()
+    {
+        using var rp = new ReactiveProperty<int>();
+        rp.Value.Should().Be(default);
+    }
+
+    [Fact]
     public void SubscribeAfterCompleted()
     {
         var rp = new ReactiveProperty<string>("foo");
