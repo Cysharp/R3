@@ -12,10 +12,10 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return new _MergeOuter(sources, observer).Run();
+        return sources.Subscribe(new _MergeOuter(observer));
     }
 
-    sealed class _MergeOuter(Observable<Observable<T>> sources, Observer<T> observer) : Observer<Observable<T>>
+    sealed class _MergeOuter(Observer<T> observer) : Observer<Observable<T>>
     {
         // keep when inner is running
         protected override bool AutoDisposeOnCompleted => false;
@@ -23,15 +23,6 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
         public readonly Observer<T> observer = observer;
         public readonly object gate = new();
         public readonly CompositeDisposable subscriptions = new();
-
-        IDisposable? collectionSourceSubscription;
-
-        public IDisposable Run()
-        {
-            collectionSourceSubscription = sources.Subscribe(this);
-            subscriptions.Add(collectionSourceSubscription);
-            return subscriptions;
-        }
 
         protected override void OnNextCore(Observable<T> value)
         {
@@ -70,8 +61,8 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
                     return;
                 }
 
-                // when no running inners any
-                if (subscriptions.Count <= 1)
+                // when no running inner
+                if (subscriptions.Count <= 0)
                 {
                     try
                     {
@@ -83,6 +74,11 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
                     }
                 }
             }
+        }
+
+        protected override void DisposeCore()
+        {
+            subscriptions.Dispose();
         }
     }
 
@@ -118,7 +114,7 @@ internal sealed class MergeOuter<T>(Observable<Observable<T>> sources) : Observa
                 else
                 {
                     // when all sources are completed, then this observer is completed
-                    if (outer.subscriptions.Count <= 1)
+                    if (outer.subscriptions.Count <= 0)
                     {
                         outer.observer.OnCompleted();
                     }
