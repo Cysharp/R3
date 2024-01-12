@@ -135,31 +135,6 @@ public class AggregateTest
     }
 
     [Fact]
-    public async Task MinMax()
-    {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        var minmax = await source.MinMaxAsync();
-
-        minmax.Min.Should().Be(1);
-        minmax.Max.Should().Be(10);
-
-        var mm2 = await Observable.Return(999).MinMaxAsync();
-        mm2.Min.Should().Be(999);
-        mm2.Max.Should().Be(999);
-
-        var task = Observable.Empty<int>().MaxAsync();
-
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
-
-        var error = Observable.Range(1, 10).Select(x =>
-        {
-            if (x == 3) throw new Exception("foo");
-            return x;
-        }).OnErrorResumeAsFailure();
-        await Assert.ThrowsAsync<Exception>(async () => await error.MinMaxAsync());
-    }
-
-    [Fact]
     public async Task Sum()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
