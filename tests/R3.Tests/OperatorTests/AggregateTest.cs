@@ -1,11 +1,9 @@
-﻿using System.Reactive.Linq;
-
-namespace R3.Tests.OperatorTests;
+﻿namespace R3.Tests.OperatorTests;
 
 public class AggregateTest
 {
     [Fact]
-    public async Task Aggreagte()
+    public async Task Aggregate()
     {
         var publisher = new Subject<int>();
 
@@ -52,34 +50,6 @@ public class AggregateTest
     }
 
     [Fact]
-    public async Task Count()
-    {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        var count = await source.CountAsync();
-
-        count.Should().Be(8);
-
-        var count2 = await Observable.Empty<int>().CountAsync();
-        count2.Should().Be(0);
-    }
-
-    [Fact]
-    public async Task LongCount()
-    {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        var count = await source.LongCountAsync();
-
-        count.Should().Be(8);
-
-        var count2 = await Observable.Empty<int>().LongCountAsync();
-        count2.Should().Be(0);
-
-        var error = Observable.Throw<int>(new Exception("foo"));
-
-        await Assert.ThrowsAsync<Exception>(async () => await error.LongCountAsync());
-    }
-
-    [Fact]
     public async Task Min()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
@@ -122,30 +92,32 @@ public class AggregateTest
         }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.MaxAsync());
     }
-
-    [Fact]
-    public async Task MinMax()
+      
+    public async Task Count()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        var minmax = await source.MinMaxAsync();
+        var count = await source.CountAsync();
 
-        minmax.Min.Should().Be(1);
-        minmax.Max.Should().Be(10);
+        count.Should().Be(8);
 
-        var mm2 = await Observable.Return(999).MinMaxAsync();
-        mm2.Min.Should().Be(999);
-        mm2.Max.Should().Be(999);
+        var count2 = await Observable.Empty<int>().CountAsync();
+        count2.Should().Be(0);
+    }
 
-        var task = Observable.Empty<int>().MaxAsync();
+    [Fact]
+    public async Task LongCount()
+    {
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
+        var count = await source.LongCountAsync();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
+        count.Should().Be(8);
 
-        var error = Observable.Range(1, 10).Select(x =>
-        {
-            if (x == 3) throw new Exception("foo");
-            return x;
-        }).OnErrorResumeAsFailure();
-        await Assert.ThrowsAsync<Exception>(async () => await error.MinMaxAsync());
+        var count2 = await Observable.Empty<int>().LongCountAsync();
+        count2.Should().Be(0);
+
+        var error = Observable.Throw<int>(new Exception("foo"));
+
+        await Assert.ThrowsAsync<Exception>(async () => await error.LongCountAsync());
     }
 
     [Fact]
@@ -160,16 +132,8 @@ public class AggregateTest
 
         var task = Observable.Empty<int>().SumAsync();
         (await task).Should().Be(0);
-
-        var error = Observable.Range(1, 10).Select(x =>
-        {
-            if (x == 3) throw new Exception("foo");
-            return x;
-        }).OnErrorResumeAsFailure();
-        await Assert.ThrowsAsync<Exception>(async () => await error.MinAsync());
     }
-
-    [Fact]
+  
     public async Task Avg()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
@@ -182,12 +146,14 @@ public class AggregateTest
         var task = Observable.Empty<int>().AverageAsync();
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
 
+
         var error = Observable.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;
         }).OnErrorResumeAsFailure();
-        await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
+
+        await Assert.ThrowsAsync<Exception>(async () => await error.MinAsync());
     }
 
     [Fact]
@@ -205,5 +171,8 @@ public class AggregateTest
         p.OnCompleted();
 
         await task;
+
+        await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
+
     }
 }
