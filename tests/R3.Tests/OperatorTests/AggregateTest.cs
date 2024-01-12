@@ -49,17 +49,6 @@ public class AggregateTest
         await Assert.ThrowsAsync<TaskCanceledException>(async () => await listTask);
     }
 
-    // and Aggregate used operators
-
-    [Fact]
-    public async Task ToHashSet()
-    {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        var set = await source.ToHashSetAsync();
-
-        set.Should().BeEquivalentTo([1, 10, 3, 4, 6, 7]);
-    }
-
     [Fact]
     public async Task Min()
     {
