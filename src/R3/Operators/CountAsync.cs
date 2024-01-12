@@ -37,7 +37,7 @@ internal sealed class CountAsync<T>(CancellationToken cancellationToken) : TaskO
 
     protected override void OnNextCore(T _)
     {
-        count++;
+        count = checked(count + 1);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -64,7 +64,7 @@ internal sealed class CountFilterAsync<T>(Func<T, bool> predicate, CancellationT
     {
         if (predicate(value))
         {
-            count++;
+            count = checked(count + 1);
         }
     }
 
@@ -90,7 +90,7 @@ internal sealed class LongCountAsync<T>(CancellationToken cancellationToken) : T
 
     protected override void OnNextCore(T _)
     {
-        count++;
+        count = checked(count + 1);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -117,7 +117,7 @@ internal sealed class LongCountFilterAsync<T>(Func<T, bool> predicate, Cancellat
     {
         if (predicate(value))
         {
-            count++;
+            count = checked(count + 1);
         }
     }
 
