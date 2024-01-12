@@ -64,11 +64,9 @@ public static partial class ObservableExtensions
 internal sealed class Sum<#= typeSuffix #>Async(CancellationToken cancellationToken) : TaskObserverBase<<#= t #>, <#= t #>>(cancellationToken)
 {
     <#= t #> sum;
-    bool hasValue;
 
     protected override void OnNextCore(<#= t #> value)
     {
-        hasValue = true;
         sum += value;
     }
 
@@ -84,15 +82,7 @@ internal sealed class Sum<#= typeSuffix #>Async(CancellationToken cancellationTo
             TrySetException(result.Exception);
             return;
         }
-
-        if (hasValue)
-        {
-            TrySetResult(sum);
-        }
-        else
-        {
-            TrySetException(new InvalidOperationException("no elements"));
-        }
+        TrySetResult(sum);
     }
 }
 
@@ -120,29 +110,19 @@ internal sealed class Sum<#= typeSuffix #>Async<TSource>(Func<TSource, <#= t #>>
             return;
         }
 
-        if (hasValue)
-        {
-            TrySetResult(sum);
-        }
-        else
-        {
-            TrySetException(new InvalidOperationException("no elements"));
-        }
+        TrySetResult(sum);
     }
 }
 <# } #>
-
 
 #if NET8_0_OR_GREATER
 internal sealed class SumNumber<T>(CancellationToken cancellationToken) : TaskObserverBase<T, T>(cancellationToken)
     where T : IAdditionOperators<T, T, T>
 {
     T sum;
-    bool hasValue;
 
     protected override void OnNextCore(T value)
     {
-        hasValue = true;
         sum += value;
     }
 
@@ -159,14 +139,7 @@ internal sealed class SumNumber<T>(CancellationToken cancellationToken) : TaskOb
             return;
         }
 
-        if (hasValue)
-        {
-            TrySetResult(sum);
-        }
-        else
-        {
-            TrySetException(new InvalidOperationException("no elements"));
-        }
+        TrySetResult(sum);
     }
 }
 
@@ -174,11 +147,9 @@ internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : T
     where T : IAdditionOperators<T, T, T>
 {
     T sum;
-    bool hasValue;
 
     protected override void OnNextCore(T value)
     {
-        hasValue = true;
         sum += value;
     }
 
@@ -195,14 +166,7 @@ internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : T
             return;
         }
 
-        if (hasValue)
-        {
-            TrySetResult(sum);
-        }
-        else
-        {
-            TrySetException(new InvalidOperationException("no elements"));
-        }
+        TrySetResult(sum);
     }
 }
 
@@ -210,11 +174,9 @@ internal sealed class SumNumberAsync<TSource, TResult>(Func<TSource, TResult> se
     where TResult : IAdditionOperators<TResult, TResult, TResult>
 {
     TResult sum;
-    bool hasValue;
 
     protected override void OnNextCore(TSource value)
     {
-        hasValue = true;
         sum += selector(value);
     }
 
@@ -231,14 +193,7 @@ internal sealed class SumNumberAsync<TSource, TResult>(Func<TSource, TResult> se
             return;
         }
 
-        if (hasValue)
-        {
-            TrySetResult(sum);
-        }
-        else
-        {
-            TrySetException(new InvalidOperationException("no elements"));
-        }
+        TrySetResult(sum);
     }
 }
 #endif
