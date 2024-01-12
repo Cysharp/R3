@@ -1,0 +1,224 @@
+<#@ template language="C#" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+    var typeNames = new[]
+    {
+        ("int", "Int32"),
+        ("long", "Int64"),
+        ("float", "Float"),
+        ("double", "Double"),
+        ("decimal", "Decimal")
+    };
+#>
+
+using System.Numerics;
+
+namespace R3;
+
+public static partial class ObservableExtensions
+{
+<# foreach (var (t, typeSuffix) in typeNames) { #>
+    public static Task<double> AverageAsync(this Observable<<#= t #>> source, CancellationToken cancellationToken = default)
+    {
+        var method = new Average<#= typeSuffix #>Async(cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+
+    public static Task<double> AverageAsync<T>(this Observable<T> source, Func<T, <#= t #>> selector, CancellationToken cancellationToken = default)
+    {
+        var method = new Average<#= typeSuffix #>Async<T>(selector, cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+
+<# } #>
+#if NET8_0_OR_GREATER
+    public static Task<double> AverageAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
+        where T : INumberBase<T>
+    {
+        var method = new AverageNumberAsync<T>(cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+
+    public static Task<double> AverageAsync<TSource, TResult>(this Observable<TSource> source, Func<TSource, TResult> selector, CancellationToken cancellationToken = default)
+        where TResult : INumberBase<TResult>
+    {
+        var method = new AverageNumberAsync<TSource, TResult>(selector, cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+#endif
+}
+
+<# foreach (var (t, typeSuffix) in typeNames) { #>
+internal sealed class Average<#= typeSuffix #>Async(CancellationToken cancellationToken) : TaskObserverBase<<#= t #>, double>(cancellationToken)
+{
+    <#= t #> sum;
+    int count;
+
+    protected override void OnNextCore(<#= t #> value)
+    {
+        sum += value;
+        count = checked(count + 1);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (count <= 0)
+        {
+            TrySetException(new InvalidOperationException("Sequence contains no elements"));
+            return;
+        }
+
+<# if (t == "double") { #>
+        TrySetResult(sum / count);
+<# } else { #>
+        TrySetResult(checked((double)sum) / count);
+<# } #>
+    }
+}
+
+internal sealed class Average<#= typeSuffix #>Async<TSource>(Func<TSource, <#= t #>> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, double>(cancellationToken)
+{
+    <#= t #> sum;
+    int count;
+
+    protected override void OnNextCore(TSource value)
+    {
+        sum += selector(value);
+        count = checked(count + 1);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (count <= 0)
+        {
+            TrySetException(new InvalidOperationException("Sequence contains no elements"));
+            return;
+        }
+
+<# if (t == "double") { #>
+        TrySetResult(sum / count);
+<# } else { #>
+        TrySetResult(checked((double)sum) / count);
+<# } #>
+    }
+}
+<# } #>
+
+#if NET8_0_OR_GREATER
+internal sealed class AverageNumberAsync<T>(CancellationToken cancellationToken) : TaskObserverBase<T, double>(cancellationToken)
+    where T : INumberBase<T>
+{
+    T sum;
+    int count;
+
+    protected override void OnNextCore(T value)
+    {
+        sum += value;
+        count = checked(count + 1);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (count <= 0)
+        {
+            TrySetException(new InvalidOperationException("Sequence contains no elements"));
+            return;
+        }
+
+        try
+        {
+            TrySetResult(double.CreateChecked(sum) / count);
+        }
+        catch (Exception ex)
+        {
+            TrySetException(ex);
+        }
+    }
+}
+
+internal sealed class AverageNumberAsync<TSource, TResult>(Func<TSource, TResult> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, double>(cancellationToken)
+    where TResult : INumberBase<TResult>
+{
+    TResult sum;
+    int count;
+
+    protected override void OnNextCore(TSource value)
+    {
+        sum = sum + selector(value);
+        count = checked(count + 1);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (count <= 0)
+        {
+            TrySetException(new InvalidOperationException("Sequence contains no elements"));
+            return;
+        }
+
+        try
+        {
+            TrySetResult(double.CreateChecked(sum) / count);
+        }
+        catch (Exception ex)
+        {
+            TrySetException(ex);
+        }
+    }
+}
+#endif

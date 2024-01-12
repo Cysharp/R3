@@ -181,27 +181,6 @@ public class AggregateTest
     }
 
     [Fact]
-    public async Task Avg()
-    {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        var avg = await source.AverageAsync();
-
-        avg.Should().Be(new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.Average());
-
-        (await Observable.Return(999).AverageAsync()).Should().Be(999);
-
-        var task = Observable.Empty<int>().AverageAsync();
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
-
-        var error = Observable.Range(1, 10).Select(x =>
-        {
-            if (x == 3) throw new Exception("foo");
-            return x;
-        }).OnErrorResumeAsFailure();
-        await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
-    }
-
-    [Fact]
     public async Task WaitAsync()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();

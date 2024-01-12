@@ -109,23 +109,6 @@ public static partial class ObservableExtensions
         return AggregateAsync(source, default(T)!, static (sum, message) => checked(sum + message), Stubs<T>.ReturnSelf, cancellationToken); // ignore complete
     }
 
-    public static Task<double> AverageAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-        where T : INumberBase<T>
-    {
-        return AggregateAsync(source,
-            (sum: default(T)!, count: 0, hasValue: false),
-            static (avg, message) =>
-            {
-                return (checked(avg.sum + message), checked(avg.count + 1), true); // sum, count, hasValue
-            },
-            static (avg) =>
-            {
-                if (!avg.hasValue) throw new InvalidOperationException("Sequence contains no elements");
-                return double.CreateChecked(avg.sum) / double.CreateChecked(avg.count);
-            },
-            cancellationToken);
-    }
-
 #endif
 
     public static Task WaitAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)

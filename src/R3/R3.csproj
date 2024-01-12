@@ -17,6 +17,10 @@
 
     <ItemGroup>
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+        <None Update="Operators\AverageAsync.tt">
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>AverageAsync.cs</LastGenOutput>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -82,6 +86,11 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>ZipLatest.tt</DependentUpon>
+        </Compile>
+        <Compile Update="Operators\AverageAsync.cs">
+          <AutoGen>True</AutoGen>
+          <DesignTime>True</DesignTime>
+          <DependentUpon>AverageAsync.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 
