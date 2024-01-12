@@ -5,7 +5,7 @@ namespace R3.Tests.OperatorTests;
 public class AggregateTest
 {
     [Fact]
-    public async Task Aggreagte()
+    public async Task Aggregate()
     {
         var publisher = new Subject<int>();
 
