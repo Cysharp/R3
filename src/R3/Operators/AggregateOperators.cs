@@ -51,38 +51,6 @@ public static partial class ObservableExtensions
         return AggregateAsync(source, 0L, static (count, _) => checked(count + 1), Stubs<long>.ReturnSelf, cancellationToken); // ignore complete
     }
 
-    public static Task<T> MinAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-    {
-        return AggregateAsync(source, (default(T)!, hasValue: false),
-            static (min, message) =>
-            {
-                if (!min.hasValue) return (message, true); // first
-                return Comparer<T>.Default.Compare(min.Item1, message) < 0 ? (min.Item1, true) : (message, true);
-            },
-            static (min) =>
-            {
-                if (!min.hasValue) throw new InvalidOperationException("Sequence contains no elements");
-                return min.Item1;
-            }, cancellationToken);
-    }
-
-
-    public static Task<T> MaxAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-    {
-        return AggregateAsync(source, (default(T)!, hasValue: false),
-            static (max, message) =>
-            {
-                if (!max.hasValue) return (message, true); // first
-                return Comparer<T>.Default.Compare(max.Item1, message) > 0 ? (max.Item1, true) : (message, true);
-            },
-            static (max) =>
-            {
-                if (!max.hasValue) throw new InvalidOperationException("Sequence contains no elements");
-                return max.Item1;
-            }, cancellationToken);
-    }
-
-
     public static Task<(T Min, T Max)> MinMaxAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
         return AggregateAsync(source,
