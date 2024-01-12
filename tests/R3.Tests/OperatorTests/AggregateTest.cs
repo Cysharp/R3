@@ -157,6 +157,19 @@ public class AggregateTest
     }
 
     [Fact]
+    public async Task Sum()
+    {
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
+        var sum = await source.SumAsync();
+
+        sum.Should().Be(36);
+
+        (await Observable.Return(999).SumAsync()).Should().Be(999);
+
+        var task = Observable.Empty<int>().SumAsync();
+        (await task).Should().Be(0);
+    }
+  
     public async Task Avg()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
@@ -169,11 +182,33 @@ public class AggregateTest
         var task = Observable.Empty<int>().AverageAsync();
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
 
+
         var error = Observable.Range(1, 10).Select(x =>
         {
             if (x == 3) throw new Exception("foo");
             return x;
         }).OnErrorResumeAsFailure();
+
+        await Assert.ThrowsAsync<Exception>(async () => await error.MinAsync());
+    }
+
+    [Fact]
+    public async Task WaitAsync()
+    {
+        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
+        await source.WaitAsync();
+
+        var p = new Subject<int>();
+        var task = p.WaitAsync();
+
+        p.OnNext(10);
+        p.OnNext(20);
+        p.OnNext(30);
+        p.OnCompleted();
+
+        await task;
+
         await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
+
     }
 }

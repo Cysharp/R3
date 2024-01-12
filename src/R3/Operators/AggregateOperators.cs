@@ -57,26 +57,7 @@ public static partial class ObservableExtensions
             }, cancellationToken);
     }
 
-#if NET8_0_OR_GREATER
 
-    public static Task<double> AverageAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-        where T : INumberBase<T>
-    {
-        return AggregateAsync(source,
-            (sum: default(T)!, count: 0, hasValue: false),
-            static (avg, message) =>
-            {
-                return (checked(avg.sum + message), checked(avg.count + 1), true); // sum, count, hasValue
-            },
-            static (avg) =>
-            {
-                if (!avg.hasValue) throw new InvalidOperationException("Sequence contains no elements");
-                return double.CreateChecked(avg.sum) / double.CreateChecked(avg.count);
-            },
-            cancellationToken);
-    }
-
-#endif
 }
 
 
