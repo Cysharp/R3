@@ -127,9 +127,4 @@ public static partial class ObservableExtensions
     }
 
 #endif
-
-    public static Task WaitAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-    {
-        return AggregateAsync(source, 0, static (_, _) => 0, Stubs<int>.ReturnSelf, cancellationToken);
-    }
 }
