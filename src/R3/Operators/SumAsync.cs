@@ -78,7 +78,7 @@ public static partial class ObservableExtensions
 
 #if NET8_0_OR_GREATER
     public static Task<T> SumAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-        where T : IAdditionOperators<T, T, T>
+        where T : INumberBase<T>
     {
         var method = new SumNumberAsync<T>(cancellationToken);
         source.Subscribe(method);
@@ -86,7 +86,7 @@ public static partial class ObservableExtensions
     }
 
     public static Task<TResult> SumAsync<TSource, TResult>(this Observable<TSource> source, Func<TSource, TResult> selector, CancellationToken cancellationToken = default)
-        where TResult : IAdditionOperators<TResult, TResult, TResult>
+        where TResult : INumberBase<TResult>
     {
         var method = new SumNumberAsync<TSource, TResult>(selector, cancellationToken);
         source.Subscribe(method);
@@ -353,9 +353,9 @@ internal sealed class SumDecimalAsync<TSource>(Func<TSource, decimal> selector, 
 
 #if NET8_0_OR_GREATER
 internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : TaskObserverBase<T, T>(cancellationToken)
-    where T : IAdditionOperators<T, T, T>
+    where T : INumberBase<T>
 {
-    T sum;
+    T sum = T.Zero;
 
     protected override void OnNextCore(T value)
     {
@@ -380,9 +380,9 @@ internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : T
 }
 
 internal sealed class SumNumberAsync<TSource, TResult>(Func<TSource, TResult> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, TResult>(cancellationToken)
-    where TResult : IAdditionOperators<TResult, TResult, TResult>
+    where TResult : INumberBase<TResult>
 {
-    TResult sum;
+    TResult sum = TResult.Zero;
 
     protected override void OnNextCore(TSource value)
     {

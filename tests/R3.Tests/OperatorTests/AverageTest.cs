@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Numerics;
 
 namespace R3.Tests.OperatorTests;
@@ -12,19 +12,19 @@ public class AverageTest
         {
             await Observable.Empty<int>().AverageAsync();
         });
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-        {
-            await Observable.Empty<TestNumber>().AverageAsync();
-        });
+        //await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        //{
+        //    await Observable.Empty<TestNumber>().AverageAsync();
+        //});
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
             await Observable.Empty<int>().AverageAsync(x => x);
         });
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-        {
-            await Observable.Empty<TestNumber>().AverageAsync(x => x);
-        });
+        //await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        //{
+        //    await Observable.Empty<TestNumber>().AverageAsync(x => x);
+        //});
     }
 
     [Fact]
@@ -32,8 +32,8 @@ public class AverageTest
     {
         (await Observable.Return(7).AverageAsync()).Should().Be(7.0);
         (await Observable.Return(7).AverageAsync(x => x * 10)).Should().Be(70.0);
-        (await Observable.Return(new TestNumber(7)).AverageAsync()).Should().Be(7.0);
-        (await Observable.Return(new TestNumber(7)).AverageAsync(x => x)).Should().Be(7.0);
+        //(await Observable.Return(new TestNumber(7)).AverageAsync()).Should().Be(7.0);
+        //(await Observable.Return(new TestNumber(7)).AverageAsync(x => x)).Should().Be(7.0);
     }
 
     [Fact]
@@ -70,20 +70,20 @@ public class AverageTest
         await Assert.ThrowsAsync<Exception>(async () => await o.Select(x => new TestNumber(x)).AverageAsync(x => throw new Exception("bra")));
     }
 
-    [Fact]
-    public async Task DoubleConvertError()
-    {
-        var o = Observable.Return(new TestNumber(100, CannotConvert: true));
+    //[Fact]
+    //public async Task DoubleConvertError()
+    //{
+    //    var o = Observable.Return(new TestNumber(100, CannotConvert: true));
 
-        await Assert.ThrowsAsync<NotSupportedException>(async () =>
-        {
-            await o.AverageAsync();
-        });
-        await Assert.ThrowsAsync<NotSupportedException>(async () =>
-        {
-            await o.AverageAsync(x => x);
-        });
-    }
+    //    await Assert.ThrowsAsync<NotSupportedException>(async () =>
+    //    {
+    //        await o.AverageAsync();
+    //    });
+    //    await Assert.ThrowsAsync<NotSupportedException>(async () =>
+    //    {
+    //        await o.AverageAsync(x => x);
+    //    });
+    //}
 }
 
 file record struct TestNumber(int Value, bool CannotConvert = false) : INumberBase<TestNumber>

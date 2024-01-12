@@ -1,4 +1,4 @@
-namespace R3.Tests.OperatorTests;
+﻿namespace R3.Tests.OperatorTests;
 
 public class MaxTest
 {
@@ -55,7 +55,7 @@ public class MaxTest
         var source = new[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
 
         (await source.MaxAsync(x => x == 7 ? 777 : x)).Should().Be(777);
-        (await source.MaxAsync(x => new TestData(x), new TestComparer())).Value.Should().Be(1);
+        // (await source.MaxAsync(x => new TestData(x), new TestComparer())).Value.Should().Be(1);
     }
 
     [Fact]

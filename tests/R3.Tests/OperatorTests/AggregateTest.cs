@@ -92,7 +92,8 @@ public class AggregateTest
         }).OnErrorResumeAsFailure();
         await Assert.ThrowsAsync<Exception>(async () => await error.MaxAsync());
     }
-      
+
+    [Fact]
     public async Task Count()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
@@ -133,7 +134,8 @@ public class AggregateTest
         var task = Observable.Empty<int>().SumAsync();
         (await task).Should().Be(0);
     }
-  
+
+    [Fact]
     public async Task Avg()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
@@ -156,23 +158,4 @@ public class AggregateTest
         await Assert.ThrowsAsync<Exception>(async () => await error.MinAsync());
     }
 
-    [Fact]
-    public async Task WaitAsync()
-    {
-        var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        await source.WaitAsync();
-
-        var p = new Subject<int>();
-        var task = p.WaitAsync();
-
-        p.OnNext(10);
-        p.OnNext(20);
-        p.OnNext(30);
-        p.OnCompleted();
-
-        await task;
-
-        await Assert.ThrowsAsync<Exception>(async () => await error.AverageAsync());
-
-    }
 }

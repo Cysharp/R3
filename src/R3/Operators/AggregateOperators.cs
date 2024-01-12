@@ -1,8 +1,4 @@
-﻿using System.Numerics;
-
-namespace R3;
-
-// TODO: Selector APIs
+﻿namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -23,9 +19,6 @@ public static partial class ObservableExtensions
             return list;
         }, (list) => list, cancellationToken); // ignore complete
     }
-
-    }
-
 
 }
 

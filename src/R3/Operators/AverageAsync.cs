@@ -434,7 +434,7 @@ internal sealed class AverageDecimalAsync<TSource>(Func<TSource, decimal> select
 internal sealed class AverageNumberAsync<T>(CancellationToken cancellationToken) : TaskObserverBase<T, double>(cancellationToken)
     where T : INumberBase<T>
 {
-    T sum;
+    T sum = T.Zero;
     int count;
 
     protected override void OnNextCore(T value)
@@ -479,7 +479,7 @@ internal sealed class AverageNumberAsync<T>(CancellationToken cancellationToken)
 internal sealed class AverageNumberAsync<TSource, TResult>(Func<TSource, TResult> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, double>(cancellationToken)
     where TResult : INumberBase<TResult>
 {
-    TResult sum;
+    TResult sum = TResult.Zero;
     int count;
 
     protected override void OnNextCore(TSource value)
