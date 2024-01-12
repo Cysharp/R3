@@ -17,6 +17,10 @@
 
     <ItemGroup>
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+        <None Update="Operators\SumAsync.tt">
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>SumAsync.cs</LastGenOutput>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -82,6 +86,9 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>ZipLatest.tt</DependentUpon>
+        </Compile>
+        <Compile Update="Operators\SumAsync.cs">
+          <DependentUpon>SumAsync.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 
