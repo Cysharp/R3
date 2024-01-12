@@ -39,24 +39,6 @@ public static partial class ObservableExtensions
         }, (value) => value, cancellationToken); // ignore complete
     }
 
-    public static Task<(T Min, T Max)> MinMaxAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-    {
-        return AggregateAsync(source,
-            (min: default(T)!, max: default(T)!, hasValue: false),
-            static (minmax, message) =>
-            {
-                if (!minmax.hasValue) return (message, message, true); // first
-                var min = Comparer<T>.Default.Compare(minmax.min, message) < 0 ? minmax.min : message;
-                var max = Comparer<T>.Default.Compare(minmax.max, message) > 0 ? minmax.max : message;
-                return (min, max, true);
-            },
-            static (minmax) =>
-            {
-                if (!minmax.hasValue) throw new InvalidOperationException("Sequence contains no elements");
-                return (minmax.min, minmax.max);
-            }, cancellationToken);
-    }
-
 
 }
 
