@@ -462,14 +462,17 @@ internal sealed class AverageNumberAsync<T>(CancellationToken cancellationToken)
             return;
         }
 
+        double numerator;
         try
         {
-            TrySetResult(double.CreateChecked(sum) / count);
+            numerator = double.CreateChecked(sum);
         }
         catch (Exception ex)
         {
             TrySetException(ex);
+            return;
         }
+        TrySetResult(numerator / count);
     }
 }
 
@@ -504,14 +507,18 @@ internal sealed class AverageNumberAsync<TSource, TResult>(Func<TSource, TResult
             return;
         }
 
+        double numerator;
         try
         {
-            TrySetResult(double.CreateChecked(sum) / count);
+            numerator = double.CreateChecked(sum);
         }
         catch (Exception ex)
         {
             TrySetException(ex);
+            return;
         }
+
+        TrySetResult(numerator / count);
     }
 }
 #endif
