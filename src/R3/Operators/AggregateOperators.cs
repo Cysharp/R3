@@ -103,12 +103,6 @@ public static partial class ObservableExtensions
 
 #if NET8_0_OR_GREATER
 
-    public static Task<T> SumAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
-        where T : IAdditionOperators<T, T, T>
-    {
-        return AggregateAsync(source, default(T)!, static (sum, message) => checked(sum + message), Stubs<T>.ReturnSelf, cancellationToken); // ignore complete
-    }
-
     public static Task<double> AverageAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
         where T : INumberBase<T>
     {
@@ -133,3 +127,5 @@ public static partial class ObservableExtensions
         return AggregateAsync(source, 0, static (_, _) => 0, Stubs<int>.ReturnSelf, cancellationToken);
     }
 }
+
+

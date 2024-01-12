@@ -1,0 +1,244 @@
+<#@ template language="C#" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+    var typeNames = new[]
+    {
+        ("int", "Int32"),
+        ("long", "Int64"),
+        ("float", "Float"),
+        ("double", "Double"),
+        ("decimal", "Decimal")
+    };
+#>
+
+namespace R3;
+
+using System.Numerics;
+
+public static partial class ObservableExtensions
+{
+<# foreach (var (t, typeSuffix) in typeNames) { #>
+    public static Task<<#= t #>> SumAsync(this Observable<<#= t #>> source, CancellationToken cancellationToken = default)
+    {
+        var method = new Sum<#= typeSuffix #>Async(cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+
+    public static Task<<#= t #>> SumAsync<TSource>(this Observable<TSource> source, Func<TSource, <#= t #>> selector, CancellationToken cancellationToken = default)
+    {
+        var method = new Sum<#= typeSuffix #>Async<TSource>(selector, cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+
+<# } #>
+
+#if NET8_0_OR_GREATER
+    public static Task<T> SumAsync<T>(this Observable<T> source, CancellationToken cancellationToken = default)
+        where T : IAdditionOperators<T, T, T>
+    {
+        var method = new SumNumberAsync<T>(cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+
+    public static Task<TResult> SumAsync<TSource, TResult>(this Observable<TSource> source, Func<TSource, TResult> selector, CancellationToken cancellationToken = default)
+        where TResult : IAdditionOperators<TResult, TResult, TResult>
+    {
+        var method = new SumNumberAsync<TSource, TResult>(selector, cancellationToken);
+        source.Subscribe(method);
+        return method.Task;
+    }
+#endif
+}
+
+<# foreach (var (t, typeSuffix) in typeNames) { #>
+internal sealed class Sum<#= typeSuffix #>Async(CancellationToken cancellationToken) : TaskObserverBase<<#= t #>, <#= t #>>(cancellationToken)
+{
+    <#= t #> sum;
+    bool hasValue;
+
+    protected override void OnNextCore(<#= t #> value)
+    {
+        hasValue = true;
+        sum += value;
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (hasValue)
+        {
+            TrySetResult(sum);
+        }
+        else
+        {
+            TrySetException(new InvalidOperationException("no elements"));
+        }
+    }
+}
+
+internal sealed class Sum<#= typeSuffix #>Async<TSource>(Func<TSource, <#= t #>> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, <#= t #>>(cancellationToken)
+{
+    <#= t #> sum;
+    bool hasValue;
+
+    protected override void OnNextCore(TSource value)
+    {
+        hasValue = true;
+        sum += selector(value);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (hasValue)
+        {
+            TrySetResult(sum);
+        }
+        else
+        {
+            TrySetException(new InvalidOperationException("no elements"));
+        }
+    }
+}
+<# } #>
+
+
+#if NET8_0_OR_GREATER
+internal sealed class SumNumber<T>(CancellationToken cancellationToken) : TaskObserverBase<T, T>(cancellationToken)
+    where T : IAdditionOperators<T, T, T>
+{
+    T sum;
+    bool hasValue;
+
+    protected override void OnNextCore(T value)
+    {
+        hasValue = true;
+        sum += value;
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (hasValue)
+        {
+            TrySetResult(sum);
+        }
+        else
+        {
+            TrySetException(new InvalidOperationException("no elements"));
+        }
+    }
+}
+
+internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : TaskObserverBase<T, T>(cancellationToken)
+    where T : IAdditionOperators<T, T, T>
+{
+    T sum;
+    bool hasValue;
+
+    protected override void OnNextCore(T value)
+    {
+        hasValue = true;
+        sum += value;
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (hasValue)
+        {
+            TrySetResult(sum);
+        }
+        else
+        {
+            TrySetException(new InvalidOperationException("no elements"));
+        }
+    }
+}
+
+internal sealed class SumNumberAsync<TSource, TResult>(Func<TSource, TResult> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, TResult>(cancellationToken)
+    where TResult : IAdditionOperators<TResult, TResult, TResult>
+{
+    TResult sum;
+    bool hasValue;
+
+    protected override void OnNextCore(TSource value)
+    {
+        hasValue = true;
+        sum += selector(value);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        TrySetException(error);
+    }
+
+    protected override void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            TrySetException(result.Exception);
+            return;
+        }
+
+        if (hasValue)
+        {
+            TrySetResult(sum);
+        }
+        else
+        {
+            TrySetException(new InvalidOperationException("no elements"));
+        }
+    }
+}
+#endif
