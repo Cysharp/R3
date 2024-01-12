@@ -101,7 +101,7 @@ internal sealed class SumInt32Async(CancellationToken cancellationToken) : TaskO
 
     protected override void OnNextCore(int value)
     {
-        sum += value;
+        sum = checked(sum + value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -123,12 +123,11 @@ internal sealed class SumInt32Async(CancellationToken cancellationToken) : TaskO
 internal sealed class SumInt32Async<TSource>(Func<TSource, int> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, int>(cancellationToken)
 {
     int sum;
-    bool hasValue;
 
     protected override void OnNextCore(TSource value)
     {
-        hasValue = true;
-        sum += selector(value);
+        var add = selector(value);
+        sum = checked(sum + add);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -153,7 +152,7 @@ internal sealed class SumInt64Async(CancellationToken cancellationToken) : TaskO
 
     protected override void OnNextCore(long value)
     {
-        sum += value;
+        sum = checked(sum + value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -175,12 +174,11 @@ internal sealed class SumInt64Async(CancellationToken cancellationToken) : TaskO
 internal sealed class SumInt64Async<TSource>(Func<TSource, long> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, long>(cancellationToken)
 {
     long sum;
-    bool hasValue;
 
     protected override void OnNextCore(TSource value)
     {
-        hasValue = true;
-        sum += selector(value);
+        var add = selector(value);
+        sum = checked(sum + add);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -205,7 +203,7 @@ internal sealed class SumFloatAsync(CancellationToken cancellationToken) : TaskO
 
     protected override void OnNextCore(float value)
     {
-        sum += value;
+        sum = checked(sum + value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -227,12 +225,11 @@ internal sealed class SumFloatAsync(CancellationToken cancellationToken) : TaskO
 internal sealed class SumFloatAsync<TSource>(Func<TSource, float> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, float>(cancellationToken)
 {
     float sum;
-    bool hasValue;
 
     protected override void OnNextCore(TSource value)
     {
-        hasValue = true;
-        sum += selector(value);
+        var add = selector(value);
+        sum = checked(sum + add);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -257,7 +254,7 @@ internal sealed class SumDoubleAsync(CancellationToken cancellationToken) : Task
 
     protected override void OnNextCore(double value)
     {
-        sum += value;
+        sum = checked(sum + value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -279,12 +276,11 @@ internal sealed class SumDoubleAsync(CancellationToken cancellationToken) : Task
 internal sealed class SumDoubleAsync<TSource>(Func<TSource, double> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, double>(cancellationToken)
 {
     double sum;
-    bool hasValue;
 
     protected override void OnNextCore(TSource value)
     {
-        hasValue = true;
-        sum += selector(value);
+        var add = selector(value);
+        sum = checked(sum + add);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -309,7 +305,7 @@ internal sealed class SumDecimalAsync(CancellationToken cancellationToken) : Tas
 
     protected override void OnNextCore(decimal value)
     {
-        sum += value;
+        sum = checked(sum + value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -331,12 +327,11 @@ internal sealed class SumDecimalAsync(CancellationToken cancellationToken) : Tas
 internal sealed class SumDecimalAsync<TSource>(Func<TSource, decimal> selector, CancellationToken cancellationToken) : TaskObserverBase<TSource, decimal>(cancellationToken)
 {
     decimal sum;
-    bool hasValue;
 
     protected override void OnNextCore(TSource value)
     {
-        hasValue = true;
-        sum += selector(value);
+        var add = selector(value);
+        sum = checked(sum + add);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -357,33 +352,6 @@ internal sealed class SumDecimalAsync<TSource>(Func<TSource, decimal> selector, 
 }
 
 #if NET8_0_OR_GREATER
-internal sealed class SumNumber<T>(CancellationToken cancellationToken) : TaskObserverBase<T, T>(cancellationToken)
-    where T : IAdditionOperators<T, T, T>
-{
-    T sum;
-
-    protected override void OnNextCore(T value)
-    {
-        sum += value;
-    }
-
-    protected override void OnErrorResumeCore(Exception error)
-    {
-        TrySetException(error);
-    }
-
-    protected override void OnCompletedCore(Result result)
-    {
-        if (result.IsFailure)
-        {
-            TrySetException(result.Exception);
-            return;
-        }
-
-        TrySetResult(sum);
-    }
-}
-
 internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : TaskObserverBase<T, T>(cancellationToken)
     where T : IAdditionOperators<T, T, T>
 {
@@ -391,7 +359,7 @@ internal sealed class SumNumberAsync<T>(CancellationToken cancellationToken) : T
 
     protected override void OnNextCore(T value)
     {
-        sum += value;
+        sum = checked(sum + value);
     }
 
     protected override void OnErrorResumeCore(Exception error)
@@ -418,7 +386,8 @@ internal sealed class SumNumberAsync<TSource, TResult>(Func<TSource, TResult> se
 
     protected override void OnNextCore(TSource value)
     {
-        sum += selector(value);
+        var add = selector(value);
+        sum = checked(sum + add);
     }
 
     protected override void OnErrorResumeCore(Exception error)
