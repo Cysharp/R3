@@ -735,6 +735,38 @@ You open tracker window in `Window -> Observable Tracker`. It enables watch `Sub
 
 Observable Tracker is intended for debugging use only as enabling tracking and capturing stacktraces is useful but has a heavy performance impact. Recommended usage is to enable both tracking and stacktraces to find subscription leaks and to disable them both when done.
 
+### `SerializableReactiveProperty<T>`
+
+`ReactiveProperty<T>` can not use on `[SerializeField]`. However you can use `SerializableReactiveProperty<T>` instead.
+
+```csharp
+public class NewBehaviourScript : MonoBehaviour
+{
+    public SerializableReactiveProperty<int> rpInt;
+    public SerializableReactiveProperty<long> rpLong;
+    public SerializableReactiveProperty<byte> rpByte;
+    public SerializableReactiveProperty<float> rpFloat;
+    public SerializableReactiveProperty<double> rpDouble;
+    public SerializableReactiveProperty<string> rpString;
+    public SerializableReactiveProperty<bool> rpBool;
+    public SerializableReactiveProperty<Vector2> rpVector2;
+    public SerializableReactiveProperty<Vector2Int> rpVector2Int;
+    public SerializableReactiveProperty<Vector3> rpVector3;
+    public SerializableReactiveProperty<Vector3Int> rpVector3Int;
+    public SerializableReactiveProperty<Vector4> rpVector4;
+    public SerializableReactiveProperty<Color> rpColor;
+    public SerializableReactiveProperty<Rect> rpRect;
+    public SerializableReactiveProperty<Bounds> rpBounds;
+    public SerializableReactiveProperty<BoundsInt> rpBoundsInt;
+    public SerializableReactiveProperty<Quaternion> rpQuaternion;
+    public SerializableReactiveProperty<Matrix4x4> rpMatrix4x4;
+    public SerializableReactiveProperty<FruitEnum> rpEnum;
+    public SerializableReactiveProperty<FruitFlagsEnum> rpFlagsEnum;
+}
+```
+
+![image](https://github.com/Cysharp/R3/assets/46207/31be9378-846e-4635-8cc6-0b6e3954e918)
+
 ### Godot
 
 Godot support is for Godot 4.x.

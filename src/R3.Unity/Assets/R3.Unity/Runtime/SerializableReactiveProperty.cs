@@ -49,11 +49,11 @@ namespace R3
             if (p.propertyType == SerializedPropertyType.Quaternion)
             {
                 label.text += "(EulerAngles)";
-                EditorGUI.PropertyField(position, p, label, false);
+                EditorGUI.PropertyField(position, p, label, true);
             }
             else
             {
-                EditorGUI.PropertyField(position, p, label, false);
+                EditorGUI.PropertyField(position, p, label, true);
             }
         }
 
