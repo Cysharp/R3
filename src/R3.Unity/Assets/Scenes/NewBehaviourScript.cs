@@ -4,36 +4,53 @@ using UnityEngine;
 
 public class NewBehaviourScript : MonoBehaviour
 {
+    public SerializableReactiveProperty<int> rpInt;
+    public SerializableReactiveProperty<long> rpLong;
+    public SerializableReactiveProperty<byte> rpByte;
+    public SerializableReactiveProperty<float> rpFloat;
+    public SerializableReactiveProperty<double> rpDouble;
+    public SerializableReactiveProperty<string> rpString;
+    public SerializableReactiveProperty<bool> rpBool;
+    public SerializableReactiveProperty<Vector2> rpVector2;
+    public SerializableReactiveProperty<Vector2Int> rpVector2Int;
+    public SerializableReactiveProperty<Vector3> rpVector3;
+    public SerializableReactiveProperty<Vector3Int> rpVector3Int;
+    public SerializableReactiveProperty<Vector4> rpVector4;
+    public SerializableReactiveProperty<Color> rpColor;
+    public SerializableReactiveProperty<Rect> rpRect;
+    public SerializableReactiveProperty<Bounds> rpBounds;
+    public SerializableReactiveProperty<BoundsInt> rpBoundsInt;
+
+    public SerializableReactiveProperty<Quaternion> rpQuaternion;
+    public SerializableReactiveProperty<Matrix4x4> rpMatrix4x4;
+    public SerializableReactiveProperty<FruitEnum> rpEnum;
+    public SerializableReactiveProperty<FruitFlagsEnum> rpFlagsEnum;
+
+
+
     void Start()
     {
-        Observable.TimerFrame(5, 100)
-            .TakeUntil(this.destroyCancellationToken)
-            .Subscribe(x =>
-            {
-                Debug.Log(Time.time);
-            })
-            .AddTo(this);
-
-        Observable.EveryUpdate()
-            .Where(x => true)
-            .Subscribe(x =>
-            {
-                Debug.Log(Time.frameCount);
-            })
-            .AddTo(this);
-
-        Observable.EveryValueChanged(this, x => x.transform, destroyCancellationToken)
-            .Select(x => x)
-            .Subscribe(x =>
-            {
-                Debug.Log(x);
-            })
-            .AddTo(this);
-
-
-
-
-
-
+        //StandardQuaternionField.eulerAngles
+        rpQuaternion.Subscribe(x =>
+        {
+            Debug.Log("Quaternion XYZW:" + new Vector4(x.x, x.y, x.z, x.w));
+            Debug.Log("Quaternion EulerAngles:" + x.eulerAngles);
+        });
     }
+}
+
+
+
+public enum FruitEnum
+{
+    Apple, Grape, Orange
+}
+
+[Flags]
+public enum FruitFlagsEnum
+{
+    None = 0,
+    Apple = 1,
+    Grape = 2,
+    Orange = 4
 }
