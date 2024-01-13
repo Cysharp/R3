@@ -72,6 +72,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     {
         if (completeState.IsCompleted) return;
 
+        OnReceiveError(error);
+
         foreach (var subscription in list.AsSpan())
         {
             subscription?.observer.OnErrorResume(error);
@@ -84,6 +86,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
         if (status != CompleteState.ResultStatus.Done)
         {
             return; // already completed
+        }
+
+        if (result.IsFailure)
+        {
+            OnReceiveError(result.Exception);
         }
 
         foreach (var subscription in list.AsSpan())
@@ -145,6 +152,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     protected virtual void DisposeCore() { }
 
     protected virtual void OnSetValue(T value) { }
+    protected virtual void OnReceiveError(Exception exception) { }
 
     public override string? ToString()
     {
