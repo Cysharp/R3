@@ -23,10 +23,13 @@ namespace R3
         {
         }
 
+        protected override void OnSetValue(T value)
+        {
+            serializableValue = value;
+        }
 
         public void OnBeforeSerialize()
         {
-            serializableValue = Value;
         }
 
         public void OnAfterDeserialize()
@@ -46,11 +49,11 @@ namespace R3
             if (p.propertyType == SerializedPropertyType.Quaternion)
             {
                 label.text += "(EulerAngles)";
-                EditorGUI.PropertyField(position, p, label, true);
+                EditorGUI.PropertyField(position, p, label, false);
             }
             else
             {
-                EditorGUI.PropertyField(position, p, label, true);
+                EditorGUI.PropertyField(position, p, label, false);
             }
         }
 

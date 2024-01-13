@@ -26,16 +26,22 @@ public class NewBehaviourScript : MonoBehaviour
     public SerializableReactiveProperty<FruitEnum> rpEnum;
     public SerializableReactiveProperty<FruitFlagsEnum> rpFlagsEnum;
 
-
-
     void Start()
     {
-        //StandardQuaternionField.eulerAngles
         rpQuaternion.Subscribe(x =>
         {
             Debug.Log("Quaternion XYZW:" + new Vector4(x.x, x.y, x.z, x.w));
             Debug.Log("Quaternion EulerAngles:" + x.eulerAngles);
         });
+
+        var time = 0;
+        Observable.Interval(TimeSpan.FromSeconds(1))
+            .Subscribe(x =>
+            {
+                Debug.Log("Time:" + time);
+                rpLong.Value = time++;
+            })
+            .AddTo(this.destroyCancellationToken);
     }
 }
 

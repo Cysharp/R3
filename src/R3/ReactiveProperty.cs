@@ -38,7 +38,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
             OnNext(value);
         }
     }
-    
+
     public ReactiveProperty() : this(default!)
     {
     }
@@ -60,6 +60,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
         if (completeState.IsCompleted) return;
 
         this.value = value; // different from Subject<T>; set value before raise OnNext
+        OnSetValue(value);  // for inheritance types.
 
         foreach (var subscription in list.AsSpan())
         {
@@ -142,6 +143,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     }
 
     protected virtual void DisposeCore() { }
+
+    protected virtual void OnSetValue(T value) { }
 
     public override string? ToString()
     {
