@@ -8,7 +8,8 @@
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
         <!--<local:BasicUsagesViewModel />-->
-        <local:ValidationViewModel />
+        <!--<local:ValidationViewModel />-->
+        <local:CommandViewModel />
     </Window.DataContext>
     <!--<StackPanel>
         <TextBlock Text="Basic usages" FontSize="24" />
@@ -18,11 +19,18 @@
         <TextBlock Text="{Binding Output.Value}" />
     </StackPanel>-->
 
-    <StackPanel Margin="10">
+    <!--<StackPanel Margin="10">
         <Label Content="Validation" />
         <TextBox Text="{Binding Height.Value, UpdateSourceTrigger=PropertyChanged}"  />
         <TextBox  Text="{Binding Weight.Value, UpdateSourceTrigger=PropertyChanged}" />
         <TextBox  Text="{Binding CustomValidation1.Value, UpdateSourceTrigger=PropertyChanged}" />
         <TextBox  Text="{Binding CustomValidation2.Value, UpdateSourceTrigger=PropertyChanged}" />
+    </StackPanel>-->
+
+
+    <StackPanel Margin="10">
+        <Label Content="Command" />
+        <CheckBox IsChecked="{Binding OnCheck.Value}" />
+        <Button Content="Btn" Command="{Binding ShowMessageBox}" />
     </StackPanel>
 </Window>

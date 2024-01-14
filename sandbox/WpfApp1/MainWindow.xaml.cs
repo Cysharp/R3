@@ -113,3 +113,24 @@ public class ValidationViewModel : IDisposable
         Disposable.Dispose(Height, Weight, CustomValidation1, customValidation1Subscription, CustomValidation2);
     }
 }
+
+
+public class CommandViewModel : IDisposable
+{
+    public BindableReactiveProperty<bool> OnCheck { get; }
+    public ReactiveCommand<Unit> ShowMessageBox { get; }
+
+    public CommandViewModel()
+    {
+        OnCheck = new BindableReactiveProperty<bool>();
+        ShowMessageBox = OnCheck.ToReactiveCommand(_ =>
+        {
+            MessageBox.Show("clicked");
+        });
+    }
+
+    public void Dispose()
+    {
+        Disposable.Combine(OnCheck, ShowMessageBox);
+    }
+}

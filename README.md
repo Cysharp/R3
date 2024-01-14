@@ -441,7 +441,7 @@ TODO:
 
 XAML Platforms(`BindableReactiveProperty<T>`)
 ---
-For XAML based application platforms, R3 provides `BindableReactiveProperty<T>` that can bind observable property to view like [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/.stateflow-and-sharedflow).
+For XAML based application platforms, R3 provides `BindableReactiveProperty<T>` that can bind observable property to view like [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/.stateflow-and-sharedflow). It implements [INotifyPropertyChanged](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.inotifypropertychanged) and [INotifyDataErrorInfo](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.inotifydataerrorinfo).
 
 Simple usage, expose `BindableReactiveProperty<T>` via `new` or `ToBindableReactiveProperty`.
 
@@ -579,6 +579,54 @@ public class ValidationViewModel : IDisposable
 ```
 
 ![image](https://github.com/Cysharp/R3/assets/46207/f80149e6-1573-46b5-9a77-b78776dd3527)
+
+### ReactiveCommand
+
+`ReactiveCommand<T>` is observable [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand) implementation. It can create from `Observable<bool> canExecuteSource`.
+
+```csharp
+public class CommandViewModel : IDisposable
+{
+    public BindableReactiveProperty<bool> OnCheck { get; } // bind to CheckBox
+    public ReactiveCommand<Unit> ShowMessageBox { get; }   // bind to Button
+
+    public CommandViewModel()
+    {
+        OnCheck = new BindableReactiveProperty<bool>();
+        ShowMessageBox = OnCheck.ToReactiveCommand(_ =>
+        {
+            MessageBox.Show("clicked");
+        });
+    }
+
+    public void Dispose()
+    {
+        Disposable.Combine(OnCheck, ShowMessageBox);
+    }
+}
+```
+
+```xml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <local:CommandViewModel />
+    </Window.DataContext>
+    <StackPanel Margin="10">
+        <Label Content="Command" />
+        <CheckBox IsChecked="{Binding OnCheck.Value}" />
+        <Button Content="Btn" Command="{Binding ShowMessageBox}" />
+    </StackPanel>
+</Window>
+```
+
+![rpcommand](https://github.com/Cysharp/R3/assets/46207/c456829e-1493-446d-831b-425f05be5d05)
 
 Platform Supports
 ---

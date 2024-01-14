@@ -14,18 +14,21 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
 
     public ReactiveCommand()
     {
+        this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
         this.subscription = Disposable.Empty;
     }
 
     public ReactiveCommand(Action<T> execute)
     {
+        this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
         this.subscription = this.Subscribe(execute);
     }
 
     public ReactiveCommand(Observable<bool> canExecuteSource, bool initialCanExecute)
     {
+        this.list = new FreeListCore<Subscription>(this);
         this.canExecute = initialCanExecute;
         this.subscription = canExecuteSource.Subscribe(this, static (newCanExecute, state) =>
         {
