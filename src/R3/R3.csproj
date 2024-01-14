@@ -50,6 +50,7 @@
         <PackageReference Include="Microsoft.Bcl.TimeProvider" Version="8.0.0" />
         <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
