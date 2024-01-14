@@ -268,6 +268,7 @@ Additionally, there are other utilities for Disposables as follows.
 
 ```
 Disposable.Create(Action);
+Disposable.Dispose(...);
 SingleAssignmentDisposable
 SingleAssignmentDisposableCore // struct
 SerialDisposable
@@ -438,6 +439,147 @@ Implement Custom Operator Guide
 ---
 TODO:
 
+XAML Platforms(`BindableReactiveProperty<T>`)
+---
+For XAML based application platforms, R3 provides `BindableReactiveProperty<T>` that can bind observable property to view like [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/.stateflow-and-sharedflow).
+
+Simple usage, expose `BindableReactiveProperty<T>` via `new` or `ToBindableReactiveProperty`.
+
+Here is the simple In and Out BindableReactiveProperty ViewModel, Xaml and code-behind. In xaml, `.Value` to bind property.
+
+```csharp
+public class BasicUsagesViewModel : IDisposable
+{
+    public BindableReactiveProperty<string> Input { get; }
+    public BindableReactiveProperty<string> Output { get; }
+
+    public BasicUsagesViewModel()
+    {
+        Input = new BindableReactiveProperty<string>("");
+        Output = Input.Select(x => x.ToUpper()).ToBindableReactiveProperty("");
+    }
+
+    public void Dispose()
+    {
+        Disposable.Dispose(Input, Output);
+    }
+}
+```
+
+```xml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <local:BasicUsagesViewModel />
+    </Window.DataContext>
+    <StackPanel>
+        <TextBlock Text="Basic usages" FontSize="24" />
+        
+        <Label Content="Input" />
+        <TextBox Text="{Binding Input.Value, UpdateSourceTrigger=PropertyChanged}" />
+        
+        <Label Content="Output" />
+        <TextBlock Text="{Binding Output.Value}" />
+    </StackPanel>
+</Window>
+```
+
+```csharp
+namespace WpfApp1;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        (this.DataContext as IDisposable)?.Dispose();
+    }
+}
+```
+
+![image](https://github.com/Cysharp/R3/assets/46207/01c3738f-e941-412e-b517-8e7867d6f709)
+
+BindableReactiveProperty also supports validation via DataAnnotation or custom logic. If you want to use DataAnnotation attribute, require to call `EnableValidation<T>()` in field initializer or `EnableValidation(Expression selfSelector)` in constructor.
+
+```csharp
+public class ValidationViewModel : IDisposable
+{
+    // Pattern 1. use EnableValidation<T> to enable DataAnnotation validation in field initializer
+    [Range(0.0, 300.0)]
+    public BindableReactiveProperty<double> Height { get; } = new BindableReactiveProperty<double>().EnableValidation<ValidationViewModel>();
+
+    [Range(0.0, 300.0)]
+    public BindableReactiveProperty<double> Weight { get; }
+
+    IDisposable customValidation1Subscription;
+    public BindableReactiveProperty<double> CustomValidation1 { get; set; }
+
+    public BindableReactiveProperty<double> CustomValidation2 { get; set; }
+
+    public ValidationViewModel()
+    {
+        // Pattern 2. use EnableValidation(Expression) to enable DataAnnotation validation
+        Weight = new BindableReactiveProperty<double>().EnableValidation(() => Weight);
+
+        // Pattern 3. EnableValidation() and call OnErrorResume to set custom error meessage
+        CustomValidation1 = new BindableReactiveProperty<double>().EnableValidation();
+        customValidation1Subscription = CustomValidation1.Subscribe(x =>
+        {
+            if (0.0 <= x && x <= 300.0) return;
+
+            CustomValidation1.OnErrorResume(new Exception("value is not in range."));
+        });
+
+        // Pattern 4. simplified version of Pattern3, EnableValidation(Func<T, Exception?>)
+        CustomValidation2 = new BindableReactiveProperty<double>().EnableValidation(x =>
+        {
+            if (0.0 <= x && x <= 300.0) return null; // null is no validate result
+            return new Exception("value is not in range.");
+        });
+    }
+
+    public void Dispose()
+    {
+        Disposable.Dispose(Height, Weight, CustomValidation1, customValidation1Subscription, CustomValidation2);
+    }
+}
+```
+
+```xml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <local:ValidationViewModel />
+    </Window.DataContext>
+
+    <StackPanel Margin="10">
+        <Label Content="Validation" />
+        <TextBox Text="{Binding Height.Value, UpdateSourceTrigger=PropertyChanged}"  />
+        <TextBox  Text="{Binding Weight.Value, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox  Text="{Binding CustomValidation1.Value, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox  Text="{Binding CustomValidation2.Value, UpdateSourceTrigger=PropertyChanged}" />
+    </StackPanel>
+</Window>
+```
+
+![image](https://github.com/Cysharp/R3/assets/46207/f80149e6-1573-46b5-9a77-b78776dd3527)
+
 Platform Supports
 ---
 Even without adding specific platform support, it is possible to use only the core library. However, Rx becomes more user-friendly by replacing the standard `TimeProvider` and `FrameProvider` with those optimized for each platform. For example, while the standard `TimeProvider` is thread-based, using a UI thread-based `TimeProvider` for each platform can eliminate the need for dispatch through `ObserveOn`, enhancing usability. Additionally, since message loops differ across platforms, the use of individual `FrameProvider` is essential.
@@ -507,6 +649,8 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 * ObserveOnCurrentDispatcher
 * SubscribeOnDispatcher
 * SubscribeOnCurrentDispatcher
+
+ViewModel binding support, see [`BindableReactiveProperty<T>`](#xaml-platformsbindablereactivepropertyt) section.
 
 ### Avalonia
 

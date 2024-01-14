@@ -10,25 +10,87 @@ namespace R3;
 // all operators need to call from UI Thread(not thread-safe)
 public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo
 {
+    // ctor
+
+    IDisposable? subscription;
+
+    public BindableReactiveProperty()
+        : base()
+    {
+    }
+
+    public BindableReactiveProperty(T value)
+        : base(value)
+    {
+    }
+
+    public BindableReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
+        : base(value, equalityComparer)
+    {
+    }
+
+    // ToBindableReactiveProperty
+
+    internal BindableReactiveProperty(Observable<T> source, T initialValue, IEqualityComparer<T>? equalityComparer)
+        : base(initialValue, equalityComparer)
+    {
+        this.subscription = source.Subscribe(new Observer(this));
+    }
+
+    protected override void DisposeCore()
+    {
+        subscription?.Dispose();
+    }
+
+    class Observer(BindableReactiveProperty<T> parent) : Observer<T>
+    {
+        protected override void OnNextCore(T value)
+        {
+            parent.Value = value;
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            parent.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            parent.OnCompleted(result);
+        }
+    }
+
     // for INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected override void OnSetValue(T value)
     {
-        if (enableNotifyError && validationContext != null)
+        if (enableNotifyError)
         {
-            if (errors == null)
+            if (validationContext != null)
             {
-                errors = new List<ValidationResult>(validationContext.ValidatorCount);
+                if (errors == null)
+                {
+                    errors = new List<ValidationResult>(validationContext.ValidatorCount);
+                }
+                errors.Clear();
+
+                if (!validationContext.TryValidateValue(value, errors))
+                {
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+
+                    // set is completed(validation does not call before set) so continue call PropertyChanged
+                }
             }
-            errors.Clear();
-
-            if (!validationContext.TryValidateValue(value, errors))
+            else
             {
-                ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
-
-                // set is completed(validation does not call before set) so continue call PropertyChanged
+                // comes new value, clear error
+                if (errors != null && errors.Count != 0)
+                {
+                    errors.Clear();
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+                }
             }
         }
 
@@ -94,6 +156,30 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
 
     public BindableReactiveProperty<T> EnableValidation()
     {
+        enableNotifyError = true;
+        return this;
+    }
+
+    public BindableReactiveProperty<T> EnableValidation(Func<T, Exception?> validator)
+    {
+        var validationSubscription = this.Subscribe((this, validator), static (x, state) =>
+        {
+            var ex = state.validator(x);
+            if (ex != null)
+            {
+                state.Item1.OnErrorResume(ex);
+            }
+        });
+
+        if (subscription == null)
+        {
+            subscription = validationSubscription;
+        }
+        else
+        {
+            subscription = Disposable.Combine(subscription, validationSubscription);
+        }
+
         enableNotifyError = true;
         return this;
     }

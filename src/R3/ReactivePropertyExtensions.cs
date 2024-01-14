@@ -7,7 +7,7 @@ public static class ReactivePropertyExtensions
         return source.ToReadOnlyReactiveProperty(EqualityComparer<T>.Default, initialValue);
     }
 
-    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, EqualityComparer<T>? equalityComparer, T initialValue = default!)
+    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
     {
         if (source is ReadOnlyReactiveProperty<T> rrp)
         {
@@ -17,13 +17,25 @@ public static class ReactivePropertyExtensions
         // allow to cast ReactiveProperty<T>
         return new ConnectedReactiveProperty<T>(source, initialValue, equalityComparer);
     }
+
+    // ToBindable
+
+    public static BindableReactiveProperty<T> ToBindableReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
+    {
+        return new BindableReactiveProperty<T>(source, initialValue, EqualityComparer<T>.Default);
+    }
+
+    public static BindableReactiveProperty<T> ToBindableReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
+    {
+        return new BindableReactiveProperty<T>(source, initialValue, equalityComparer);
+    }
 }
 
 internal sealed class ConnectedReactiveProperty<T> : ReactiveProperty<T>
 {
     readonly IDisposable sourceSubscription;
 
-    public ConnectedReactiveProperty(Observable<T> source, T initialValue, EqualityComparer<T>? equalityComparer)
+    public ConnectedReactiveProperty(Observable<T> source, T initialValue, IEqualityComparer<T>? equalityComparer)
         : base(initialValue, equalityComparer)
     {
         this.sourceSubscription = source.Subscribe(new Observer(this));
