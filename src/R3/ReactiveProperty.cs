@@ -1,15 +1,18 @@
 ﻿namespace R3;
 
-public abstract class ReadOnlyReactiveProperty<T> : Observable<T>
+public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 {
     public abstract T CurrentValue { get; }
+    protected virtual void OnSetValue(T value) { }
+    protected virtual void OnReceiveError(Exception exception) { }
     public ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty() => this;
+    public abstract void Dispose();
 }
 
 // almostly same code as Subject<T>.
 
 // allow inherit
-public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDisposable
+public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 {
     T value;
     IEqualityComparer<T>? equalityComparer;
@@ -48,7 +51,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     {
     }
 
-    public ReactiveProperty(T value, EqualityComparer<T>? equalityComparer)
+    public ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
     {
         this.value = value;
         this.equalityComparer = equalityComparer;
@@ -72,6 +75,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     {
         if (completeState.IsCompleted) return;
 
+        OnReceiveError(error);
+
         foreach (var subscription in list.AsSpan())
         {
             subscription?.observer.OnErrorResume(error);
@@ -84,6 +89,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
         if (status != CompleteState.ResultStatus.Done)
         {
             return; // already completed
+        }
+
+        if (result.IsFailure)
+        {
+            OnReceiveError(result.Exception);
         }
 
         foreach (var subscription in list.AsSpan())
@@ -119,7 +129,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
         return subscription;
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         Dispose(true);
     }
@@ -143,8 +153,6 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>, IDi
     }
 
     protected virtual void DisposeCore() { }
-
-    protected virtual void OnSetValue(T value) { }
 
     public override string? ToString()
     {

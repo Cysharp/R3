@@ -1,21 +1,32 @@
 ﻿using ConsoleApp1;
 using R3;
+using System.ComponentModel.DataAnnotations;
 
 
 
 //Dump.Factory();
 
+var hoge = new Hoge();
 
+hoge.MyProperty1.ErrorsChanged += MyProperty1_ErrorsChanged;
+hoge.MyProperty2.ErrorsChanged += MyProperty2_ErrorsChanged;
 
-var subject = new Subject<int>();
-for (int i = 0; i < 10000; i++)
+void MyProperty1_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
 {
-    subject.Subscribe();
+    foreach (var item in hoge.MyProperty1.GetErrors(null!))
+    {
+        Console.WriteLine(item);
+    }
 }
-
-subject.Subscribe();
-subject.OnCompleted();
-Console.WriteLine(subject);
+void MyProperty2_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
+{
+    foreach (var item in hoge.MyProperty2.GetErrors(null!))
+    {
+        Console.WriteLine(item);
+    }
+}
+hoge.MyProperty1.Value = 30;
+hoge.MyProperty2.Value = 40;
 
 
 //SubscriptionTracker.EnableTracking = true;
@@ -71,3 +82,17 @@ Console.WriteLine(subject);
 //    }
 //}
 
+
+public class Hoge
+{
+    [Range(1, 10)]
+    public BindableReactiveProperty<int> MyProperty1 { get; set; } = new BindableReactiveProperty<int>().EnableValidation<Hoge>();
+
+    [Range(1, 10)]
+    public BindableReactiveProperty<int> MyProperty2 { get; set; }
+
+    public Hoge()
+    {
+        MyProperty2 = new BindableReactiveProperty<int>().EnableValidation(() => MyProperty2);
+    }
+}

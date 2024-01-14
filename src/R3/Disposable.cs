@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace R3;
@@ -162,6 +163,113 @@ public static class Disposable
     public static IDisposable Combine(params IDisposable[] disposables)
     {
         return new CombinedDisposable(disposables);
+    }
+
+    public static void Dispose(IDisposable disposable1, IDisposable disposable2)
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+    }
+
+    public static void Dispose(IDisposable disposable1, IDisposable disposable2, IDisposable disposable3)
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+        disposable3.Dispose();
+
+    }
+
+    public static void Dispose(
+        IDisposable disposable1,
+        IDisposable disposable2,
+        IDisposable disposable3,
+        IDisposable disposable4
+        )
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+        disposable3.Dispose();
+        disposable4.Dispose();
+    }
+
+    public static void Dispose(
+        IDisposable disposable1,
+        IDisposable disposable2,
+        IDisposable disposable3,
+        IDisposable disposable4,
+        IDisposable disposable5
+        )
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+        disposable3.Dispose();
+        disposable4.Dispose();
+        disposable5.Dispose();
+    }
+
+    public static void Dispose(
+        IDisposable disposable1,
+        IDisposable disposable2,
+        IDisposable disposable3,
+        IDisposable disposable4,
+        IDisposable disposable5,
+        IDisposable disposable6
+        )
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+        disposable3.Dispose();
+        disposable4.Dispose();
+        disposable5.Dispose();
+        disposable6.Dispose();
+    }
+
+    public static void Dispose(
+        IDisposable disposable1,
+        IDisposable disposable2,
+        IDisposable disposable3,
+        IDisposable disposable4,
+        IDisposable disposable5,
+        IDisposable disposable6,
+        IDisposable disposable7
+        )
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+        disposable3.Dispose();
+        disposable4.Dispose();
+        disposable5.Dispose();
+        disposable6.Dispose();
+        disposable7.Dispose();
+    }
+
+    public static void Dispose(
+        IDisposable disposable1,
+        IDisposable disposable2,
+        IDisposable disposable3,
+        IDisposable disposable4,
+        IDisposable disposable5,
+        IDisposable disposable6,
+        IDisposable disposable7,
+        IDisposable disposable8
+        )
+    {
+        disposable1.Dispose();
+        disposable2.Dispose();
+        disposable3.Dispose();
+        disposable4.Dispose();
+        disposable5.Dispose();
+        disposable6.Dispose();
+        disposable7.Dispose();
+        disposable8.Dispose();
+    }
+
+    public static void Dispose(params IDisposable[] disposables)
+    {
+        foreach (var item in disposables)
+        {
+            item.Dispose();
+        }
     }
 }
 

@@ -6,7 +6,23 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <TextBlock Name="textBlock" HorizontalAlignment="Left" Margin="108,131,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="50" Width="292"/>
-    </Grid>
+    <Window.DataContext>
+        <!--<local:BasicUsagesViewModel />-->
+        <local:ValidationViewModel />
+    </Window.DataContext>
+    <!--<StackPanel>
+        <TextBlock Text="Basic usages" FontSize="24" />
+        <Label Content="Input" />
+        <TextBox Text="{Binding Input.Value, UpdateSourceTrigger=PropertyChanged}" />
+        <Label Content="Output" />
+        <TextBlock Text="{Binding Output.Value}" />
+    </StackPanel>-->
+
+    <StackPanel Margin="10">
+        <Label Content="Validation" />
+        <TextBox Text="{Binding Height.Value, UpdateSourceTrigger=PropertyChanged}"  />
+        <TextBox  Text="{Binding Weight.Value, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox  Text="{Binding CustomValidation1.Value, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox  Text="{Binding CustomValidation2.Value, UpdateSourceTrigger=PropertyChanged}" />
+    </StackPanel>
 </Window>

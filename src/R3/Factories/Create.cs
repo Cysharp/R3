@@ -17,7 +17,7 @@ internal sealed class AnonymousObservable<T>(Func<Observer<T>, IDisposable> subs
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return subscribe(observer);
+        return subscribe(observer.Wrap());
     }
 }
 
@@ -25,6 +25,6 @@ internal sealed class AnonymousObservable<T, TState>(TState state, Func<Observer
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return subscribe(observer, state);
+        return subscribe(observer.Wrap(), state);
     }
 }

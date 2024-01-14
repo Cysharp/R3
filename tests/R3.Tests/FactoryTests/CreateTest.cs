@@ -24,7 +24,7 @@ public class CreateTest
         using var publisher = new Subject<int>();
         var source = Observable.Create<int, Subject<int>>(publisher, (observer, state) =>
         {
-            return state.Subscribe(new Wrap<int>(observer));
+            return state.Subscribe(observer);
         });
 
         using var list = source.ToLiveList();
@@ -41,20 +41,3 @@ public class CreateTest
     }
 }
 
-file class Wrap<T>(Observer<T> observer) : Observer<T>
-{
-    protected override void OnCompletedCore(Result result)
-    {
-        observer.OnCompleted(result);
-    }
-
-    protected override void OnErrorResumeCore(Exception error)
-    {
-        observer.OnErrorResume(error);
-    }
-
-    protected override void OnNextCore(T value)
-    {
-        observer.OnNext(value);
-    }
-}
