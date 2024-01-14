@@ -12,14 +12,24 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
 
     public event EventHandler? CanExecuteChanged;
 
+    public ReactiveCommand()
+    {
+        this.canExecute = true;
+        this.subscription = Disposable.Empty;
+    }
+
+    public ReactiveCommand(Action<T> execute)
+    {
+        this.canExecute = true;
+        this.subscription = this.Subscribe(execute);
+    }
+
     public ReactiveCommand(Observable<bool> canExecuteSource, bool initialCanExecute)
     {
         this.canExecute = initialCanExecute;
         this.subscription = canExecuteSource.Subscribe(this, static (newCanExecute, state) =>
         {
-            if (state.canExecute == newCanExecute) return;
-            state.canExecute = newCanExecute;
-            state.CanExecuteChanged?.Invoke(state, EventArgs.Empty);
+            state.ChangeCanExecute(newCanExecute);
         });
     }
 
@@ -38,6 +48,13 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
         {
             Execute((T)parameter!);
         }
+    }
+
+    public void ChangeCanExecute(bool canExecute)
+    {
+        if (this.canExecute == canExecute) return;
+        this.canExecute = canExecute;
+        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public bool CanExecute()
