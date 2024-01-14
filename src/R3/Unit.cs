@@ -3,6 +3,7 @@
 public readonly struct Unit : IEquatable<Unit>
 {
     public static readonly Unit Default = default;
+    public static readonly object Box = default(Unit);
 
     public static bool operator ==(Unit first, Unit second)
     {
