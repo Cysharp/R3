@@ -8,5 +8,7 @@
     "keywords": [ "rx", "event", "Scripting" ],
     "license": "MIT",
     "category": "Scripting",
-    "dependencies": {}
+    "dependencies": {
+        "com.unity.modules.imgui": "1.0.0"
+    }
 }
