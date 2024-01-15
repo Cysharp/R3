@@ -1,4 +1,4 @@
-﻿
+
 namespace R3;
 
 using System.Numerics;
