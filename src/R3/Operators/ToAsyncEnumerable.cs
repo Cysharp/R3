@@ -8,12 +8,7 @@ public static partial class ObservableExtensions
 {
     public static IAsyncEnumerable<T> ToAsyncEnumerable<T>(this Observable<T> source, CancellationToken cancellationToken = default)
     {
-        var channel = Channel.CreateUnbounded<T>(new UnboundedChannelOptions
-        {
-            SingleWriter = true,
-            SingleReader = true,
-            AllowSynchronousContinuations = true
-        });
+        var channel = ChannelUtility.CreateSingleReadeWriterUnbounded<T>();
 
         var observer = new ToAsyncEnumerable<T>(channel.Writer);
         var disposable = source.Subscribe(observer);
