@@ -36,7 +36,7 @@ public static class GodotUINodeExtensions
         {
             var (b, cancellationToken) = state;
             observer.OnNext(b.ButtonPressed);
-            return Observable.FromEvent<BaseButton.ToggledEventHandler, bool>(h => new BaseButton.ToggledEventHandler(h), h => b.Toggled += h, h => b.Toggled -= h, cancellationToken).Subscribe(observer.Wrap());
+            return Observable.FromEvent<BaseButton.ToggledEventHandler, bool>(h => new BaseButton.ToggledEventHandler(h), h => b.Toggled += h, h => b.Toggled -= h, cancellationToken).Subscribe(observer);
         });
     }
 
@@ -47,7 +47,7 @@ public static class GodotUINodeExtensions
         {
             var (s, cancellationToken) = state;
             observer.OnNext(s.Value);
-            return Observable.FromEvent<Godot.Range.ValueChangedEventHandler, double>(h => new Godot.Range.ValueChangedEventHandler(h), h => s.ValueChanged += h, h => s.ValueChanged -= h, cancellationToken).Subscribe(observer.Wrap());
+            return Observable.FromEvent<Godot.Range.ValueChangedEventHandler, double>(h => new Godot.Range.ValueChangedEventHandler(h), h => s.ValueChanged += h, h => s.ValueChanged -= h, cancellationToken).Subscribe(observer);
         });
     }
 
@@ -76,7 +76,7 @@ public static class GodotUINodeExtensions
         {
             var (b, cancellationToken) = state;
             observer.OnNext(b.Selected);
-            return Observable.FromEvent<OptionButton.ItemSelectedEventHandler, long>(h => new OptionButton.ItemSelectedEventHandler(h), h => b.ItemSelected += h, h => b.ItemSelected -= h, cancellationToken).Subscribe(observer.Wrap());
+            return Observable.FromEvent<OptionButton.ItemSelectedEventHandler, long>(h => new OptionButton.ItemSelectedEventHandler(h), h => b.ItemSelected += h, h => b.ItemSelected -= h, cancellationToken).Subscribe(observer);
         });
     }
 }

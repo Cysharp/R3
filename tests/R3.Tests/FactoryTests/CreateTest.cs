@@ -13,7 +13,7 @@ public class CreateTest
             observer.OnNext(100);
             observer.OnCompleted();
             return Disposable.Empty;
-        });
+        }, rawObserver: true);
 
         source.ToLiveList().AssertEqual([1, 10, 100]);
     }
