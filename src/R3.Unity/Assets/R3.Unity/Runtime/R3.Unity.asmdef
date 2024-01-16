@@ -13,6 +13,12 @@
     ],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.ugui",
+            "expression": "",
+            "define": "R3_UGUI_SUPPORT"
+        }
+    ],
     "noEngineReferences": false
 }
