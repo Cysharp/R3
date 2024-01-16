@@ -1030,7 +1030,7 @@ public static Observable<long> OnItemSelectedAsObservable(this OptionButton opti
 
 You can watch subscription status in `Debugger -> ObservableTracker` view.
 
-![image](https://github.com/Cysharp/R3/assets/46207/85956f2c-314e-4c7e-9c98-c8368a284bbc)
+![image](https://github.com/Cysharp/R3/assets/46207/8b5258a5-8124-4123-a837-79c31427c1d3)
 
 Operator Reference
 ---
