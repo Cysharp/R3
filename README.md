@@ -967,9 +967,9 @@ There are some installation steps required to use it in Godot.
 
 1. Install `R3` from NuGet.
 2. Download(or clone git submodule) the repository and move the `src/R3.Godot/addons/R3.Godot` directory to your project.
-3. Add `addons/R3.Godot/FrameProviderDispatcher.cs / FrameProviderDispatcher` as an autoload
+3. Enable the `R3.Godot` plugin from the plugins menu.
 
-![image](https://github.com/Cysharp/ZLogger/assets/46207/9aa524fd-6717-4a84-8ce3-4bfc7d2098e6)
+![image](https://github.com/Cysharp/R3/assets/46207/56bfbb3b-8e7c-4af3-b762-35e4de8a2e83)
 
 Godot support has these TimeProvider and FrameProvider.
 
@@ -1012,6 +1012,25 @@ public partial class Node2D : Godot.Node2D
     }
 }
 ```
+
+For the UI event observe/subscribe extension are also available.
+
+```csharp
+public static IDisposable SubscribeToLabel(this Observable<string> source, Label label)
+public static IDisposable SubscribeToLabel<T>(this Observable<T> source, Label label)
+public static IDisposable SubscribeToLabel<T>(this Observable<T> source, Label label, Func<T, string> selector)
+public static Observable<Unit> OnPressedAsObservable(this BaseButton button, CancellationToken cancellationToken = default)
+public static Observable<bool> OnToggledAsObservable(this BaseButton button, CancellationToken cancellationToken = default)
+public static Observable<double> OnValueChangedAsObservable(this Godot.Range range, CancellationToken cancellationToken = default)
+public static Observable<string> OnTextSubmittedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken = default)
+public static Observable<string> OnTextChangedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken = default)
+public static Observable<Unit> OnTextChangedAsObservable(this TextEdit textEdit, CancellationToken cancellationToken = default)
+public static Observable<long> OnItemSelectedAsObservable(this OptionButton optionButton, CancellationToken cancellationToken = default)
+```
+
+You can watch subscription status in `Debugger -> ObservableTracker` view.
+
+![image](https://github.com/Cysharp/R3/assets/46207/85956f2c-314e-4c7e-9c98-c8368a284bbc)
 
 Operator Reference
 ---
