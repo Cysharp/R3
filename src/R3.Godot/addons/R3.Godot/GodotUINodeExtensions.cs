@@ -22,13 +22,13 @@ public static class GodotUINodeExtensions
     }
 
     /// <summary>Observe Pressed event.</summary>
-    public static Observable<Unit> OnPressedAsObservable(this BaseButton button, CancellationToken cancellationToken)
+    public static Observable<Unit> OnPressedAsObservable(this BaseButton button, CancellationToken cancellationToken = default)
     {
         return Observable.FromEvent(h => button.Pressed += h, h => button.Pressed -= h, cancellationToken);
     }
 
     /// <summary>Observe Toggled with current `ButtonPressed` value on subscribe.</summary>
-    public static Observable<bool> OnToggledAsObservable(this BaseButton button, CancellationToken cancellationToken)
+    public static Observable<bool> OnToggledAsObservable(this BaseButton button, CancellationToken cancellationToken = default)
     {
         if (!button.ToggleMode) return Observable.Empty<bool>();
 
@@ -41,7 +41,7 @@ public static class GodotUINodeExtensions
     }
 
     /// <summary>Observe ValueChanged with current `Value` on subscribe.</summary>
-    public static Observable<double> OnValueChangedAsObservable(this Godot.Range range, CancellationToken cancellationToken)
+    public static Observable<double> OnValueChangedAsObservable(this Godot.Range range, CancellationToken cancellationToken = default)
     {
         return Observable.Create<double, (Godot.Range, CancellationToken)>((range, cancellationToken), static (observer, state) =>
         {
@@ -52,25 +52,25 @@ public static class GodotUINodeExtensions
     }
 
     /// <summary>Observe TextSubmitted event.</summary>
-    public static Observable<string> OnTextSubmittedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken)
+    public static Observable<string> OnTextSubmittedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken = default)
     {
         return Observable.FromEvent<LineEdit.TextSubmittedEventHandler, string>(h => new LineEdit.TextSubmittedEventHandler(h), h => lineEdit.TextSubmitted += h, h => lineEdit.TextSubmitted -= h, cancellationToken);
     }
 
     /// <summary>Observe TextChanged event.</summary>
-    public static Observable<string> OnTextChangedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken)
+    public static Observable<string> OnTextChangedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken = default)
     {
         return Observable.FromEvent<LineEdit.TextChangedEventHandler, string>(h => new LineEdit.TextChangedEventHandler(h), h => lineEdit.TextChanged += h, h => lineEdit.TextChanged -= h, cancellationToken);
     }
 
     /// <summary>Observe TextChanged event.</summary>
-    public static Observable<Unit> OnTextChangedAsObservable(this TextEdit textEdit, CancellationToken cancellationToken)
+    public static Observable<Unit> OnTextChangedAsObservable(this TextEdit textEdit, CancellationToken cancellationToken = default)
     {
         return Observable.FromEvent(h => textEdit.TextChanged += h, h => textEdit.TextChanged -= h, cancellationToken);
     }
 
     /// <summary>Observe ItemSelected with current `Selected` on subscribe.</summary>
-    public static Observable<long> OnItemSelectedAsObservable(this OptionButton optionButton, CancellationToken cancellationToken)
+    public static Observable<long> OnItemSelectedAsObservable(this OptionButton optionButton, CancellationToken cancellationToken = default)
     {
         return Observable.Create<long, (OptionButton, CancellationToken)>((optionButton, cancellationToken), static (observer, state) =>
         {
