@@ -20,7 +20,9 @@ jobs:
   update-packagejson:
     uses: Cysharp/Actions/.github/workflows/update-packagejson.yaml@main
     with:
-      file-path: ./src/R3.Unity/Assets/R3.Unity/package.json
+      file-path: |
+        ./src/R3.Unity/Assets/R3.Unity/package.json
+        ./src/R3.Godot/addons/R3.Godot/plugin.cfg
       tag: ${{ github.event.inputs.tag }}
       dry-run: ${{ fromJson(github.event.inputs.dry-run) }}
 
