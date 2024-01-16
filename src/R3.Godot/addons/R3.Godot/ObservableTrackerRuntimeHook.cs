@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿
+#nullable enable
 
 using Godot;
 using System;
@@ -12,6 +13,7 @@ public partial class ObservableTrackerRuntimeHook : Node
 {
     public override void _Ready()
     {
+#if TOOLS
         EngineDebugger.RegisterMessageCapture(ObservableTrackerDebuggerPlugin.MessageHeader, Callable.From((string message, GDArray data) =>
         { 
             //GD.Print(nameof(ObservableTrackerRuntimeHook) + " received " + message);
@@ -44,10 +46,13 @@ public partial class ObservableTrackerRuntimeHook : Node
             }
             return true;
         }));
+#endif
     }
 
     public override void _ExitTree()
     {
+#if TOOLS
         EngineDebugger.UnregisterMessageCapture(ObservableTrackerDebuggerPlugin.MessageHeader);
+#endif
     }
 }
