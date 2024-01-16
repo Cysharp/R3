@@ -67,4 +67,4 @@ jobs:
     needs: [update-packagejson, build-dotnet]
     uses: Cysharp/Actions/.github/workflows/clean-packagejson-branch.yaml@main
     with:
-      branch: ${{ needs.update-packagejson.outputs.branch-name }}a
+      branch: ${{ needs.update-packagejson.outputs.branch-name }}
