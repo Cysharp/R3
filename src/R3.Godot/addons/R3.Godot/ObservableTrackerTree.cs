@@ -28,7 +28,7 @@ public partial class ObservableTrackerTree : Tree
         ColumnTitlesVisible = true;
         SetColumnTitle(0, "Type");
         SetColumnTitle(1, "Elapsed");
-        SetColumnTitle(2, "Position");
+        SetColumnTitle(2, "StackTrace");
         SetColumnExpand(0, true);
         SetColumnExpand(1, true);
         SetColumnExpand(2, true);
@@ -59,7 +59,7 @@ public partial class ObservableTrackerTree : Tree
             row.SetText(0, state.FormattedType);
             // Elapsed
             row.SetText(1, (now - state.AddTime).TotalSeconds.ToString("00.00"));
-            // Position
+            // StackTrace
             row.SetText(2, state.StackTrace);
         };
     }

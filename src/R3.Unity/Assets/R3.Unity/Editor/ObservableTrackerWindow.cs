@@ -205,7 +205,7 @@ namespace R3.Unity.Editor
                 var item = treeView.CurrentBindingItems.FirstOrDefault(x => x.id == first) as ObservableTrackerViewItem;
                 if (item != null)
                 {
-                    message = item.Position;
+                    message = item.Location;
                 }
             }
 

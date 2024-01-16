@@ -18,18 +18,18 @@ namespace R3.Unity.Editor
         public string Type { get; set; }
         public string Elapsed { get; set; }
 
-        string position;
-        public string Position
+        string location;
+        public string Location
         {
-            get { return position; }
+            get { return location; }
             set
             {
-                position = value;
-                PositionFirstLine = GetFirstLine(position);
+                location = value;
+                LocationFirstLine = GetFirstLine(location);
             }
         }
 
-        public string PositionFirstLine { get; private set; }
+        public string LocationFirstLine { get; private set; }
 
         static string GetFirstLine(string str)
         {
@@ -63,7 +63,7 @@ namespace R3.Unity.Editor
             {
                 new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Type"), width = 20},
                 new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Elapsed"), width = 10},
-                new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Position")},
+                new MultiColumnHeaderState.Column() { headerContent = new GUIContent("Location")},
             })))
         {
         }
@@ -108,7 +108,7 @@ namespace R3.Unity.Editor
                     orderedEnumerable = ascending ? items.OrderBy(item => double.Parse(item.Elapsed)) : items.OrderByDescending(item => double.Parse(item.Elapsed));
                     break;
                 case 2:
-                    orderedEnumerable = ascending ? items.OrderBy(item => item.Position) : items.OrderByDescending(item => item.Position);
+                    orderedEnumerable = ascending ? items.OrderBy(item => item.Location) : items.OrderByDescending(item => item.Location);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(index), index, null);
@@ -127,7 +127,7 @@ namespace R3.Unity.Editor
             var now = DateTime.Now; // tracking state is using local Now.
             SubscriptionTracker.ForEachActiveTask(state =>
             {
-                children.Add(new ObservableTrackerViewItem(state.TrackingId) { Type = state.FormattedType, Elapsed = (now - state.AddTime).TotalSeconds.ToString("00.00"), Position = state.StackTrace });
+                children.Add(new ObservableTrackerViewItem(state.TrackingId) { Type = state.FormattedType, Elapsed = (now - state.AddTime).TotalSeconds.ToString("00.00"), Location = state.StackTrace });
             });
 
             CurrentBindingItems = children;
@@ -160,7 +160,7 @@ namespace R3.Unity.Editor
                         EditorGUI.LabelField(rect, item.Elapsed, labelStyle);
                         break;
                     case 2:
-                        EditorGUI.LabelField(rect, item.PositionFirstLine, labelStyle);
+                        EditorGUI.LabelField(rect, item.LocationFirstLine, labelStyle);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(columnIndex), columnIndex, null);
