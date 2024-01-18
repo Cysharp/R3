@@ -71,12 +71,14 @@ public class ToObservableTest
 
         fakeTime.Advance(TimeSpan.FromSeconds(1));
 
-        await Task.Delay(100);
+        await Task.Delay(1000);
+        await Task.Yield();
         list.AssertEqual([1, 2]);
 
         fakeTime.Advance(TimeSpan.FromSeconds(1));
 
-        await Task.Delay(100);
+        await Task.Delay(1000);
+        await Task.Yield();
         list.AssertEqual([1, 2, 3]);
     }
 
