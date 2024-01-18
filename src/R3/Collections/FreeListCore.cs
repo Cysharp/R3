@@ -88,7 +88,7 @@ public struct FreeListCore<T>
             if (lastIndex < 0) return false;
 
             var index = -1;
-            var span = values.AsSpan(0, lastIndex);
+            var span = values.AsSpan(0, lastIndex + 1);
             for (int i = 0; i < span.Length; i++)
             {
                 if (span[i] == value)
@@ -113,7 +113,7 @@ public struct FreeListCore<T>
         {
             if (lastIndex > 0)
             {
-                values.AsSpan(0, lastIndex).Clear();
+                values.AsSpan(0, lastIndex + 1).Clear();
             }
             if (removeArray)
             {
