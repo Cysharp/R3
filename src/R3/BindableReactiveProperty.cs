@@ -7,8 +7,15 @@ using System.Runtime.CompilerServices;
 
 namespace R3;
 
+// for binding(TriggerAction, Behavior) usage
+public interface IBindableReactiveProperty
+{
+    object? Value { get; set; }
+    void OnNext(object? value);
+}
+
 // all operators need to call from UI Thread(not thread-safe)
-public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo
+public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
 {
     // ctor
 
@@ -227,6 +234,19 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
             return array;
         }
         return validationAttributes.ToArray();
+    }
+
+    // IBindableReactiveProperty
+
+    object? IBindableReactiveProperty.Value
+    {
+        get => Value;
+        set => Value = (T)value!;
+    }
+
+    void IBindableReactiveProperty.OnNext(object? value)
+    {
+        OnNext((T)value!);
     }
 }
 
