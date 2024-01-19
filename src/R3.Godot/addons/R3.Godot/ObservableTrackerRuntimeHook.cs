@@ -7,7 +7,7 @@ using GDArray = Godot.Collections.Array;
 
 namespace R3;
 
-// Sends runtime SubscriptionTracker information to ObservableTrackerDebuggerPlugin.
+// Sends runtime ObservableTracker information to ObservableTrackerDebuggerPlugin.
 // Needs to be an Autoload. Should not be instantiated manually.
 public partial class ObservableTrackerRuntimeHook : Node
 {
@@ -21,10 +21,10 @@ public partial class ObservableTrackerRuntimeHook : Node
             {
                 case ObservableTrackerDebuggerPlugin.Message_RequestActiveTasks:
                     // data[0]: If true, force an update anyway.
-                    if (SubscriptionTracker.CheckAndResetDirty() || data[0].AsBool())
+                    if (ObservableTracker.CheckAndResetDirty() || data[0].AsBool())
                     {
                         GDArray states = new();
-                        SubscriptionTracker.ForEachActiveTask(state =>
+                        ObservableTracker.ForEachActiveTask(state =>
                         {
                             // DateTime is not a Variant type, so we serialize it using Ticks instead.
                             states.Add(new GDArray { state.TrackingId, state.FormattedType, state.AddTime.Ticks, state.StackTrace });
@@ -37,8 +37,8 @@ public partial class ObservableTrackerRuntimeHook : Node
                     }
                     break;
                 case ObservableTrackerDebuggerPlugin.Message_SetEnableStates:
-                    SubscriptionTracker.EnableTracking = data[0].AsBool();
-                    SubscriptionTracker.EnableStackTrace = data[1].AsBool();
+                    ObservableTracker.EnableTracking = data[0].AsBool();
+                    ObservableTracker.EnableStackTrace = data[1].AsBool();
                     break;
                 case ObservableTrackerDebuggerPlugin.Message_InvokeGCCollect:
                     GC.Collect(0);

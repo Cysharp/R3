@@ -289,13 +289,13 @@ public static Observable<Unit> EveryUpdate(FrameProvider frameProvider, Cancella
 
 When cancelled, OnCompleted is sent, and all subscriptions are unsubscribed.
 
-### SubscriptionTracker
+### ObservableTracker
 
-R3 incorporates a system called SubscriptionTracker. When activated, it allows you to view all subscription statuses.
+R3 incorporates a system called ObservableTracker. When activated, it allows you to view all subscription statuses.
 
 ```
-SubscriptionTracker.EnableTracking = true; // default is false
-SubscriptionTracker.EnableStackTrace = true;
+ObservableTracker.EnableTracking = true; // default is false
+ObservableTracker.EnableStackTrace = true;
 
 using var d = Observable.Interval(TimeSpan.FromSeconds(1))
     .Where(x => true)
@@ -303,7 +303,7 @@ using var d = Observable.Interval(TimeSpan.FromSeconds(1))
     .Subscribe();
 
 // check subscription
-SubscriptionTracker.ForEachActiveTask(x =>
+ObservableTracker.ForEachActiveTask(x =>
 {
     Console.WriteLine(x);
 });
@@ -916,7 +916,7 @@ Observable.EveryUpdate().Subscribe().AddTo(ref d);
 d.AddTo(destroyCancellationToken); // Build and Register
 ```
 
-You open tracker window in `Window -> Observable Tracker`. It enables watch `SubscriptionTracker` list in editor window.
+You open tracker window in `Window -> Observable Tracker`. It enables watch `ObservableTracker` list in editor window.
 
 ![image](https://github.com/Cysharp/ZLogger/assets/46207/149abca5-6d84-44ea-8373-b0e8cd2dc46a)
 

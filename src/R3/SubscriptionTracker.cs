@@ -5,7 +5,7 @@ using System.Text;
 
 namespace R3;
 
-public static class SubscriptionTracker
+public static class ObservableTracker
 {
     static int trackingIdCounter = 0;
 
@@ -160,7 +160,7 @@ internal sealed class TrackableDisposable(IDisposable disposable, int trackingId
         var field = Interlocked.CompareExchange(ref disposed, 1, 0);
         if (field == 0)
         {
-            SubscriptionTracker.RemoveTracking(this);
+            ObservableTracker.RemoveTracking(this);
         }
 
         disposable.Dispose();

@@ -13,7 +13,7 @@ public abstract class Observable<T>
         {
             var subscription = SubscribeCore(observer);
 
-            if (SubscriptionTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
+            if (ObservableTracker.TryTrackActiveSubscription(subscription, 2, out var trackableDisposable))
             {
                 subscription = trackableDisposable;
             }

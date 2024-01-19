@@ -29,8 +29,8 @@ hoge.MyProperty1.Value = 30;
 hoge.MyProperty2.Value = 40;
 
 
-//SubscriptionTracker.EnableTracking = true;
-//SubscriptionTracker.EnableStackTrace = true;
+//ObservableTracker.EnableTracking = true;
+//ObservableTracker.EnableStackTrace = true;
 
 //using var factory = LoggerFactory.Create(x =>
 //{

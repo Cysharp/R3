@@ -61,7 +61,7 @@ public partial class ObservableTrackerDebuggerPlugin : EditorDebuggerPlugin
             if (IsInstanceValid(tab))
             {
                 tab.SetProcess(true);
-                // Important! We need to tell the tab the session has started, so it can initialize the enabled states of the runtime SubscriptionTracker.
+                // Important! We need to tell the tab the session has started, so it can initialize the enabled states of the runtime ObservableTracker.
                 tab.NotifyOnSessionStart();
             }
         };
