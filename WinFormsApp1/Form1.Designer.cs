@@ -29,8 +29,10 @@ partial class Form1
     /// </summary>
     private void InitializeComponent()
     {
+        components = new System.ComponentModel.Container();
         button1 = new Button();
         label1 = new Label();
+        timer1 = new System.Windows.Forms.Timer(components);
         SuspendLayout();
         // 
         // button1
@@ -68,4 +70,5 @@ partial class Form1
 
     private Button button1;
     private Label label1;
+    private System.Windows.Forms.Timer timer1;
 }

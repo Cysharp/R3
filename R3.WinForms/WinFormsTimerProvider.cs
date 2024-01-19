@@ -6,12 +6,12 @@ using System.Windows.Forms;
 
 using ThreadingTimer = System.Threading.Timer;
 
-namespace R3.WindowsForms;
+namespace R3.WinForms;
 
-public sealed class WindowsFormsTimerProvider(ISynchronizeInvoke? marshalingControl) :
+public sealed class WinFormsTimerProvider(ISynchronizeInvoke? marshalingControl) :
     TimeProvider
 {
-    public WindowsFormsTimerProvider()
+    public WinFormsTimerProvider()
         : this(null)
     {
     }
@@ -19,7 +19,7 @@ public sealed class WindowsFormsTimerProvider(ISynchronizeInvoke? marshalingCont
     public override ITimer CreateTimer(
         TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        return new WindowsFormsTimerProviderTimer(
+        return new WinFormsTimerProviderTimer(
             marshalingControl,
             SynchronizationContext.Current as WindowsFormsSynchronizationContext,
             callback,
@@ -29,24 +29,24 @@ public sealed class WindowsFormsTimerProvider(ISynchronizeInvoke? marshalingCont
     }
 }
 
-internal sealed class WindowsFormsTimerProviderTimer :
+internal sealed class WinFormsTimerProviderTimer :
     ITimer
 {
-    public WindowsFormsTimerProviderTimer(
-        ISynchronizeInvoke? control,
+    public WinFormsTimerProviderTimer(
+        ISynchronizeInvoke? marshalingControl,
         WindowsFormsSynchronizationContext? synchronizationContext,
         TimerCallback callback,
         object? state,
         TimeSpan dueTime,
         TimeSpan period)
     {
-        if (control is null && synchronizationContext is null)
+        if (marshalingControl is null && synchronizationContext is null)
         {
-            throw new ArgumentNullException(nameof(control));
+            throw new ArgumentNullException(nameof(marshalingControl));
         }
 
         var context = new TimerContext(
-            control,
+            marshalingControl,
             synchronizationContext,
             callback,
             state);

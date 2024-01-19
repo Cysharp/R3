@@ -3,11 +3,11 @@ using System.Windows.Forms;
 
 using R3.Collections;
 
-namespace R3.WindowsForms;
+namespace R3.WinForms;
 
 public delegate bool MessageFilter(in Message message);
 
-public sealed class WindowsFormsFrameProvider :
+public sealed class WinFormsFrameProvider :
     FrameProvider,
     IDisposable
 {
@@ -18,12 +18,12 @@ public sealed class WindowsFormsFrameProvider :
     private readonly MessageHook filter;
     private readonly MessageFilter? predicate;
 
-    public WindowsFormsFrameProvider()
+    public WinFormsFrameProvider()
         : this(null)
     {
     }
 
-    public WindowsFormsFrameProvider(
+    public WinFormsFrameProvider(
         MessageFilter? predicate)
     {
         this.list = new FreeListCore<IFrameRunnerWorkItem>(gate);
@@ -35,13 +35,13 @@ public sealed class WindowsFormsFrameProvider :
 
     public override long GetFrameCount()
     {
-        ThrowObjectDisposedIf(disposed, typeof(WindowsFormsFrameProvider));
+        ThrowObjectDisposedIf(disposed, typeof(WinFormsFrameProvider));
         return frameCount;
     }
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        ThrowObjectDisposedIf(disposed, typeof(WindowsFormsFrameProvider));
+        ThrowObjectDisposedIf(disposed, typeof(WinFormsFrameProvider));
         list.Add(callback, out _);
     }
 
@@ -101,7 +101,7 @@ public sealed class WindowsFormsFrameProvider :
     private static void ThrowObjectDisposedException(Type? type) =>
         throw new ObjectDisposedException(type?.FullName);
 
-    private sealed class MessageHook(WindowsFormsFrameProvider parent) : IMessageFilter
+    private sealed class MessageHook(WinFormsFrameProvider parent) : IMessageFilter
     {
         public bool PreFilterMessage(ref Message m)
         {

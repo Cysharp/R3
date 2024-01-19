@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace R3.WindowsForms;
+namespace R3.WinForms;
 
-public static class WindowsFormsProviderInitializer
+public static class WinFormsProviderInitializer
 {
     public static void SetDefaultObservableSystem(
         Action<Exception> unhandledExceptionHandler)
@@ -24,7 +24,7 @@ public static class WindowsFormsProviderInitializer
         MessageFilter? isStepFrame)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
-        ObservableSystem.DefaultFrameProvider = new WindowsFormsFrameProvider(isStepFrame);
-        ObservableSystem.DefaultTimeProvider = new WindowsFormsTimerProvider(marshalingControl);
+        ObservableSystem.DefaultFrameProvider = new WinFormsFrameProvider(isStepFrame);
+        ObservableSystem.DefaultTimeProvider = new WinFormsTimerProvider(marshalingControl);
     }
 }

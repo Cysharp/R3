@@ -1,4 +1,4 @@
-﻿using R3.WindowsForms;
+﻿using R3.WinForms;
 
 namespace WinFormsApp1;
 
@@ -16,7 +16,7 @@ internal static class Program
 
         var form = new Form1();
 
-        WindowsFormsProviderInitializer.SetDefaultObservableSystem(static exception =>
+        WinFormsProviderInitializer.SetDefaultObservableSystem(static exception =>
             MessageBox.Show(exception.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error),
             form);
 
