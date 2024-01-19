@@ -430,7 +430,10 @@ list.AssertIsCompleted();
 
 Interoperability with `IObservable<T>`
 ---
-`Observable<T>` is not `IObservable<T>`. You can convert `Observable<T>.AsSystemObserable()` or `IObservable<T>.AsObservable()`.
+`Observable<T>` is not `IObservable<T>`. You can convert both by these methods.
+
+* `public static Observable<T> ToObservable<T>(this IObservable<T> source)`
+* `public static IObservable<T> AsSystemObservable<T>(this Observable<T> source)`
 
 Concurrency Policy
 ---
