@@ -34,9 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R3.Godot", "src\R3.Godot\R3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "sandbox\Benchmark\Benchmark.csproj", "{EBC13ACA-717D-4635-920A-5E0E211B0CF4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsApp1", "WinFormsApp1\WinFormsApp1.csproj", "{E6418D3D-01AA-4176-A7CA-6878FA6E4238}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsApp1", "sandbox\WinFormsApp1\WinFormsApp1.csproj", "{E6418D3D-01AA-4176-A7CA-6878FA6E4238}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R3.WinForms", "R3.WinForms\R3.WinForms.csproj", "{6598690F-B65B-4C49-824B-7474E735AE92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R3.WinForms", "src\R3.WinForms\R3.WinForms.csproj", "{6598690F-B65B-4C49-824B-7474E735AE92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
