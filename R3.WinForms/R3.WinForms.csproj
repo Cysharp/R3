@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0-windows;net8.0-windows;net472</TargetFrameworks>
+        <UseWindowsForms>true</UseWindowsForms>
+        <LangVersion>12</LangVersion>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\src\R3\R3.csproj" />
+    </ItemGroup>
+
+</Project>
