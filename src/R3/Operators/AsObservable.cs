@@ -12,9 +12,9 @@ public static partial class ObservableExtensions
         return new AsObservable<T>(source);
     }
 
-    public static IObservable<T> AsIObservable<T>(this Observable<T> source)
+    public static IObservable<T> AsSystemObservable<T>(this Observable<T> source)
     {
-        return new AsIObservable<T>(source);
+        return new AsSystemObservable<T>(source);
     }
 }
 
@@ -26,7 +26,7 @@ internal sealed class AsObservable<T>(Observable<T> observable) : Observable<T>
     }
 }
 
-internal sealed class AsIObservable<T>(Observable<T> source) : IObservable<T>
+internal sealed class AsSystemObservable<T>(Observable<T> source) : IObservable<T>
 {
     public IDisposable Subscribe(IObserver<T> observer)
     {

@@ -430,7 +430,7 @@ list.AssertIsCompleted();
 
 Interoperability with `IObservable<T>`
 ---
-`Observable<T>` is not `IObservable<T>`. You can convert `Observable<T>.AsIObserable()` or `IObservable<T>.AsObservable()`.
+`Observable<T>` is not `IObservable<T>`. You can convert `Observable<T>.AsSystemObserable()` or `IObservable<T>.AsObservable()`.
 
 Concurrency Policy
 ---
@@ -1167,7 +1167,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **AnyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` |
 | **AnyAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` |
 | **Append**(this `Observable<T>` source, `T` value) | `Observable<T>` |
-| **AsIObservable**(this `Observable<T>` source) | `IObservable<T>` |
+| **AsSystemObservable**(this `Observable<T>` source) | `IObservable<T>` |
 | **AsObservable**(this `Observable<T>` source) | `Observable<T>` |
 | **AsUnitObservable**(this `Observable<T>` source) | `Observable<Unit>` |
 | **AverageAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` |
