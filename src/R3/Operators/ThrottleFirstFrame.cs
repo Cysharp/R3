@@ -25,26 +25,28 @@ internal sealed class ThrottleFirstFrame<T>(Observable<T> source, int frameCount
     {
         readonly Observer<T> observer;
         readonly int frameCount;
+        readonly FrameProvider frameProvider;
         readonly object gate = new object();
-        T? firstValue;
-        bool hasValue;
         int currentFrame;
+        bool closing;
 
         public _ThrottleFirstFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
             this.frameCount = frameCount;
-            frameProvider.Register(this);
+            this.frameProvider = frameProvider;
         }
 
         protected override void OnNextCore(T value)
         {
             lock (gate)
             {
-                if (!hasValue)
+                if (!closing)
                 {
-                    hasValue = true;
-                    firstValue = value;
+                    closing = true;
+                    observer.OnNext(value);
+                    currentFrame = 0;
+                    frameProvider.Register(this);
                 }
             }
         }
@@ -67,13 +69,7 @@ internal sealed class ThrottleFirstFrame<T>(Observable<T> source, int frameCount
             {
                 if (++currentFrame == frameCount)
                 {
-                    if (hasValue)
-                    {
-                        observer.OnNext(firstValue!);
-                        hasValue = false;
-                        firstValue = default;
-                        currentFrame = 0;
-                    }
+                    closing = false;
                 }
             }
 
