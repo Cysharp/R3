@@ -6,10 +6,11 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\R3.WinForms\R3.WinForms.csproj" />
+    <ProjectReference Include="..\..\src\R3.WinForms\R3.WinForms.csproj" />
   </ItemGroup>
 
 </Project>
