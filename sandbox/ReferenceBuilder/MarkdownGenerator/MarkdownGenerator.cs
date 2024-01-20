@@ -128,8 +128,11 @@ public class MarkdownableType
     {
         if (array.Any())
         {
-            mb.AppendLine(label);
-            mb.AppendLine();
+            if (!string.IsNullOrEmpty(label))
+            {
+                mb.AppendLine(label);
+                mb.AppendLine();
+            }
 
 
             // NOTE: configure, no summary, return is right
@@ -164,32 +167,32 @@ public class MarkdownableType
     {
         var mb = new MarkdownBuilder();
 
-        mb.HeaderWithCode(2, Beautifier.BeautifyType(type, false));
-        mb.AppendLine();
+        //mb.HeaderWithCode(2, Beautifier.BeautifyType(type, false));
+        //mb.AppendLine();
 
-        var desc = commentLookup[type.FullName].FirstOrDefault(x => x.MemberType == MemberType.Type)?.Summary ?? "";
-        if (desc != "")
-        {
-            mb.AppendLine(desc);
-        }
-        {
-            var sb = new StringBuilder();
+        //var desc = commentLookup[type.FullName].FirstOrDefault(x => x.MemberType == MemberType.Type)?.Summary ?? "";
+        //if (desc != "")
+        //{
+        //    mb.AppendLine(desc);
+        //}
+        //{
+        //    var sb = new StringBuilder();
 
-            var stat = (type.IsAbstract && type.IsSealed) ? "static " : "";
-            var abst = (type.IsAbstract && !type.IsInterface && !type.IsSealed) ? "abstract " : "";
-            var classOrStructOrEnumOrInterface = type.IsInterface ? "interface" : type.IsEnum ? "enum" : type.IsValueType ? "struct" : "class";
+        //    var stat = (type.IsAbstract && type.IsSealed) ? "static " : "";
+        //    var abst = (type.IsAbstract && !type.IsInterface && !type.IsSealed) ? "abstract " : "";
+        //    var classOrStructOrEnumOrInterface = type.IsInterface ? "interface" : type.IsEnum ? "enum" : type.IsValueType ? "struct" : "class";
 
-            sb.AppendLine($"public {stat}{abst}{classOrStructOrEnumOrInterface} {Beautifier.BeautifyType(type, true)}");
-            var impl = string.Join(", ", new[] { type.BaseType }.Concat(type.GetInterfaces()).Where(x => x != null && x != typeof(object) && x != typeof(ValueType)).Select(x => Beautifier.BeautifyType(x)));
-            if (impl != "")
-            {
-                sb.AppendLine("    : " + impl);
-            }
+        //    sb.AppendLine($"public {stat}{abst}{classOrStructOrEnumOrInterface} {Beautifier.BeautifyType(type, true)}");
+        //    var impl = string.Join(", ", new[] { type.BaseType }.Concat(type.GetInterfaces()).Where(x => x != null && x != typeof(object) && x != typeof(ValueType)).Select(x => Beautifier.BeautifyType(x)));
+        //    if (impl != "")
+        //    {
+        //        sb.AppendLine("    : " + impl);
+        //    }
 
-            mb.Code("csharp", sb.ToString());
-        }
+        //    mb.Code("csharp", sb.ToString());
+        //}
 
-        mb.AppendLine();
+        //mb.AppendLine();
 
         if (type.IsEnum)
         {
@@ -209,8 +212,10 @@ public class MarkdownableType
             BuildTable(mb, "Events", GetEvents(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.EventHandlerType), x => x.Name, x => x.Name);
             BuildTable(mb, "Methods", GetMethods(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.ReturnType), x => x.Name, x => Beautifier.ToMarkdownMethodInfo(x));
             BuildTable(mb, "Static Fields", GetStaticFields(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.FieldType), x => x.Name, x => x.Name);
-            BuildTable(mb, "Static Properties", GetStaticProperties(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.PropertyType), x => x.Name, x => x.Name);
-            BuildTable(mb, "Static Methods", GetStaticMethods(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.ReturnType), x => x.Name, x => Beautifier.ToMarkdownMethodInfo(x));
+            // BuildTable(mb, "Static Properties", GetStaticProperties(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.PropertyType), x => x.Name, x => x.Name);
+            // BuildTable(mb, "Static Methods", GetStaticMethods(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.ReturnType), x => x.Name, x => Beautifier.ToMarkdownMethodInfo(x));
+
+            BuildTable(mb, "", GetStaticMethods(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.ReturnType), x => x.Name, x => Beautifier.ToMarkdownMethodInfo(x));
             BuildTable(mb, "Static Events", GetStaticEvents(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.EventHandlerType), x => x.Name, x => x.Name);
         }
 

@@ -1,12 +1,3 @@
-## `ObservableExtensions`
-
-```csharp
-public static class R3.ObservableExtensions
-
-```
-
-Static Methods
-
 | Name(Parameter) | ReturnType | 
 | --- | --- | 
 | **AggregateAsync**(this `Observable<T>` source, `TAccumulate` seed, `Func<TAccumulate, T, TAccumulate>` func, `Func<TAccumulate, TResult>` resultSelector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 

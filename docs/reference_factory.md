@@ -1,12 +1,3 @@
-## `Observable`
-
-```csharp
-public static class R3.Observable
-
-```
-
-Static Methods
-
 | Name(Parameter) | ReturnType | 
 | --- | --- | 
 | **Amb**(params `Observable<T>[]` sources) | `Observable<T>` | 

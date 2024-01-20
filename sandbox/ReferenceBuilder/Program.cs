@@ -6,8 +6,75 @@ var o = Operator();
 File.WriteAllText("../../../../../docs/reference_factory.md", f);
 File.WriteAllText("../../../../../docs/reference_operator.md", o);
 
-Console.WriteLine(f);
-Console.WriteLine(o);
+// replace readme
+var text = File.ReadAllLines("../../../../../ReadMe.md");
+
+(int head, int tail)? factoryLines = null;
+(int head, int tail)? operatorLines = null;
+
+var searchTail = false;
+var i1 = 0;
+for (int i = 0; i < text.Length; i++)
+{
+
+    const string head = "| Name(Parameter) | ReturnType | ";
+    if (!searchTail)
+    {
+        // search head
+        if (text[i] == head)
+        {
+            i1 = i;
+            searchTail = true;
+        }
+    }
+    else
+    {
+        if (text[i] == "")
+        {
+            if (factoryLines == null)
+            {
+                factoryLines = (i1, i);
+            }
+            else
+            {
+                operatorLines = (i1, i);
+            }
+            searchTail = false;
+        }
+    }
+}
+
+Console.WriteLine(factoryLines!);
+Console.WriteLine(operatorLines!);
+
+var newText = new List<string>();
+for (int i = 0; i < text.Length; i++)
+{
+    if (i == factoryLines!.Value.head)
+    {
+        foreach (var line in f.Split(Environment.NewLine))
+        {
+            newText.Add(line);
+        }
+        i = factoryLines!.Value.tail;
+        continue;
+    }
+
+    if (i == operatorLines!.Value.tail)
+    {
+        foreach (var line in o.Split(Environment.NewLine))
+        {
+            newText.Add(line);
+        }
+        i = operatorLines!.Value.tail;
+        continue;
+    }
+
+    newText.Add(text[i]);
+}
+
+var nt = string.Join(Environment.NewLine, newText);
+File.WriteAllText("../../../../../ReadMe.md", nt);
 
 static string Factory()
 {
