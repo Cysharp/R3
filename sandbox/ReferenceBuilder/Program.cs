@@ -54,19 +54,29 @@ for (int i = 0; i < text.Length; i++)
     {
         foreach (var line in f.Split(Environment.NewLine))
         {
+            if (line.Trim().Length == 0) continue;
             newText.Add(line);
         }
-        i = factoryLines!.Value.tail;
+        i = factoryLines!.Value.tail - 1; // when continue, +1
+        while (text[i] == "")
+        {
+            i++;
+        }
         continue;
     }
 
-    if (i == operatorLines!.Value.tail)
+    if (i == operatorLines!.Value.head)
     {
         foreach (var line in o.Split(Environment.NewLine))
         {
+            if (line.Trim().Length == 0) continue;
             newText.Add(line);
         }
-        i = operatorLines!.Value.tail;
+        i = operatorLines!.Value.tail - 1;
+        while (text[i] == "")
+        {
+            i++;
+        }
         continue;
     }
 
