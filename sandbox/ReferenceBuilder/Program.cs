@@ -1,4 +1,31 @@
-﻿//using System;
+﻿// See https://aka.ms/new-console-template for more information
+using MarkdownGenerator;
+
+
+var f = Factory();
+var o = Operator();
+
+
+
+
+
+
+
+static string Factory()
+{
+    var emptyCommentTable = Enumerable.Empty<string>().ToLookup(x => x, _ => new XmlDocumentComment());
+    var t = new MarkdownableType(typeof(R3.Observable), emptyCommentTable);
+    return t.ToString();
+}
+
+static string Operator()
+{
+    var emptyCommentTable = Enumerable.Empty<string>().ToLookup(x => x, _ => new XmlDocumentComment());
+    var t = new MarkdownableType(typeof(R3.ObservableExtensions), emptyCommentTable);
+    return t.ToString();
+}
+
+//using System;
 //using System.Collections.Generic;
 //using System.IO;
 //using System.Linq;
