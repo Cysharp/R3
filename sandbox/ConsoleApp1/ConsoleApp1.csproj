@@ -19,8 +19,4 @@
         <ProjectReference Include="..\..\src\R3\R3.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="MarkdownGenerator\" />
-    </ItemGroup>
-
 </Project>

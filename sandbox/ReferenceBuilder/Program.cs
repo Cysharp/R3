@@ -1,15 +1,13 @@
-﻿// See https://aka.ms/new-console-template for more information
-using MarkdownGenerator;
-
+﻿using MarkdownGenerator;
 
 var f = Factory();
 var o = Operator();
 
+File.WriteAllText("../../../../../docs/reference_factory.md", f);
+File.WriteAllText("../../../../../docs/reference_operator.md", o);
 
-
-
-
-
+Console.WriteLine(f);
+Console.WriteLine(o);
 
 static string Factory()
 {

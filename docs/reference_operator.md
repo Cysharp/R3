@@ -1,0 +1,283 @@
+## `ObservableExtensions`
+
+```csharp
+public static class R3.ObservableExtensions
+
+```
+
+Static Methods
+
+| Name(Parameter) | ReturnType | 
+| --- | --- | 
+| **AggregateAsync**(this `Observable<T>` source, `TAccumulate` seed, `Func<TAccumulate, T, TAccumulate>` func, `Func<TAccumulate, TResult>` resultSelector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **AllAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **Amb**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
+| **AnyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **AnyAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **Append**(this `Observable<T>` source, `T` value) | `Observable<T>` | 
+| **AsObservable**(this `Observable<T>` source) | `Observable<T>` | 
+| **AsSystemObservable**(this `Observable<T>` source) | `IObservable<T>` | 
+| **AsUnitObservable**(this `Observable<T>` source) | `Observable<Unit>` | 
+| **AverageAsync**(this `Observable<Int32>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<T>` source, `Func<T, Int32>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<Int64>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<T>` source, `Func<T, Int64>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<Single>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<T>` source, `Func<T, Single>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<Double>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<T>` source, `Func<T, Double>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<Decimal>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<T>` source, `Func<T, Decimal>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **AverageAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **Cast**(this `Observable<T>` source) | `Observable<TResult>` | 
+| **Catch**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
+| **Catch**(this `Observable<T>` source, `Func<TException, Observable<T>>` errorHandler) | `Observable<T>` | 
+| **Chunk**(this `Observable<T>` source, `Int32` count) | `Observable<T[]>` | 
+| **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T[]>` | 
+| **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T[]>` | 
+| **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan, `Int32` count) | `Observable<T[]>` | 
+| **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan, `Int32` count, `TimeProvider` timeProvider) | `Observable<T[]>` | 
+| **Chunk**(this `Observable<TSource>` source, `Observable<TWindowBoundary>` windowBoundaries) | `Observable<TSource[]>` | 
+| **ChunkFrame**(this `Observable<T>` source) | `Observable<T[]>` | 
+| **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T[]>` | 
+| **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T[]>` | 
+| **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `Int32` count) | `Observable<T[]>` | 
+| **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `Int32` count, `FrameProvider` frameProvider) | `Observable<T[]>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Func<T1, T2, T3, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Func<T1, T2, T3, T4, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Func<T1, T2, T3, T4, T5, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Func<T1, T2, T3, T4, T5, T6, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Func<T1, T2, T3, T4, T5, T6, T7, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>` resultSelector) | `Observable<TResult>` | 
+| **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Observable<T15>` source15, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Concat**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
+| **ContainsAsync**(this `Observable<T>` source, `T` value, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **ContainsAsync**(this `Observable<T>` source, `T` value, `IEqualityComparer<T>` equalityComparer, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **CountAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
+| **CountAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
+| **Debounce**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
+| **Debounce**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **DebounceFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **DebounceFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **DefaultIfEmpty**(this `Observable<T>` source) | `Observable<T>` | 
+| **DefaultIfEmpty**(this `Observable<T>` source, `T` defaultValue) | `Observable<T>` | 
+| **Delay**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` | 
+| **Delay**(this `Observable<T>` source, `TimeSpan` dueTime, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **DelayFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **DelayFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **DelaySubscription**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` | 
+| **DelaySubscription**(this `Observable<T>` source, `TimeSpan` dueTime, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **DelaySubscriptionFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **DelaySubscriptionFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **Dematerialize**(this `Observable<Notification<T>>` source) | `Observable<T>` | 
+| **Distinct**(this `Observable<T>` source) | `Observable<T>` | 
+| **Distinct**(this `Observable<T>` source, `IEqualityComparer<T>` comparer) | `Observable<T>` | 
+| **DistinctBy**(this `Observable<TSource>` source, `Func<TSource, TKey>` keySelector) | `Observable<TSource>` | 
+| **DistinctBy**(this `Observable<TSource>` source, `Func<TSource, TKey>` keySelector, `IEqualityComparer<TKey>` comparer) | `Observable<TSource>` | 
+| **DistinctUntilChanged**(this `Observable<T>` source) | `Observable<T>` | 
+| **DistinctUntilChanged**(this `Observable<T>` source, `IEqualityComparer<T>` comparer) | `Observable<T>` | 
+| **DistinctUntilChangedBy**(this `Observable<T>` source, `Func<T, TKey>` keySelector) | `Observable<T>` | 
+| **DistinctUntilChangedBy**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IEqualityComparer<TKey>` comparer) | `Observable<T>` | 
+| **Do**(this `Observable<T>` source, `Action<T>` onNext = default, `Action<Exception>` onErrorResume = default, `Action<Result>` onCompleted = default, `Action` onDispose = default, `Action` onSubscribe = default) | `Observable<T>` | 
+| **Do**(this `Observable<T>` source, `TState` state, `Action<T, TState>` onNext = default, `Action<Exception, TState>` onErrorResume = default, `Action<Result, TState>` onCompleted = default, `Action<TState>` onDispose = default, `Action<TState>` onSubscribe = default) | `Observable<T>` | 
+| **DoCancelOnCompleted**(this `Observable<T>` source, `CancellationTokenSource` cancellationTokenSource) | `Observable<T>` | 
+| **ElementAtAsync**(this `Observable<T>` source, `Int32` index, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **ElementAtAsync**(this `Observable<T>` source, `Index` index, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **ElementAtOrDefaultAsync**(this `Observable<T>` source, `Int32` index, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **ElementAtOrDefaultAsync**(this `Observable<T>` source, `Index` index, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **FirstAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **FirstAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **FirstOrDefaultAsync**(this `Observable<T>` source, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **FirstOrDefaultAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **ForEachAsync**(this `Observable<T>` source, `Action<T>` action, `CancellationToken` cancellationToken = default) | `Task` | 
+| **ForEachAsync**(this `Observable<T>` source, `Action<T, Int32>` action, `CancellationToken` cancellationToken = default) | `Task` | 
+| **IgnoreElements**(this `Observable<T>` source) | `Observable<T>` | 
+| **IgnoreElements**(this `Observable<T>` source, `Action<T>` doOnNext) | `Observable<T>` | 
+| **IgnoreOnErrorResume**(this `Observable<T>` source) | `Observable<T>` | 
+| **IgnoreOnErrorResume**(this `Observable<T>` source, `Action<Exception>` doOnErrorResume) | `Observable<T>` | 
+| **IsEmptyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **LastAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **LastAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **LastOrDefaultAsync**(this `Observable<T>` source, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **LastOrDefaultAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **LongCountAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Int64>` | 
+| **LongCountAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Int64>` | 
+| **Materialize**(this `Observable<T>` source) | `Observable<Notification<T>>` | 
+| **MaxAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MaxAsync**(this `Observable<T>` source, `IComparer<T>` comparer, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MaxAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **MaxAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `IComparer<TResult>` comparer, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **MaxByAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MaxByAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IComparer<TKey>` comparer, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **Merge**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
+| **MinAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MinAsync**(this `Observable<T>` source, `IComparer<T>` comparer, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MinAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **MinAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `IComparer<TResult>` comparer, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **MinByAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MinByAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IComparer<TKey>` comparer, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **MinMaxAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<ValueTuple<T, T>>` | 
+| **MinMaxAsync**(this `Observable<T>` source, `IComparer<T>` comparer, `CancellationToken` cancellationToken = default) | `Task<ValueTuple<T, T>>` | 
+| **MinMaxAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `CancellationToken` cancellationToken = default) | `Task<ValueTuple<TResult, TResult>>` | 
+| **MinMaxAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `IComparer<TResult>` comparer, `CancellationToken` cancellationToken = default) | `Task<ValueTuple<TResult, TResult>>` | 
+| **Multicast**(this `Observable<T>` source, `ISubject<T>` subject) | `ConnectableObservable<T>` | 
+| **ObserveOn**(this `Observable<T>` source, `SynchronizationContext` synchronizationContext) | `Observable<T>` | 
+| **ObserveOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **ObserveOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **ObserveOnCurrentSynchronizationContext**(this `Observable<T>` source) | `Observable<T>` | 
+| **ObserveOnThreadPool**(this `Observable<T>` source) | `Observable<T>` | 
+| **OfType**(this `Observable<T>` source) | `Observable<TResult>` | 
+| **OnErrorResumeAsFailure**(this `Observable<T>` source) | `Observable<T>` | 
+| **Pairwise**(this `Observable<T>` source) | `Observable<ValueTuple<T, T>>` | 
+| **Prepend**(this `Observable<T>` source, `T` value) | `Observable<T>` | 
+| **Publish**(this `Observable<T>` source) | `ConnectableObservable<T>` | 
+| **Publish**(this `Observable<T>` source, `T` initialValue) | `ConnectableObservable<T>` | 
+| **RefCount**(this `ConnectableObservable<T>` source) | `Observable<T>` | 
+| **Replay**(this `Observable<T>` source) | `ConnectableObservable<T>` | 
+| **Replay**(this `Observable<T>` source, `Int32` bufferSize) | `ConnectableObservable<T>` | 
+| **Replay**(this `Observable<T>` source, `TimeSpan` window) | `ConnectableObservable<T>` | 
+| **Replay**(this `Observable<T>` source, `TimeSpan` window, `TimeProvider` timeProvider) | `ConnectableObservable<T>` | 
+| **Replay**(this `Observable<T>` source, `Int32` bufferSize, `TimeSpan` window) | `ConnectableObservable<T>` | 
+| **Replay**(this `Observable<T>` source, `Int32` bufferSize, `TimeSpan` window, `TimeProvider` timeProvider) | `ConnectableObservable<T>` | 
+| **ReplayFrame**(this `Observable<T>` source, `Int32` window) | `ConnectableObservable<T>` | 
+| **ReplayFrame**(this `Observable<T>` source, `Int32` window, `FrameProvider` frameProvider) | `ConnectableObservable<T>` | 
+| **ReplayFrame**(this `Observable<T>` source, `Int32` bufferSize, `Int32` window) | `ConnectableObservable<T>` | 
+| **ReplayFrame**(this `Observable<T>` source, `Int32` bufferSize, `Int32` window, `FrameProvider` frameProvider) | `ConnectableObservable<T>` | 
+| **Scan**(this `Observable<TSource>` source, `Func<TSource, TSource, TSource>` accumulator) | `Observable<TSource>` | 
+| **Scan**(this `Observable<TSource>` source, `TAccumulate` seed, `Func<TAccumulate, TSource, TAccumulate>` accumulator) | `Observable<TAccumulate>` | 
+| **Select**(this `Observable<T>` source, `Func<T, TResult>` selector) | `Observable<TResult>` | 
+| **Select**(this `Observable<T>` source, `Func<T, Int32, TResult>` selector) | `Observable<TResult>` | 
+| **Select**(this `Observable<T>` source, `TState` state, `Func<T, TState, TResult>` selector) | `Observable<TResult>` | 
+| **Select**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, TResult>` selector) | `Observable<TResult>` | 
+| **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TResult>>` selector) | `Observable<TResult>` | 
+| **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TCollection>>` collectionSelector, `Func<TSource, TCollection, TResult>` resultSelector) | `Observable<TResult>` | 
+| **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Int32, Observable<TResult>>` selector) | `Observable<TResult>` | 
+| **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Int32, Observable<TCollection>>` collectionSelector, `Func<TSource, Int32, TCollection, Int32, TResult>` resultSelector) | `Observable<TResult>` | 
+| **SequenceEqualAsync**(this `Observable<T>` source, `Observable<T>` second, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **SequenceEqualAsync**(this `Observable<T>` source, `Observable<T>` second, `IEqualityComparer<T>` equalityComparer, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
+| **Share**(this `Observable<T>` source) | `Observable<T>` | 
+| **SingleAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **SingleAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **SingleOrDefaultAsync**(this `Observable<T>` source, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **SingleOrDefaultAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **Skip**(this `Observable<T>` source, `Int32` count) | `Observable<T>` | 
+| **Skip**(this `Observable<T>` source, `TimeSpan` duration) | `Observable<T>` | 
+| **Skip**(this `Observable<T>` source, `TimeSpan` duration, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **SkipFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **SkipFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **SkipLast**(this `Observable<T>` source, `Int32` count) | `Observable<T>` | 
+| **SkipLast**(this `Observable<T>` source, `TimeSpan` duration) | `Observable<T>` | 
+| **SkipLast**(this `Observable<T>` source, `TimeSpan` duration, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **SkipLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **SkipLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `Observable<TOther>` other) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **SkipWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
+| **SkipWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
+| **SubscribeOn**(this `Observable<T>` source, `SynchronizationContext` synchronizationContext) | `Observable<T>` | 
+| **SubscribeOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **SubscribeOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **SubscribeOnCurrentSynchronizationContext**(this `Observable<T>` source) | `Observable<T>` | 
+| **SubscribeOnThreadPool**(this `Observable<T>` source) | `Observable<T>` | 
+| **SumAsync**(this `Observable<Int32>` source, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
+| **SumAsync**(this `Observable<TSource>` source, `Func<TSource, Int32>` selector, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
+| **SumAsync**(this `Observable<Int64>` source, `CancellationToken` cancellationToken = default) | `Task<Int64>` | 
+| **SumAsync**(this `Observable<TSource>` source, `Func<TSource, Int64>` selector, `CancellationToken` cancellationToken = default) | `Task<Int64>` | 
+| **SumAsync**(this `Observable<Single>` source, `CancellationToken` cancellationToken = default) | `Task<Single>` | 
+| **SumAsync**(this `Observable<TSource>` source, `Func<TSource, Single>` selector, `CancellationToken` cancellationToken = default) | `Task<Single>` | 
+| **SumAsync**(this `Observable<Double>` source, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **SumAsync**(this `Observable<TSource>` source, `Func<TSource, Double>` selector, `CancellationToken` cancellationToken = default) | `Task<Double>` | 
+| **SumAsync**(this `Observable<Decimal>` source, `CancellationToken` cancellationToken = default) | `Task<Decimal>` | 
+| **SumAsync**(this `Observable<TSource>` source, `Func<TSource, Decimal>` selector, `CancellationToken` cancellationToken = default) | `Task<Decimal>` | 
+| **SumAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
+| **SumAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **Switch**(this `Observable<Observable<T>>` sources) | `Observable<T>` | 
+| **Synchronize**(this `Observable<T>` source) | `Observable<T>` | 
+| **Synchronize**(this `Observable<T>` source, `Object` gate) | `Observable<T>` | 
+| **Take**(this `Observable<T>` source, `Int32` count) | `Observable<T>` | 
+| **Take**(this `Observable<T>` source, `TimeSpan` duration) | `Observable<T>` | 
+| **Take**(this `Observable<T>` source, `TimeSpan` duration, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **TakeFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **TakeFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **TakeLast**(this `Observable<T>` source, `Int32` count) | `Observable<T>` | 
+| **TakeLast**(this `Observable<T>` source, `TimeSpan` duration) | `Observable<T>` | 
+| **TakeLast**(this `Observable<T>` source, `TimeSpan` duration, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **TakeLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **TakeLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `Observable<TOther>` other) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **TakeWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
+| **TakeWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
+| **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
+| **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
+| **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` | 
+| **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **TimeoutFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **TimeoutFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **ToArrayAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T[]>` | 
+| **ToAsyncEnumerable**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `IAsyncEnumerable<T>` | 
+| **ToDictionaryAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `CancellationToken` cancellationToken = default) | `Task<Dictionary<TKey, T>>` | 
+| **ToDictionaryAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<Dictionary<TKey, T>>` | 
+| **ToDictionaryAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `CancellationToken` cancellationToken = default) | `Task<Dictionary<TKey, TElement>>` | 
+| **ToDictionaryAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<Dictionary<TKey, TElement>>` | 
+| **ToHashSetAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<HashSet<T>>` | 
+| **ToHashSetAsync**(this `Observable<T>` source, `IEqualityComparer<T>` comparer, `CancellationToken` cancellationToken = default) | `Task<HashSet<T>>` | 
+| **ToListAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<List<T>>` | 
+| **ToLiveList**(this `Observable<T>` source) | `LiveList<T>` | 
+| **ToLiveList**(this `Observable<T>` source, `Int32` bufferSize) | `LiveList<T>` | 
+| **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, T>>` | 
+| **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, T>>` | 
+| **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, TElement>>` | 
+| **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, TElement>>` | 
+| **WaitAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task` | 
+| **Where**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
+| **Where**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
+| **Where**(this `Observable<T>` source, `TState` state, `Func<T, TState, Boolean>` predicate) | `Observable<T>` | 
+| **Where**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, Boolean>` predicate) | `Observable<T>` | 
+| **WithLatestFrom**(this `Observable<TFirst>` first, `Observable<TSecond>` second, `Func<TFirst, TSecond, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Func<T1, T2, T3, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Func<T1, T2, T3, T4, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Func<T1, T2, T3, T4, T5, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Func<T1, T2, T3, T4, T5, T6, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Func<T1, T2, T3, T4, T5, T6, T7, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>` resultSelector) | `Observable<TResult>` | 
+| **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Observable<T15>` source15, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Func<T1, T2, T3, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Func<T1, T2, T3, T4, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Func<T1, T2, T3, T4, T5, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Func<T1, T2, T3, T4, T5, T6, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Func<T1, T2, T3, T4, T5, T6, T7, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>` resultSelector) | `Observable<TResult>` | 
+| **ZipLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Observable<T15>` source15, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>` resultSelector) | `Observable<TResult>` | 
+
+
