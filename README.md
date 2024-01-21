@@ -640,6 +640,7 @@ Although standard support is provided for the following platforms, by implementi
 
 * [WPF](#wpf)
 * [Avalonia](#avalonia)
+* [WinForms](#winforms)
 * [Unity](#unity)
 * [Godot](#godot)
 
