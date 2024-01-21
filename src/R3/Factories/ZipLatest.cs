@@ -4,7 +4,7 @@ public static partial class Observable
 {
     public static Observable<T[]> ZipLatest<T>(params Observable<T>[] sources)
     {
-        return new CombineLatest<T>(sources);
+        return new ZipLatest<T>(sources);
     }
 
     public static Observable<T[]> ZipLatest<T>(IEnumerable<Observable<T>> sources)
