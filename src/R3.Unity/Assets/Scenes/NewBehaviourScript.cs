@@ -28,20 +28,11 @@ public class NewBehaviourScript : MonoBehaviour
 
     void Start()
     {
-        rpQuaternion.Subscribe(x =>
-        {
-            Debug.Log("Quaternion XYZW:" + new Vector4(x.x, x.y, x.z, x.w));
-            Debug.Log("Quaternion EulerAngles:" + x.eulerAngles);
-        });
-
-        var time = 0;
-        Observable.Interval(TimeSpan.FromSeconds(1))
-            .Subscribe(x =>
-            {
-                Debug.Log("Time:" + time);
-                rpLong.Value = time++;
-            })
-            .AddTo(this.destroyCancellationToken);
+        Observable.Interval(TimeSpan.FromSeconds(1)).Timeout(TimeSpan.FromSeconds(5))
+             .Subscribe(x =>
+             {
+                 Debug.Log("Time:" + Time.time);
+             });
     }
 }
 
