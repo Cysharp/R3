@@ -70,6 +70,7 @@ internal sealed class ThrottleFirstFrame<T>(Observable<T> source, int frameCount
                 if (++currentFrame == frameCount)
                 {
                     closing = false;
+                    return false;
                 }
             }
 
