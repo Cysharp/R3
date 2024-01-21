@@ -753,7 +753,6 @@ public partial class MainWindow : Window
         this.frameProvider = new AvaloniaRenderingFrameProvider(topLevel!);
     }
 
-
     protected override void OnLoaded(RoutedEventArgs e)
     {
         // pass frameProvider
@@ -774,6 +773,42 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 * ObserveOnUIThreadDispatcher
 * SubscribeOnDispatcher
 * SubscribeOnUIThreadDispatcher
+
+### WinForms
+
+> PM> Install-Package [R3.WinForms](https://www.nuget.org/packages/R3.WinForms)
+
+R3.WinForms package has these providers.
+
+* WinFormsFrameProvider
+* WinFormsTimerProvider
+
+Calling `WinFormsProviderInitializer.SetDefaultObservableSystem()` at startup(Program.Main) will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `WinFormsFrameProvider` and `WinFormsTimerProvider`.
+
+
+```csharp
+using R3.WinForms;
+
+internal static class Program
+{
+    [STAThread]
+    static void Main()
+    {
+        ApplicationConfiguration.Initialize();
+
+        var form = new Form1();
+
+        // add this line
+        WinFormsProviderInitializer.SetDefaultObservableSystem(ex => Trace.WriteLine($"R3 UnhandledException:{ex}"), form);
+
+        Application.Run(form);
+    }
+}
+```
+
+`SetDefaultObservableSystem` takes ISynchronizeInvoke (such as Form or Control). This makes the Timer operate on the thread to which it belongs.
+
+FrameProvider is executed as one frame using the hook of MessageFilter.
 
 ### Unity
 
