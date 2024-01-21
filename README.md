@@ -1,6 +1,6 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](https://unity.com/), [Godot](https://godotengine.org/), [Avalonia](https://avaloniaui.net/), WPF, etc(planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper)).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](https://unity.com/), [Godot](https://godotengine.org/), [Avalonia](https://avaloniaui.net/), WPF, WinForms, etc(planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper)).
 
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10) and others, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
