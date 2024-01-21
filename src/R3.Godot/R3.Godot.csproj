@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
-
+        <NoWarn>1701;1702;1591;1573;8002;</NoWarn>
         <!-- Currently no packable -->
         <IsPackable>false</IsPackable>
     </PropertyGroup>
