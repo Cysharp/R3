@@ -17,15 +17,15 @@ public static class ObservableSubscribeExtensions
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Result> onComplete)
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Result> onCompleted)
     {
-        return source.Subscribe(new AnonymousObserver<T>(onNext, ObservableSystem.GetUnhandledExceptionHandler(), onComplete));
+        return source.Subscribe(new AnonymousObserver<T>(onNext, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete)
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onCompleted)
     {
-        return source.Subscribe(new AnonymousObserver<T>(onNext, onErrorResume, onComplete));
+        return source.Subscribe(new AnonymousObserver<T>(onNext, onErrorResume, onCompleted));
     }
 
     // with state
@@ -37,15 +37,15 @@ public static class ObservableSubscribeExtensions
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Result, TState> onComplete)
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Result, TState> onCompleted)
     {
-        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, Stubs<TState>.HandleException, onComplete, state));
+        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, Stubs<TState>.HandleException, onCompleted, state));
     }
 
     [DebuggerStepThrough]
-    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onComplete)
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onCompleted)
     {
-        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, onErrorResume, onComplete, state));
+        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, onErrorResume, onCompleted, state));
     }
 }
 
@@ -103,7 +103,7 @@ internal sealed class AnonymousRObserver<T>(Action<T> onNext, Action<Exception> 
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousObserver<T>(Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onComplete) : Observer<T>
+internal sealed class AnonymousObserver<T>(Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onCompleted) : Observer<T>
 {
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)
@@ -120,12 +120,12 @@ internal sealed class AnonymousObserver<T>(Action<T> onNext, Action<Exception> o
     [DebuggerStepThrough]
     protected override void OnCompletedCore(Result complete)
     {
-        onComplete(complete);
+        onCompleted(complete);
     }
 }
 
 [DebuggerStepThrough]
-internal sealed class AnonymousObserver<T, TState>(Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onComplete, TState state) : Observer<T>
+internal sealed class AnonymousObserver<T, TState>(Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onCompleted, TState state) : Observer<T>
 {
     [DebuggerStepThrough]
     protected override void OnNextCore(T value)
@@ -142,6 +142,6 @@ internal sealed class AnonymousObserver<T, TState>(Action<T, TState> onNext, Act
     [DebuggerStepThrough]
     protected override void OnCompletedCore(Result complete)
     {
-        onComplete(complete, state);
+        onCompleted(complete, state);
     }
 }
