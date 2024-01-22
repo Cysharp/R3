@@ -18,7 +18,7 @@ public class AsObservableTest
     }
 
     [Fact]
-    public void AsIObservable()
+    public void AsSystemObservable()
     {
 
         {
@@ -26,7 +26,7 @@ public class AsObservableTest
             var l = new List<int>();
             Exception? ex = null;
             bool completed = false;
-            p.AsIObservable().Subscribe(l.Add, e => ex = e, () => completed = true);
+            p.AsSystemObservable().Subscribe(l.Add, e => ex = e, () => completed = true);
 
             p.OnNext(1);
             p.OnNext(2);
@@ -42,7 +42,7 @@ public class AsObservableTest
             var l = new List<int>();
             Exception? ex = null;
             bool completed = false;
-            p.AsIObservable().Subscribe(l.Add, e => ex = e, () => completed = true);
+            p.AsSystemObservable().Subscribe(l.Add, e => ex = e, () => completed = true);
 
             p.OnNext(1);
             p.OnNext(2);
@@ -59,7 +59,7 @@ public class AsObservableTest
             var l = new List<int>();
             Exception? ex = null;
             bool completed = false;
-            p.AsIObservable().Subscribe(l.Add, e => ex = e, () => completed = true);
+            p.AsSystemObservable().Subscribe(l.Add, e => ex = e, () => completed = true);
 
             p.OnNext(1);
             p.OnNext(2);

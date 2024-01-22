@@ -59,29 +59,29 @@ public class DebounceThrottleFirstSampleTest
         var list = publisher.ThrottleFirst(TimeSpan.FromSeconds(3), timeProvider).ToLiveList();
 
         publisher.OnNext(1);
+        list.AssertEqual([1]);
         publisher.OnNext(10);
         publisher.OnNext(100);
-        list.AssertEqual([]);
+        list.AssertEqual([1]);
 
         timeProvider.Advance(TimeSpan.FromSeconds(2));
 
         publisher.OnNext(1000);
         publisher.OnNext(10000);
-        list.AssertEqual([]);
+        list.AssertEqual([1]);
 
         timeProvider.Advance(TimeSpan.FromSeconds(1));
-        list.AssertEqual([1]);
         publisher.OnNext(2);
+        list.AssertEqual([1, 2]);
         publisher.OnNext(20);
         publisher.OnNext(200);
 
         timeProvider.Advance(TimeSpan.FromSeconds(3));
         list.AssertEqual([1, 2]);
         publisher.OnNext(3);
+        list.AssertEqual([1, 2, 3]);
 
         publisher.OnCompleted();
-
-        list.AssertEqual([1, 2]);
         list.AssertIsCompleted();
     }
 
@@ -176,29 +176,28 @@ public class DebounceThrottleFirstSampleTest
         var list = publisher.ThrottleFirstFrame(3, frameProvider).ToLiveList();
 
         publisher.OnNext(1);
+        list.AssertEqual([1]);
         publisher.OnNext(10);
         publisher.OnNext(100);
-        list.AssertEqual([]);
+        list.AssertEqual([1]);
 
         frameProvider.Advance(2);
 
         publisher.OnNext(1000);
         publisher.OnNext(10000);
-        list.AssertEqual([]);
+        list.AssertEqual([1]);
 
         frameProvider.Advance(1);
-        list.AssertEqual([1]);
         publisher.OnNext(2);
+        list.AssertEqual([1, 2]);
         publisher.OnNext(20);
         publisher.OnNext(200);
 
         frameProvider.Advance(3);
-        list.AssertEqual([1, 2]);
         publisher.OnNext(3);
+        list.AssertEqual([1, 2, 3]);
 
         publisher.OnCompleted();
-
-        list.AssertEqual([1, 2]);
         list.AssertIsCompleted();
     }
 

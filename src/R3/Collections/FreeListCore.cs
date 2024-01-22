@@ -15,6 +15,7 @@ public struct FreeListCore<T>
     {
         // don't create values at initialize
         this.gate = gate;
+        this.lastIndex = -1;
     }
 
     public bool IsDisposed => lastIndex == -2;
@@ -88,7 +89,7 @@ public struct FreeListCore<T>
             if (lastIndex < 0) return false;
 
             var index = -1;
-            var span = values.AsSpan(0, lastIndex);
+            var span = values.AsSpan(0, lastIndex + 1);
             for (int i = 0; i < span.Length; i++)
             {
                 if (span[i] == value)
@@ -111,13 +112,17 @@ public struct FreeListCore<T>
     {
         lock (gate)
         {
-            if (lastIndex > 0)
+            if (lastIndex >= 0)
             {
-                values.AsSpan(0, lastIndex).Clear();
+                values.AsSpan(0, lastIndex + 1).Clear();
             }
             if (removeArray)
             {
                 values = null;
+            }
+            if (lastIndex != -2)
+            {
+                lastIndex = -1;
             }
         }
     }

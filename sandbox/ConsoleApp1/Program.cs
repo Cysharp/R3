@@ -1,4 +1,3 @@
-﻿using ConsoleApp1;
 using R3;
 using System.ComponentModel.DataAnnotations;
 using System.Reactive.Linq;

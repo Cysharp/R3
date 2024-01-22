@@ -104,12 +104,18 @@ internal sealed class SelectMany<TSource, TCollection, TResult>(Observable<TSour
             protected override void OnNextCore(TCollection value)
             {
                 var result = parent.resultSelector(sourceValue, value);
-                parent.observer.OnNext(result);
+                lock (parent.gate)
+                {
+                    parent.observer.OnNext(result);
+                }
             }
 
             protected override void OnErrorResumeCore(Exception error)
             {
-                parent.observer.OnErrorResume(error);
+                lock (parent.gate)
+                {
+                    parent.observer.OnErrorResume(error);
+                }
             }
 
             protected override void OnCompletedCore(Result result)
@@ -221,12 +227,18 @@ internal sealed class SelectManyIndexed<TSource, TCollection, TResult>(Observabl
             protected override void OnNextCore(TCollection value)
             {
                 var result = parent.resultSelector(sourceValue, sourceIndex, value, index++);
-                parent.observer.OnNext(result);
+                lock (parent.gate)
+                {
+                    parent.observer.OnNext(result);
+                }
             }
 
             protected override void OnErrorResumeCore(Exception error)
             {
-                parent.observer.OnErrorResume(error);
+                lock (parent.gate)
+                {
+                    parent.observer.OnErrorResume(error);
+                }
             }
 
             protected override void OnCompletedCore(Result result)

@@ -14,38 +14,39 @@ public static partial class ObservableExtensions
 }
 
 // ThrottleFirst
-internal sealed class ThrottleFirst<T>(Observable<T> source, TimeSpan interval, TimeProvider timeProvider) : Observable<T>
+internal sealed class ThrottleFirst<T>(Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _ThrottleFirst(observer, interval.Normalize(), timeProvider));
+        return source.Subscribe(new _ThrottleFirst(observer, timeSpan.Normalize(), timeProvider));
     }
 
     sealed class _ThrottleFirst : Observer<T>
     {
-        static readonly TimerCallback timerCallback = RaiseOnNext;
+        static readonly TimerCallback timerCallback = OpenGate;
 
         readonly Observer<T> observer;
         readonly ITimer timer;
+        readonly TimeSpan timeSpan;
         readonly object gate = new object();
-        T? firstValue;
-        bool hasValue;
+        bool closing;
 
-        public _ThrottleFirst(Observer<T> observer, TimeSpan interval, TimeProvider timeProvider)
+        public _ThrottleFirst(Observer<T> observer, TimeSpan timeSpan, TimeProvider timeProvider)
         {
             this.observer = observer;
             this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-            this.timer.Change(interval, interval);
+            this.timeSpan = timeSpan;
         }
 
         protected override void OnNextCore(T value)
         {
             lock (gate)
             {
-                if (!hasValue)
+                if (!closing)
                 {
-                    hasValue = true;
-                    firstValue = value;
+                    closing = true;
+                    observer.OnNext(value);
+                    timer.InvokeOnce(timeSpan);
                 }
             }
         }
@@ -65,17 +66,12 @@ internal sealed class ThrottleFirst<T>(Observable<T> source, TimeSpan interval, 
             timer.Dispose();
         }
 
-        static void RaiseOnNext(object? state)
+        static void OpenGate(object? state)
         {
             var self = (_ThrottleFirst)state!;
             lock (self.gate)
             {
-                if (self.hasValue)
-                {
-                    self.observer.OnNext(self.firstValue!);
-                    self.hasValue = false;
-                    self.firstValue = default;
-                }
+                self.closing = false;
             }
         }
     }

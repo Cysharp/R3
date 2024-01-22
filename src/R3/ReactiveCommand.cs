@@ -60,6 +60,8 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
         CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    public bool IsDisabled => !CanExecute();
+
     public bool CanExecute()
     {
         return canExecute;

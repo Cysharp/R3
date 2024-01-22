@@ -100,7 +100,7 @@ namespace R3.Unity.Editor
 
             if (GUILayout.Button(ReloadHeadContent, EditorStyles.toolbarButton, EmptyLayoutOption))
             {
-                SubscriptionTracker.CheckAndResetDirty();
+                ObservableTracker.CheckAndResetDirty();
                 treeView.ReloadAndSort();
                 Repaint();
             }
@@ -152,19 +152,19 @@ namespace R3.Unity.Editor
 
         private void Update()
         {
-            // reflect to SubscriptionTracker
-            SubscriptionTracker.EnableTracking = enableTracking;
-            SubscriptionTracker.EnableStackTrace = enableStackTrace;
+            // reflect to ObservableTracker
+            ObservableTracker.EnableTracking = enableTracking;
+            ObservableTracker.EnableStackTrace = enableStackTrace;
 
             //var count = 0;
-            //SubscriptionTracker.ForEachActiveTask(_ => count++);
+            //ObservableTracker.ForEachActiveTask(_ => count++);
             //Debug.Log(count);
 
             if (enableAutoReload)
             {
                 if (interval++ % 120 == 0)
                 {
-                    if (SubscriptionTracker.CheckAndResetDirty())
+                    if (ObservableTracker.CheckAndResetDirty())
                     {
                         treeView.ReloadAndSort();
                         Repaint();
@@ -174,10 +174,10 @@ namespace R3.Unity.Editor
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        public static void SetSubscriptionTrackerValues()
+        public static void SetObservableTrackerValues()
         {
-            SubscriptionTracker.EnableTracking = EditorEnableState.EnableTracking;
-            SubscriptionTracker.EnableStackTrace = EditorEnableState.EnableStackTrace;
+            ObservableTracker.EnableTracking = EditorEnableState.EnableTracking;
+            ObservableTracker.EnableStackTrace = EditorEnableState.EnableStackTrace;
         }
 
         #endregion
@@ -205,7 +205,7 @@ namespace R3.Unity.Editor
                 var item = treeView.CurrentBindingItems.FirstOrDefault(x => x.id == first) as ObservableTrackerViewItem;
                 if (item != null)
                 {
-                    message = item.Position;
+                    message = item.Location;
                 }
             }
 
