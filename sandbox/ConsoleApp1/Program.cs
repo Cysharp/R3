@@ -1,7 +1,10 @@
-using R3;
+﻿using R3;
 using System.ComponentModel.DataAnnotations;
 using System.Reactive.Linq;
 
+
+Console.WriteLine("hello");
+// System.Linq.AsyncEnumerable.Range(1,10)
 
 
 //Dump.Factory();
@@ -14,6 +17,6 @@ using System.Reactive.Linq;
 
 //onClick.SelectAwait(async x =>
 //{
-    
+
 
 //});

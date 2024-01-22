@@ -4,41 +4,41 @@ namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperations awaitOperations = AwaitOperations.Queue, bool configureAwait = true)
+    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperations awaitOperations = AwaitOperations.Queue, bool configureAwait = true)
     {
-        return new SelectAwait<T, TResult>(source, selector, awaitOperations, configureAwait);
+        return new WhereAwait<T>(source, predicate, awaitOperations, configureAwait);
     }
 }
 
-internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperations awaitOperations, bool configureAwait) : Observable<TResult>
+internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperations awaitOperations, bool configureAwait) : Observable<T>
 {
-    protected override IDisposable SubscribeCore(Observer<TResult> observer)
+    protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         switch (awaitOperations)
         {
             case AwaitOperations.Queue:
-                return source.Subscribe(new SelectAwaitQueue(observer, selector, configureAwait));
+                return source.Subscribe(new WhereAwaitQueue(observer, predicate, configureAwait));
             case AwaitOperations.Drop:
-                return source.Subscribe(new SelectAwaitDrop(observer, selector, configureAwait));
+                return source.Subscribe(new WhereAwaitDrop(observer, predicate, configureAwait));
             case AwaitOperations.Parallel:
-                return source.Subscribe(new SelectAwaitParallel(observer, selector, configureAwait));
+                return source.Subscribe(new WhereAwaitParallel(observer, predicate, configureAwait));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class SelectAwaitQueue : Observer<T>
+    sealed class WhereAwaitQueue : Observer<T>
     {
-        readonly Observer<TResult> observer;
-        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
+        readonly Observer<T> observer;
+        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
         readonly CancellationTokenSource cancellationTokenSource;
         readonly bool configureAwait; // continueOnCapturedContext
         readonly Channel<T> channel;
 
-        public SelectAwaitQueue(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        public WhereAwaitQueue(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
         {
             this.observer = observer;
-            this.selector = selector;
+            this.predicate = predicate;
             this.cancellationTokenSource = new CancellationTokenSource();
             this.configureAwait = configureAwait;
             this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<T>();
@@ -82,8 +82,11 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
                         {
                             if (token.IsCancellationRequested) return;
 
-                            var value = await selector(item, token).ConfigureAwait(configureAwait);
-                            observer.OnNext(value);
+                            var result = await predicate(item, token).ConfigureAwait(configureAwait);
+                            if (result)
+                            {
+                                observer.OnNext(item);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -103,19 +106,19 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitDrop : Observer<T>
+    sealed class WhereAwaitDrop : Observer<T>
     {
-        readonly Observer<TResult> observer;
-        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
+        readonly Observer<T> observer;
+        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
         readonly CancellationTokenSource cancellationTokenSource;
         readonly bool configureAwait; // continueOnCapturedContext
 
         int runningState; // 0 = stopped, 1 = running
 
-        public SelectAwaitDrop(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        public WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
         {
             this.observer = observer;
-            this.selector = selector;
+            this.predicate = predicate;
             this.cancellationTokenSource = new CancellationTokenSource();
             this.configureAwait = configureAwait;
         }
@@ -147,8 +150,11 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         {
             try
             {
-                var v = await selector(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
-                observer.OnNext(v);
+                var result = await predicate(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
+                if (result)
+                {
+                    observer.OnNext(value);
+                }
             }
             catch (Exception ex)
             {
@@ -165,18 +171,18 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitParallel : Observer<T>
+    sealed class WhereAwaitParallel : Observer<T>
     {
-        readonly Observer<TResult> observer;
-        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
+        readonly Observer<T> observer;
+        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
         readonly CancellationTokenSource cancellationTokenSource;
         readonly bool configureAwait; // continueOnCapturedContext
         readonly object gate = new object();
 
-        public SelectAwaitParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        public WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
         {
             this.observer = observer;
-            this.selector = selector;
+            this.predicate = predicate;
             this.cancellationTokenSource = new CancellationTokenSource();
             this.configureAwait = configureAwait;
         }
@@ -208,10 +214,13 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         {
             try
             {
-                var v = await selector(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
-                lock (gate)
+                var result = await predicate(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
+                if (result)
                 {
-                    observer.OnNext(v);
+                    lock (gate)
+                    {
+                        observer.OnNext(value);
+                    }
                 }
             }
             catch (Exception ex)

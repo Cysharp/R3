@@ -33,4 +33,9 @@ public static class _TestHelper
     {
         list.IsCompleted.Should().BeFalse();
     }
+
+    public static void Advance(this FakeTimeProvider timeProvider, int seconds)
+    {
+        timeProvider.Advance(TimeSpan.FromSeconds(seconds));
+    }
 }
