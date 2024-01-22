@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Threading;
+using System.Threading.Channels;
 
 namespace R3;
 
@@ -224,6 +225,73 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
                 {
                     observer.OnErrorResume(ex);
                 }
+            }
+        }
+    }
+
+    sealed class SelectAwaitSwitch : Observer<T>
+    {
+        readonly Observer<TResult> observer;
+        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
+        CancellationTokenSource cancellationTokenSource;
+        readonly bool configureAwait; // continueOnCapturedContext
+
+        int runningState; // 0 = stopped, 1 = running
+
+        public SelectAwaitSwitch(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        {
+            this.observer = observer;
+            this.selector = selector;
+            this.cancellationTokenSource = new CancellationTokenSource();
+            this.configureAwait = configureAwait;
+        }
+
+        protected override void OnNextCore(T value)
+        {
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+            if (Interlocked.CompareExchange(ref runningState, 1, 0) == 1)
+            {
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource = new CancellationTokenSource();
+                cancellationToken = cancellationTokenSource.Token;
+
+            }
+            StartAsync(value, cancellationToken);
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            observer.OnCompleted(result);
+        }
+
+        protected override void DisposeCore()
+        {
+            cancellationTokenSource.Cancel();
+        }
+
+        async void StartAsync(T value, CancellationToken token)
+        {
+            try
+            {
+                var v = await selector(value, token).ConfigureAwait(configureAwait);
+                observer.OnNext(v);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    return;
+                }
+                observer.OnErrorResume(ex);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref runningState, 0);
             }
         }
     }
