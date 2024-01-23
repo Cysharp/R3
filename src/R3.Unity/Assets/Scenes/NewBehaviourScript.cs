@@ -1,6 +1,9 @@
 ﻿using R3;
 using System;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class NewBehaviourScript : MonoBehaviour
 {
@@ -26,14 +29,23 @@ public class NewBehaviourScript : MonoBehaviour
     public SerializableReactiveProperty<FruitEnum> rpEnum;
     public SerializableReactiveProperty<FruitFlagsEnum> rpFlagsEnum;
 
+
+    Button button;
+    Text text;
+
     void Start()
     {
-        Observable.Interval(TimeSpan.FromSeconds(1)).Timeout(TimeSpan.FromSeconds(5))
-             .Subscribe(x =>
-             {
-                 Debug.Log("Time:" + Time.time);
-             });
+        //button.OnClickAsObservable()
+        //    .SelectAwait(async (_, ct) =>
+        //    {
+        //        var req = await UnityWebRequest.Get("https://google.com/").SendWebRequest().WithCancellation(ct);
+        //        return req.downloadHandler.text;
+        //    }, AwaitOperations.Drop)
+        //    .SubscribeToText(text);
     }
+
+
+
 }
 
 
