@@ -48,7 +48,6 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
             if (await predicate(value, cancellationToken).ConfigureAwait(configureAwait))
             {
                 observer.OnNext(value);
-                var t2 = Thread.CurrentThread.ManagedThreadId;
             }
         }
 
@@ -57,7 +56,7 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
             observer.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result result)
+        protected override void PublishOnCompleted(Result result)
         {
             observer.OnCompleted(result);
         }

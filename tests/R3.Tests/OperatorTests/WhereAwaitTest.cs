@@ -18,15 +18,10 @@ public class WhereAwaitTest
             .WhereAwait(async (x, ct) =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
-
-
-                var t2 = Thread.CurrentThread.ManagedThreadId;
                 return x % 2 != 0;
             }, AwaitOperation.Sequential)
             .Select(x => x * 100)
             .ToLiveList();
-
-        var t = Thread.CurrentThread.ManagedThreadId;
 
         subject.OnNext(1);
         subject.OnNext(2);

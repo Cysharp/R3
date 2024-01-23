@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Channels;
 
 namespace R3;
 
 public enum AwaitOperation
 {
-    Sequential, // TODO: -> Sequential
+    Sequential,
     Drop,
-    // TODO: Switch
-    Parallel
-    // TODO: SequentialParallel
+    Switch,
+    Parallel,
+    SequentialParallel
 }
 
 internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
@@ -17,6 +18,9 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
     readonly Channel<T> channel;
+    bool completed;
+
+    protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
     public AwaitOperationSequentialObserver(bool configureAwait)
     {
@@ -27,18 +31,32 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
         RunQueueWorker();
     }
 
-    protected override void OnNextCore(T value)
+    protected override sealed void OnNextCore(T value)
     {
         channel.Writer.TryWrite(value);
     }
 
-    protected override void DisposeCore()
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        Volatile.Write(ref completed, true);
+        channel.Writer.Complete(); // exit wait read loop
+    }
+
+    protected override sealed void DisposeCore()
     {
         channel.Writer.Complete(); // complete writing
         cancellationTokenSource.Cancel(); // stop selector await.
     }
 
     protected abstract ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnCompleted(Result result);
 
     async void RunQueueWorker() // don't(can't) wait so use async void
     {
@@ -55,8 +73,7 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
                     {
                         if (token.IsCancellationRequested) return;
 
-                        await OnNextAsync(item, token, configureAwait).ConfigureAwait(false);
-                        var t2 = Thread.CurrentThread.ManagedThreadId;
+                        await OnNextAsync(item, token, configureAwait).ConfigureAwait(false); // use (false)
                     }
                     catch (Exception ex)
                     {
@@ -67,6 +84,12 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
                         OnErrorResume(ex);
                     }
                 }
+            }
+
+            if (Volatile.Read(ref completed))
+            {
+                PublishOnCompleted(Result.Success);
+                Dispose();
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -80,7 +103,9 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
-    int runningState; // 0 = stopped, 1 = running
+    int runningState; // 0 = stopped, 1 = running, 2 = complete
+
+    protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
     public AwaitOperationDropObserver(bool configureAwait)
     {
@@ -88,7 +113,7 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
         this.configureAwait = configureAwait;
     }
 
-    protected override void OnNextCore(T value)
+    protected override sealed void OnNextCore(T value)
     {
         if (Interlocked.CompareExchange(ref runningState, 1, 0) == 0)
         {
@@ -96,12 +121,28 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
         }
     }
 
-    protected override void DisposeCore()
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        if (Interlocked.Exchange(ref runningState, 2) == 0)
+        {
+            PublishOnCompleted(result);
+        }
+    }
+
+    protected override sealed void DisposeCore()
     {
         cancellationTokenSource.Cancel();
     }
 
     protected abstract ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnCompleted(Result result);
 
     async void StartAsync(T value)
     {
@@ -119,7 +160,111 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
         }
         finally
         {
-            Interlocked.Exchange(ref runningState, 0);
+            if (Interlocked.CompareExchange(ref runningState, 0, 1) == 2)
+            {
+                PublishOnCompleted(Result.Success);
+            }
+        }
+    }
+}
+
+internal abstract class AwaitOperationSwitchObserver<T> : Observer<T>
+{
+    CancellationTokenSource cancellationTokenSource;
+    readonly bool configureAwait; // continueOnCapturedContext
+    readonly object gate = new object();
+    bool running;
+    bool completed;
+
+    protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
+
+    public AwaitOperationSwitchObserver(bool configureAwait)
+    {
+        this.cancellationTokenSource = new CancellationTokenSource();
+        this.configureAwait = configureAwait;
+    }
+
+    protected override sealed void OnNextCore(T value)
+    {
+        CancellationToken token = cancellationTokenSource.Token;
+        lock (gate)
+        {
+            if (running)
+            {
+                if (IsDisposed) return;
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource = new CancellationTokenSource();
+                token = cancellationTokenSource.Token;
+            }
+            running = true;
+        }
+
+        StartAsync(value, token);
+    }
+
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        lock (gate)
+        {
+            if (running)
+            {
+                completed = true;
+            }
+            else
+            {
+                PublishOnCompleted(result);
+                Dispose();
+                return;
+            }
+        }
+    }
+
+    protected override void DisposeCore()
+    {
+        lock (gate)
+        {
+            cancellationTokenSource.Cancel();
+        }
+    }
+
+    protected abstract ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnCompleted(Result result);
+
+    async void StartAsync(T value, CancellationToken token)
+    {
+        try
+        {
+            await OnNextAsync(value, token, configureAwait).ConfigureAwait(configureAwait);
+        }
+        catch (Exception ex)
+        {
+            if (ex is OperationCanceledException)
+            {
+                return;
+            }
+            OnErrorResume(ex);
+        }
+        finally
+        {
+            lock (gate)
+            {
+                if (!token.IsCancellationRequested)
+                {
+                    running = false;
+                    if (completed)
+                    {
+                        PublishOnCompleted(Result.Success);
+                        Dispose();
+                    }
+                }
+            }
         }
     }
 }
@@ -130,15 +275,38 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
     readonly bool configureAwait; // continueOnCapturedContext
     protected readonly object gate = new object(); // need to use gate.
 
+    protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
+    int runningCount = 0;
+    bool completed;
+
     public AwaitOperationParallelObserver(bool configureAwait)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
     }
 
-    protected override void OnNextCore(T value)
+    protected override sealed void OnNextCore(T value)
     {
+        Interlocked.Increment(ref runningCount);
         StartAsync(value);
+    }
+
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        Volatile.Write(ref completed, true);
+        if (Volatile.Read(ref runningCount) == 0)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
     }
 
     protected override void DisposeCore()
@@ -147,6 +315,7 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
     }
 
     protected abstract ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnCompleted(Result result);
 
     async void StartAsync(T value)
     {
@@ -162,73 +331,102 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
             }
             OnErrorResume(ex);
         }
+        finally
+        {
+            if (Interlocked.Decrement(ref runningCount) == 0 && Volatile.Read(ref completed))
+            {
+                PublishOnCompleted(Result.Success);
+                Dispose();
+            }
+        }
     }
 }
 
-// TODO:...
-//sealed class SelectAwaitSwitch : Observer<T>
-//{
-//    readonly Observer<TResult> observer;
-//    readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
-//    CancellationTokenSource cancellationTokenSource;
-//    readonly bool configureAwait; // continueOnCapturedContext
+internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> : Observer<T>
+{
+    readonly CancellationTokenSource cancellationTokenSource;
+    readonly bool configureAwait; // continueOnCapturedContext
+    readonly Channel<ValueTask<TTaskValue>> channel;
+    bool completed;
 
-//    int runningState; // 0 = stopped, 1 = running
+    protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-//    public SelectAwaitSwitch(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-//    {
-//        this.observer = observer;
-//        this.selector = selector;
-//        this.cancellationTokenSource = new CancellationTokenSource();
-//        this.configureAwait = configureAwait;
-//    }
+    public AwaitOperationSequentialParallelObserver(bool configureAwait)
+    {
+        this.cancellationTokenSource = new CancellationTokenSource();
+        this.configureAwait = configureAwait;
+        this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<ValueTask<TTaskValue>>();
 
-//    protected override void OnNextCore(T value)
-//    {
-//        CancellationToken cancellationToken = cancellationTokenSource.Token;
-//        if (Interlocked.CompareExchange(ref runningState, 1, 0) == 1)
-//        {
-//            cancellationTokenSource.Cancel();
-//            cancellationTokenSource = new CancellationTokenSource();
-//            cancellationToken = cancellationTokenSource.Token;
+        RunQueueWorker();
+    }
 
-//        }
-//        StartAsync(value, cancellationToken);
-//    }
+    protected override sealed void OnNextCore(T value)
+    {
+        var task = OnNextTaskAsync(value, cancellationTokenSource.Token, configureAwait);
+        channel.Writer.TryWrite(task);
+    }
 
-//    protected override void OnErrorResumeCore(Exception error)
-//    {
-//        observer.OnErrorResume(error);
-//    }
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
 
-//    protected override void OnCompletedCore(Result result)
-//    {
-//        observer.OnCompleted(result);
-//    }
+        Volatile.Write(ref completed, true);
+        channel.Writer.Complete(); // exit wait read loop
+    }
 
-//    protected override void DisposeCore()
-//    {
-//        cancellationTokenSource.Cancel();
-//    }
+    protected override sealed void DisposeCore()
+    {
+        channel.Writer.Complete(); // complete writing
+        cancellationTokenSource.Cancel(); // stop selector await.
+    }
 
-//    async void StartAsync(T value, CancellationToken token)
-//    {
-//        try
-//        {
-//            var v = await selector(value, token).ConfigureAwait(configureAwait);
-//            observer.OnNext(v);
-//        }
-//        catch (Exception ex)
-//        {
-//            if (ex is OperationCanceledException)
-//            {
-//                return;
-//            }
-//            observer.OnErrorResume(ex);
-//        }
-//        finally
-//        {
-//            Interlocked.Exchange(ref runningState, 0);
-//        }
-//    }
-//}
+    protected abstract ValueTask<TTaskValue> OnNextTaskAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnNext(TTaskValue result);
+    protected abstract void PublishOnCompleted(Result result);
+
+    async void RunQueueWorker() // don't(can't) wait so use async void
+    {
+        var reader = channel.Reader;
+        var token = cancellationTokenSource.Token;
+
+        try
+        {
+            while (await reader.WaitToReadAsync(/* don't pass CancellationToken, uses WriterComplete */).ConfigureAwait(configureAwait))
+            {
+                while (reader.TryRead(out var item))
+                {
+                    try
+                    {
+                        if (token.IsCancellationRequested) return;
+
+                        var result = await item.ConfigureAwait(false); // (false)
+                        PublishOnNext(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is OperationCanceledException)
+                        {
+                            return;
+                        }
+                        OnErrorResume(ex);
+                    }
+                }
+            }
+
+            if (Volatile.Read(ref completed))
+            {
+                PublishOnCompleted(Result.Success);
+                Dispose();
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+        }
+    }
+}

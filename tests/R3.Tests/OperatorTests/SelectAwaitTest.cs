@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace R3.Tests.OperatorTests;
 
+// TODO: OnCompleted test
+
 public class SelectAwaitTest
 {
     [Fact]
-    public void Queue()
+    public void Sequential()
     {
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
@@ -53,7 +55,7 @@ public class SelectAwaitTest
     }
 
     [Fact]
-    public async Task QueueCancel()
+    public async Task SequentialCancel()
     {
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
