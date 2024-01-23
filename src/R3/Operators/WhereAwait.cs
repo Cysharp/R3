@@ -1,54 +1,55 @@
-﻿using System.Threading.Channels;
+﻿using System.Runtime.CompilerServices;
+using System.Threading.Channels;
 
 namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperations awaitOperations = AwaitOperations.Queue, bool configureAwait = true)
+    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true)
     {
         return new WhereAwait<T>(source, predicate, awaitOperations, configureAwait);
     }
 }
 
-internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperations awaitOperations, bool configureAwait) : Observable<T>
+internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations, bool configureAwait) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         switch (awaitOperations)
         {
-            case AwaitOperations.Queue:
-                return source.Subscribe(new WhereAwaitQueue(observer, predicate, configureAwait));
-            case AwaitOperations.Drop:
+            case AwaitOperation.Sequential:
+                return source.Subscribe(new WhereAwaitSequential(observer, predicate, configureAwait));
+            case AwaitOperation.Drop:
                 return source.Subscribe(new WhereAwaitDrop(observer, predicate, configureAwait));
-            case AwaitOperations.Parallel:
+            case AwaitOperation.Parallel:
                 return source.Subscribe(new WhereAwaitParallel(observer, predicate, configureAwait));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class WhereAwaitQueue : Observer<T>
+    sealed class WhereAwaitSequential : AwaitOperationSequentialObserver<T>
     {
         readonly Observer<T> observer;
         readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
-        readonly CancellationTokenSource cancellationTokenSource;
-        readonly bool configureAwait; // continueOnCapturedContext
-        readonly Channel<T> channel;
 
-        public WhereAwaitQueue(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        public WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+            : base(configureAwait)
         {
             this.observer = observer;
             this.predicate = predicate;
-            this.cancellationTokenSource = new CancellationTokenSource();
-            this.configureAwait = configureAwait;
-            this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<T>();
-
-            RunQueueWorker(); // start reader loop
         }
 
-        protected override void OnNextCore(T value)
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
         {
-            channel.Writer.TryWrite(value);
+            if (await predicate(value, cancellationToken).ConfigureAwait(configureAwait))
+            {
+                observer.OnNext(value);
+                var t2 = Thread.CurrentThread.ManagedThreadId;
+            }
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -59,75 +60,29 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         protected override void OnCompletedCore(Result result)
         {
             observer.OnCompleted(result);
-        }
-
-        protected override void DisposeCore()
-        {
-            channel.Writer.Complete(); // complete writing
-            cancellationTokenSource.Cancel(); // stop selector await.
-        }
-
-        async void RunQueueWorker() // don't(can't) wait so use async void
-        {
-            var reader = channel.Reader;
-            var token = cancellationTokenSource.Token;
-
-            try
-            {
-                while (await reader.WaitToReadAsync(/* don't pass CancellationToken, uses WriterComplete */).ConfigureAwait(configureAwait))
-                {
-                    while (reader.TryRead(out var item))
-                    {
-                        try
-                        {
-                            if (token.IsCancellationRequested) return;
-
-                            var result = await predicate(item, token).ConfigureAwait(configureAwait);
-                            if (result)
-                            {
-                                observer.OnNext(item);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (ex is OperationCanceledException)
-                            {
-                                return;
-                            }
-                            observer.OnErrorResume(ex);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
-            }
         }
     }
 
-    sealed class WhereAwaitDrop : Observer<T>
+    sealed class WhereAwaitDrop : AwaitOperationDropObserver<T>
     {
         readonly Observer<T> observer;
         readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
-        readonly CancellationTokenSource cancellationTokenSource;
-        readonly bool configureAwait; // continueOnCapturedContext
-
-        int runningState; // 0 = stopped, 1 = running
 
         public WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+            : base(configureAwait)
         {
             this.observer = observer;
             this.predicate = predicate;
-            this.cancellationTokenSource = new CancellationTokenSource();
-            this.configureAwait = configureAwait;
         }
 
-        protected override void OnNextCore(T value)
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
         {
-            if (Interlocked.CompareExchange(ref runningState, 1, 0) == 0)
+            if (await predicate(value, cancellationToken).ConfigureAwait(configureAwait))
             {
-                StartAsync(value);
+                observer.OnNext(value);
             }
         }
 
@@ -140,56 +95,32 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         {
             observer.OnCompleted(result);
         }
+    }
 
-        protected override void DisposeCore()
+    sealed class WhereAwaitParallel : AwaitOperationParallelObserver<T>
+    {
+        readonly Observer<T> observer;
+        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
+
+        public WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+            : base(configureAwait)
         {
-            cancellationTokenSource.Cancel();
+            this.observer = observer;
+            this.predicate = predicate;
         }
 
-        async void StartAsync(T value)
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
         {
-            try
+            if (await predicate(value, cancellationToken).ConfigureAwait(configureAwait))
             {
-                var result = await predicate(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
-                if (result)
+                lock (gate)
                 {
                     observer.OnNext(value);
                 }
             }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    return;
-                }
-                observer.OnErrorResume(ex);
-            }
-            finally
-            {
-                Interlocked.Exchange(ref runningState, 0);
-            }
-        }
-    }
-
-    sealed class WhereAwaitParallel : Observer<T>
-    {
-        readonly Observer<T> observer;
-        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
-        readonly CancellationTokenSource cancellationTokenSource;
-        readonly bool configureAwait; // continueOnCapturedContext
-        readonly object gate = new object();
-
-        public WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        {
-            this.observer = observer;
-            this.predicate = predicate;
-            this.cancellationTokenSource = new CancellationTokenSource();
-            this.configureAwait = configureAwait;
-        }
-
-        protected override void OnNextCore(T value)
-        {
-            StartAsync(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -202,37 +133,9 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
 
         protected override void OnCompletedCore(Result result)
         {
-            observer.OnCompleted(result);
-        }
-
-        protected override void DisposeCore()
-        {
-            cancellationTokenSource.Cancel();
-        }
-
-        async void StartAsync(T value)
-        {
-            try
+            lock (gate)
             {
-                var result = await predicate(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
-                if (result)
-                {
-                    lock (gate)
-                    {
-                        observer.OnNext(value);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    return;
-                }
-                lock (gate)
-                {
-                    observer.OnErrorResume(ex);
-                }
+                observer.OnCompleted(result);
             }
         }
     }

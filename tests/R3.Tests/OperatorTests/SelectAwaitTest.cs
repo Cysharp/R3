@@ -19,7 +19,7 @@ public class SelectAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x * 100;
-            }, AwaitOperations.Queue)
+            }, AwaitOperation.Sequential)
             .ToLiveList();
 
         subject.OnNext(1);
@@ -31,6 +31,7 @@ public class SelectAwaitTest
         liveList.AssertEqual([]);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(2);
@@ -39,9 +40,11 @@ public class SelectAwaitTest
         subject.OnNext(3);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 200]);
 
         timeProvider.Advance(3);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 200, 300]);
 
         subject.OnCompleted();
@@ -69,7 +72,7 @@ public class SelectAwaitTest
                     canceled = true;
                     throw;
                 }
-            }, AwaitOperations.Queue)
+            }, AwaitOperation.Sequential)
             .ToLiveList();
 
         subject.OnNext(1);
@@ -100,7 +103,7 @@ public class SelectAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x * 100;
-            }, AwaitOperations.Drop)
+            }, AwaitOperation.Drop)
             .ToLiveList();
 
         subject.OnNext(1);
@@ -112,6 +115,7 @@ public class SelectAwaitTest
         liveList.AssertEqual([]);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(2);
@@ -123,6 +127,7 @@ public class SelectAwaitTest
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(2);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 300]);
 
         subject.OnCompleted();
@@ -150,7 +155,7 @@ public class SelectAwaitTest
                     canceled = true;
                     throw;
                 }
-            }, AwaitOperations.Drop)
+            }, AwaitOperation.Drop)
             .ToLiveList();
 
         subject.OnNext(1);
@@ -162,9 +167,11 @@ public class SelectAwaitTest
         liveList.AssertEqual([]);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(2);
+        Thread.Sleep(100);
         liveList.AssertEqual([100]);
 
         subject.OnNext(3);
@@ -189,7 +196,7 @@ public class SelectAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x * 100;
-            }, AwaitOperations.Parallel)
+            }, AwaitOperation.Parallel)
             .ToLiveList();
 
         subject.OnNext(1);
@@ -239,7 +246,7 @@ public class SelectAwaitTest
                     canceled = true;
                     throw;
                 }
-            }, AwaitOperations.Parallel)
+            }, AwaitOperation.Parallel)
             .ToLiveList();
 
         subject.OnNext(1);

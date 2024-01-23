@@ -18,10 +18,15 @@ public class WhereAwaitTest
             .WhereAwait(async (x, ct) =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
+
+
+                var t2 = Thread.CurrentThread.ManagedThreadId;
                 return x % 2 != 0;
-            }, AwaitOperations.Queue)
+            }, AwaitOperation.Sequential)
             .Select(x => x * 100)
             .ToLiveList();
+
+        var t = Thread.CurrentThread.ManagedThreadId;
 
         subject.OnNext(1);
         subject.OnNext(2);
@@ -61,7 +66,7 @@ public class WhereAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x % 2 != 0;
-            }, AwaitOperations.Drop)
+            }, AwaitOperation.Drop)
             .Select(x => x * 100)
             .ToLiveList();
 
@@ -74,6 +79,7 @@ public class WhereAwaitTest
         liveList.AssertEqual([]);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(2);
@@ -87,6 +93,7 @@ public class WhereAwaitTest
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(2);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 300]);
 
         subject.OnCompleted();
@@ -105,7 +112,7 @@ public class WhereAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x % 2 != 0;
-            }, AwaitOperations.Parallel)
+            }, AwaitOperation.Parallel)
             .Select(x => x * 100)
             .ToLiveList();
 
@@ -119,6 +126,7 @@ public class WhereAwaitTest
         liveList.AssertEqual([]);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 300]);
 
         timeProvider.Advance(2);
@@ -128,9 +136,11 @@ public class WhereAwaitTest
         subject.OnNext(5);
 
         timeProvider.Advance(1);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 300]);
 
         timeProvider.Advance(2);
+        Thread.Sleep(100);
         liveList.AssertEqual([100, 300, 500]);
 
         subject.OnCompleted();

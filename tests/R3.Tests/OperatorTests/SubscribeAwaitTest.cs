@@ -20,7 +20,7 @@ public class SubscribeAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 liveList.Add(x * 100);
-            }, AwaitOperations.Queue);
+            }, AwaitOperation.Sequential);
 
         subject.OnNext(1);
         subject.OnNext(2);
@@ -59,7 +59,7 @@ public class SubscribeAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 liveList.Add(x * 100);
-            }, AwaitOperations.Drop);
+            }, AwaitOperation.Drop);
 
         subject.OnNext(1);
         subject.OnNext(2);
@@ -98,7 +98,7 @@ public class SubscribeAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 liveList.Add(x * 100);
-            }, AwaitOperations.Parallel);
+            }, AwaitOperation.Parallel);
 
         subject.OnNext(1);
         subject.OnNext(2);
