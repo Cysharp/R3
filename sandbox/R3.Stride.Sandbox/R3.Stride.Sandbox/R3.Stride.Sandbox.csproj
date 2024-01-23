@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stride.Engine" Version="4.2.0.2067" />
+
+    <PackageReference Include="Stride.Video" Version="4.2.0.2067" />
+    <PackageReference Include="Stride.Physics" Version="4.2.0.2067" />
+    <PackageReference Include="Stride.Navigation" Version="4.2.0.2067" />
+    <PackageReference Include="Stride.Particles" Version="4.2.0.2067" />
+    <PackageReference Include="Stride.UI" Version="4.2.0.2067" />
+
+    <PackageReference Include="Stride.Core.Assets.CompilerApp" Version="4.2.0.2067" IncludeAssets="build;buildTransitive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\R3.Stride\R3.Stride.csproj" />
+  </ItemGroup>
+</Project>
