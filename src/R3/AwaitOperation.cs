@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 
 namespace R3;
 
@@ -73,7 +71,7 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
                     {
                         if (token.IsCancellationRequested) return;
 
-                        await OnNextAsync(item, token, configureAwait).ConfigureAwait(false); // use (false)
+                        await OnNextAsync(item, token, configureAwait).ConfigureAwait(configureAwait);
                     }
                     catch (Exception ex)
                     {
@@ -404,7 +402,7 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
                     {
                         if (token.IsCancellationRequested) return;
 
-                        var result = await item.ConfigureAwait(false); // (false)
+                        var result = await item.ConfigureAwait(configureAwait);
                         PublishOnNext(result);
                     }
                     catch (Exception ex)

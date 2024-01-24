@@ -4,17 +4,17 @@ namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true)
+    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
     {
         return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult, awaitOperations, configureAwait);
     }
 
-    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true)
+    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
     {
         return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted, awaitOperations, configureAwait);
     }
 
-    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true)
+    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
     {
         switch (awaitOperations)
         {
@@ -54,7 +54,7 @@ internal sealed class SubscribeAwaitSequential<T> : AwaitOperationSequentialObse
         onErrorResume(error);
     }
 
-    protected override void OnCompletedCore(Result result)
+    protected override void PublishOnCompleted(Result result)
     {
         onCompleted(result);
     }
@@ -84,7 +84,7 @@ internal sealed class SubscribeAwaitDrop<T> : AwaitOperationDropObserver<T>
         onErrorResume(error);
     }
 
-    protected override void OnCompletedCore(Result result)
+    protected override void PublishOnCompleted(Result result)
     {
         onCompleted(result);
     }
@@ -117,7 +117,7 @@ sealed class SubscribeAwaitParallel<T> : AwaitOperationParallelObserver<T>
         }
     }
 
-    protected override void OnCompletedCore(Result result)
+    protected override void PublishOnCompleted(Result result)
     {
         lock (gate)
         {

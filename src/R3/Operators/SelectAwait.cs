@@ -4,7 +4,7 @@ namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true)
+    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
     {
         return new SelectAwait<T, TResult>(source, selector, awaitOperations, configureAwait);
     }
@@ -53,7 +53,7 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
             observer.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result result)
+        protected override void PublishOnCompleted(Result result)
         {
             observer.OnCompleted(result);
         }
@@ -85,7 +85,7 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
             observer.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result result)
+        protected override void PublishOnCompleted(Result result)
         {
             observer.OnCompleted(result);
         }
@@ -123,7 +123,7 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
             }
         }
 
-        protected override void OnCompletedCore(Result result)
+        protected override void PublishOnCompleted(Result result)
         {
             lock (gate)
             {

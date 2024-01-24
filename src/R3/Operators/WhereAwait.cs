@@ -5,7 +5,7 @@ namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true)
+    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
     {
         return new WhereAwait<T>(source, predicate, awaitOperations, configureAwait);
     }
@@ -90,7 +90,7 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
             observer.OnErrorResume(error);
         }
 
-        protected override void OnCompletedCore(Result result)
+        protected override void PublishOnCompleted(Result result)
         {
             observer.OnCompleted(result);
         }
@@ -130,7 +130,7 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
             }
         }
 
-        protected override void OnCompletedCore(Result result)
+        protected override void PublishOnCompleted(Result result)
         {
             lock (gate)
             {

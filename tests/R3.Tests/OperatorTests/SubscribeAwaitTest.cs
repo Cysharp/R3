@@ -11,6 +11,8 @@ public class SubscribeAwaitTest
     [Fact]
     public void Queue()
     {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
 
@@ -50,6 +52,8 @@ public class SubscribeAwaitTest
     [Fact]
     public void Drop()
     {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
 
@@ -89,6 +93,8 @@ public class SubscribeAwaitTest
     [Fact]
     public void Parallel()
     {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
 

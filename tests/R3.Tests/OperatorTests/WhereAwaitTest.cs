@@ -11,6 +11,8 @@ public class WhereAwaitTest
     [Fact]
     public void Queue()
     {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
 
@@ -53,6 +55,8 @@ public class WhereAwaitTest
     [Fact]
     public void Drop()
     {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
 
@@ -99,6 +103,8 @@ public class WhereAwaitTest
     [Fact]
     public void Parallel()
     {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
         var subject = new Subject<int>();
         var timeProvider = new FakeTimeProvider();
 
@@ -121,7 +127,6 @@ public class WhereAwaitTest
         liveList.AssertEqual([]);
 
         timeProvider.Advance(1);
-        Thread.Sleep(100);
         liveList.AssertEqual([100, 300]);
 
         timeProvider.Advance(2);
@@ -131,11 +136,9 @@ public class WhereAwaitTest
         subject.OnNext(5);
 
         timeProvider.Advance(1);
-        Thread.Sleep(100);
         liveList.AssertEqual([100, 300]);
 
         timeProvider.Advance(2);
-        Thread.Sleep(100);
         liveList.AssertEqual([100, 300, 500]);
 
         subject.OnCompleted();
