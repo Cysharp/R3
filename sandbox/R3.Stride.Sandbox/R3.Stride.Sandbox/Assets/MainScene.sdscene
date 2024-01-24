@@ -12,6 +12,7 @@ Hierarchy:
         - ref!! 25485e52-f98a-4419-9f5e-959e03f849e2
         - ref!! 56cd9852-d94c-4646-a513-85195ea3fe9b
         - ref!! b7806d41-f54f-4e99-9ec7-f9906f10b006
+        - ref!! 787562e5-0943-4493-85ce-6b0bd2abf47f
     Parts:
         -   Entity:
                 Id: 016064cc-d022-441a-9402-adc01926f5c6
@@ -98,6 +99,23 @@ Hierarchy:
                         Id: 23038a97-6ad0-4e11-8712-50906e169a0c
                         Type: !LightSkybox
                             Skybox: cc072fe6-0abf-46fb-95bf-5540a7d4f27e:Skybox
+        -   Entity:
+                Id: 787562e5-0943-4493-85ce-6b0bd2abf47f
+                Name: Page
+                Components:
+                    69688e41ad4fc6c8c7553ad9b3ae308d: !TransformComponent
+                        Id: 582a84b3-3afc-4891-91dd-13e490fd3742
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    0eaf59c11adc3bd9d5839f7e9fc16ba1: !UIComponent
+                        Id: 5c15a432-0feb-4c90-acd1-53dfc198cd46
+                        Page: 6130ab8f-e04d-4b0e-99c1-8fd197f5d1e7:Page
+                        Resolution: {X: 1280.0, Y: 720.0, Z: 1000.0}
+                        Size: {X: 1.28, Y: 0.72, Z: 1.0}
+                    87d8cfc0f2480a8c80ec5245c6710d2f: !R3.Stride.Sandbox.UIExtensionTest,R3.Stride.Sandbox
+                        Id: 65687212-b652-4f3f-a61a-f3320cc3e1e6
         -   Entity:
                 Id: b7806d41-f54f-4e99-9ec7-f9906f10b006
                 Name: Entity

@@ -10,7 +10,7 @@ using Stride.UI.Events;
 using Vortice.Vulkan;
 
 namespace R3;
-public static class StrideR3UIExtension
+public static class R3StrideUIExtension
 {
     // UIElement
     public static Observable<(object? sender, PropertyChangedArgs<MouseOverState> arg)> MouseOverStateChangedAsObservable(this UIElement element, CancellationToken token = default)
