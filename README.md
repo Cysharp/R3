@@ -680,9 +680,9 @@ Add support planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](ht
 
 ### WPF
 
-> PM> Install-Package [R3.WPF](https://www.nuget.org/packages/R3.WPF)
+> PM> Install-Package [R3Extensions.WPF](https://www.nuget.org/packages/R3Extensions.WPF)
 
-R3.WPF package has two providers.
+R3Extensions.WPF package has two providers.
 
 * WpfDispatcherTimerProvider
 * WpfRenderingFrameProvider
@@ -739,9 +739,9 @@ ViewModel binding support, see [`BindableReactiveProperty<T>`](#xaml-platformsbi
 
 ### Avalonia
 
-> PM> Install-Package [R3.Avalonia](https://www.nuget.org/packages/R3.Avalonia)
+> PM> Install-Package [R3Extensions.Avalonia](https://www.nuget.org/packages/R3Extensions.Avalonia)
 
-R3.Avalonia package has these providers.
+R3Extensions.Avalonia package has these providers.
 
 * AvaloniaDispatcherTimerProvider
 * AvaloniaDispatcherFrameProvider
@@ -809,9 +809,9 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 
 ### WinForms
 
-> PM> Install-Package [R3.WinForms](https://www.nuget.org/packages/R3.WinForms)
+> PM> Install-Package [R3Extensions.WinForms](https://www.nuget.org/packages/R3Extensions.WinForms)
 
-R3.WinForms package has these providers.
+R3Extensions.WinForms package has these providers.
 
 * WinFormsFrameProvider
 * WinFormsTimerProvider

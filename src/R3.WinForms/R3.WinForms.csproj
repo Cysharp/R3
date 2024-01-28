@@ -7,6 +7,11 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
+
+        <!-- NuGet Packaging -->
+        <PackageId>R3Extensions.WinForms</PackageId>
+        <PackageTags>rx</PackageTags>
+        <Description>WinForms Provider and Methods for R3.</Description>
     </PropertyGroup>
     <ItemGroup>
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
