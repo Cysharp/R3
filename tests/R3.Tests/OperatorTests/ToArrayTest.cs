@@ -1,13 +1,13 @@
 ﻿namespace R3.Tests.OperatorTests;
 
-public class ToListTest
+public class ToArrayTest
 {
     [Fact]
-    public async Task ToList()
+    public async Task Complete()
     {
         var publisher = new Subject<int>();
 
-        var listTask = publisher.ToListAsync();
+        var listTask = publisher.ToArrayAsync();
 
         publisher.OnNext(1);
         publisher.OnNext(2);
@@ -27,7 +27,7 @@ public class ToListTest
     {
         var publisher = new Subject<int>();
 
-        var listTask = publisher.ToListAsync();
+        var listTask = publisher.ToArrayAsync();
 
         publisher.OnNext(1);
         publisher.OnNext(2);
@@ -50,7 +50,7 @@ public class ToListTest
 
         var publisher = new Subject<int>();
 
-        var listTask = publisher.Do(onDispose: () => isDisposed = true).ToListAsync(cts.Token);
+        var listTask = publisher.Do(onDispose: () => isDisposed = true).ToArrayAsync(cts.Token);
 
         publisher.OnNext(1);
         publisher.OnNext(2);
