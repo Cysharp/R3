@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../R3/R3.csproj" />
+    <PackageReference Include="Stride.Engine" Version="4.2.0.2067" PrivateAssets="contentfiles;analyzers" />
+
+    <PackageReference Include="Stride.Core" Version="4.2.0.2067" PrivateAssets="contentfiles;analyzers" />
+
+    <PackageReference Include="Stride.Core.Assets.CompilerApp" Version="4.2.0.2067" PrivateAssets="contentfiles;analyzers" IncludeAssets="build" />
+
+    <PackageReference Include="Stride.UI" Version="4.2.0.2067" PrivateAssets="contentFiles;analyzers" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>
