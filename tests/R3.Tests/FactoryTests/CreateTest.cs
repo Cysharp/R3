@@ -1,4 +1,6 @@
-﻿namespace R3.Tests.FactoryTests;
+﻿using System.Runtime.CompilerServices;
+
+namespace R3.Tests.FactoryTests;
 
 public class CreateTest
 {
@@ -130,5 +132,69 @@ public class CreateTest
         list.AssertEqual([1]);
         list.Dispose();
         gate.Task.Status.Should().Be(TaskStatus.Canceled);
+    }
+
+    [Fact]
+    public void CreateFrom()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var gate = new TaskCompletionSource();
+
+        var source = Observable.CreateFrom(Seq);
+
+        using var list = source.ToLiveList();
+        list.AssertEqual([1]);
+        gate.SetResult();
+        list.AssertEqual([1, 10]);
+
+        async IAsyncEnumerable<int> Seq([EnumeratorCancellation] CancellationToken ct)
+        {
+            yield return 1;
+            await gate!.Task;
+            yield return 10;
+        }
+    }
+
+    [Fact]
+    public void CreateFromCancel()
+    {
+        var tp = new FakeTimeProvider();
+
+        var source = Observable.CreateFrom(Seq);
+
+        using var list = source.ToLiveList();
+        list.AssertEqual([1]);
+
+        list.Dispose();
+
+        async IAsyncEnumerable<int> Seq([EnumeratorCancellation] CancellationToken ct)
+        {
+            yield return 1;
+            await Task.Delay(TimeSpan.FromSeconds(1), tp, ct);
+            yield return 10;
+        }
+    }
+
+    [Fact]
+    public void CreateFromError()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var gate = new TaskCompletionSource();
+
+        var source = Observable.CreateFrom(Seq);
+
+        using var list = source.ToLiveList();
+        list.AssertEqual([1]);
+        gate.SetException(new Exception("foo"));
+        list.Result!.Exception!.Message.Should().Be("foo");
+
+        async IAsyncEnumerable<int> Seq([EnumeratorCancellation] CancellationToken ct)
+        {
+            yield return 1;
+            await gate!.Task;
+            yield return 10;
+        }
     }
 }

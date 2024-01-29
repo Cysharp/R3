@@ -25,8 +25,15 @@ Console.WriteLine("hello");
 
 Observable.Create<int>(observer =>
 {
-    observer.OnNext(10);
+    observer.OnNext(1);
+
     return Disposable.Empty;
+});
+
+Observable.Create<int>(async (observer, ct) =>
+{
+    observer.OnNext(1);
+    await Task.Delay(1000, ct);
 });
 
 Observable.CreateFrom(Gen);
