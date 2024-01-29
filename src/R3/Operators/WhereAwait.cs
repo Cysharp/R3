@@ -23,22 +23,17 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
                 return source.Subscribe(new WhereAwaitDrop(observer, predicate, configureAwait));
             case AwaitOperation.Parallel:
                 return source.Subscribe(new WhereAwaitParallel(observer, predicate, configureAwait));
+            case AwaitOperation.Switch:
+                return source.Subscribe(new WhereAwaitSwitch(observer, predicate, configureAwait));
+            case AwaitOperation.SequentialParallel:
+                return source.Subscribe(new WhereAwaitSequentialParallel(observer, predicate, configureAwait));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class WhereAwaitSequential : AwaitOperationSequentialObserver<T>
+    sealed class WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait) : AwaitOperationSequentialObserver<T>(configureAwait)
     {
-        readonly Observer<T> observer;
-        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
-
-        public WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-            : base(configureAwait)
-        {
-            this.observer = observer;
-            this.predicate = predicate;
-        }
 
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -62,17 +57,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitDrop : AwaitOperationDropObserver<T>
+    sealed class WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait) : AwaitOperationDropObserver<T>(configureAwait)
     {
-        readonly Observer<T> observer;
-        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
-
-        public WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-            : base(configureAwait)
-        {
-            this.observer = observer;
-            this.predicate = predicate;
-        }
 
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -96,17 +82,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitParallel : AwaitOperationParallelObserver<T>
+    sealed class WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait) : AwaitOperationParallelObserver<T>(configureAwait)
     {
-        readonly Observer<T> observer;
-        readonly Func<T, CancellationToken, ValueTask<bool>> predicate;
-
-        public WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-            : base(configureAwait)
-        {
-            this.observer = observer;
-            this.predicate = predicate;
-        }
 
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -136,6 +113,72 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
             {
                 observer.OnCompleted(result);
             }
+        }
+    }
+
+    sealed class WhereAwaitSwitch(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        : AwaitOperationSwitchObserver<T>(configureAwait)
+    {
+
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+        {
+            if (await predicate(value, cancellationToken).ConfigureAwait(configureAwait))
+            {
+                lock (gate)
+                {
+                    observer.OnNext(value);
+                }
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            lock (gate)
+            {
+                observer.OnErrorResume(error);
+            }
+        }
+
+        protected override void PublishOnCompleted(Result result)
+        {
+            lock (gate)
+            {
+                observer.OnCompleted(result);
+            }
+        }
+    }
+
+    sealed class WhereAwaitSequentialParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        : AwaitOperationSequentialParallelObserver<T, bool>(configureAwait)
+    {
+
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override ValueTask<bool> OnNextTaskAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+        {
+            return predicate(value, cancellationToken);
+        }
+
+        protected override void PublishOnNext(T value, bool result)
+        {
+            if (result)
+            {
+                observer.OnNext(value);
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void PublishOnCompleted(Result result)
+        {
+            observer.OnCompleted(result);
         }
     }
 }

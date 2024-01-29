@@ -22,23 +22,18 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
                 return source.Subscribe(new SelectAwaitDrop(observer, selector, configureAwait));
             case AwaitOperation.Parallel:
                 return source.Subscribe(new SelectAwaitParallel(observer, selector, configureAwait));
+            case AwaitOperation.Switch:
+                return source.Subscribe(new SelectAwaitSwitch(observer, selector, configureAwait));
+            case AwaitOperation.SequentialParallel:
+                return source.Subscribe(new SelectAwaitSequentialParallel(observer, selector, configureAwait));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class SelectAwaitSequential : AwaitOperationSequentialObserver<T>
+    sealed class SelectAwaitSequential(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        : AwaitOperationSequentialObserver<T>(configureAwait)
     {
-        readonly Observer<TResult> observer;
-        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
-
-        public SelectAwaitSequential(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-            : base(configureAwait)
-        {
-            this.observer = observer;
-            this.selector = selector;
-        }
-
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
 #endif
@@ -59,18 +54,9 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitDrop : AwaitOperationDropObserver<T>
+    sealed class SelectAwaitDrop(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        : AwaitOperationDropObserver<T>(configureAwait)
     {
-        readonly Observer<TResult> observer;
-        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
-
-        public SelectAwaitDrop(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-            : base(configureAwait)
-        {
-            this.observer = observer;
-            this.selector = selector;
-        }
-
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
 #endif
@@ -91,17 +77,9 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitParallel : AwaitOperationParallelObserver<T>
+    sealed class SelectAwaitParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        : AwaitOperationParallelObserver<T>(configureAwait)
     {
-        readonly Observer<TResult> observer;
-        readonly Func<T, CancellationToken, ValueTask<TResult>> selector;
-
-        public SelectAwaitParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-            : base(configureAwait)
-        {
-            this.observer = observer;
-            this.selector = selector;
-        }
 
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -129,6 +107,64 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
             {
                 observer.OnCompleted(result);
             }
+        }
+    }
+
+
+    sealed class SelectAwaitSwitch(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        : AwaitOperationSwitchObserver<T>(configureAwait)
+    {
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            lock (gate)
+            {
+                observer.OnErrorResume(error);
+            }
+        }
+
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+        {
+            var v = await selector(value, cancellationToken).ConfigureAwait(configureAwait);
+            lock (gate)
+            {
+                observer.OnNext(v);
+            }
+        }
+
+        protected override void PublishOnCompleted(Result result)
+        {
+            lock (gate)
+            {
+                observer.OnCompleted(result);
+            }
+        }
+    }
+
+    sealed class SelectAwaitSequentialParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        : AwaitOperationSequentialParallelObserver<T, TResult>(configureAwait)
+    {
+
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override ValueTask<TResult> OnNextTaskAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+        {
+            return selector(value, cancellationToken);
+        }
+
+        protected override void PublishOnNext(T _, TResult result)
+        {
+            observer.OnNext(result);
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void PublishOnCompleted(Result result)
+        {
+            observer.OnCompleted(result);
         }
     }
 }
