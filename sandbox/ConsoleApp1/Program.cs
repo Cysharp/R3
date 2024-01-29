@@ -1,6 +1,6 @@
 ﻿using R3;
 using System.ComponentModel.DataAnnotations;
-using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 
 
 Console.WriteLine("hello");
@@ -20,3 +20,22 @@ Console.WriteLine("hello");
 
 
 //});
+
+
+
+Observable.Create<int>(observer =>
+{
+    observer.OnNext(10);
+    return Disposable.Empty;
+});
+
+Observable.CreateFrom(Gen);
+
+static async IAsyncEnumerable<int> Gen([EnumeratorCancellation] CancellationToken ct)
+{
+    yield return 1;
+    await Task.Delay(1000, ct);
+    yield return 2;
+    await Task.Delay(1000, ct);
+    yield return 3;
+}

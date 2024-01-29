@@ -55,7 +55,7 @@ internal sealed class TaskToObservable<T>(Task<T> task) : Observable<T>
     }
 }
 
-internal class EnumerableToObservable<T>(IEnumerable<T> source, CancellationToken cancellationToken) : Observable<T>
+internal sealed class EnumerableToObservable<T>(IEnumerable<T> source, CancellationToken cancellationToken) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
@@ -73,7 +73,7 @@ internal class EnumerableToObservable<T>(IEnumerable<T> source, CancellationToke
     }
 }
 
-internal class AsyncEnumerableToObservable<T>(IAsyncEnumerable<T> source) : Observable<T>
+internal sealed class AsyncEnumerableToObservable<T>(IAsyncEnumerable<T> source) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
@@ -104,7 +104,7 @@ internal class AsyncEnumerableToObservable<T>(IAsyncEnumerable<T> source) : Obse
     }
 }
 
-internal class IObservableToObservable<T>(IObservable<T> source) : Observable<T>
+internal sealed class IObservableToObservable<T>(IObservable<T> source) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
