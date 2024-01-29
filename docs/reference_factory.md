@@ -9,6 +9,10 @@
 | **Concat**(this `Observable<Observable<T>>` sources) | `Observable<T>` | 
 | **Create**(`Func<Observer<T>, IDisposable>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
 | **Create**(`TState` state, `Func<Observer<T>, TState, IDisposable>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
+| **Create**(`Func<Observer<T>, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
+| **Create**(`TState` state, `Func<Observer<T>, TState, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
+| **CreateFrom**(`Func<CancellationToken, IAsyncEnumerable<T>>` factory) | `Observable<T>` | 
+| **CreateFrom**(`TState` state, `Func<CancellationToken, TState, IAsyncEnumerable<T>>` factory) | `Observable<T>` | 
 | **Defer**(`Func<Observable<T>>` observableFactory) | `Observable<T>` | 
 | **Empty**() | `Observable<T>` | 
 | **Empty**(`TimeProvider` timeProvider) | `Observable<T>` | 
