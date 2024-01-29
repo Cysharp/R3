@@ -465,12 +465,13 @@ public enum AwaitOperation
 
 ```csharp
 // for example...
+// Drop enables prevention of execution by multiple clicks
 button.OnClickAsObservable()
     .SelectAwait(async (_, ct) =>
     {
         var req = await UnityWebRequest.Get("https://google.com/").SendWebRequest().WithCancellation(ct);
         return req.downloadHandler.text;
-    }, AwaitOperation.Switch)
+    }, AwaitOperation.Drop)
     .SubscribeToText(text);
 ```
 
