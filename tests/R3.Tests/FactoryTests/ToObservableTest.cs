@@ -82,6 +82,46 @@ public class ToObservableTest
         list.AssertEqual([1, 2, 3]);
     }
 
+    [Fact]
+    public async Task AsyncEnumerableToObservableCt()
+    {
+        var fakeTime = new FakeTimeProvider();
+        using var list = AsyncOne(fakeTime).ToObservable().ToLiveList();
+
+        list.AssertEqual([1]);
+
+        fakeTime.Advance(TimeSpan.FromSeconds(1));
+
+        await Task.Delay(1000);
+        await Task.Yield();
+        list.AssertEqual([1, 2]);
+
+        list.Dispose();
+    }
+
+    [Fact]
+    public async Task AsyncEnumerableToObservableEx()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var fakeTime = new FakeTimeProvider();
+        using var list = AsyncTwo(fakeTime).ToObservable().ToLiveList();
+
+        list.AssertEqual([1]);
+
+        fakeTime.Advance(TimeSpan.FromSeconds(1));
+
+        await Task.Delay(1000);
+        await Task.Yield();
+        list.AssertEqual([1, 2]);
+
+        list.AssertIsNotCompleted();
+        fakeTime.Advance(TimeSpan.FromSeconds(1));
+
+        list.Result.IsFailure.Should().BeTrue();
+        list.Result.Exception!.Message.Should().Be("foo");
+    }
+
     async IAsyncEnumerable<int> AsyncOne(TimeProvider timeProvider, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         yield return 1;
@@ -90,6 +130,15 @@ public class ToObservableTest
         await Task.Delay(TimeSpan.FromSeconds(1), timeProvider, cancellationToken);
         yield return 3;
         await Task.Delay(TimeSpan.FromSeconds(1), timeProvider, cancellationToken);
+    }
+
+    async IAsyncEnumerable<int> AsyncTwo(TimeProvider timeProvider, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        yield return 1;
+        await Task.Delay(TimeSpan.FromSeconds(1), timeProvider, cancellationToken);
+        yield return 2;
+        await Task.Delay(TimeSpan.FromSeconds(1), timeProvider, cancellationToken);
+        throw new Exception("foo");
     }
 
     class SuccessObservable : IObservable<int>

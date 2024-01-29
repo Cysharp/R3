@@ -1,0 +1,6 @@
+<Project>
+    <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+    <PropertyGroup>
+      <!-- disable importing common project property for avoiding build failure related to Stride -->
+    </PropertyGroup>
+  </Project>

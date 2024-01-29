@@ -1,6 +1,6 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](https://unity.com/), [Godot](https://godotengine.org/), [Avalonia](https://avaloniaui.net/), WPF, WinForms, etc(planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper)).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), etc(planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper)).
 
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10) and others, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
@@ -680,9 +680,9 @@ Add support planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](ht
 
 ### WPF
 
-> PM> Install-Package [R3.WPF](https://www.nuget.org/packages/R3.WPF)
+> PM> Install-Package [R3Extensions.WPF](https://www.nuget.org/packages/R3Extensions.WPF)
 
-R3.WPF package has two providers.
+R3Extensions.WPF package has two providers.
 
 * WpfDispatcherTimerProvider
 * WpfRenderingFrameProvider
@@ -739,9 +739,9 @@ ViewModel binding support, see [`BindableReactiveProperty<T>`](#xaml-platformsbi
 
 ### Avalonia
 
-> PM> Install-Package [R3.Avalonia](https://www.nuget.org/packages/R3.Avalonia)
+> PM> Install-Package [R3Extensions.Avalonia](https://www.nuget.org/packages/R3Extensions.Avalonia)
 
-R3.Avalonia package has these providers.
+R3Extensions.Avalonia package has these providers.
 
 * AvaloniaDispatcherTimerProvider
 * AvaloniaDispatcherFrameProvider
@@ -809,9 +809,9 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 
 ### WinForms
 
-> PM> Install-Package [R3.WinForms](https://www.nuget.org/packages/R3.WinForms)
+> PM> Install-Package [R3Extensions.WinForms](https://www.nuget.org/packages/R3Extensions.WinForms)
 
-R3.WinForms package has these providers.
+R3Extensions.WinForms package has these providers.
 
 * WinFormsFrameProvider
 * WinFormsTimerProvider
@@ -1103,6 +1103,45 @@ public static Observable<long> OnItemSelectedAsObservable(this OptionButton opti
 You can watch subscription status in `Debugger -> ObservableTracker` view.
 
 ![image](https://github.com/Cysharp/R3/assets/46207/8b5258a5-8124-4123-a837-79c31427c1d3)
+
+### Stride
+
+R3 extensions for [Stride](https://stride3d.net) game engine. 
+
+> PM> Install-Package [R3Extensions.Stride](https://www.nuget.org/packages/R3Extensions.Stride)
+
+#### Usage
+
+1. Reference R3.Stride
+2. add empty Entity by Stride editor
+3. add "R3/StrideFrameProviderComponent"
+4. set Stride Frame Provider Component's priority to lower than other scripts which use R3 API
+
+R3Extensions.Stride provides these providers.
+
+* StrideTimeProvider
+* StrideFrameProvider
+
+For the UI event observe/subscribe extension are also available.
+
+```csharp
+public static Observable<(object? sender, PropertyChangedArgs<MouseOverState> arg)> MouseOverStateChangedAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> PreviewTouchDownAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> PreviewTouchMoveAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> PreviewTouchUpAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> TouchDownAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> TouchMoveAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> TouchUpAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> TouchEnterAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, TouchEventArgs)> TouchLeaveAsObservable(this UIElement element, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> ClickAsObservable(this ButtonBase btn, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> ValueChangedAsObservable(this Slider slider, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> TextChangedAsObservable(this EditText editText, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> CheckedAsObservable(this ToggleButton toggleButton, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> IndeterminateAsObservable(this ToggleButton button, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> UncheckedAsObservable(this ToggleButton toggleButton, CancellationToken token = default)
+public static Observable<(object? sender, RoutedEventArgs arg)> OutsideClickAsObservable(this ModalElement modalElement, CancellationToken token = default)
+```
 
 Operator Reference
 ---

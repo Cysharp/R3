@@ -9,6 +9,7 @@
         <NoWarn>1701;1702;1591;1573</NoWarn>
 
         <!-- NuGet Packaging -->
+        <PackageId>R3Extensions.Avalonia</PackageId>
         <PackageTags>rx</PackageTags>
         <Description>Avalonia Provider and Methods for R3.</Description>
     </PropertyGroup>
