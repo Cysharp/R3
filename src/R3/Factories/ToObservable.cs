@@ -92,12 +92,14 @@ internal class AsyncEnumerableToObservable<T>(IAsyncEnumerable<T> source) : Obse
             }
             observer.OnCompleted();
         }
-        catch (OperationCanceledException)
-        {
-        }
         catch (Exception ex)
         {
-            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+            if (ex is OperationCanceledException oce && oce.CancellationToken == cancellationToken) // disposed.
+            {
+                return;
+            }
+
+            observer.OnCompleted(Result.Failure(ex));
         }
     }
 }
