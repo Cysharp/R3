@@ -683,8 +683,9 @@ Although standard support is provided for the following platforms, by implementi
 * [WinForms](#winforms)
 * [Unity](#unity)
 * [Godot](#godot)
+* [Stride](#stride)
 
-Add support planning MAUI, [Stride](https://www.stride3d.net/), [LogicLooper](https://github.com/Cysharp/LogicLooper).
+Add support planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper).
 
 ### WPF
 
