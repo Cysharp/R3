@@ -229,9 +229,72 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rpInt:
-    serializableValue: 1339
+    value: 1339
   rpLong:
-    serializableValue: 183
+    value: 183
+  rpByte:
+    value: 0
+  rpFloat:
+    value: 3.55
+  rpDouble:
+    value: 0
+  rpString:
+    value: 
+  rpBool:
+    value: 0
+  rpVector2:
+    value: {x: 0, y: 0}
+  rpVector2Int:
+    value: {x: 0, y: 0}
+  rpVector3:
+    value: {x: 0, y: 0, z: 0}
+  rpVector3Int:
+    value: {x: 0, y: 0, z: 0}
+  rpVector4:
+    value: {x: 0, y: 0, z: 0, w: 0}
+  rpColor:
+    value: {r: 0, g: 0, b: 0, a: 0}
+  rpRect:
+    value:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+  rpBounds:
+    value:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0, y: 0, z: 0}
+  rpBoundsInt:
+    value:
+      m_Position: {x: 0, y: 0, z: 0}
+      m_Size: {x: 0, y: 0, z: 0}
+  rpQuaternion:
+    value: {x: 0, y: 0, z: 0, w: 0}
+  rpMatrix4x4:
+    value:
+      e00: 0
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 0
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 0
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 0
+  rpEnum:
+    value: 0
+  rpFlagsEnum:
+    value: 0
+  NANTOKAMARU:
+    value: 747
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

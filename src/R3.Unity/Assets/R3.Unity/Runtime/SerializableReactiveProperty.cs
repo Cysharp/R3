@@ -11,7 +11,7 @@ namespace R3
     public class SerializableReactiveProperty<T> : ReactiveProperty<T>, ISerializationCallbackReceiver
     {
         [SerializeField]
-        T serializableValue;
+        T value;
 
         public SerializableReactiveProperty()
             : base(default!)
@@ -25,7 +25,7 @@ namespace R3
 
         protected override void OnSetValue(T value)
         {
-            serializableValue = value;
+            this.value = value;
         }
 
         public void OnBeforeSerialize()
@@ -34,7 +34,7 @@ namespace R3
 
         public void OnAfterDeserialize()
         {
-            OnNext(serializableValue); // force set and update
+            OnNext(this.value); // force set and update
         }
     }
 
@@ -45,7 +45,7 @@ namespace R3
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var p = property.FindPropertyRelative("serializableValue");
+            var p = property.FindPropertyRelative("value");
             if (p.propertyType == SerializedPropertyType.Quaternion)
             {
                 label.text += "(EulerAngles)";
@@ -59,7 +59,7 @@ namespace R3
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var p = property.FindPropertyRelative("serializableValue");
+            var p = property.FindPropertyRelative("value");
             if (p.propertyType == SerializedPropertyType.Quaternion)
             {
                 // Quaternion is Vector3(EulerAngles)

@@ -30,6 +30,10 @@ public class NewBehaviourScript : MonoBehaviour
     public SerializableReactiveProperty<FruitFlagsEnum> rpFlagsEnum;
 
 
+    public SerializableReactiveProperty<int> NANTOKAMARU;
+    //public NantonakuProperty NANTOKAMARU;
+
+
     Button button;
     Text text;
 
@@ -62,4 +66,10 @@ public enum FruitFlagsEnum
     Apple = 1,
     Grape = 2,
     Orange = 4
+}
+
+[Serializable]
+public class NantonakuProperty
+{
+    public int value;
 }
