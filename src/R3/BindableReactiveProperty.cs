@@ -15,6 +15,10 @@ public interface IBindableReactiveProperty
 }
 
 // all operators need to call from UI Thread(not thread-safe)
+
+#if NET6_0_OR_GREATER
+[System.Text.Json.Serialization.JsonConverter(typeof(BindableReactivePropertyJsonConverterFactory))]
+#endif
 public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
 {
     // ctor

@@ -1,4 +1,10 @@
-﻿namespace R3;
+﻿#if NET6_0_OR_GREATER
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+#endif
+
+namespace R3;
 
 public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 {
@@ -12,6 +18,10 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 // almostly same code as Subject<T>.
 
 // allow inherit
+
+#if NET6_0_OR_GREATER
+[JsonConverter(typeof(ReactivePropertyJsonConverterFactory))]
+#endif
 public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 {
     T value;
@@ -182,3 +192,101 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         }
     }
 }
+
+#if NET6_0_OR_GREATER
+
+public class ReactivePropertyJsonConverterFactory : JsonConverterFactory
+{
+    public override bool CanConvert(Type typeToConvert)
+    {
+        return GetReactivePropertyType(typeToConvert) != null;
+    }
+
+    public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+    {
+        var t = GetReactivePropertyType(typeToConvert);
+        if (t != null)
+        {
+            var rt = GenericConverterType.MakeGenericType(t.GetGenericArguments()[0]);
+            return (JsonConverter?)Activator.CreateInstance(rt, false);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    Type? GetReactivePropertyType(Type? type)
+    {
+        while (type != null)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ReactiveProperty<>))
+            {
+                return type;
+            }
+
+            type = type.BaseType;
+        }
+        return null;
+    }
+
+    // allow customize
+    protected virtual Type GenericConverterType => typeof(ReactivePropertyJsonConverter<>);
+}
+
+public class ReactivePropertyJsonConverter<T> : JsonConverter<ReactiveProperty<T>>
+{
+    public override void Write(Utf8JsonWriter writer, ReactiveProperty<T> value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value.Value, options);
+    }
+
+    public override ReactiveProperty<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var v = JsonSerializer.Deserialize<T>(ref reader, options);
+        return CreateReactiveProperty(v!);
+    }
+
+    // allow customize
+    protected virtual ReactiveProperty<T> CreateReactiveProperty(T value)
+    {
+        return new ReactiveProperty<T>(value);
+    }
+
+    public override bool CanConvert(Type typeToConvert)
+    {
+        return GetReactivePropertyType(typeToConvert) != null;
+    }
+
+    Type? GetReactivePropertyType(Type? type)
+    {
+        while (type != null)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ReactiveProperty<>))
+            {
+                return type;
+            }
+
+            type = type.BaseType;
+        }
+        return null;
+    }
+}
+
+// for BindableReactiveProperty
+
+internal class BindableReactivePropertyJsonConverterFactory : ReactivePropertyJsonConverterFactory
+{
+    protected override Type GenericConverterType => typeof(BindableReactivePropertyJsonConverter<>);
+}
+
+internal class BindableReactivePropertyJsonConverter<T> : ReactivePropertyJsonConverter<T>
+{
+    protected override ReactiveProperty<T> CreateReactiveProperty(T value)
+    {
+        return new BindableReactiveProperty<T>(value);
+    }
+}
+
+
+#endif

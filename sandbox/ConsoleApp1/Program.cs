@@ -1,48 +1,50 @@
 ﻿using R3;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 
 Console.WriteLine("hello");
-// System.Linq.AsyncEnumerable.Range(1,10)
-
-
-//Dump.Factory();
-
-//System.Reactive.Linq.Observable.Range(1,10).SelectMany(
-
-//var onClick = new Subject<Unit>();
-//var httpClient = new HttpClient();
-
-
-//onClick.SelectAwait(async x =>
-//{
-
-
-//});
 
 
 
-Observable.Create<int>(observer =>
+//JsonSerializerOptions.Default.TypeInfoResolver
+// JsonSerializerOptions.Default.Converters.Add(new IgnoreCaseStringReactivePropertyJsonConverter());
+
+var options = new JsonSerializerOptions
 {
-    observer.OnNext(1);
+    Converters = { new IgnoreCaseStringReactivePropertyJsonConverter() },
+};
 
-    return Disposable.Empty;
-});
+var v = new IgnoreCaseStringReactiveProperty("aaa");
 
-Observable.Create<int>(async (observer, ct) =>
+// var v = new ReactiveProperty<int>(1000);
+
+
+var json = JsonSerializer.Serialize(v, options);
+Console.WriteLine(json);
+var v2 = JsonSerializer.Deserialize<IgnoreCaseStringReactiveProperty>(json, options);
+Console.WriteLine(v2!.Value);
+
+
+
+
+//[JsonConverter(typeof(IgnoreCaseStringReactivePropertyJsonConverter))]
+public class IgnoreCaseStringReactiveProperty : ReactiveProperty<string>
 {
-    observer.OnNext(1);
-    await Task.Delay(1000, ct);
-});
+    public IgnoreCaseStringReactiveProperty(string value)
+        : base(value, StringComparer.OrdinalIgnoreCase)
+    {
 
-Observable.CreateFrom(Gen);
+    }
+}
 
-static async IAsyncEnumerable<int> Gen([EnumeratorCancellation] CancellationToken ct)
+internal class IgnoreCaseStringReactivePropertyJsonConverter : ReactivePropertyJsonConverter<string>
 {
-    yield return 1;
-    await Task.Delay(1000, ct);
-    yield return 2;
-    await Task.Delay(1000, ct);
-    yield return 3;
+    protected override ReactiveProperty<string> CreateReactiveProperty(string value)
+    {
+        return new IgnoreCaseStringReactiveProperty(value);
+    }
 }
