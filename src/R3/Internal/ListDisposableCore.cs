@@ -74,8 +74,8 @@ internal struct ListDisposableCore : IDisposable
             {
                 disposables[i]?.Dispose();
                 disposables[i] = null;
-                count = 0;
             }
+            count = 0;
         }
     }
 }
