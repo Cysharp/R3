@@ -3,7 +3,7 @@
 The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), etc(planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper)).
 
 > [!NOTE]
-> This project is currently in preview. We are seeking a lot of feedback. We are considering fundamental changes such as [changing the name of the library (Uni(fied)Rx)](https://github.com/Cysharp/R3/issues/9) or [reverting back to the use of `IObservable<T>`](https://github.com/Cysharp/R3/issues/10) and others, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
+> This project is currently in preview. We are seeking a lot of feedback, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
