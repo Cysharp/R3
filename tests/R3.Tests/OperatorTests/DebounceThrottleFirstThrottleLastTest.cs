@@ -1,6 +1,6 @@
 ﻿namespace R3.Tests.OperatorTests;
 
-public class DebounceThrottleFirstSampleTest
+public class DebounceThrottleFirstThrottleLastTest
 {
     // Debounce
     [Fact]
@@ -233,6 +233,163 @@ public class DebounceThrottleFirstSampleTest
         publisher.OnCompleted();
 
         list.AssertEqual([10000, 200]);
+        list.AssertIsCompleted();
+    }
+
+    // + Observable/Async sampler
+    [Fact]
+    public void ThrottleFirstAsyncSampler()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher = new Subject<int>();
+        var fakeTime = new FakeTimeProvider();
+        var list = publisher.ThrottleFirst(async (x, ct) =>
+        {
+            await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
+        }).ToLiveList();
+
+        publisher.OnNext(1); // gate close
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+
+        list.AssertEqual([1]);
+
+        fakeTime.Advance(1); // gate open
+
+        publisher.OnNext(5);
+        publisher.OnNext(6);
+        publisher.OnNext(7);
+
+        list.AssertEqual([1, 5]);
+
+        fakeTime.Advance(4);
+        publisher.OnNext(8);
+
+        list.AssertEqual([1, 5]);
+
+        fakeTime.Advance(1);
+        list.AssertEqual([1, 5]);
+
+        publisher.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ThrottleLastAsyncSampler()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher = new Subject<int>();
+        var fakeTime = new FakeTimeProvider();
+        var list = publisher.ThrottleLast(async (x, ct) =>
+        {
+            await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
+        }).ToLiveList();
+
+        publisher.OnNext(1); // gate close
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+
+        list.AssertEqual([]);
+
+        fakeTime.Advance(1); // gate open
+        list.AssertEqual([3]);
+
+        publisher.OnNext(5);
+        publisher.OnNext(6);
+        publisher.OnNext(7);
+
+        list.AssertEqual([3]);
+
+        fakeTime.Advance(4);
+        publisher.OnNext(8);
+
+        list.AssertEqual([3]);
+
+        fakeTime.Advance(1);
+        list.AssertEqual([3, 8]);
+
+        publisher.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ThrottleFirstObservableSampler()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher = new Subject<int>();
+        var sampler = new Subject<Unit>();
+        var list = publisher.ThrottleFirst(sampler).ToLiveList();
+
+        publisher.OnNext(1); // gate close
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+
+        list.AssertEqual([1]);
+
+        sampler.OnNext(Unit.Default);
+
+        publisher.OnNext(5);
+        list.AssertEqual([1, 5]);
+        publisher.OnNext(6);
+        publisher.OnNext(7);
+        list.AssertEqual([1, 5]);
+
+        sampler.OnNext(Unit.Default);
+
+        publisher.OnNext(8);
+        list.AssertEqual([1, 5, 8]);
+
+        sampler.OnNext(Unit.Default);
+        list.AssertEqual([1, 5, 8]);
+
+        publisher.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ThrottleLastObservableSampler()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher = new Subject<int>();
+        var sampler = new Subject<Unit>();
+        var list = publisher.ThrottleLast(sampler).ToLiveList();
+
+        publisher.OnNext(1); // gate close
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+
+        list.AssertEqual([]);
+
+        sampler.OnNext(Unit.Default);
+        list.AssertEqual([3]);
+
+        publisher.OnNext(5);
+        list.AssertEqual([3]);
+        publisher.OnNext(6);
+        publisher.OnNext(7);
+        list.AssertEqual([3]);
+
+        sampler.OnNext(Unit.Default);
+        list.AssertEqual([3, 7]);
+
+        publisher.OnNext(8);
+        list.AssertEqual([3, 7]);
+
+        sampler.OnNext(Unit.Default);
+        list.AssertEqual([3, 7, 8]);
+        sampler.OnNext(Unit.Default);
+        sampler.OnNext(Unit.Default);
+        list.AssertEqual([3, 7, 8]);
+
+        publisher.OnCompleted();
+
         list.AssertIsCompleted();
     }
 }

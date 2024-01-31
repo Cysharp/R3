@@ -8,7 +8,7 @@ using System.Text.Json.Serialization.Metadata;
 
 Console.WriteLine("hello");
 
-
+// System.Reactive.Linq.Observable.Sample(
 
 //JsonSerializerOptions.Default.TypeInfoResolver
 // JsonSerializerOptions.Default.Converters.Add(new IgnoreCaseStringReactivePropertyJsonConverter());
@@ -21,6 +21,7 @@ var options = new JsonSerializerOptions
 var v = new IgnoreCaseStringReactiveProperty("aaa");
 
 // var v = new ReactiveProperty<int>(1000);
+
 
 
 var json = JsonSerializer.Serialize(v, options);
