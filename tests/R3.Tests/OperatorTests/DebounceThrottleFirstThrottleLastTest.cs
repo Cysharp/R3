@@ -1,4 +1,6 @@
-﻿namespace R3.Tests.OperatorTests;
+﻿using System.Threading;
+
+namespace R3.Tests.OperatorTests;
 
 public class DebounceThrottleFirstThrottleLastTest
 {
@@ -389,6 +391,57 @@ public class DebounceThrottleFirstThrottleLastTest
         list.AssertEqual([3, 7, 8]);
 
         publisher.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void DebounceSelector()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher = new Subject<int>();
+        var fakeTime = new FakeTimeProvider();
+        var list = publisher.Debounce(async (x, ct) =>
+        {
+            try
+            {
+                // await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
+                await Task.Delay(TimeSpan.FromSeconds(x), fakeTime, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+        }).ToLiveList();
+
+
+
+        publisher.OnNext(1);   // cancel
+        publisher.OnNext(10);  // cancel
+        publisher.OnNext(100); // wait 100...
+        list.AssertEqual([]);
+
+        fakeTime.Advance(100);
+        list.AssertEqual([100]);
+
+        publisher.OnNext(1000);  // cancel
+        publisher.OnNext(10000); // wait 10000
+        list.AssertEqual([100]);
+
+        fakeTime.Advance(10000);
+
+        list.AssertEqual([100, 10000]);
+
+        publisher.OnNext(5);
+        fakeTime.Advance(5);
+
+        publisher.OnNext(6);
+        fakeTime.Advance(6);
+
+        publisher.OnCompleted();
+
+        list.AssertEqual([100, 10000, 5, 6]);
 
         list.AssertIsCompleted();
     }

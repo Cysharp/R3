@@ -24,6 +24,8 @@ var v = new IgnoreCaseStringReactiveProperty("aaa");
 
 
 
+
+
 var json = JsonSerializer.Serialize(v, options);
 Console.WriteLine(json);
 var v2 = JsonSerializer.Deserialize<IgnoreCaseStringReactiveProperty>(json, options);

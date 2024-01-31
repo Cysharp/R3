@@ -11,8 +11,12 @@ public static partial class ObservableExtensions
     {
         return new Debounce<T>(source, timeSpan, timeProvider);
     }
-}
 
+    public static Observable<T> Debounce<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> throttleDurationSelector, bool configureAwait = false)
+    {
+        return new DebounceSelector<T>(source, throttleDurationSelector, configureAwait);
+    }
+}
 
 internal sealed class Debounce<T>(Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider) : Observable<T>
 {
@@ -53,7 +57,10 @@ internal sealed class Debounce<T>(Observable<T> source, TimeSpan timeSpan, TimeP
 
         protected override void OnErrorResumeCore(Exception error)
         {
-            observer.OnErrorResume(error);
+            lock (gate)
+            {
+                observer.OnErrorResume(error);
+            }
         }
 
         protected override void OnCompletedCore(Result result)
@@ -66,8 +73,8 @@ internal sealed class Debounce<T>(Observable<T> source, TimeSpan timeSpan, TimeP
                     hasvalue = false;
                     latestValue = default;
                 }
+                observer.OnCompleted(result);
             }
-            observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()
@@ -88,6 +95,103 @@ internal sealed class Debounce<T>(Observable<T> source, TimeSpan timeSpan, TimeP
                 self.observer.OnNext(self.latestValue!);
                 self.hasvalue = false;
                 self.latestValue = default;
+            }
+        }
+    }
+}
+
+internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, CancellationToken, ValueTask> throttleDurationSelector, bool configureAwait) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        return source.Subscribe(new _Debounce(observer, throttleDurationSelector, configureAwait));
+    }
+
+    sealed class _Debounce(Observer<T> observer, Func<T, CancellationToken, ValueTask> throttleDurationSelector, bool configureAwait) : Observer<T>
+    {
+        readonly object gate = new object();
+        T? latestValue;
+        bool hasValue;
+        Task? runningTask;
+        int taskId;
+        CancellationTokenSource cancellationTokenSource = new();
+
+        protected override void OnNextCore(T value)
+        {
+            lock (gate)
+            {
+                latestValue = value;
+                hasValue = true;
+
+                if (runningTask != null)
+                {
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource = new CancellationTokenSource();
+                }
+
+                var newId = unchecked(taskId + 1);
+                Volatile.Write(ref taskId, newId);
+                runningTask = PublishOnNextAfterAsync(value, newId, cancellationTokenSource.Token);
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            lock (gate)
+            {
+                observer.OnErrorResume(error);
+            }
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            lock (gate)
+            {
+                if (hasValue)
+                {
+                    observer.OnNext(latestValue!);
+                    hasValue = false;
+                    latestValue = default;
+                }
+                observer.OnCompleted(result);
+            }
+        }
+
+        protected override void DisposeCore()
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+        }
+
+        async Task PublishOnNextAfterAsync(T value, int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await throttleDurationSelector(value, cancellationToken).ConfigureAwait(configureAwait);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException oce && oce.CancellationToken == cancellationToken)
+                {
+                    return;
+                }
+                OnErrorResume(ex);
+            }
+            finally
+            {
+                lock (gate)
+                {
+                    if (this.taskId != id) goto END;
+                    if (!hasValue) goto END;
+
+                    observer.OnNext(latestValue!);
+                    hasValue = false;
+                    latestValue = default;
+                    runningTask = null;
+
+                END:
+                    { }
+                }
             }
         }
     }
