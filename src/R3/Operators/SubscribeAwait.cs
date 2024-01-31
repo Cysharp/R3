@@ -5,17 +5,20 @@ namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
+    /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
+    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false, int maxConcurrent = -1)
     {
-        return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult, awaitOperations, configureAwait);
+        return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult, awaitOperations, configureAwait, maxConcurrent);
     }
 
-    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
+    /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
+    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false, int maxConcurrent = -1)
     {
-        return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted, awaitOperations, configureAwait);
+        return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted, awaitOperations, configureAwait, maxConcurrent);
     }
 
-    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false)
+    /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
+    public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = false, int maxConcurrent = -1)
     {
         switch (awaitOperations)
         {
@@ -24,7 +27,15 @@ public static partial class ObservableExtensions
             case AwaitOperation.Drop:
                 return source.Subscribe(new SubscribeAwaitDrop<T>(onNextAsync, onErrorResume, onCompleted, configureAwait));
             case AwaitOperation.Parallel:
-                return source.Subscribe(new SubscribeAwaitParallel<T>(onNextAsync, onErrorResume, onCompleted, configureAwait));
+                if (maxConcurrent == -1)
+                {
+                    return source.Subscribe(new SubscribeAwaitParallel<T>(onNextAsync, onErrorResume, onCompleted, configureAwait));
+                }
+                else
+                {
+                    if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
+                    return source.Subscribe(new SubscribeAwaitParallelConcurrentLimit<T>(onNextAsync, onErrorResume, onCompleted, configureAwait, maxConcurrent));
+                }
             case AwaitOperation.Switch:
                 return source.Subscribe(new SubscribeAwaitSwitch<T>(onNextAsync, onErrorResume, onCompleted, configureAwait));
             case AwaitOperation.SequentialParallel:
@@ -100,6 +111,31 @@ sealed class SubscribeAwaitParallel<T>(Func<T, CancellationToken, ValueTask> onN
 
 sealed class SubscribeAwaitSwitch<T>(Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, bool configureAwait)
     : AwaitOperationSwitchObserver<T>(configureAwait)
+{
+    protected override ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+    {
+        return onNextAsync(value, cancellationToken);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        lock (gate)
+        {
+            onErrorResume(error);
+        }
+    }
+
+    protected override void PublishOnCompleted(Result result)
+    {
+        lock (gate)
+        {
+            onCompleted(result);
+        }
+    }
+}
+
+sealed class SubscribeAwaitParallelConcurrentLimit<T>(Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, bool configureAwait, int maxConcurrent)
+    : AwaitOperationParallelConcurrentLimitObserver<T>(configureAwait, maxConcurrent)
 {
     protected override ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
     {

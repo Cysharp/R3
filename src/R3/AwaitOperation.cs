@@ -49,12 +49,12 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
         }
 
         Volatile.Write(ref completed, true);
-        channel.Writer.Complete(); // exit wait read loop
+        channel.Writer.TryComplete(); // exit wait read loop
     }
 
     protected override sealed void DisposeCore()
     {
-        channel.Writer.Complete(); // complete writing
+        channel.Writer.TryComplete(); // complete writing
         cancellationTokenSource.Cancel(); // stop selector await.
     }
 
@@ -379,12 +379,12 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
         }
 
         Volatile.Write(ref completed, true);
-        channel.Writer.Complete(); // exit wait read loop
+        channel.Writer.TryComplete(); // exit wait read loop
     }
 
     protected override sealed void DisposeCore()
     {
-        channel.Writer.Complete(); // complete writing
+        channel.Writer.TryComplete(); // complete writing
         cancellationTokenSource.Cancel(); // stop selector await.
     }
 
@@ -425,6 +425,237 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
             {
                 PublishOnCompleted(Result.Success);
                 Dispose();
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+        }
+    }
+}
+
+internal abstract class AwaitOperationParallelConcurrentLimitObserver<T>(bool configureAwait, int maxConcurrent) : Observer<T>
+{
+    readonly CancellationTokenSource cancellationTokenSource = new();
+    protected readonly object gate = new object(); // need to use gate.
+
+    protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
+
+    int runningCount = 0;
+    bool completed;
+    Queue<T> queue = new Queue<T>();
+
+    protected override sealed void OnNextCore(T value)
+    {
+        lock (gate)
+        {
+            if (runningCount < maxConcurrent)
+            {
+                runningCount++;
+                StartAsync(value);
+            }
+            else
+            {
+                queue.Enqueue(value);
+            }
+        }
+    }
+
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        lock (gate)
+        {
+            completed = true;
+            if (runningCount == 0 && queue.Count == 0)
+            {
+                PublishOnCompleted(result);
+                Dispose();
+            }
+        }
+    }
+
+    protected override void DisposeCore()
+    {
+        cancellationTokenSource.Cancel();
+    }
+
+    protected abstract ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnCompleted(Result result);
+
+    async void StartAsync(T value)
+    {
+        try
+        {
+            await OnNextAsync(value, cancellationTokenSource.Token, configureAwait).ConfigureAwait(configureAwait);
+        }
+        catch (Exception ex)
+        {
+            if (ex is OperationCanceledException)
+            {
+                return;
+            }
+            OnErrorResume(ex);
+        }
+        finally
+        {
+            lock (gate)
+            {
+                runningCount--;
+                if (runningCount == 0 && queue.Count == 0 && completed)
+                {
+                    PublishOnCompleted(Result.Success);
+                    Dispose();
+                }
+                else
+                {
+                    if (runningCount < maxConcurrent && queue.Count != 0)
+                    {
+                        runningCount++;
+                        StartAsync(queue.Dequeue());
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<T, TTaskValue> : Observer<T>
+{
+    readonly CancellationTokenSource cancellationTokenSource;
+    readonly bool configureAwait; // continueOnCapturedContext
+    readonly int maxConcurrent;
+    readonly object gate = new object();
+    readonly Channel<(T, ValueTask<TTaskValue>)> channel;
+    bool completed;
+    int runningCount;
+    Queue<T> queue = new();
+
+    protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
+
+    public AwaitOperationSequentialParallelConcurrentLimitObserver(bool configureAwait, int maxConcurrent)
+    {
+        this.cancellationTokenSource = new CancellationTokenSource();
+        this.configureAwait = configureAwait;
+        this.maxConcurrent = maxConcurrent;
+        this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<(T, ValueTask<TTaskValue>)>();
+
+        RunQueueWorker();
+    }
+
+    protected override sealed void OnNextCore(T value)
+    {
+        lock (gate)
+        {
+            if (runningCount < maxConcurrent)
+            {
+                runningCount++;
+                var task = OnNextTaskAsync(value);
+                channel.Writer.TryWrite((value, task));
+            }
+            else
+            {
+                queue.Enqueue(value);
+            }
+        }
+    }
+
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        lock (gate)
+        {
+            completed = true;
+            if (queue.Count == 0)
+            {
+                channel.Writer.TryComplete(); // exit wait read loop
+            }
+        }
+    }
+
+    protected override sealed void DisposeCore()
+    {
+        channel.Writer.TryComplete(); // complete writing
+        cancellationTokenSource.Cancel(); // stop selector await.
+    }
+
+    protected abstract ValueTask<TTaskValue> OnNextTaskAsyncCore(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnNext(T value, TTaskValue result);
+    protected abstract void PublishOnCompleted(Result result);
+
+    async ValueTask<TTaskValue> OnNextTaskAsync(T value)
+    {
+        var task = await OnNextTaskAsyncCore(value, cancellationTokenSource.Token, configureAwait).ConfigureAwait(configureAwait);
+        lock (gate)
+        {
+            runningCount--;
+            if (runningCount < maxConcurrent && queue.Count != 0)
+            {
+                runningCount++;
+                var v2 = queue.Dequeue();
+                var task2 = OnNextTaskAsync(v2);
+                channel.Writer.TryWrite((v2, task2));
+            }
+        }
+        return task;
+    }
+
+    async void RunQueueWorker() // don't(can't) wait so use async void
+    {
+        var reader = channel.Reader;
+        var token = cancellationTokenSource.Token;
+
+        try
+        {
+            while (await reader.WaitToReadAsync(/* don't pass CancellationToken, uses WriterComplete */).ConfigureAwait(configureAwait))
+            {
+                while (reader.TryRead(out var item))
+                {
+                    try
+                    {
+                        if (token.IsCancellationRequested) return;
+
+                        var result = await item.Item2.ConfigureAwait(configureAwait);
+                        PublishOnNext(item.Item1, result);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is OperationCanceledException)
+                        {
+                            return;
+                        }
+                        OnErrorResume(ex);
+                    }
+                }
+
+                lock (gate)
+                {
+                    if (queue.Count == 0 && completed)
+                    {
+                        channel.Writer.TryComplete();
+                    }
+                }
+            }
+
+            lock (gate)
+            {
+                if (completed)
+                {
+                    PublishOnCompleted(Result.Success);
+                    Dispose();
+                }
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

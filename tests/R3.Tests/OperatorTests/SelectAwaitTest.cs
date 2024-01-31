@@ -407,4 +407,92 @@ public class SelectAwaitTest
 
         liveList.AssertIsCompleted();
     }
+
+    [Fact]
+    public void ParallelLimit()
+    {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
+        var subject = new Subject<int>();
+        var timeProvider = new FakeTimeProvider();
+
+        using var liveList = subject
+            .SelectAwait(async (x, ct) =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
+                return x * 100;
+            }, AwaitOperation.Parallel, maxConcurrent: 2)
+            .ToLiveList();
+
+        subject.OnNext(1);
+        subject.OnNext(2);
+        subject.OnNext(3); // enqueue
+
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100, 200]);
+
+        timeProvider.Advance(2);
+        liveList.AssertEqual([100, 200]);
+
+        timeProvider.Advance(1);
+        liveList.AssertEqual([100, 200, 300]);
+
+        subject.OnNext(4);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100, 200, 300, 400]);
+
+        subject.OnCompleted();
+
+        liveList.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void SequentialParallelLimit()
+    {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
+        var subject = new Subject<int>();
+        var timeProvider = new FakeTimeProvider();
+
+        using var liveList = subject
+            .SelectAwait(async (x, ct) =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(x), timeProvider, ct);
+                return x * 100;
+            }, AwaitOperation.SequentialParallel, configureAwait: false, maxConcurrent: 2)
+            .ToLiveList();
+
+        subject.OnNext(2); // 2 seconds wait
+        subject.OnNext(1); // 1 seconds wait
+        subject.OnNext(3); // 3 seconds enqueue
+        subject.OnNext(2); // 1 seconds enqueue
+
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(1);
+        liveList.AssertEqual([]); // 1 seconds complete but not yet complete, start 3 seconds
+
+        timeProvider.Advance(1);
+        liveList.AssertEqual([200, 100]); // both complete
+
+        timeProvider.Advance(2);
+        liveList.AssertEqual([200, 100, 300, 200]);
+
+        subject.OnNext(2); // 2 seconds wait
+        subject.OnNext(1); // 1 seconds wait
+        subject.OnNext(3); // 3 seconds enqueue
+        subject.OnNext(2); // 1 seconds enqueue
+
+        subject.OnCompleted();
+
+        timeProvider.Advance(2);
+        liveList.AssertEqual([200, 100, 300, 200, 200, 100]);
+        timeProvider.Advance(3);
+        liveList.AssertEqual([200, 100, 300, 200, 200, 100, 300, 200]);
+
+        liveList.AssertIsCompleted();
+    }
 }

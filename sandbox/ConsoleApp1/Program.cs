@@ -8,6 +8,8 @@ using System.Text.Json.Serialization.Metadata;
 
 Console.WriteLine("hello");
 
+new ParallelOptions { MaxDegreeOfParallelism = -10 };
+
 // System.Reactive.Linq.Observable.Sample(
 
 //JsonSerializerOptions.Default.TypeInfoResolver
