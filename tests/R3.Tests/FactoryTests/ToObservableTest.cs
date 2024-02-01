@@ -164,4 +164,20 @@ public class ToObservableTest
             return Disposable.Empty;
         }
     }
+
+    [Fact]
+    public void TaskToObservable2()
+    {
+        var tcs = new TaskCompletionSource();
+
+        var myLiveList = tcs.Task.ToObservable()
+            .Select(x => x)
+            .Where(x => true)
+            .Take(10)
+            .ToLiveList();
+
+        myLiveList.Dispose();
+
+        tcs.TrySetResult();
+    }
 }
