@@ -24,25 +24,25 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 #endif
 public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 {
-    T value;
+    T currentValue;
     IEqualityComparer<T>? equalityComparer;
     FreeListCore<Subscription> list; // struct(array, int)
     CompleteState completeState;     // struct(int, IntPtr)
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
 
-    public override T CurrentValue => value;
+    public override T CurrentValue => currentValue;
 
     public bool IsDisposed => completeState.IsDisposed;
 
     public T Value
     {
-        get => this.value;
+        get => this.currentValue;
         set
         {
             if (EqualityComparer != null)
             {
-                if (EqualityComparer.Equals(this.value, value))
+                if (EqualityComparer.Equals(this.currentValue, value))
                 {
                     return;
                 }
@@ -63,7 +63,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
     {
-        this.value = value;
+        this.currentValue = value;
         this.equalityComparer = equalityComparer;
         this.list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
     }
@@ -72,7 +72,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     {
         if (completeState.IsCompleted) return;
 
-        this.value = value; // different from Subject<T>; set value before raise OnNext
+        this.currentValue = value; // different from Subject<T>; set value before raise OnNext
         OnSetValue(value);  // for inheritance types.
 
         foreach (var subscription in list.AsSpan())
@@ -117,13 +117,13 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         var result = completeState.TryGetResult();
         if (result != null)
         {
-            observer.OnNext(value);
+            observer.OnNext(currentValue);
             observer.OnCompleted(result.Value);
             return Disposable.Empty;
         }
 
         // raise latest value on subscribe(before add observer to list)
-        observer.OnNext(value);
+        observer.OnNext(currentValue);
 
         var subscription = new Subscription(this, observer); // create subscription and add observer to list.
 
@@ -166,7 +166,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public override string? ToString()
     {
-        return (value == null) ? "(null)" : value.ToString();
+        return (currentValue == null) ? "(null)" : currentValue.ToString();
     }
 
     sealed class Subscription : IDisposable
