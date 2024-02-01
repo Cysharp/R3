@@ -28,12 +28,12 @@ internal sealed class MergeMany<T>(Observable<Observable<T>> sources) : Observab
         protected override void OnNextCore(Observable<T> value)
         {
             var innerObserver = new MergeInner(this);
-            var subscription = value.Subscribe(innerObserver);
-
             lock (gate)
             {
-                subscriptions.Add(subscription);
+                // add observer before subscribe
+                subscriptions.Add(innerObserver);
             }
+            value.Subscribe(innerObserver);
         }
 
         protected override void OnErrorResumeCore(Exception error)
