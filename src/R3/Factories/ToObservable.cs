@@ -2,9 +2,24 @@
 
 public static partial class Observable
 {
-    public static Observable<T> ToObservable<T>(this Task<T> task)
+    public static Observable<Unit> ToObservable(this Task task, bool configureAwait = false)
     {
-        return new TaskToObservable<T>(task);
+        return new TaskToObservable(task, configureAwait);
+    }
+
+    public static Observable<T> ToObservable<T>(this Task<T> task, bool configureAwait = false)
+    {
+        return new TaskToObservable<T>(task, configureAwait);
+    }
+
+    public static Observable<Unit> ToObservable(this ValueTask task, bool configureAwait = false)
+    {
+        return new ValueTaskToObservable(task, configureAwait);
+    }
+
+    public static Observable<T> ToObservable<T>(this ValueTask<T> task, bool configureAwait = false)
+    {
+        return new ValueTaskToObservable<T>(task, configureAwait);
     }
 
     public static Observable<T> ToObservable<T>(this IEnumerable<T> source, CancellationToken cancellationToken = default)
@@ -23,35 +38,129 @@ public static partial class Observable
     }
 }
 
-internal sealed class TaskToObservable<T>(Task<T> task) : Observable<T>
+internal sealed class TaskToObservable(Task task, bool configureAwait) : Observable<Unit>
+{
+    protected override IDisposable SubscribeCore(Observer<Unit> observer)
+    {
+        SubscribeTask(observer);
+        return Disposable.Empty; // no need to return subscription
+    }
+
+    async void SubscribeTask(Observer<Unit> observer)
+    {
+        try
+        {
+            await task.ConfigureAwait(configureAwait);
+        }
+        catch (Exception ex)
+        {
+            if (!observer.IsDisposed)
+            {
+                observer.OnCompleted(ex);
+            }
+            return;
+        }
+
+        if (!observer.IsDisposed)
+        {
+            observer.OnNext(Unit.Default);
+            observer.OnCompleted();
+        }
+    }
+}
+
+internal sealed class TaskToObservable<T>(Task<T> task, bool configureAwait) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var subscription = new CancellationDisposable();
-        SubscribeTask(observer, subscription.Token);
-        return subscription;
+        SubscribeTask(observer);
+        return Disposable.Empty; // no need to return subscription
     }
 
-    async void SubscribeTask(Observer<T> observer, CancellationToken cancellationToken)
+    async void SubscribeTask(Observer<T> observer)
     {
         T? result;
         try
         {
-            result = await task.WaitAsync(cancellationToken);
+            result = await task.ConfigureAwait(configureAwait);
         }
         catch (Exception ex)
         {
-            if (ex is OperationCanceledException oce && oce.CancellationToken == cancellationToken) // disposed.
+            if (!observer.IsDisposed)
             {
-                return;
+                observer.OnCompleted(ex);
             }
-
-            observer.OnCompleted(ex);
             return;
         }
 
-        observer.OnNext(result);
-        observer.OnCompleted();
+        if (!observer.IsDisposed)
+        {
+            observer.OnNext(result);
+            observer.OnCompleted();
+        }
+    }
+}
+
+internal sealed class ValueTaskToObservable(ValueTask task, bool configureAwait) : Observable<Unit>
+{
+    protected override IDisposable SubscribeCore(Observer<Unit> observer)
+    {
+        SubscribeTask(observer);
+        return Disposable.Empty; // no need to return subscription
+    }
+
+    async void SubscribeTask(Observer<Unit> observer)
+    {
+        try
+        {
+            await task.ConfigureAwait(configureAwait);
+        }
+        catch (Exception ex)
+        {
+            if (!observer.IsDisposed)
+            {
+                observer.OnCompleted(ex);
+            }
+            return;
+        }
+
+        if (!observer.IsDisposed)
+        {
+            observer.OnNext(Unit.Default);
+            observer.OnCompleted();
+        }
+    }
+}
+
+internal sealed class ValueTaskToObservable<T>(ValueTask<T> task, bool configureAwait) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        SubscribeTask(observer);
+        return Disposable.Empty; // no need to return subscription
+    }
+
+    async void SubscribeTask(Observer<T> observer)
+    {
+        T? result;
+        try
+        {
+            result = await task.ConfigureAwait(configureAwait);
+        }
+        catch (Exception ex)
+        {
+            if (!observer.IsDisposed)
+            {
+                observer.OnCompleted(ex);
+            }
+            return;
+        }
+
+        if (!observer.IsDisposed)
+        {
+            observer.OnNext(result);
+            observer.OnCompleted();
+        }
     }
 }
 

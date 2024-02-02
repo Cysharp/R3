@@ -48,8 +48,10 @@ internal sealed class SelectMany<TSource, TCollection, TResult>(Observable<TSour
         protected override void OnNextCore(TSource value)
         {
             var nextSource = collectionSelector(value);
-            nextSource.Subscribe(new _SelectManyCollectionObserver(value, this))
-                .AddTo(compositeDisposable);
+
+            var observer = new _SelectManyCollectionObserver(value, this);
+            compositeDisposable.Add(observer); // Add observer before subscribe!
+            nextSource.Subscribe(observer);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -169,8 +171,9 @@ internal sealed class SelectManyIndexed<TSource, TCollection, TResult>(Observabl
         {
             var i = index++;
             var nextSource = collectionSelector(value, i);
-            nextSource.Subscribe(new _SelectManyCollectionObserver(value, this, i))
-                .AddTo(compositeDisposable);
+            var observer = new _SelectManyCollectionObserver(value, this, i);
+            compositeDisposable.Add(observer); // Add observer before subscribe!
+            nextSource.Subscribe(observer);
         }
 
         protected override void OnErrorResumeCore(Exception error)
