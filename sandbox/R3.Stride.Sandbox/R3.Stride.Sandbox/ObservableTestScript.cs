@@ -14,7 +14,8 @@ namespace R3.Stride.Sandbox
         // Declared public member fields and properties will show in the game studio
         public override void Start()
         {
-            Observable.Interval(TimeSpan.FromSeconds(1))
+            var customFrameProvider = StrideFrameProvider.Create(Game, Entity);
+            Observable.Interval(TimeSpan.FromSeconds(5))
                 .Subscribe(_ =>
                 {
                     Log.Info($"interval: {Game.UpdateTime.Total}");
@@ -29,7 +30,13 @@ namespace R3.Stride.Sandbox
                 .ThrottleLastFrame(60)
                 .Subscribe(x =>
                 {
-                    throw new Exception("test exception");
+                    //throw new Exception("test exception");
+                });
+            Observable.EveryUpdate(customFrameProvider)
+                .ThrottleLastFrame(60, customFrameProvider)
+                .Subscribe(x =>
+                {
+                    Log.Info($"custom frame provider");
                 });
         }
 
