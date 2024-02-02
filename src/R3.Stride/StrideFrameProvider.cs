@@ -10,29 +10,6 @@ public sealed class StrideFrameProvider : FrameProvider
 {
     FreeListCore<IFrameRunnerWorkItem> list;
     readonly object gate = new object();
-    /// <summary>
-    /// create R3 FrameProvider for Stride
-    /// </summary>
-    /// <param name="game">Game object, UpdateTime will be used</param>
-    /// <param name="entity">FrameProvider's dispatcher component will be added</param>
-    /// <returns></returns>
-    public static StrideFrameProvider Create(IGame game, Entity entity)
-    {
-        var frameProvider = new StrideFrameProvider(game);
-        frameProvider.Delta = new StrongBox<double>();
-        var dispatcher = new FrameDispatcher(frameProvider);
-        entity.Add(dispatcher);
-        return frameProvider;
-    }
-    internal sealed class FrameDispatcher(StrideFrameProvider frameProvider) : SyncScript
-    {
-        public override void Update()
-        {
-            frameProvider.Delta.Value = Game.UpdateTime.Elapsed.TotalSeconds;
-            frameProvider.Run(Game.UpdateTime.Total.TotalSeconds);
-        }
-    }
-
     internal StrongBox<double> Delta = default!; // set from Node before running process.
 
     internal StrideFrameProvider(IGame game)
