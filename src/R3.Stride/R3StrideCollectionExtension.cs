@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Stride.Core.Collections;
 using System.Threading;
 
-namespace R3.Stride;
+namespace R3;
 public static class R3StrideCollectionExtension
 {
     public static Observable<(object? sender, TrackingCollectionChangedEventArgs arg)> CollectionChangedAsObservable(this ITrackingCollectionChanged hashset, CancellationToken token = default)
