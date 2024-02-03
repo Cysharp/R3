@@ -1152,6 +1152,15 @@ public static Observable<(object? sender, RoutedEventArgs arg)> UncheckedAsObser
 public static Observable<(object? sender, RoutedEventArgs arg)> OutsideClickAsObservable(this ModalElement modalElement, CancellationToken token = default)
 ```
 
+And event extensions.
+
+```csharp
+public static Observable<(object? sender, TrackingCollectionChangedEventArgs arg)> CollectionChangedAsObservable(this ITrackingCollectionChanged hashset, CancellationToken token = default)
+public static Observable<(object? sender, FastTrackingCollectionChangedEventArgs arg)> CollectionChangedAsObservable<T>(this FastTrackingCollection<T> collection, CancellationToken token = default)
+public static Observable<T> AsObservable<T>(this EventKey<T> eventKey, CancellationToken token = default)
+public static Observable<Unit> AsObservable(this EventKey eventKey, CancellationToken token = default)
+```
+
 Operator Reference
 ---
 The standard operators in ReactiveX follow the behavior described in the [Reactive X Operator documentation](https://reactivex.io/documentation/operators.html).
