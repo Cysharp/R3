@@ -13,6 +13,7 @@ Hierarchy:
         - ref!! 56cd9852-d94c-4646-a513-85195ea3fe9b
         - ref!! b7806d41-f54f-4e99-9ec7-f9906f10b006
         - ref!! 787562e5-0943-4493-85ce-6b0bd2abf47f
+        - ref!! 9c0e2928-6cdc-4033-b5cc-06d2dfdb291d
     Parts:
         -   Entity:
                 Id: 016064cc-d022-441a-9402-adc01926f5c6
@@ -53,13 +54,27 @@ Hierarchy:
                         Id: 1a9d3c62-9ef5-4bde-b8e2-71ed721c0d9b
                         Model: aff8da36-c1ef-43b3-8fc4-4212a0730901:Ground
                         Materials: {}
+                    9cd507465eca3af487d41bf2b217d26d: !StaticColliderComponent
+                        Id: 076e6b55-b3c6-4922-ae2d-298b28a31cf0
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            153eee591f3997346bb2929e45ea6830: !StaticPlaneColliderShapeDesc
+                                Normal: {X: 0.0, Y: 1.0, Z: 0.0}
+                                Offset: 0.0
         -   Entity:
                 Id: 2b300ec9-5416-4771-ab62-636a1ce25643
                 Name: Camera
                 Components:
                     b8b773f875648c0554f1d1f77a3e6982: !TransformComponent
                         Id: 6b2cd6ec-5617-4c0a-99f9-731f7a874820
-                        Position: {X: 2.6, Y: 0.6, Z: -1.0}
+                        Position: {X: 5.0, Y: 0.6, Z: -2.0}
                         Rotation: {X: 0.0, Y: 0.82903755, Z: 0.0, W: 0.5591929}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
@@ -82,6 +97,26 @@ Hierarchy:
                         Id: 0b8a72b5-76a3-447c-92fb-93e5302f01b9
                         Model: c4063b2b-caff-4757-9bcd-47c34e9452cc:Sphere
                         Materials: {}
+                    9ecd94ecc0e9386fbd0c327a059558bc: !RigidbodyComponent
+                        Id: fbf3f6ba-4737-4788-b5e9-f1b7506c5e79
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        IsKinematic: false
+                        Mass: 1.0
+                        LinearDamping: 0.0
+                        AngularDamping: 0.0
+                        OverrideGravity: false
+                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
+                        NodeName: null
+                        ColliderShapes:
+                            f07e140ad4c31956db525f8c23bc5f92: !SphereColliderShapeDesc
+                                Is2D: false
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
         -   Entity:
                 Id: 5fe200ea-5597-4507-b15e-2a13ec790a29
                 Name: Skybox
@@ -117,6 +152,44 @@ Hierarchy:
                     87d8cfc0f2480a8c80ec5245c6710d2f: !R3.Stride.Sandbox.UIExtensionTest,R3.Stride.Sandbox
                         Id: 65687212-b652-4f3f-a61a-f3320cc3e1e6
         -   Entity:
+                Id: 9c0e2928-6cdc-4033-b5cc-06d2dfdb291d
+                Name: Cube
+                Components:
+                    f3a9306cfab07ec9687f289ac04ebe44: !TransformComponent
+                        Id: 6524d4a2-830b-4be5-96a4-e07c28761768
+                        Position: {X: 0.0, Y: 0.5, Z: 2.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 0.5, Y: 0.5, Z: 0.5}
+                        Children: {}
+                    905fc01ae7567f30e72873cd6f9269ec: !ModelComponent
+                        Id: b931a3a8-253e-4ad9-b4d9-1ef12891519d
+                        Model: b6a6bd83-1c1f-4d73-8cd8-bd8a66cbe3c5:Cube
+                        Materials: {}
+                    7e202eb6e07ed1ff4366b2c6eff48b73: !RigidbodyComponent
+                        Id: 76143390-3505-458b-8165-a00cb34abfa7
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: true
+                        IsKinematic: false
+                        Mass: 0.0
+                        LinearDamping: 0.0
+                        AngularDamping: 0.0
+                        OverrideGravity: false
+                        Gravity: {X: 0.0, Y: 0.0, Z: 0.0}
+                        NodeName: null
+                        ColliderShapes:
+                            59522ecd008781a40fe910ce5729b87f: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 0.5, Y: 0.5, Z: 0.5}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    f0e5f00a9db5203f5ec7e550b0e88491: !R3.Stride.Sandbox.CubeCollisionTest,R3.Stride.Sandbox
+                        Id: 7ba17cb9-5eab-4c77-abd2-59f412561715
+        -   Entity:
                 Id: b7806d41-f54f-4e99-9ec7-f9906f10b006
                 Name: Entity
                 Components:
@@ -130,3 +203,5 @@ Hierarchy:
                         Id: ad787971-6f5a-440e-91f5-f247ce01d6b4
                     6f4023fe5b305442911adadcff8c385d: !R3.Stride.Sandbox.ObservableTestScript,R3.Stride.Sandbox
                         Id: 1d8eed70-d32b-4820-a015-98f6b0634f8e
+                    d6c08302e8bc4cff4f75a1bef919f3ea: !R3.Stride.Sandbox.EventKeyReceiverTest,R3.Stride.Sandbox
+                        Id: 340c3d80-da0d-4b6f-b7b7-4071e161d717
