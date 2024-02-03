@@ -9,7 +9,7 @@ namespace R3;
 public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 {
     public abstract T CurrentValue { get; }
-    protected virtual void OnSetValue(T value) { }
+    protected virtual void OnValueChanged(T value) { }
     protected virtual void OnReceiveError(Exception exception) { }
     public ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty() => this;
     public abstract void Dispose();
@@ -40,6 +40,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         get => this.currentValue;
         set
         {
+            OnValueChanging(ref value);
+
             if (EqualityComparer != null)
             {
                 if (EqualityComparer.Equals(this.currentValue, value))
@@ -48,7 +50,10 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                 }
             }
 
-            OnNext(value);
+            this.currentValue = value;
+            OnValueChanged(value);
+
+            OnNextCore(value);
         }
     }
 
@@ -63,17 +68,47 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
     {
-        this.currentValue = value;
         this.equalityComparer = equalityComparer;
         this.list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
+
+        OnValueChanging(ref value);
+        this.currentValue = value;
+        OnValueChanged(value);
     }
+
+    protected ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer, bool callOnValueChangeInBaseConstructor)
+    {
+        this.equalityComparer = equalityComparer;
+        this.list = new FreeListCore<Subscription>(this);
+
+        if (callOnValueChangeInBaseConstructor)
+        {
+            OnValueChanging(ref value);
+        }
+
+        this.currentValue = value;
+
+        if (callOnValueChangeInBaseConstructor)
+        {
+            OnValueChanged(value);
+        }
+    }
+
+    protected virtual void OnValueChanging(ref T value) { }
+    protected ref T GetValueRef() => ref currentValue; // dangerous
 
     public void OnNext(T value)
     {
-        if (completeState.IsCompleted) return;
-
+        OnValueChanging(ref value);
         this.currentValue = value; // different from Subject<T>; set value before raise OnNext
-        OnSetValue(value);  // for inheritance types.
+        OnValueChanged(value);  // for inheritance types.
+
+        OnNextCore(value);
+    }
+
+    void OnNextCore(T value)
+    {
+        if (completeState.IsCompleted) return;
 
         foreach (var subscription in list.AsSpan())
         {

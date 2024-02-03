@@ -75,7 +75,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected override void OnSetValue(T value)
+    protected override void OnValueChanged(T value)
     {
         if (enableNotifyError)
         {

@@ -1,37 +1,67 @@
 ﻿using R3;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+// CollectionsMarshal.GetValueRef
+var v = new ClampedReactiveProperty2<int>(5, 10, 30);
 
-Console.WriteLine("hello");
+Console.WriteLine(v.Value);
 
-new ParallelOptions { MaxDegreeOfParallelism = -10 };
 
-// System.Reactive.Linq.Observable.Sample(
-
-//JsonSerializerOptions.Default.TypeInfoResolver
-// JsonSerializerOptions.Default.Converters.Add(new IgnoreCaseStringReactivePropertyJsonConverter());
-
-var options = new JsonSerializerOptions
+public sealed class ClampedReactiveProperty<T>(T initialValue, T min, T max)
+    : ReactiveProperty<T>(initialValue) where T : IComparable<T>
 {
-    Converters = { new IgnoreCaseStringReactivePropertyJsonConverter() },
-};
+    private static IComparer<T> Comparer { get; } = Comparer<T>.Default;
 
-var v = new IgnoreCaseStringReactiveProperty("aaa");
+    protected override void OnValueChanging(ref T value)
+    {
+        if (Comparer.Compare(value, min) < 0)
+        {
+            value = min;
+        }
+        else if (Comparer.Compare(value, max) > 0)
+        {
+            value = max;
+        }
+    }
+}
 
-// var v = new ReactiveProperty<int>(1000);
 
+public sealed class ClampedReactiveProperty2<T>
+    : ReactiveProperty<T> where T : IComparable<T>
+{
+    private static IComparer<T> Comparer { get; } = Comparer<T>.Default;
 
+    readonly T min, max;
 
+    // callOnValueChangeInBaseConstructor to avoid OnValueChanging call before min, max set.
+    public ClampedReactiveProperty2(T initialValue, T min, T max)
+        : base(initialValue, EqualityComparer<T>.Default, callOnValueChangeInBaseConstructor: false)
+    {
+        this.min = min;
+        this.max = max;
 
+        // modify currentValue manually
+        OnValueChanging(ref GetValueRef());
+    }
 
-var json = JsonSerializer.Serialize(v, options);
-Console.WriteLine(json);
-var v2 = JsonSerializer.Deserialize<IgnoreCaseStringReactiveProperty>(json, options);
-Console.WriteLine(v2!.Value);
+    protected override void OnValueChanging(ref T value)
+    {
+        if (Comparer.Compare(value, min) < 0)
+        {
+            value = min;
+        }
+        else if (Comparer.Compare(value, max) > 0)
+        {
+            value = max;
+        }
+    }
+}
+
 
 
 

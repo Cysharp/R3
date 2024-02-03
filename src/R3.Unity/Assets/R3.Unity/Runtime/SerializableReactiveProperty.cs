@@ -23,16 +23,16 @@ namespace R3
         {
         }
 
-        protected override void OnSetValue(T value)
+        protected override void OnValueChanged(T value)
         {
             this.value = value;
         }
 
-        public void OnBeforeSerialize()
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
         }
 
-        public void OnAfterDeserialize()
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             OnNext(this.value); // force set and update
         }
