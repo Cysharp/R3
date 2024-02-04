@@ -16,6 +16,6 @@ public static class GodotProviderInitializer
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         ObservableSystem.DefaultTimeProvider = GodotTimeProvider.Process;
-        ObservableSystem.DefaultFrameProvider = GodotFrameProvider.PhysicsProcess;
+        ObservableSystem.DefaultFrameProvider = GodotFrameProvider.Process;
     }
 }
