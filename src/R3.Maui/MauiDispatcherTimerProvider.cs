@@ -4,6 +4,8 @@ namespace R3;
 
 public class MauiDispatcherTimerProvider(IDispatcher dispatcher) : TimeProvider
 {
+    public IDispatcher Dispatcher => dispatcher;
+    
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         var dispatcherTimer = dispatcher.CreateTimer();
@@ -25,7 +27,6 @@ sealed class MauiDispatcherTimerProviderTimer : ITimer
         this.timerTick = Tick;
         this.callback = callback;
         this.state = state;
-
         timer.Tick += timerTick;
 
         if (dueTime != Timeout.InfiniteTimeSpan)

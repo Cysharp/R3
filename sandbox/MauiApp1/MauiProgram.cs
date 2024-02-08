@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using R3.Maui;
 
 namespace MauiApp1;
 
@@ -13,7 +14,8 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            });
+            })
+            .UseR3();
 
 #if DEBUG
         builder.Logging.AddDebug();

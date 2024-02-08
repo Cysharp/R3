@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Maui.Core" Version="8.0" />
+      <PackageReference Include="Microsoft.Maui.Controls.Core" Version="8.0.3" />
     </ItemGroup>
 
     <ItemGroup>

@@ -63,4 +63,8 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\R3.Maui\R3.Maui.csproj" />
+    </ItemGroup>
+
 </Project>
