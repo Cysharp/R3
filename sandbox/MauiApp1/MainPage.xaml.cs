@@ -2,6 +2,23 @@
 
 namespace MauiApp1;
 
+public class BasicUsagesViewModel : IDisposable
+{
+    public BindableReactiveProperty<string> Input { get; }
+    public BindableReactiveProperty<string> Output { get; }
+
+    public BasicUsagesViewModel()
+    {
+        Input = new BindableReactiveProperty<string>("");
+        Output = Input.Select(x => x.ToUpper()).ToBindableReactiveProperty("");
+    }
+
+    public void Dispose()
+    {
+        Disposable.Dispose(Input, Output);
+    }
+}
+
 public partial class MainPage : ContentPage
 {
     int count = 0;
@@ -25,16 +42,14 @@ public partial class MainPage : ContentPage
                 Label2.Text = $"Frame: {frameCount++}";
             });
 
-        Observable.Return(123)
-            .ObserveOnThreadPool()
-            .ObserveOnDispatcher()
-            .Subscribe(x =>
-            {
-                Label3.Text = $"Return: {x}";
-            });
+        this.Loaded += (sender, args) =>
+        {
+            var viewModel = new BasicUsagesViewModel();
+            BindingContext = viewModel;
+        };
     }
 
-    private void OnCounterClicked(object sender, EventArgs e)
+    void OnCounterClicked(object sender, EventArgs e)
     {
         count++;
 

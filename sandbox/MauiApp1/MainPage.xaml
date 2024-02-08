@@ -26,11 +26,11 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
-            <Label
-                x:Name="Label3"
-                Text="aaaa"
-                Style="{StaticResource SubHeadline}"
-                SemanticProperties.HeadingLevel="Level2" />
+            <Label Text="Input" />
+            <Entry Text="{Binding Input.Value}" />
+
+            <Label Text="Output" />
+            <Entry Text="{Binding Output.Value}" />
 
             <Button
                 x:Name="CounterBtn"
