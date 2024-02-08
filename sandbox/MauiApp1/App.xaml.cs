@@ -1,4 +1,6 @@
-﻿namespace MauiApp1;
+﻿using R3;
+
+namespace MauiApp1;
 
 public partial class App : Application
 {

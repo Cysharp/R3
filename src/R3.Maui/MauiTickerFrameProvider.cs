@@ -36,6 +36,10 @@ public class MauiTickerFrameProvider : FrameProvider, IDisposable
         {
             if (running == false)
             {
+                if (!ticker.IsRunning)
+                {
+                    ticker.Start();
+                }
                 ticker.Fire += timerTick;
                 running = true;
             }
