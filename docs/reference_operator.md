@@ -247,6 +247,7 @@
 | **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, T>>` | 
 | **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, TElement>>` | 
 | **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, TElement>>` | 
+| **Trampoline**(this `Observable<T>` source) | `Observable<T>` | 
 | **WaitAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task` | 
 | **Where**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
