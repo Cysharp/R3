@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
 
+[assembly: UnityEngine.Scripting.AlwaysLinkAssembly]
+
 namespace R3
 {
     public static class UnityProviderInitializer
