@@ -92,6 +92,10 @@ public static class R3StrideEventExtension
             {
                 isDisposed = true;
                 cancellationTokenSubscription.Dispose();
+                try
+                {
+                    _receiver.Dispose();
+                } catch { }
             }
         }
     }
@@ -148,6 +152,10 @@ public static class R3StrideEventExtension
             {
                 isDisposed = true;
                 cancellationTokenSubscription.Dispose();
+                try
+                {
+                    _receiver.Dispose();
+                } catch { }
             }
         }
     }
