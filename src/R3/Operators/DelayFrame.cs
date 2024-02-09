@@ -131,7 +131,7 @@ internal sealed class DelayFrame<T>(Observable<T> source, int frameCount, FrameP
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                observer.OnCompleted(value.Result!.Value);
+                                observer.OnCompleted(value.Result!);
                             }
                             finally
                             {

@@ -129,7 +129,7 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, Dispatcher di
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                self.observer.OnCompleted(value.Result!.Value);
+                                self.observer.OnCompleted(value.Result!);
                             }
                             finally
                             {

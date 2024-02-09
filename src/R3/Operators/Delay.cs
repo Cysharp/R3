@@ -134,7 +134,7 @@ internal sealed class Delay<T>(Observable<T> source, TimeSpan dueTime, TimeProvi
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                self.observer.OnCompleted(value.Result!.Value);
+                                self.observer.OnCompleted(value.Result);
                             }
                             finally
                             {
