@@ -87,7 +87,7 @@ namespace R3.Triggers
         public static Observable<Unit> OnDestroyAsObservable(this Component component)
         {
             if (component == null || component.gameObject == null) return Observable.Return(Unit.Default); // send destroy message
-            return GetOrAddComponent<___ObservableDestroyTrigger>(component.gameObject).OnDestroyAsObservable();
+            return GetOrAddComponent<ObservableDestroyTrigger>(component.gameObject).OnDestroyAsObservable();
         }
 
         #endregion
