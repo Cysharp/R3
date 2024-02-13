@@ -6,6 +6,12 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.cysharp.r3.internal.generator": {
+      "version": "file:../../R3.Generator/bin/Debug/netstandard2.0",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
       "depth": 0,

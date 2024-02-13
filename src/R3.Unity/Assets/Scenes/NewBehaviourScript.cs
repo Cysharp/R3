@@ -46,6 +46,9 @@ public class NewBehaviourScript : MonoBehaviour
         //        return req.downloadHandler.text;
         //    }, AwaitOperations.Drop)
         //    .SubscribeToText(text);
+
+
+        this.gameObject.AddComponent<ConsoleApp1.TestMonoBehaviour>();
     }
 
 

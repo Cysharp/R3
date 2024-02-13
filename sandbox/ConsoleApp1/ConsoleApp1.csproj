@@ -18,6 +18,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\R3\R3.csproj" />
+        <ProjectReference Include="..\..\src\R3.Generator\R3.Generator.csproj">
+            <OutputItemType>Analyzer</OutputItemType>
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
     </ItemGroup>
 
 </Project>

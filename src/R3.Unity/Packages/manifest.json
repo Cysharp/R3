@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.cysharp.r3.internal": "file:../../R3/bin/Debug/netstandard2.0",
+    "com.cysharp.r3.internal.generator": "file:../../R3.Generator/bin/Debug/netstandard2.0",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.unity.ide.visualstudio": "2.0.22",
