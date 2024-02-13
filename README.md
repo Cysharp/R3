@@ -1008,7 +1008,7 @@ You open tracker window in `Window -> Observable Tracker`. It enables watch `Obs
 
 Observable Tracker is intended for debugging use only as enabling tracking and capturing stacktraces is useful but has a heavy performance impact. Recommended usage is to enable both tracking and stacktraces to find subscription leaks and to disable them both when done.
 
-### `SerializableReactiveProperty<T>`
+#### `SerializableReactiveProperty<T>`
 
 `ReactiveProperty<T>` can not use on `[SerializeField]`. However you can use `SerializableReactiveProperty<T>` instead.
 
@@ -1039,6 +1039,12 @@ public class NewBehaviourScript : MonoBehaviour
 ```
 
 ![image](https://github.com/Cysharp/R3/assets/46207/31be9378-846e-4635-8cc6-0b6e3954e918)
+
+#### Triggers
+
+R3 can handle [MonoBehaviour messages](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) with R3.Triggers:
+
+These can also be handled more easily by directly subscribing to observables returned by extension methods on Component/GameObject. These methods inject ObservableTrigger automaticaly.
 
 ### Godot
 
