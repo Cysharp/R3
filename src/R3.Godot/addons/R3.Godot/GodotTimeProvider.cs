@@ -13,6 +13,8 @@ public class GodotTimeProvider : TimeProvider
 
     readonly GodotFrameProvider frameProvider;
 
+    internal double time;
+
     GodotTimeProvider(FrameProvider frameProvider)
     {
         this.frameProvider = (GodotFrameProvider)frameProvider;
@@ -21,6 +23,11 @@ public class GodotTimeProvider : TimeProvider
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         return new FrameTimer(callback, state, dueTime, period, frameProvider);
+    }
+
+    public override long GetTimestamp()
+    {
+        return TimeSpan.FromSeconds(time).Ticks;
     }
 }
 

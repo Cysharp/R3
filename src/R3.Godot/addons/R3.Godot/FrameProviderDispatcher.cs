@@ -20,12 +20,14 @@ public partial class FrameProviderDispatcher : global::Godot.Node
     public override void _Process(double delta)
     {
         processDelta.Value = delta;
+        ((GodotTimeProvider)GodotTimeProvider.Process).time += delta;
         ((GodotFrameProvider)GodotFrameProvider.Process).Run(delta);
     }
 
     public override void _PhysicsProcess(double delta)
     {
         physicsProcessDelta.Value = delta;
+        ((GodotTimeProvider)GodotTimeProvider.PhysicsProcess).time += delta;
         ((GodotFrameProvider)GodotFrameProvider.PhysicsProcess).Run(delta);
     }
 }
