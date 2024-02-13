@@ -19,6 +19,8 @@ jobs:
       file-path: |
         ./src/R3.Unity/Assets/R3.Unity/package.json
         ./src/R3.Godot/addons/R3.Godot/plugin.cfg
+      dotnet-run-path:
+        ./sandbox/ReferenceBuilder/ReferenceBuilder.csproj
       tag: ${{ inputs.tag }}
       dry-run: ${{ inputs.dry-run }}
 
