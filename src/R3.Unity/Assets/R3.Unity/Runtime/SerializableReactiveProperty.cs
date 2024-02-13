@@ -34,7 +34,7 @@ namespace R3
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
-            OnNext(this.value); // force set and update
+            GetValueRef() = this.value; // force set
         }
     }
 
