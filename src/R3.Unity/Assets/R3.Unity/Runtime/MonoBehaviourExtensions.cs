@@ -12,17 +12,18 @@ namespace R3
 #if UNITY_2022_2_OR_NEWER
             return value.destroyCancellationToken;
 #else
-            return CancellationToken.None;;
+            var component = value.gameObject.GetComponent<R3.Triggers.ObservableDestroyTrigger>();
+            if (component == null)
+            {
+                component = value.gameObject.AddComponent<R3.Triggers.ObservableDestroyTrigger>();
+            }
+            return component.GetCancellationToken();
 #endif
         }
-
-#if UNITY_2022_2_OR_NEWER
 
         public static CancellationTokenRegistration AddTo(this IDisposable disposable, MonoBehaviour value)
         {
-            return disposable.AddTo(value.destroyCancellationToken);
+            return disposable.AddTo(value.GetDestroyCancellationToken());
         }
-
-#endif
     }
 }
