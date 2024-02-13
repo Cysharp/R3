@@ -21,9 +21,9 @@ public interface IBindableReactiveProperty
 #endif
 public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
 {
-    // ctor
-
     IDisposable? subscription;
+
+    // ctor
 
     public BindableReactiveProperty()
         : base()
@@ -94,6 +94,14 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
                     // set is completed(validation does not call before set) so continue call PropertyChanged
                 }
             }
+            else if (validator != null)
+            {
+                var error = validator.Invoke(value);
+                if (error != null)
+                {
+                    OnReceiveError(error);
+                }
+            }
             else
             {
                 // comes new value, clear error
@@ -111,6 +119,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
     // for INotifyDataErrorInfo
 
     PropertyValidationContext? validationContext;
+    Func<T, Exception?>? validator;
     bool enableNotifyError = false; // default is false
     List<ValidationResult>? errors;
 
@@ -173,23 +182,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
 
     public BindableReactiveProperty<T> EnableValidation(Func<T, Exception?> validator)
     {
-        var validationSubscription = this.Subscribe((this, validator), static (x, state) =>
-        {
-            var ex = state.validator(x);
-            if (ex != null)
-            {
-                state.Item1.OnErrorResume(ex);
-            }
-        });
-
-        if (subscription == null)
-        {
-            subscription = validationSubscription;
-        }
-        else
-        {
-            subscription = Disposable.Combine(subscription, validationSubscription);
-        }
+        this.validator = validator;
 
         enableNotifyError = true;
         return this;
