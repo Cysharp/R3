@@ -44,7 +44,8 @@ namespace R3.Stride
     {
         protected override void OnEntityComponentAdding(Entity entity, [NotNull] R3FrameDispatcherComponent component, [NotNull] R3FrameDispatcherComponent data)
         {
-            component.InitializeFrameProvider();
+            // GameStudio throws exception, why?
+            // component.InitializeFrameProvider();
             base.OnEntityComponentAdding(entity, component, data);
         }
         protected override void OnEntityComponentRemoved(Entity entity, [NotNull] R3FrameDispatcherComponent component, [NotNull] R3FrameDispatcherComponent data)

@@ -199,9 +199,10 @@ Hierarchy:
                         Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
                         Scale: {X: 1.0, Y: 1.0, Z: 1.0}
                         Children: {}
-                    c75b52da5a850a62d1fda7267a952dd5: !R3.Stride.R3FrameDispatcherComponent,R3.Stride
-                        Id: ad787971-6f5a-440e-91f5-f247ce01d6b4
                     6f4023fe5b305442911adadcff8c385d: !R3.Stride.Sandbox.ObservableTestScript,R3.Stride.Sandbox
                         Id: 1d8eed70-d32b-4820-a015-98f6b0634f8e
                     d6c08302e8bc4cff4f75a1bef919f3ea: !R3.Stride.Sandbox.EventKeyReceiverTest,R3.Stride.Sandbox
                         Id: 340c3d80-da0d-4b6f-b7b7-4071e161d717
+                    88beb326b15d1fdb09e60b18731e24bc: !R3FrameDispatcherComponent
+                        Id: 1d2c5270-7ad5-4b36-864e-e89dfb285f4c
+                        Priority: -1
