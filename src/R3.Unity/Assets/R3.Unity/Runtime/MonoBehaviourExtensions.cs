@@ -23,7 +23,7 @@ namespace R3
 
         public static CancellationTokenRegistration AddTo(this IDisposable disposable, MonoBehaviour value)
         {
-            return disposable.AddTo(value.GetDestroyCancellationToken());
+            return disposable.RegisterTo(value.GetDestroyCancellationToken());
         }
     }
 }
