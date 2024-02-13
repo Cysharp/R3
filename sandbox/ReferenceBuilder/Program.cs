@@ -11,7 +11,7 @@ File.WriteAllText(Path.Combine(basePath, "../../../../../../docs/reference_facto
 File.WriteAllText(Path.Combine(basePath, "../../../../../../docs/reference_operator.md"), o);
 
 // replace readme
-var text = File.ReadAllLines(Path.Combine(basePath, "../../../../../../ReadMe.md"));
+var text = File.ReadAllLines(Path.Combine(basePath, "../../../../../../README.md"));
 
 (int head, int tail)? factoryLines = null;
 (int head, int tail)? operatorLines = null;
@@ -88,7 +88,7 @@ for (int i = 0; i < text.Length; i++)
 }
 
 var nt = string.Join(Environment.NewLine, newText);
-File.WriteAllText(Path.Combine(basePath, "../../../../../../ReadMe.md"), nt);
+File.WriteAllText(Path.Combine(basePath, "../../../../../../README.md"), nt);
 
 static string Factory()
 {
@@ -132,7 +132,7 @@ static string Operator()
 //                target = args[0];
 //                dest = args[1];
 //            }
-//            else if (args.Length == 3) 
+//            else if (args.Length == 3)
 //            {
 //                target = args[0];
 //                dest = args[1];
