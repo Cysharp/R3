@@ -15,12 +15,11 @@ public sealed class LogicLooperFrameProvider : FrameProvider, IDisposable
     internal TimeSpan deltaTime;
     readonly object gate = new object();
 
-    public LogicLooperFrameProvider(LogicLooper looper)
+    public LogicLooperFrameProvider(ILogicLooper looper)
     {
         this.list = new FreeListCore<IFrameRunnerWorkItem>(gate);
 
-        // TODO: can we get _frame before run?
-        // this.frameCount = looper.CurrentFrame;
+        this.frameCount = looper.CurrentFrame;
         this.loop = looper.RegisterActionAsync(Run);
     }
 

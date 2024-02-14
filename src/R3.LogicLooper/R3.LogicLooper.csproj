@@ -18,7 +18,7 @@
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="LogicLooper" Version="1.4.0" />
+        <PackageReference Include="LogicLooper" Version="1.5.0" />
     </ItemGroup>
 
     <ItemGroup>
