@@ -28,7 +28,9 @@ public static class Disposable
         disposables.Add(disposable);
     }
 
-    public static CancellationTokenRegistration AddTo(this IDisposable disposable, CancellationToken cancellationToken)
+    // AddTo is already used in UniTask so avoid name conflict...
+
+    public static CancellationTokenRegistration RegisterTo(this IDisposable disposable, CancellationToken cancellationToken)
     {
         if (!cancellationToken.CanBeCanceled) throw new ArgumentException("Require CancellationToken CanBeCanceled");
 
@@ -576,9 +578,9 @@ public ref struct DisposableBuilder()
         return result;
     }
 
-    public CancellationTokenRegistration AddTo(CancellationToken cancellationToken)
+    public CancellationTokenRegistration RegisterTo(CancellationToken cancellationToken)
     {
-        return Build().AddTo(cancellationToken);
+        return Build().RegisterTo(cancellationToken);
     }
 
     public void Dispose()

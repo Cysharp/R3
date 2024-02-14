@@ -97,6 +97,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     protected virtual void OnValueChanging(ref T value) { }
     protected ref T GetValueRef() => ref currentValue; // dangerous
 
+    public void ForceNotify()
+    {
+        OnNext(Value);
+    }
+
     public void OnNext(T value)
     {
         OnValueChanging(ref value);

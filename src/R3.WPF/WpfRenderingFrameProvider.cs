@@ -21,13 +21,13 @@ public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
 
     public override long GetFrameCount()
     {
-        ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
+        ThrowObjectDisposedIf(disposed, typeof(WpfRenderingFrameProvider));
         return frameCount;
     }
 
     public override void Register(IFrameRunnerWorkItem callback)
     {
-        ThrowObjectDisposedIf(disposed, typeof(NewThreadSleepFrameProvider));
+        ThrowObjectDisposedIf(disposed, typeof(WpfRenderingFrameProvider));
         list.Add(callback, out _);
     }
 

@@ -8,10 +8,12 @@ namespace R3;
 
 public class GodotTimeProvider : TimeProvider
 {
-    public static readonly TimeProvider Process = new GodotTimeProvider(GodotFrameProvider.Process);
-    public static readonly TimeProvider PhysicsProcess = new GodotTimeProvider(GodotFrameProvider.PhysicsProcess);
+    public static readonly GodotTimeProvider Process = new GodotTimeProvider(GodotFrameProvider.Process);
+    public static readonly GodotTimeProvider PhysicsProcess = new GodotTimeProvider(GodotFrameProvider.PhysicsProcess);
 
     readonly GodotFrameProvider frameProvider;
+
+    internal double time;
 
     GodotTimeProvider(FrameProvider frameProvider)
     {
@@ -21,6 +23,11 @@ public class GodotTimeProvider : TimeProvider
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         return new FrameTimer(callback, state, dueTime, period, frameProvider);
+    }
+
+    public override long GetTimestamp()
+    {
+        return TimeSpan.FromSeconds(time).Ticks;
     }
 }
 

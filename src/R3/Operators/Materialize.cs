@@ -66,7 +66,7 @@ internal sealed class Dematerialize<T>(Observable<Notification<T>> source) : Obs
                     OnErrorResume(value.Error!);
                     break;
                 case NotificationKind.OnCompleted:
-                    OnCompleted(value.Result!.Value);
+                    OnCompleted(value.Result!);
                     break;
                 default:
                     break;

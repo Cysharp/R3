@@ -40,7 +40,7 @@ public static class Beautifier
             var isParams = IsParamsParameter(x);
             var refKind = IsOutParameter(x) ? "out " : IsRefParameter(x) ? "ref " : IsInParameter(x) ? "in " : "";
             var prefix = isParams ? "params " : refKind;
-            var suffix = x.HasDefaultValue ? (" = " + (x.DefaultValue ?? $"default")) : "";
+            var suffix = x.HasDefaultValue ? (" = " + (x.DefaultValue?.ToString()?.ToLower() ?? $"default")) : "";
             return prefix + "`" + BeautifyType(x.ParameterType) + "` " + x.Name + suffix;
         });
 

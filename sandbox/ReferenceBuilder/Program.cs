@@ -1,13 +1,17 @@
 ﻿using MarkdownGenerator;
+using System.Reflection;
 
 var f = Factory();
 var o = Operator();
 
-File.WriteAllText("../../../../../docs/reference_factory.md", f);
-File.WriteAllText("../../../../../docs/reference_operator.md", o);
+// Get absolute path of bin/Debug/TargetFramework/ReferenceBuilder.dll
+// Location = /Foo/Bar/R3/sandbox/ReferenceBuilder/bin/Debug/net8.0/ReferenceBuilder.dll
+var basePath = Assembly.GetAssembly(typeof(Program))!.Location;
+File.WriteAllText(Path.Combine(basePath, "../../../../../../docs/reference_factory.md"), f);
+File.WriteAllText(Path.Combine(basePath, "../../../../../../docs/reference_operator.md"), o);
 
 // replace readme
-var text = File.ReadAllLines("../../../../../ReadMe.md");
+var text = File.ReadAllLines(Path.Combine(basePath, "../../../../../../README.md"));
 
 (int head, int tail)? factoryLines = null;
 (int head, int tail)? operatorLines = null;
@@ -84,7 +88,7 @@ for (int i = 0; i < text.Length; i++)
 }
 
 var nt = string.Join(Environment.NewLine, newText);
-File.WriteAllText("../../../../../ReadMe.md", nt);
+File.WriteAllText(Path.Combine(basePath, "../../../../../../README.md"), nt);
 
 static string Factory()
 {
@@ -128,7 +132,7 @@ static string Operator()
 //                target = args[0];
 //                dest = args[1];
 //            }
-//            else if (args.Length == 3) 
+//            else if (args.Length == 3)
 //            {
 //                target = args[0];
 //                dest = args[1];

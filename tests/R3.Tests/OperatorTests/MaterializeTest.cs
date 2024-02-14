@@ -18,7 +18,7 @@ public class MaterializeTest
         list[1].Value.Should().Be(20);
         list[2].Value.Should().Be(30);
         list[3].Error!.Message.Should().Be("foo");
-        list[4].Result!.Value.Exception!.Message.Should().Be("comp");
+        list[4].Result!.Exception!.Message.Should().Be("comp");
 
         list.AssertIsCompleted();
     }

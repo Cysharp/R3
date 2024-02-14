@@ -1,6 +1,6 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), etc(planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper)).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), [LogicLooper](#logiclooper), etc(planning MAUI, WINUI3, MonoGame).
 
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
@@ -685,6 +685,7 @@ Although standard support is provided for the following platforms, by implementi
 * [Unity](#unity)
 * [Godot](#godot)
 * [Stride](#stride)
+* [LogicLooper](#logiclooper)
 
 Add support planning [LogicLooper](https://github.com/Cysharp/LogicLooper).
 
@@ -1071,7 +1072,7 @@ You open tracker window in `Window -> Observable Tracker`. It enables watch `Obs
 
 Observable Tracker is intended for debugging use only as enabling tracking and capturing stacktraces is useful but has a heavy performance impact. Recommended usage is to enable both tracking and stacktraces to find subscription leaks and to disable them both when done.
 
-### `SerializableReactiveProperty<T>`
+#### `SerializableReactiveProperty<T>`
 
 `ReactiveProperty<T>` can not use on `[SerializeField]`. However you can use `SerializableReactiveProperty<T>` instead.
 
@@ -1102,6 +1103,12 @@ public class NewBehaviourScript : MonoBehaviour
 ```
 
 ![image](https://github.com/Cysharp/R3/assets/46207/31be9378-846e-4635-8cc6-0b6e3954e918)
+
+#### Triggers
+
+R3 can handle [MonoBehaviour messages](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) with R3.Triggers:
+
+These can also be handled more easily by directly subscribing to observables returned by extension methods on Component/GameObject. These methods inject ObservableTrigger automaticaly.
 
 ### Godot
 
@@ -1224,6 +1231,17 @@ public static Observable<T> AsObservable<T>(this EventKey<T> eventKey, Cancellat
 public static Observable<Unit> AsObservable(this EventKey eventKey, CancellationToken token = default)
 ```
 
+### LogicLooper
+
+R3 extensions for [LogicLooper](https://github.com/Cysharp/LogicLooper/) 
+
+> PM> Install-Package [R3Extensions.LogicLooper](https://www.nuget.org/packages/R3Extensions.LogicLooper)
+
+That supports two special providers.
+
+* LogicLooperFrameProvider
+* LogicLooperTimerProvider
+
 Operator Reference
 ---
 The standard operators in ReactiveX follow the behavior described in the [Reactive X Operator documentation](https://reactivex.io/documentation/operators.html).
@@ -1263,8 +1281,8 @@ Factory methods are defined as static methods in the static class `Observable`.
 | **EveryValueChanged**(`TSource` source, `Func<TSource, TProperty>` propertySelector, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<TProperty>` | 
 | **EveryValueChanged**(`TSource` source, `Func<TSource, TProperty>` propertySelector, `EqualityComparer<TProperty>` equalityComparer, `CancellationToken` cancellationToken = default) | `Observable<TProperty>` | 
 | **EveryValueChanged**(`TSource` source, `Func<TSource, TProperty>` propertySelector, `FrameProvider` frameProvider, `EqualityComparer<TProperty>` equalityComparer, `CancellationToken` cancellationToken = default) | `Observable<TProperty>` | 
-| **FromAsync**(`Func<CancellationToken, ValueTask>` asyncFactory, `Boolean` configureAwait = False) | `Observable<Unit>` | 
-| **FromAsync**(`Func<CancellationToken, ValueTask<T>>` asyncFactory, `Boolean` configureAwait = False) | `Observable<T>` | 
+| **FromAsync**(`Func<CancellationToken, ValueTask>` asyncFactory, `Boolean` configureAwait = True) | `Observable<Unit>` | 
+| **FromAsync**(`Func<CancellationToken, ValueTask<T>>` asyncFactory, `Boolean` configureAwait = True) | `Observable<T>` | 
 | **FromEvent**(`Action<Action>` addHandler, `Action<Action>` removeHandler, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **FromEvent**(`Action<Action<T>>` addHandler, `Action<Action<T>>` removeHandler, `CancellationToken` cancellationToken = default) | `Observable<T>` | 
 | **FromEvent**(`Func<Action, TDelegate>` conversion, `Action<TDelegate>` addHandler, `Action<TDelegate>` removeHandler, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
@@ -1314,10 +1332,10 @@ Factory methods are defined as static methods in the static class `Observable`.
 | **TimerFrame**(`Int32` dueTimeFrame, `Int32` periodFrame, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **TimerFrame**(`Int32` dueTimeFrame, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **TimerFrame**(`Int32` dueTimeFrame, `Int32` periodFrame, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
-| **ToObservable**(this `Task` task, `Boolean` configureAwait = False) | `Observable<Unit>` | 
-| **ToObservable**(this `Task<T>` task, `Boolean` configureAwait = False) | `Observable<T>` | 
-| **ToObservable**(this `ValueTask` task, `Boolean` configureAwait = False) | `Observable<Unit>` | 
-| **ToObservable**(this `ValueTask<T>` task, `Boolean` configureAwait = False) | `Observable<T>` | 
+| **ToObservable**(this `Task` task, `Boolean` configureAwait = True) | `Observable<Unit>` | 
+| **ToObservable**(this `Task<T>` task, `Boolean` configureAwait = True) | `Observable<T>` | 
+| **ToObservable**(this `ValueTask` task, `Boolean` configureAwait = True) | `Observable<Unit>` | 
+| **ToObservable**(this `ValueTask<T>` task, `Boolean` configureAwait = True) | `Observable<T>` | 
 | **ToObservable**(this `IEnumerable<T>` source, `CancellationToken` cancellationToken = default) | `Observable<T>` | 
 | **ToObservable**(this `IAsyncEnumerable<T>` source) | `Observable<T>` | 
 | **ToObservable**(this `IObservable<T>` source) | `Observable<T>` | 
@@ -1421,7 +1439,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **CountAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
 | **Debounce**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **Debounce**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
-| **Debounce**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` throttleDurationSelector, `Boolean` configureAwait = False) | `Observable<T>` | 
+| **Debounce**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` throttleDurationSelector, `Boolean` configureAwait = True) | `Observable<T>` | 
 | **DebounceFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **DebounceFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **DefaultIfEmpty**(this `Observable<T>` source) | `Observable<T>` | 
@@ -1514,7 +1532,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **Select**(this `Observable<T>` source, `Func<T, Int32, TResult>` selector) | `Observable<TResult>` | 
 | **Select**(this `Observable<T>` source, `TState` state, `Func<T, TState, TResult>` selector) | `Observable<TResult>` | 
 | **Select**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, TResult>` selector) | `Observable<TResult>` | 
-| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = False, `Int32` maxConcurrent = -1) | `Observable<TResult>` | 
+| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TResult>>` selector) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TCollection>>` collectionSelector, `Func<TSource, TCollection, TResult>` resultSelector) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Int32, Observable<TResult>>` selector) | `Observable<TResult>` | 
@@ -1541,9 +1559,9 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = False, `Int32` maxConcurrent = -1) | `IDisposable` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = False, `Int32` maxConcurrent = -1) | `IDisposable` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = False, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `IDisposable` | 
 | **SubscribeOn**(this `Observable<T>` source, `SynchronizationContext` synchronizationContext) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 
@@ -1582,13 +1600,13 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **ThrottleFirst**(this `Observable<T>` source, `Observable<TSample>` sampler) | `Observable<T>` | 
-| **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = False) | `Observable<T>` | 
+| **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = True) | `Observable<T>` | 
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `Observable<TSample>` sampler) | `Observable<T>` | 
-| **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = False) | `Observable<T>` | 
+| **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = True) | `Observable<T>` | 
 | **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` | 
@@ -1610,12 +1628,13 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, T>>` | 
 | **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, TElement>>` | 
 | **ToLookupAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `Func<T, TElement>` elementSelector, `IEqualityComparer<TKey>` keyComparer, `CancellationToken` cancellationToken = default) | `Task<ILookup<TKey, TElement>>` | 
+| **Trampoline**(this `Observable<T>` source) | `Observable<T>` | 
 | **WaitAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task` | 
 | **Where**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, TState, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, Boolean>` predicate) | `Observable<T>` | 
-| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = False, `Int32` maxConcurrent = -1) | `Observable<T>` | 
+| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `Observable<T>` | 
 | **WithLatestFrom**(this `Observable<TFirst>` first, `Observable<TSecond>` second, `Func<TFirst, TSecond, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Func<T1, T2, T3, TResult>` resultSelector) | `Observable<TResult>` | 

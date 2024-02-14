@@ -17,7 +17,7 @@ public static partial class ObservableExtensions
         return new ThrottleLastObservableSampler<T, TSample>(source, sampler);
     }
 
-    public static Observable<T> ThrottleLast<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait = false)
+    public static Observable<T> ThrottleLast<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait = true)
     {
         return new ThrottleLastAsyncSampler<T>(source, sampler, configureAwait);
     }

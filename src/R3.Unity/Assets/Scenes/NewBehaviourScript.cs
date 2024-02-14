@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class NewBehaviourScript : MonoBehaviour
 {
@@ -34,8 +35,8 @@ public class NewBehaviourScript : MonoBehaviour
     //public NantonakuProperty NANTOKAMARU;
 
 
-    Button button;
-    Text text;
+    public Button button;
+    // Text text;
 
     void Start()
     {
@@ -46,6 +47,40 @@ public class NewBehaviourScript : MonoBehaviour
         //        return req.downloadHandler.text;
         //    }, AwaitOperations.Drop)
         //    .SubscribeToText(text);
+
+
+        button.OnClickAsObservable()
+            .Do(x => Debug.Log($"Do:{Thread.CurrentThread.ManagedThreadId}"))
+            .SubscribeAwait(async (_, ct) =>
+            {
+                Debug.Log($"Before Await:{Thread.CurrentThread.ManagedThreadId}");
+                var time = Time.time;
+                while (Time.time - time < 1f)
+                {
+                    transform.position += Vector3.forward * Time.deltaTime;
+                    await UniTask.Yield(ct);
+                    Debug.Log($"After Yield:{Thread.CurrentThread.ManagedThreadId}");
+                }
+
+            }, AwaitOperation.Sequential/*, configureAwait: false*/)
+            .AddTo(this);
+
+
+        //var subject = new Subject<int>();
+
+        //subject
+        //    .Do(x => Debug.Log($"Do:{Thread.CurrentThread.ManagedThreadId}"))
+        //    .SubscribeAwait(async (_, ct) =>
+        //    {
+        //        Debug.Log($"Before Await:{Thread.CurrentThread.ManagedThreadId}");
+        //        await UniTask.Yield(ct);
+        //        Debug.Log($"After Yield:{Thread.CurrentThread.ManagedThreadId}");
+        //    }, AwaitOperation.Sequential/*, configureAwait: false*/);
+
+
+        //subject.OnNext(10);
+        //subject.OnNext(20);
+        //subject.OnNext(30);
     }
 
 

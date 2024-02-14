@@ -135,7 +135,7 @@ internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, S
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                self.observer.OnCompleted(value.Result!.Value);
+                                self.observer.OnCompleted(value.Result);
                             }
                             finally
                             {
@@ -244,7 +244,7 @@ internal sealed class ObserveOnThreadPool<T>(Observable<T> source) : Observable<
                     case NotificationKind.OnCompleted:
                         try
                         {
-                            observer.OnCompleted(item.Result!.Value);
+                            observer.OnCompleted(item.Result!);
                         }
                         finally
                         {
@@ -366,7 +366,7 @@ internal sealed class ObserveOnTimeProvider<T>(Observable<T> source, TimeProvide
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                self.observer.OnCompleted(value.Result!.Value);
+                                self.observer.OnCompleted(value.Result);
                             }
                             finally
                             {
@@ -485,7 +485,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                observer.OnCompleted(value.Result!.Value);
+                                observer.OnCompleted(value.Result!);
                             }
                             finally
                             {
