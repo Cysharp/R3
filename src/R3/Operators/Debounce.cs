@@ -12,7 +12,7 @@ public static partial class ObservableExtensions
         return new Debounce<T>(source, timeSpan, timeProvider);
     }
 
-    public static Observable<T> Debounce<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> throttleDurationSelector, bool configureAwait = false)
+    public static Observable<T> Debounce<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> throttleDurationSelector, bool configureAwait = true)
     {
         return new DebounceSelector<T>(source, throttleDurationSelector, configureAwait);
     }

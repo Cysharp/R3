@@ -2,12 +2,12 @@
 
 public static partial class Observable
 {
-    public static Observable<Unit> FromAsync(Func<CancellationToken, ValueTask> asyncFactory, bool configureAwait = false)
+    public static Observable<Unit> FromAsync(Func<CancellationToken, ValueTask> asyncFactory, bool configureAwait = true)
     {
         return new FromAsync(asyncFactory, configureAwait);
     }
 
-    public static Observable<T> FromAsync<T>(Func<CancellationToken, ValueTask<T>> asyncFactory, bool configureAwait = false)
+    public static Observable<T> FromAsync<T>(Func<CancellationToken, ValueTask<T>> asyncFactory, bool configureAwait = true)
     {
         return new FromAsync<T>(asyncFactory, configureAwait);
     }

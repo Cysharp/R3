@@ -2,22 +2,22 @@
 
 public static partial class Observable
 {
-    public static Observable<Unit> ToObservable(this Task task, bool configureAwait = false)
+    public static Observable<Unit> ToObservable(this Task task, bool configureAwait = true)
     {
         return new TaskToObservable(task, configureAwait);
     }
 
-    public static Observable<T> ToObservable<T>(this Task<T> task, bool configureAwait = false)
+    public static Observable<T> ToObservable<T>(this Task<T> task, bool configureAwait = true)
     {
         return new TaskToObservable<T>(task, configureAwait);
     }
 
-    public static Observable<Unit> ToObservable(this ValueTask task, bool configureAwait = false)
+    public static Observable<Unit> ToObservable(this ValueTask task, bool configureAwait = true)
     {
         return new ValueTaskToObservable(task, configureAwait);
     }
 
-    public static Observable<T> ToObservable<T>(this ValueTask<T> task, bool configureAwait = false)
+    public static Observable<T> ToObservable<T>(this ValueTask<T> task, bool configureAwait = true)
     {
         return new ValueTaskToObservable<T>(task, configureAwait);
     }
