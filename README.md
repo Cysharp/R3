@@ -1,6 +1,6 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), etc(planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper)).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), [LogicLooper](#logiclooper), etc(planning MAUI, WINUI3, MonoGame).
 
 > [!NOTE]
 > This project is currently in preview. We are seeking a lot of feedback, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
@@ -684,6 +684,7 @@ Although standard support is provided for the following platforms, by implementi
 * [Unity](#unity)
 * [Godot](#godot)
 * [Stride](#stride)
+* [LogicLooper](#logiclooper)
 
 Add support planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper).
 
@@ -1166,6 +1167,17 @@ public static Observable<(object? sender, FastTrackingCollectionChangedEventArgs
 public static Observable<T> AsObservable<T>(this EventKey<T> eventKey, CancellationToken token = default)
 public static Observable<Unit> AsObservable(this EventKey eventKey, CancellationToken token = default)
 ```
+
+### LogicLooper
+
+R3 extensions for [LogicLooper](https://github.com/Cysharp/LogicLooper/) 
+
+> PM> Install-Package [R3Extensions.LogicLooper](https://www.nuget.org/packages/R3Extensions.LogicLooper)
+
+That supports two special providers.
+
+* LogicLooperFrameProvider
+* LogicLooperTimerProvider
 
 Operator Reference
 ---
