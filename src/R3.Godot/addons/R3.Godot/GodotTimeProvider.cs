@@ -8,8 +8,8 @@ namespace R3;
 
 public class GodotTimeProvider : TimeProvider
 {
-    public static readonly TimeProvider Process = new GodotTimeProvider(GodotFrameProvider.Process);
-    public static readonly TimeProvider PhysicsProcess = new GodotTimeProvider(GodotFrameProvider.PhysicsProcess);
+    public static readonly GodotTimeProvider Process = new GodotTimeProvider(GodotFrameProvider.Process);
+    public static readonly GodotTimeProvider PhysicsProcess = new GodotTimeProvider(GodotFrameProvider.PhysicsProcess);
 
     readonly GodotFrameProvider frameProvider;
 
