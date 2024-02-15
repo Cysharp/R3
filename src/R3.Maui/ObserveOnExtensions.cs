@@ -1,4 +1,4 @@
-using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
 using R3.Collections;
 
@@ -124,7 +124,7 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, IDispatcher d
                         case NotificationKind.OnCompleted:
                             try
                             {
-                                self.observer.OnCompleted(value.Result!.Value);
+                                self.observer.OnCompleted(value.Result!);
                             }
                             finally
                             {
