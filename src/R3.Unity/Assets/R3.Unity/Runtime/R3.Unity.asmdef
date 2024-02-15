@@ -33,6 +33,11 @@
             "name": "com.unity.modules.particlesystem",
             "expression": "",
             "define": "R3_PARTICLESYSTEM_SUPPORT"
+        },
+        {
+            "name": "com.unity.modules.animation",
+            "expression": "",
+            "define": "R3_ANIMATION_SUPPORT"
         }
     ],
     "noEngineReferences": false

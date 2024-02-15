@@ -680,13 +680,14 @@ Although standard support is provided for the following platforms, by implementi
 
 * [WPF](#wpf)
 * [Avalonia](#avalonia)
+* [MAUI](#mau)
 * [WinForms](#winforms)
 * [Unity](#unity)
 * [Godot](#godot)
 * [Stride](#stride)
 * [LogicLooper](#logiclooper)
 
-Add support planning MAUI, [LogicLooper](https://github.com/Cysharp/LogicLooper).
+Add support planning [LogicLooper](https://github.com/Cysharp/LogicLooper).
 
 ### WPF
 
@@ -816,6 +817,68 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 * ObserveOnUIThreadDispatcher
 * SubscribeOnDispatcher
 * SubscribeOnUIThreadDispatcher
+
+### MAUI
+
+> PM> Install-Package [R3Extensions.Maui](https://www.nuget.org/packages/R3Extensions.Maui)
+
+R3Extensions.Maui package has these providers.
+
+* MauiDispatcherTimerProvider
+* MauiTickerFrameProvider
+
+And ViewModel binding is supported, see [`BindableReactiveProperty<T>`](#xaml-platformsbindablereactivepropertyt) section.
+
+Calling `UseR3()` in `MauiAppBuilder` sets the default providers.
+
+```csharp
+public static MauiApp CreateMauiApp()
+{
+    var builder = MauiApp.CreateBuilder();
+    builder
+        .UseMauiApp<App>()
+        .ConfigureFonts(fonts =>
+        {
+            fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+        })
+        .UseR3(); // add this line
+
+    return builder.Build();
+}
+```
+
+`UseR3()` configures the following.
+
+- Time based operations are replaced with `IDispatcher`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+- Frame based operations are replaced with `Ticker`.
+- `ObservableSystem.RegisterUnhandledExceptionHandler` is set to `R3MauiDefaultExceptionHandler`:
+    - ```csharp
+      public class R3MauiDefaultExceptionHandler(IServiceProvider serviceProvider) : IR3MauiExceptionHandler
+      {
+          public void HandleException(Exception ex)
+          {
+              System.Diagnostics.Trace.TraceError("R3 Unhandled Exception {0}", ex);
+
+              var logger = serviceProvider.GetService<ILogger<R3MauiDefaultExceptionHandler>>();
+              logger?.LogError(ex, "R3 Unhandled Exception");
+          }
+      }
+      ```
+If you want to customize the ExceptionHandler, there are two ways.
+
+One is to pass a callback to `UseR3e
+
+```csharp
+builder.UseR3(ex => Console.WriteLine($"R3 UnhandledException:{ex}"));
+```
+
+The second is to create an implementation of the `IR3MAuiExceptionHandler` interface and DI it.
+Since MAUI is a DI-based framework, this method will make it easier to access the various functions in the DI container.
+
+```csharp
+builder.Services.AddSingleton<IR3MauiExceptionHandler, YourCustomExceptionHandler>();
+```
 
 ### WinForms
 
