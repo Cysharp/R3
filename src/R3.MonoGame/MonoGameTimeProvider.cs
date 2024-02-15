@@ -3,13 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using R3.Collections;
 
-namespace R3.MonoGame;
+namespace R3;
 
 public class MonoGameTimeProvider : TimeProvider, IDisposable
 {
     public static readonly MonoGameTimeProvider Update = new();
 
-    GameTime gameTime = new();
+    public GameTime GameTime { get; private set; } = new();
+
     FreeListCore<FrameTimer> list;
     readonly object gate = new();
 
@@ -29,7 +30,7 @@ public class MonoGameTimeProvider : TimeProvider, IDisposable
 
     public override long GetTimestamp()
     {
-        return gameTime.TotalGameTime.Ticks;
+        return GameTime.TotalGameTime.Ticks;
     }
 
     public void Dispose()
@@ -45,7 +46,7 @@ public class MonoGameTimeProvider : TimeProvider, IDisposable
     {
         if (!running) return;
 
-        this.gameTime = gameTime;
+        this.GameTime = gameTime;
 
         var span = list.AsSpan();
         for (var i = 0; i < span.Length; i++)
