@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R3.Triggers;
+using System;
 using System.Threading;
 using UnityEngine;
 
@@ -21,9 +22,43 @@ namespace R3
 #endif
         }
 
-        public static CancellationTokenRegistration AddTo(this IDisposable disposable, MonoBehaviour value)
+        /// <summary>Dispose self on target gameObject has been destroyed. Return value is self disposable.</summary>
+        public static T AddTo<T>(this T disposable, GameObject gameObject)
+            where T : IDisposable
         {
-            return disposable.RegisterTo(value.GetDestroyCancellationToken());
+            if (gameObject == null)
+            {
+                disposable.Dispose();
+                return disposable;
+            }
+
+            var trigger = gameObject.GetComponent<ObservableDestroyTrigger>();
+            if (trigger == null)
+            {
+                trigger = gameObject.AddComponent<ObservableDestroyTrigger>();
+            }
+
+            // If gameObject is deactive, does not raise OnDestroy, watch and invoke trigger.
+            if (!trigger.IsActivated && !trigger.gameObject.activeInHierarchy)
+            {
+                trigger.TryStartActivateMonitoring();
+            }
+
+            trigger.AddDisposableOnDestroy(disposable);
+            return disposable;
+        }
+
+        /// <summary>Dispose self on target gameObject has been destroyed. Return value is self disposable.</summary>
+        public static T AddTo<T>(this T disposable, Component gameObjectComponent)
+            where T : IDisposable
+        {
+            if (gameObjectComponent == null)
+            {
+                disposable.Dispose();
+                return disposable;
+            }
+
+            return AddTo(disposable, gameObjectComponent.gameObject);
         }
     }
 }

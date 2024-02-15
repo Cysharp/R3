@@ -477,6 +477,7 @@ MonoBehaviour:
   NANTOKAMARU:
     value: 747
   button: {fileID: 470145739}
+  noAwake: {fileID: 1833500693}
 --- !u!1 &939889270
 GameObject:
   m_ObjectHideFlags: 0
@@ -556,6 +557,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 939889270}
   m_CullTransparentMesh: 1
+--- !u!1 &1833500692
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1833500694}
+  - component: {fileID: 1833500693}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1833500693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1833500692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec38ff9540a4ce742b873b63c8e2392a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1833500694
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1833500692}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 415.07205, y: 196.23882, z: -12.989617}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2113242577
 GameObject:
   m_ObjectHideFlags: 0
@@ -664,3 +709,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 406184471}
+  - {fileID: 1833500694}

@@ -38,6 +38,8 @@ public class NewBehaviourScript : MonoBehaviour
     public Button button;
     // Text text;
 
+    public NoAwakeTest noAwake;
+
     void Start()
     {
         //button.OnClickAsObservable()
@@ -47,6 +49,11 @@ public class NewBehaviourScript : MonoBehaviour
         //        return req.downloadHandler.text;
         //    }, AwaitOperations.Drop)
         //    .SubscribeToText(text);
+
+        Disposable.Create(() =>
+        {
+            // Debug.Log("Register");
+        }).AddTo(noAwake);
 
 
         button.OnClickAsObservable()
