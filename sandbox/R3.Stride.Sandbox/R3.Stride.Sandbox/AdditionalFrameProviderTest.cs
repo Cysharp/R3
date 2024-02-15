@@ -11,7 +11,7 @@ public class AdditionalFrameProviderTest: StartupScript
     IDisposable _Subscription;
     public override void Start()
     {
-        var component = Entity.Get<AdditionalFrameDispatcherComponent>();
+        var component = Entity.Get<AdditionalR3FrameDispatcherComponent>();
         _Subscription = Observable.IntervalFrame(24, component.FrameProvider)
             .Subscribe(_ =>
             {

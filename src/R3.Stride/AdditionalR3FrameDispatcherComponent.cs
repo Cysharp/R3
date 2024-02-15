@@ -10,11 +10,11 @@ using System.Runtime.CompilerServices;
 using Stride.Engine.Design;
 
 namespace R3.Stride;
-[DataContract(nameof(AdditionalFrameDispatcherComponent))]
+[DataContract(nameof(AdditionalR3FrameDispatcherComponent))]
 [Display("additional R3 frame dispatcher")]
 [ComponentCategory("R3")]
-[DefaultEntityComponentProcessor(typeof(AdditionalStrideFrameDispatcherProcessor))]
-public class AdditionalFrameDispatcherComponent : SyncScript
+[DefaultEntityComponentProcessor(typeof(AdditionalStrideFrameDispatcherProcessor), ExecutionMode = ExecutionMode.Runtime)]
+public class AdditionalR3FrameDispatcherComponent : SyncScript
 {
     [DataMemberIgnore]
     public StrideFrameProvider? FrameProvider { get; private set; }
@@ -35,13 +35,18 @@ public class AdditionalFrameDispatcherComponent : SyncScript
         if(FrameProvider == null)
         {
             FrameProvider = new StrideFrameProvider(Game);
+            FrameProvider.Delta = new StrongBox<double>();
         }
     }
 }
 
-public class AdditionalStrideFrameDispatcherProcessor: EntityProcessor<AdditionalFrameDispatcherComponent>
+public class AdditionalStrideFrameDispatcherProcessor: EntityProcessor<AdditionalR3FrameDispatcherComponent>
 {
-    protected override void OnEntityComponentAdding(Entity entity, [NotNull] AdditionalFrameDispatcherComponent component, [NotNull] AdditionalFrameDispatcherComponent data)
+    protected override void ProcessEntityComponent(Entity entity, EntityComponent entityComponentArg, bool forceRemove)
+    {
+        base.ProcessEntityComponent(entity, entityComponentArg, forceRemove);
+    }
+    protected override void OnEntityComponentAdding(Entity entity, [NotNull] AdditionalR3FrameDispatcherComponent component, [NotNull] AdditionalR3FrameDispatcherComponent data)
     {
         component.InitializeFrameProvider();
         base.OnEntityComponentAdding(entity, component, data);

@@ -16,7 +16,7 @@ namespace R3.Stride
     [ComponentCategory("R3")]
     [Display("R3 Frame Dispatcher")]
     [DataContract(nameof(R3FrameDispatcherComponent))]
-    [DefaultEntityComponentProcessor(typeof(R3FrameDispatcherProcessor))]
+    [DefaultEntityComponentProcessor(typeof(R3FrameDispatcherProcessor), ExecutionMode = ExecutionMode.Runtime)]
     public class R3FrameDispatcherComponent : SyncScript
     {
         public override void Start()
@@ -45,7 +45,7 @@ namespace R3.Stride
         protected override void OnEntityComponentAdding(Entity entity, [NotNull] R3FrameDispatcherComponent component, [NotNull] R3FrameDispatcherComponent data)
         {
             // GameStudio throws exception, why?
-            // component.InitializeFrameProvider();
+            component.InitializeFrameProvider();
             base.OnEntityComponentAdding(entity, component, data);
         }
         protected override void OnEntityComponentRemoved(Entity entity, [NotNull] R3FrameDispatcherComponent component, [NotNull] R3FrameDispatcherComponent data)

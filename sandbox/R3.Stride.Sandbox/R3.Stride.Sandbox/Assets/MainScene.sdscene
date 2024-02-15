@@ -205,4 +205,9 @@ Hierarchy:
                         Id: 340c3d80-da0d-4b6f-b7b7-4071e161d717
                     88beb326b15d1fdb09e60b18731e24bc: !R3FrameDispatcherComponent
                         Id: 1d2c5270-7ad5-4b36-864e-e89dfb285f4c
+                        Priority: 10
+                    6264e7db3f67ba5a4ba7a691a7c41c6f: !R3.Stride.Sandbox.AdditionalFrameProviderTest,R3.Stride.Sandbox
+                        Id: 4a196c5f-4d7e-404b-b8cc-1b8af2d04f9d
                         Priority: -1
+                    47ba47d08a35fad417c4876b133382dd: !AdditionalR3FrameDispatcherComponent
+                        Id: bc8961f7-ecb8-46f4-8669-6ab1ef3a1865
