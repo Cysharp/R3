@@ -1,10 +1,11 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using R3;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,15 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         this.InitializeComponent();
+
+
+        //Observable.Interval(TimeSpan.FromSeconds(1))
+        Observable.EveryUpdate()
+            .Index()
+            .Subscribe(x =>
+            {
+                myButton.Content = "Foo:" + x;
+            });
     }
 
     private void myButton_Click(object sender, RoutedEventArgs e)
