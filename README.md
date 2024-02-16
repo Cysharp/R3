@@ -1849,6 +1849,8 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `IScheduler` -> `TimeProvider`
 * `ReactiveCollection` / `ReactiveDictionary` -> [ObservableCollections.R3](https://github.com/Cysharp/ObservableCollections)
 * Return single value methods -> `***Async`
+* `ObjectPool` in UniRx -> use [UniTask](https://github.com/Cysharp/UniTask) and make yourself
+* MessageBroker in UniRx -> [MessagePipe](https://github.com/Cysharp/MessagePipe)
 
 Similar to `IObservable<T>`, if you want to stop the stream when an `OnErrorResume` occurs, you connect `OnErrorResumeAsFailure` in the method chain.
 
