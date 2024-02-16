@@ -55,7 +55,7 @@ namespace R3.Triggers
 #endregion
 
 #region ObservableCollisionTrigger
-#if R3_PHYSICS2D_SUPPORT
+#if R3_PHYSICS_SUPPORT
 
         /// <summary>OnCollisionEnter is called when this collider/rigidbody has begun touching another rigidbody/collider.</summary>
         public static Observable<Collision> OnCollisionEnterAsObservable(this Component component)
