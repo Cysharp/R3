@@ -9,7 +9,12 @@
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;1591;1573</NoWarn>
-        
+
+        <!-- For CI Build -->
+        <!-- https://github.com/dotnet/maui/issues/5886 -->
+        <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
+        <GenerateLibraryLayout>true</GenerateLibraryLayout>
+
         <!-- NuGet Packaging -->
         <PackageId>R3Extensions.WinUI3</PackageId>
         <PackageTags>rx</PackageTags>
