@@ -567,6 +567,20 @@ Concurrency Policy
 ---
 The composition of operators is thread-safe, and it is expected that the values flowing through OnNext are on a single thread. In other words, if OnNext is issued on multiple threads, the operators may behave unexpectedly. This is the same as with dotnet/reactive.
 
+ObservableCollections
+---
+As a special collection for monitoring changes in collections and handling them in R3, the [ObservableCollections](https://github.com/Cysharp/ObservableCollections)'s `ObservableCollections.R3` package is available.
+
+It has `ObservableList<T>`, `ObservableDictionary<TKey, TValue>`, `ObservableHashSet<T>`, `ObservableQueue<T>`, `ObservableStack<T>`, `ObservableRingBuffer<T>`, `ObservableFixedSizeRingBuffer<T>` and these observe methods.
+
+```csharp
+Observable<CollectionAddEvent<T>> IObservableCollection<T>.ObserveAdd()
+Observable<CollectionRemoveEvent<T>> IObservableCollection<T>.ObserveRemove()
+Observable<CollectionReplaceEvent<T>> IObservableCollection<T>.ObserveReplace() 
+Observable<CollectionMoveEvent<T>> IObservableCollection<T>.ObserveMove() 
+Observable<CollectionResetEvent<T>> IObservableCollection<T>.ObserveReset()
+```
+
 XAML Platforms(`BindableReactiveProperty<T>`)
 ---
 For XAML based application platforms, R3 provides `BindableReactiveProperty<T>` that can bind observable property to view like [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/.stateflow-and-sharedflow). It implements [INotifyPropertyChanged](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.inotifypropertychanged) and [INotifyDataErrorInfo](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.inotifydataerrorinfo).
@@ -1833,6 +1847,7 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `AsyncSubject<T>` -> `TaskCompletionSource<T>`
 * `StableCompositeDisposable` -> `Disposable.Combine`
 * `IScheduler` -> `TimeProvider`
+* `ReactiveCollection` / `ReactiveDictionary` -> [ObservableCollections.R3](https://github.com/Cysharp/ObservableCollections)
 * Return single value methods -> `***Async`
 
 Similar to `IObservable<T>`, if you want to stop the stream when an `OnErrorResume` occurs, you connect `OnErrorResumeAsFailure` in the method chain.
