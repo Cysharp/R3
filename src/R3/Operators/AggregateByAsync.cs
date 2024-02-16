@@ -38,6 +38,7 @@ internal sealed class AggregateByAsync<TSource, TKey, TAccumulate>(
     IEqualityComparer<TKey>? keyComparer,
     CancellationToken cancellationToken)
     : TaskObserverBase<TSource, IEnumerable<KeyValuePair<TKey, TAccumulate>>>(cancellationToken)
+    where TKey : notnull
 {
     readonly Dictionary<TKey, TAccumulate> dictionary = new(keyComparer);
 
@@ -74,6 +75,7 @@ internal sealed class AggregateByAsyncSeedSelector<TSource, TKey, TAccumulate>(
     IEqualityComparer<TKey>? keyComparer,
     CancellationToken cancellationToken)
     : TaskObserverBase<TSource, IEnumerable<KeyValuePair<TKey, TAccumulate>>>(cancellationToken)
+    where TKey : notnull
 {
     readonly Dictionary<TKey, TAccumulate> dictionary = new(keyComparer);
 
