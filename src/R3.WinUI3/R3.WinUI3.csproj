@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <Nullable>enable</Nullable>
+        <RootNamespace>R3.WinUI3</RootNamespace>
+        <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+        <UseWinUI>true</UseWinUI>
+
+        <!-- NuGet Packaging -->
+        <PackageId>R3Extensions.WinUI3</PackageId>
+        <PackageTags>rx</PackageTags>
+        <Description>WinUI3 Provider and Methods for R3.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230913002" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\R3\R3.csproj" />
+    </ItemGroup>
+</Project>

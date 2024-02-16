@@ -32,6 +32,18 @@ public sealed class StrideFrameProvider : FrameProvider
         }
     }
 
+    internal TimeSpan GetTotalTime()
+    {
+        if(_Game != null)
+        {
+            return _Game.UpdateTime.Total;
+        }
+        else
+        {
+            return TimeSpan.Zero;
+        }
+    }
+
     public override void Register(IFrameRunnerWorkItem callback)
     {
         list.Add(callback, out _);

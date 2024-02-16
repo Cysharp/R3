@@ -19,6 +19,11 @@ namespace R3.Stride
         public static StrideFrameProvider? DefaultFrameProvider;
         public static StrideTimeProvider? DefaultTimeProvider;
         static IGame? gameObject;
+        public static void ClearDefaultObservableSystem()
+        {
+            DefaultFrameProvider = null;
+            DefaultTimeProvider = null;
+        }
         public static void SetDefaultObservableSystem(IGame game, Action<Exception>? unobservableExceptionHandler = null)
         {
             if(game != null && (gameObject == null || !object.ReferenceEquals(game, gameObject)))
