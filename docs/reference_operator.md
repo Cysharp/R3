@@ -3,6 +3,8 @@
 | **AggregateAsync**(this `Observable<T>` source, `Func<T, T, T>` func, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **AggregateAsync**(this `Observable<T>` source, `TResult` seed, `Func<TResult, T, TResult>` func, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
 | **AggregateAsync**(this `Observable<T>` source, `TAccumulate` seed, `Func<TAccumulate, T, TAccumulate>` func, `Func<TAccumulate, TResult>` resultSelector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
+| **AggregateByAsync**(this `Observable<TSource>` source, `Func<TSource, TKey>` keySelector, `TAccumulate` seed, `Func<TAccumulate, TSource, TAccumulate>` func, `IEqualityComparer<TKey>` keyComparer = default, `CancellationToken` cancellationToken = default) | `Task<IEnumerable<KeyValuePair<TKey, TAccumulate>>>` | 
+| **AggregateByAsync**(this `Observable<TSource>` source, `Func<TSource, TKey>` keySelector, `Func<TKey, TAccumulate>` seedSelector, `Func<TAccumulate, TSource, TAccumulate>` func, `IEqualityComparer<TKey>` keyComparer = default, `CancellationToken` cancellationToken = default) | `Task<IEnumerable<KeyValuePair<TKey, TAccumulate>>>` | 
 | **AllAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **Amb**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
 | **AnyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
@@ -58,7 +60,7 @@
 | **CountAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
 | **Debounce**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **Debounce**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
-| **Debounce**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` throttleDurationSelector, `Boolean` configureAwait = True) | `Observable<T>` | 
+| **Debounce**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` throttleDurationSelector, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **DebounceFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **DebounceFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **DefaultIfEmpty**(this `Observable<T>` source) | `Observable<T>` | 
@@ -97,6 +99,8 @@
 | **IgnoreElements**(this `Observable<T>` source, `Action<T>` doOnNext) | `Observable<T>` | 
 | **IgnoreOnErrorResume**(this `Observable<T>` source) | `Observable<T>` | 
 | **IgnoreOnErrorResume**(this `Observable<T>` source, `Action<Exception>` doOnErrorResume) | `Observable<T>` | 
+| **Index**(this `Observable<Unit>` source) | `Observable<Int32>` | 
+| **Index**(this `Observable<T>` source) | `Observable<ValueTuple<Int32, T>>` | 
 | **IsEmptyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **LastAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **LastAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<T>` | 
@@ -151,7 +155,7 @@
 | **Select**(this `Observable<T>` source, `Func<T, Int32, TResult>` selector) | `Observable<TResult>` | 
 | **Select**(this `Observable<T>` source, `TState` state, `Func<T, TState, TResult>` selector) | `Observable<TResult>` | 
 | **Select**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, TResult>` selector) | `Observable<TResult>` | 
-| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `Observable<TResult>` | 
+| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TResult>>` selector) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TCollection>>` collectionSelector, `Func<TSource, TCollection, TResult>` resultSelector) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Int32, Observable<TResult>>` selector) | `Observable<TResult>` | 
@@ -178,9 +182,9 @@
 | **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `IDisposable` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `IDisposable` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
 | **SubscribeOn**(this `Observable<T>` source, `SynchronizationContext` synchronizationContext) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 
@@ -219,13 +223,13 @@
 | **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **ThrottleFirst**(this `Observable<T>` source, `Observable<TSample>` sampler) | `Observable<T>` | 
-| **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = True) | `Observable<T>` | 
+| **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `Observable<TSample>` sampler) | `Observable<T>` | 
-| **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = True) | `Observable<T>` | 
+| **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` | 
@@ -253,7 +257,7 @@
 | **Where**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, TState, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, Boolean>` predicate) | `Observable<T>` | 
-| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperations = Sequential, `Boolean` configureAwait = True, `Int32` maxConcurrent = -1) | `Observable<T>` | 
+| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `Observable<T>` | 
 | **WithLatestFrom**(this `Observable<TFirst>` first, `Observable<TSecond>` second, `Func<TFirst, TSecond, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Func<T1, T2, T3, TResult>` resultSelector) | `Observable<TResult>` | 

@@ -21,11 +21,11 @@ var i1 = 0;
 for (int i = 0; i < text.Length; i++)
 {
 
-    const string head = "| Name(Parameter) | ReturnType | ";
+    const string head = "| Name(Parameter) | ReturnType |";
     if (!searchTail)
     {
         // search head
-        if (text[i] == head)
+        if (text[i].Trim() == head)
         {
             i1 = i;
             searchTail = true;
@@ -33,7 +33,7 @@ for (int i = 0; i < text.Length; i++)
     }
     else
     {
-        if (text[i] == "")
+        if (text[i].Trim() == "")
         {
             if (factoryLines == null)
             {

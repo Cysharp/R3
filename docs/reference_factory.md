@@ -7,10 +7,10 @@
 | **Concat**(params `Observable<T>[]` sources) | `Observable<T>` | 
 | **Concat**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **Concat**(this `Observable<Observable<T>>` sources) | `Observable<T>` | 
-| **Create**(`Func<Observer<T>, IDisposable>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
-| **Create**(`TState` state, `Func<Observer<T>, TState, IDisposable>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
-| **Create**(`Func<Observer<T>, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
-| **Create**(`TState` state, `Func<Observer<T>, TState, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = False) | `Observable<T>` | 
+| **Create**(`Func<Observer<T>, IDisposable>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
+| **Create**(`TState` state, `Func<Observer<T>, TState, IDisposable>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
+| **Create**(`Func<Observer<T>, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
+| **Create**(`TState` state, `Func<Observer<T>, TState, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
 | **CreateFrom**(`Func<CancellationToken, IAsyncEnumerable<T>>` factory) | `Observable<T>` | 
 | **CreateFrom**(`TState` state, `Func<CancellationToken, TState, IAsyncEnumerable<T>>` factory) | `Observable<T>` | 
 | **Defer**(`Func<Observable<T>>` observableFactory) | `Observable<T>` | 
@@ -25,8 +25,8 @@
 | **EveryValueChanged**(`TSource` source, `Func<TSource, TProperty>` propertySelector, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<TProperty>` | 
 | **EveryValueChanged**(`TSource` source, `Func<TSource, TProperty>` propertySelector, `EqualityComparer<TProperty>` equalityComparer, `CancellationToken` cancellationToken = default) | `Observable<TProperty>` | 
 | **EveryValueChanged**(`TSource` source, `Func<TSource, TProperty>` propertySelector, `FrameProvider` frameProvider, `EqualityComparer<TProperty>` equalityComparer, `CancellationToken` cancellationToken = default) | `Observable<TProperty>` | 
-| **FromAsync**(`Func<CancellationToken, ValueTask>` asyncFactory, `Boolean` configureAwait = True) | `Observable<Unit>` | 
-| **FromAsync**(`Func<CancellationToken, ValueTask<T>>` asyncFactory, `Boolean` configureAwait = True) | `Observable<T>` | 
+| **FromAsync**(`Func<CancellationToken, ValueTask>` asyncFactory, `Boolean` configureAwait = true) | `Observable<Unit>` | 
+| **FromAsync**(`Func<CancellationToken, ValueTask<T>>` asyncFactory, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **FromEvent**(`Action<Action>` addHandler, `Action<Action>` removeHandler, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **FromEvent**(`Action<Action<T>>` addHandler, `Action<Action<T>>` removeHandler, `CancellationToken` cancellationToken = default) | `Observable<T>` | 
 | **FromEvent**(`Func<Action, TDelegate>` conversion, `Action<TDelegate>` addHandler, `Action<TDelegate>` removeHandler, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
@@ -76,10 +76,10 @@
 | **TimerFrame**(`Int32` dueTimeFrame, `Int32` periodFrame, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **TimerFrame**(`Int32` dueTimeFrame, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **TimerFrame**(`Int32` dueTimeFrame, `Int32` periodFrame, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
-| **ToObservable**(this `Task` task, `Boolean` configureAwait = True) | `Observable<Unit>` | 
-| **ToObservable**(this `Task<T>` task, `Boolean` configureAwait = True) | `Observable<T>` | 
-| **ToObservable**(this `ValueTask` task, `Boolean` configureAwait = True) | `Observable<Unit>` | 
-| **ToObservable**(this `ValueTask<T>` task, `Boolean` configureAwait = True) | `Observable<T>` | 
+| **ToObservable**(this `Task` task, `Boolean` configureAwait = true) | `Observable<Unit>` | 
+| **ToObservable**(this `Task<T>` task, `Boolean` configureAwait = true) | `Observable<T>` | 
+| **ToObservable**(this `ValueTask` task, `Boolean` configureAwait = true) | `Observable<Unit>` | 
+| **ToObservable**(this `ValueTask<T>` task, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **ToObservable**(this `IEnumerable<T>` source, `CancellationToken` cancellationToken = default) | `Observable<T>` | 
 | **ToObservable**(this `IAsyncEnumerable<T>` source) | `Observable<T>` | 
 | **ToObservable**(this `IObservable<T>` source) | `Observable<T>` | 
