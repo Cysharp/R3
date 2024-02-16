@@ -152,3 +152,14 @@ public class MySyncContext : SynchronizationContext
         base.Send(d, state);
     }
 }
+
+
+class NewsViewModel
+{
+    ReactiveProperty<NewsUiState> _uiState = new(new NewsUiState());
+    public ReadOnlyReactiveProperty<NewsUiState> UiState => _uiState;
+}
+
+class NewsUiState
+{
+}

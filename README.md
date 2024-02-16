@@ -1,9 +1,7 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame), etc(planning WINUI3).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame).
 
-> [!NOTE]
-> This project is currently in preview. We are seeking a lot of feedback, if you have any opinions, request missing feature, please post them in the [Issues](https://github.com/Cysharp/R3/issues).
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
@@ -151,6 +149,86 @@ In R3, there are four types of Subjects: `Subject`, `ReactiveProperty`, `ReplayS
 `ReactiveProperty` has equivalents in other frameworks as well, such as [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow), particularly effective for data binding in UI contexts. In .NET, there is a library called [runceel/ReactiveProperty](https://github.com/runceel/ReactiveProperty), which I originally created.
 
 Unlike dotnet/reactive's Subject, all Subjects in R3 (Subject, ReactiveProperty, ReplaySubject, ReplayFrameSubject) are designed to call OnCompleted upon disposal. This is because R3 is designed with a focus on subscription management and unsubscription. By calling OnCompleted, it ensures that all subscriptions are unsubscribed from the Subject, the upstream source of events, by default. If you wish to avoid calling OnCompleted, you can do so by calling `Dispose(false)`.
+
+`ReactiveProperty` is mutable, but it can be converted to a read-only `ReadOnlyReactiveProperty`. Following the [guidance for the Android UI Layer](https://developer.android.com/topic/architecture/ui-layer), the Kotlin code below is
+
+```kotlin
+class NewsViewModel(...) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(NewsUiState())
+    val uiState: StateFlow<NewsUiState> = _uiState.asStateFlow()
+    ...
+}
+```
+
+can be adapted to the following R3 code.
+
+```csharp
+class NewsViewModel
+{
+    ReactiveProperty<NewsUiState> _uiState = new(new NewsUiState());
+    public ReadOnlyReactiveProperty<NewsUiState> UiState => _uiState;
+}
+```
+
+In R3, we use a combination of a mutable private field and a readonly public property.
+
+By inheriting `ReactiveProperty` and overriding `OnValueChanging` and `OnValueChanged`, you can customize behavior, such as adding validation.
+
+```csharp
+// Since the primary constructor sets values to fields before calling base, it is safe to call OnValueChanging in the base constructor.
+public sealed class ClampedReactiveProperty<T>(T initialValue, T min, T max)
+    : ReactiveProperty<T>(initialValue) where T : IComparable<T>
+{
+    private static IComparer<T> Comparer { get; } = Comparer<T>.Default;
+
+    protected override void OnValueChanging(ref T value)
+    {
+        if (Comparer.Compare(value, min) < 0)
+        {
+            value = min;
+        }
+        else if (Comparer.Compare(value, max) > 0)
+        {
+            value = max;
+        }
+    }
+}
+
+// For regular constructors, please set `callOnValueChangeInBaseConstructor` to false and manually call it once to correct the value.
+public sealed class ClampedReactiveProperty2<T>
+    : ReactiveProperty<T> where T : IComparable<T>
+{
+    private static IComparer<T> Comparer { get; } = Comparer<T>.Default;
+
+    readonly T min, max;
+
+    // callOnValueChangeInBaseConstructor to avoid OnValueChanging call before min, max set.
+    public ClampedReactiveProperty2(T initialValue, T min, T max)
+        : base(initialValue, EqualityComparer<T>.Default, callOnValueChangeInBaseConstructor: false)
+    {
+        this.min = min;
+        this.max = max;
+
+        // modify currentValue manually
+        OnValueChanging(ref GetValueRef());
+    }
+
+    protected override void OnValueChanging(ref T value)
+    {
+        if (Comparer.Compare(value, min) < 0)
+        {
+            value = min;
+        }
+        else if (Comparer.Compare(value, max) > 0)
+        {
+            value = max;
+        }
+    }
+}
+```
+
+Additionally, `ReactiveProperty` supports serialization with `System.Text.JsonSerializer` in .NET 6 and above. For earlier versions, you need to implement `ReactivePropertyJsonConverterFactory` under the existing implementation and add it to the Converter.
 
 Disposable
 ---
@@ -477,11 +555,7 @@ button.OnClickAsObservable()
 
 Concurrency Policy
 ---
-TODO:
-
-Implement Custom Operator Guide
----
-TODO:
+The composition of operators is thread-safe, and it is expected that the values flowing through OnNext are on a single thread. In other words, if OnNext is issued on multiple threads, the operators may behave unexpectedly. This is the same as with dotnet/reactive.
 
 XAML Platforms(`BindableReactiveProperty<T>`)
 ---
@@ -685,6 +759,7 @@ Although standard support is provided for the following platforms, by implementi
 * [Unity](#unity)
 * [Godot](#godot)
 * [Stride](#stride)
+* [MonoGame](#monogame)
 * [LogicLooper](#logiclooper)
 
 Add support planning [LogicLooper](https://github.com/Cysharp/LogicLooper).
@@ -918,7 +993,7 @@ FrameProvider is executed as one frame using the hook of MessageFilter.
 
 ### Unity
 
-The minimum Unity support for R3 is **Unity 2021.3**. However, **Unity 2022.2** is required to use all features.
+The minimum Unity support for R3 is **Unity 2021.3**.
 
 There are two installation steps required to use it in Unity.
 
@@ -1022,7 +1097,7 @@ public static Observable<(T0 Arg0, T1 Arg1, T2 Arg2)> AsObservable<T0, T1, T2>(t
 public static Observable<(T0 Arg0, T1 Arg1, T2 Arg2, T3 Arg3)> AsObservable<T0, T1, T2, T3>(this UnityEngine.Events.UnityEvent<T0, T1, T2, T3> unityEvent, CancellationToken cancellationToken = default)
 ```
 
-Additionally, with extension methods for uGUI, uGUI events can be easily converted to Observables. OnValueChangedAsObservable starts the subscription by first emitting the latest value at the time of subscription. Moreover, in Unity 2022.2 or later, when the associated component is destroyed, it emits an OnCompleted event to ensure the subscription is reliably cancelled.
+Additionally, with extension methods for uGUI, uGUI events can be easily converted to Observables. OnValueChangedAsObservable starts the subscription by first emitting the latest value at the time of subscription. Andalso when the associated component is destroyed, it emits an OnCompleted event to ensure the subscription is reliably cancelled.
 
 ```csharp
 public static IDisposable SubscribeToText(this Observable<string> source, Text text)
@@ -1044,7 +1119,7 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 * ObserveOnMainThread
 * SubscribeOnMainThread
 
-Only Unity 2022.2 or later, in MonoBehavior, you can use `.AddTo(this)` to manage subscription to GameObject lifecycle. This is because only in Unity 2022.2 and later versions, MonoBehavior implements `destroyCancellationToken`.
+When using `AddTo(Component / GameObject)` in Unity, it attaches a special component called ObservableDestroyTrigger, which monitors for destruction. Unity has a characteristic where components that have never been activated do not fire OnDestroy, and the destroyCancellationToken does not get canceled. ObservableDestroyTrigger is designed to monitor for destruction and reliably issue OnDestroy regardless of the active state. It would be wise to use destroyCancellationToken effectively if needed.
 
 ```csharp
 // simple pattern
@@ -1052,12 +1127,12 @@ Observable.EveryUpdate().Subscribe().AddTo(this);
 Observable.EveryUpdate().Subscribe().AddTo(this);
 Observable.EveryUpdate().Subscribe().AddTo(this);
 
-// better performance(use CancellationToken.Register once)
+// better performance
 var d = Disposable.CreateBuilder();
 Observable.EveryUpdate().Subscribe().AddTo(ref d);
 Observable.EveryUpdate().Subscribe().AddTo(ref d);
 Observable.EveryUpdate().Subscribe().AddTo(ref d);
-d.AddTo(destroyCancellationToken); // Build and Register
+d.Build().AddTo(destroyCancellationToken or this); // Build and Register
 ```
 
 You open tracker window in `Window -> Observable Tracker`. It enables watch `ObservableTracker` list in editor window.
@@ -1109,6 +1184,18 @@ public class NewBehaviourScript : MonoBehaviour
 R3 can handle [MonoBehaviour messages](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) with R3.Triggers:
 
 These can also be handled more easily by directly subscribing to observables returned by extension methods on Component/GameObject. These methods inject ObservableTrigger automaticaly.
+
+```csharp
+using R3;
+using R3.Triggers;
+
+// when using R3.Triggers, Component or GameObject has [MonoBehaviour Messages]AsObservable extension methods.
+this.OnCollisionEnterAsObservable()
+    .Subscribe(x =>
+    {
+        Debug.Log("collision enter");
+    });
+```
 
 ### Godot
 
@@ -1732,6 +1819,8 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `StableCompositeDisposable` -> `Disposable.Combine`
 * `IScheduler` -> `TimeProvider`
 * Return single value methods -> `***Async`
+
+Similar to `IObservable<T>`, if you want to stop the stream when an `OnErrorResume` occurs, you connect `OnErrorResumeAsFailure` in the method chain.
 
 License
 ---
