@@ -110,7 +110,6 @@ internal sealed class AggregateAsync<T, TResult>(
     }
 }
 
-
 internal sealed class AggregateAsync<T, TAccumulate, TResult>(
     TAccumulate seed,
     Func<TAccumulate, T, TAccumulate> func,

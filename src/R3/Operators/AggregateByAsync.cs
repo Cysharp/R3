@@ -31,51 +31,6 @@ public static partial class ObservableExtensions
     }
 }
 
-internal sealed class AggregateByAsync<T>(
-    Func<T, T, T> func,
-    CancellationToken cancellationToken)
-    : TaskObserverBase<T, T>(cancellationToken)
-{
-    T currentResult = default!;
-    bool hasValue;
-
-    protected override void OnNextCore(T value)
-    {
-        if (hasValue)
-        {
-            currentResult = func(currentResult, value); // OnNext error is route to OnErrorResumeCore
-        }
-        else
-        {
-            currentResult = value;
-            hasValue = true;
-        }
-    }
-
-    protected override void OnErrorResumeCore(Exception error)
-    {
-        TrySetException(error);
-    }
-
-    protected override void OnCompletedCore(Result result)
-    {
-        if (result.IsFailure)
-        {
-            TrySetException(result.Exception);
-            return;
-        }
-
-        if (hasValue)
-        {
-            TrySetResult(currentResult);
-        }
-        else
-        {
-            TrySetException(new InvalidOperationException("Sequence contains no elements"));
-        }
-    }
-}
-
 internal sealed class AggregateByAsync<TSource, TKey, TAccumulate>(
     Func<TSource, TKey> keySelector,
     TAccumulate seed,
