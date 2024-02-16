@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
-        <ImplicitUsings>disable</ImplicitUsings>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <LangVersion>12</LangVersion>
 
@@ -20,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1">
+        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303">
             <PrivateAssets>All</PrivateAssets>
         </PackageReference>
     </ItemGroup>

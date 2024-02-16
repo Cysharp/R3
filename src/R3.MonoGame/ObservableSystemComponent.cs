@@ -1,6 +1,7 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 
-namespace R3.MonoGame;
+namespace R3;
 
 public class ObservableSystemComponent(Game game, Action<Exception> exceptionHandler) : GameComponent(game)
 {

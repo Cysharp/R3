@@ -1,19 +1,31 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using R3;
 
 namespace MonoGameApplication1;
 
-class HogeComponent : GameComponent
+class SampleComponent : GameComponent
 {
-    public HogeComponent(Game game) : base(game)
+    public SampleComponent(Game game) : base(game)
     {
     }
 
-    public override void Update(GameTime gameTime)
+    public override void Initialize()
     {
-        System.Console.WriteLine($"!!!!! {gameTime.ElapsedGameTime}");
-        System.Diagnostics.Trace.WriteLine($"!!!!! {gameTime.ElapsedGameTime}");
+        Observable.Interval(TimeSpan.FromMilliseconds(500))
+            .GameTime()
+            .Subscribe(x =>
+            {
+                Console.WriteLine($"ElapsedGameTime={x.ElapsedGameTime} TotalGameTime={x.TotalGameTime}");
+            });
+
+        Observable.IntervalFrame(10)
+            .Subscribe(x =>
+            {
+                Console.WriteLine($"Frame: {ObservableSystem.DefaultFrameProvider.GetFrameCount()}");
+            });
     }
 }
 
@@ -28,7 +40,8 @@ public class Game1 : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        Components.Add(new HogeComponent(this));
+        Components.Add(new ObservableSystemComponent(this));
+        Components.Add(new SampleComponent(this));
     }
 
     protected override void Initialize()
