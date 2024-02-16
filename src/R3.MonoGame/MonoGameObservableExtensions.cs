@@ -5,11 +5,17 @@ namespace R3;
 
 public static class MonoGameObservableExtensions
 {
+    /// <summary>
+    /// Observe the current GameTime once.
+    /// </summary>
     public static Observable<GameTime> GameTime(this Observable<Unit> source)
     {
         return new GameTimeObservable(source, MonoGameTimeProvider.Update);
     }
 
+    /// <summary>
+    /// Observes the current GameTime and the value of the source observable.
+    /// </summary>
     public static Observable<(GameTime GameTime, T Item)> GameTime<T>(this Observable<T> source)
     {
         return new GameTimeObservable<T>(source,  MonoGameTimeProvider.Update);
