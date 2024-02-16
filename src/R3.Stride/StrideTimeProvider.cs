@@ -1,4 +1,4 @@
-using Stride.Games;
+﻿using Stride.Games;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +17,11 @@ public sealed class StrideTimeProvider: TimeProvider
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         return new StrideFrameTimer(callback, state, dueTime, period, frameProvider);
+    }
+
+    public override long GetTimestamp()
+    {
+        return frameProvider.GetTotalTime().Ticks;
     }
 }
 internal sealed class StrideFrameTimer : ITimer, IFrameRunnerWorkItem
