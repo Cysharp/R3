@@ -323,4 +323,55 @@ public class WhereAwaitTest
         liveList.AssertIsCompleted();
     }
 
+    [Fact]
+    public void Latest()
+    {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
+        var subject = new Subject<int>();
+        var timeProvider = new FakeTimeProvider();
+
+        using var liveList = subject
+            .WhereAwait(async (x, ct) =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
+                return x % 2 != 0;
+            }, AwaitOperation.Latest)
+            .Select(x => x * 100)
+            .ToLiveList();
+
+        subject.OnNext(1);
+        subject.OnNext(2);
+        subject.OnNext(3);
+        subject.OnNext(4);
+        subject.OnNext(5);
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(2);
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(1);
+        liveList.AssertEqual([100]);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100,500]);
+
+        subject.OnNext(6);
+        subject.OnNext(7);
+        subject.OnNext(8);
+        subject.OnNext(9);
+        subject.OnNext(10);
+        subject.OnNext(11);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100,500]);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100,500,1100]);
+
+        subject.OnCompleted();
+
+        liveList.AssertIsCompleted();
+    }
+
 }

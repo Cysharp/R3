@@ -11,7 +11,8 @@ public static partial class ObservableExtensions
     }
 }
 
-internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations, bool configureAwait, int maxConcurrent) : Observable<T>
+internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations, bool configureAwait, int maxConcurrent)
+    : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
@@ -34,7 +35,7 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
                     return source.Subscribe(new WhereAwaitParallelConcurrentLimit(observer, predicate, configureAwait, maxConcurrent));
                 }
 
-                
+
             case AwaitOperation.SequentialParallel:
                 if (maxConcurrent == -1)
                 {
@@ -45,12 +46,15 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
                     return source.Subscribe(new WhereAwaitSequentialParallelConcurrentLimit(observer, predicate, configureAwait, maxConcurrent));
                 }
+            case AwaitOperation.Latest:
+                return source.Subscribe(new WhereAwaitLatest(observer, predicate, configureAwait));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait) : AwaitOperationSequentialObserver<T>(configureAwait)
+    sealed class WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        : AwaitOperationSequentialObserver<T>(configureAwait)
     {
 
 #if NET6_0_OR_GREATER
@@ -78,7 +82,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait) : AwaitOperationDropObserver<T>(configureAwait)
+    sealed class WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        : AwaitOperationDropObserver<T>(configureAwait)
     {
 
 #if NET6_0_OR_GREATER
@@ -103,7 +108,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait) : AwaitOperationParallelObserver<T>(configureAwait)
+    sealed class WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        : AwaitOperationParallelObserver<T>(configureAwait)
     {
 
 #if NET6_0_OR_GREATER
@@ -268,4 +274,34 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
             observer.OnCompleted(result);
         }
     }
+
+    sealed class WhereAwaitLatest(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
+        : AwaitOperationLatestObserver<T>(configureAwait)
+    {
+
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+        {
+            if (await predicate(value, cancellationToken).ConfigureAwait(configureAwait))
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    observer.OnNext(value);
+                }
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void PublishOnCompleted(Result result)
+        {
+            observer.OnCompleted(result);
+        }
+    }
+
 }
