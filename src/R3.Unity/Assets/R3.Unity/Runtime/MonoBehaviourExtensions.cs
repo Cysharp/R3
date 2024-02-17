@@ -58,6 +58,16 @@ namespace R3
                 return disposable;
             }
 
+#if UNITY_2022_2_OR_NEWER
+            if (gameObjectComponent.gameObject.activeInHierarchy && gameObjectComponent is MonoBehaviour mb)
+            {
+                // gameObject is Awaked, no need to use ObservableDestroyTrigger
+                disposable.RegisterTo(mb.destroyCancellationToken);
+                return disposable;
+            }
+#endif
+
+            // Add ObservableDestroyTrigger
             return AddTo(disposable, gameObjectComponent.gameObject);
         }
     }

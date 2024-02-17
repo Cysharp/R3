@@ -1143,7 +1143,7 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 * ObserveOnMainThread
 * SubscribeOnMainThread
 
-When using `AddTo(Component / GameObject)` in Unity, it attaches a special component called ObservableDestroyTrigger, which monitors for destruction. Unity has a characteristic where components that have never been activated do not fire OnDestroy, and the destroyCancellationToken does not get canceled. ObservableDestroyTrigger is designed to monitor for destruction and reliably issue OnDestroy regardless of the active state. It would be wise to use destroyCancellationToken effectively if needed.
+When using `AddTo(Component / GameObject)` in Unity, it attaches a special component called ObservableDestroyTrigger if gameObject is not active yet, which monitors for destruction. Unity has a characteristic where components that have never been activated do not fire OnDestroy, and the destroyCancellationToken does not get canceled. ObservableDestroyTrigger is designed to monitor for destruction and reliably issue OnDestroy regardless of the active state. It would be wise to use destroyCancellationToken effectively if needed.
 
 ```csharp
 // simple pattern
@@ -1156,7 +1156,7 @@ var d = Disposable.CreateBuilder();
 Observable.EveryUpdate().Subscribe().AddTo(ref d);
 Observable.EveryUpdate().Subscribe().AddTo(ref d);
 Observable.EveryUpdate().Subscribe().AddTo(ref d);
-d.Build().AddTo(destroyCancellationToken or this); // Build and Register
+d.RegisterTo(this.destroyCancellationToken); // Build and Register
 ```
 
 You open tracker window in `Window -> Observable Tracker`. It enables watch `ObservableTracker` list in editor window.

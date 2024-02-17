@@ -88,6 +88,15 @@ public class NewBehaviourScript : MonoBehaviour
         //subject.OnNext(10);
         //subject.OnNext(20);
         //subject.OnNext(30);
+
+
+        var d = Disposable.CreateBuilder();
+        Observable.EveryUpdate().Subscribe().AddTo(ref d);
+        Observable.EveryUpdate().Subscribe().AddTo(ref d);
+        Observable.EveryUpdate().Subscribe().AddTo(ref d);
+
+        
+
     }
 
 
