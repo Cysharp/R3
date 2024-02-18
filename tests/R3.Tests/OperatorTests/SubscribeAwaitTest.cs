@@ -205,4 +205,51 @@ public class SubscribeAwaitTest
 
         subject.OnCompleted();
     }
+
+    [Fact]
+    public void Latest()
+    {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
+        var subject = new Subject<int>();
+        var timeProvider = new FakeTimeProvider();
+
+        var liveList = new List<int>();
+        using var _ = subject
+            .SubscribeAwait(async (x, ct) =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
+                liveList.Add(x * 100);
+            }, AwaitOperation.Latest);
+
+        subject.OnNext(1);
+        subject.OnNext(2);
+        subject.OnNext(3);
+        subject.OnNext(4);
+        subject.OnNext(5);
+
+        liveList.Should().Equal([]);
+
+        timeProvider.Advance(2);
+        liveList.Should().Equal([]);
+
+        timeProvider.Advance(1);
+        liveList.Should().Equal([100]);
+
+        timeProvider.Advance(3);
+        liveList.Should().Equal([100,500]);
+
+        subject.OnNext(6);
+        subject.OnNext(7);
+        subject.OnNext(8);
+        subject.OnNext(9);
+
+        timeProvider.Advance(3);
+        liveList.Should().Equal([100,500,600]);
+
+        timeProvider.Advance(3);
+        liveList.Should().Equal([100,500,600,900]);
+
+        subject.OnCompleted();
+    }
 }

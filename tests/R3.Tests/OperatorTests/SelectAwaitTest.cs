@@ -495,4 +495,98 @@ public class SelectAwaitTest
 
         liveList.AssertIsCompleted();
     }
+
+    [Fact]
+    public void Latest()
+    {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
+        var subject = new Subject<int>();
+        var timeProvider = new FakeTimeProvider();
+
+        using var liveList = subject
+            .SelectAwait(async (x, ct) =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
+                return x * 100;
+            }, AwaitOperation.Latest, configureAwait: false)
+            .ToLiveList();
+
+        subject.OnNext(1);
+        subject.OnNext(2);
+        subject.OnNext(3);
+        subject.OnNext(4);
+        subject.OnNext(5);
+
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(2);
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(1);
+        liveList.AssertEqual([100]);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100,500]);
+
+        subject.OnNext(6);
+        subject.OnNext(7);
+        subject.OnNext(8);
+        subject.OnNext(9);
+
+        timeProvider.Advance(1);
+        liveList.AssertEqual([100, 500]);
+
+        timeProvider.Advance(2);
+        liveList.AssertEqual([100, 500, 600]);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100, 500, 600, 900]);
+
+        subject.OnCompleted();
+
+        liveList.AssertIsCompleted();
+    }
+
+    [Fact]
+    public async Task LatestCancel()
+    {
+        SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
+
+        var subject = new Subject<int>();
+        var timeProvider = new FakeTimeProvider();
+
+        bool canceled = false;
+        using var liveList = subject
+            .SelectAwait(async (x, ct) =>
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
+                    return x * 100;
+                }
+                catch (OperationCanceledException)
+                {
+                    canceled = true;
+                    throw;
+                }
+            }, AwaitOperation.Latest)
+            .ToLiveList();
+
+        subject.OnNext(1);
+        subject.OnNext(2);
+
+        liveList.AssertEqual([]);
+
+        timeProvider.Advance(3);
+        liveList.AssertEqual([100]);
+
+        canceled.Should().BeFalse();
+
+        liveList.Dispose();
+
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        canceled.Should().BeTrue();
+    }
 }

@@ -43,6 +43,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
                     return source.Subscribe(new SelectAwaitSequentialParallelConcurrentLimit(observer, selector, configureAwait, maxConcurrent));
                 }
+            case AwaitOperation.Latest:
+                return source.Subscribe(new SelectAwaitLatest(observer, selector, configureAwait));
             default:
                 throw new ArgumentException();
         }
@@ -236,6 +238,29 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         protected override void PublishOnNext(T _, TResult result)
         {
             observer.OnNext(result);
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void PublishOnCompleted(Result result)
+        {
+            observer.OnCompleted(result);
+        }
+    }
+
+    sealed class SelectAwaitLatest(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
+        : AwaitOperationLatestObserver<T>(configureAwait)
+    {
+#if NET6_0_OR_GREATER
+        [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
+#endif
+        protected override async ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+        {
+            var v = await selector(value, cancellationToken).ConfigureAwait(configureAwait);
+            observer.OnNext(v);
         }
 
         protected override void OnErrorResumeCore(Exception error)

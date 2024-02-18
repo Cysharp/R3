@@ -13,7 +13,9 @@ public enum AwaitOperation
     /// <summary>All values are sent immediately to the asynchronous method.</summary>
     Parallel,
     /// <summary>All values are sent immediately to the asynchronous method, but the results are queued and passed to the next operator in order.</summary>
-    SequentialParallel
+    SequentialParallel,
+    /// <summary>Only the latest value is queued, and the next value waits for the completion of the asynchronous method.</summary>
+    Latest,
 }
 
 internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
@@ -656,6 +658,92 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
                     PublishOnCompleted(Result.Success);
                     Dispose();
                 }
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex);
+        }
+    }
+}
+
+internal abstract class AwaitOperationLatestObserver<T> : Observer<T>
+{
+    readonly CancellationTokenSource cancellationTokenSource;
+    readonly bool configureAwait; // continueOnCapturedContext
+    readonly Channel<T> channel;
+    bool completed;
+
+    protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
+
+    public AwaitOperationLatestObserver(bool configureAwait)
+    {
+        this.cancellationTokenSource = new CancellationTokenSource();
+        this.configureAwait = configureAwait;
+        this.channel = ChannelUtility.CreateSingleReadeWriterSingularBounded<T>();
+
+        RunQueueWorker();
+    }
+
+    protected override sealed void OnNextCore(T value)
+    {
+        channel.Writer.TryWrite(value);
+    }
+
+    protected override sealed void OnCompletedCore(Result result)
+    {
+        if (result.IsFailure)
+        {
+            PublishOnCompleted(result);
+            Dispose();
+            return;
+        }
+
+        Volatile.Write(ref completed, true);
+        channel.Writer.TryComplete(); // exit wait read loop
+    }
+
+    protected override sealed void DisposeCore()
+    {
+        channel.Writer.TryComplete(); // complete writing
+        cancellationTokenSource.Cancel(); // stop selector await.
+    }
+
+    protected abstract ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait);
+    protected abstract void PublishOnCompleted(Result result);
+
+    async void RunQueueWorker() // don't(can't) wait so use async void
+    {
+        var reader = channel.Reader;
+        var token = cancellationTokenSource.Token;
+
+        try
+        {
+            while (await reader.WaitToReadAsync(/* don't pass CancellationToken, uses WriterComplete */).ConfigureAwait(configureAwait))
+            {
+                while (reader.TryRead(out var item))
+                {
+                    try
+                    {
+                        if (token.IsCancellationRequested) return;
+
+                        await OnNextAsync(item, token, configureAwait).ConfigureAwait(configureAwait);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is OperationCanceledException)
+                        {
+                            return;
+                        }
+                        OnErrorResume(ex);
+                    }
+                }
+            }
+
+            if (Volatile.Read(ref completed))
+            {
+                PublishOnCompleted(Result.Success);
+                Dispose();
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

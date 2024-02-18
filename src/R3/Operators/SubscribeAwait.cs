@@ -40,6 +40,8 @@ public static partial class ObservableExtensions
                 return source.Subscribe(new SubscribeAwaitSwitch<T>(onNextAsync, onErrorResume, onCompleted, configureAwait));
             case AwaitOperation.SequentialParallel:
                 throw new ArgumentException("SubscribeAwait does not support SequentialParallel. Use Sequential for sequential operation, use parallel for parallel operation instead.");
+            case AwaitOperation.Latest:
+                return source.Subscribe(new SubscribeAwaitLatest<T>(onNextAsync, onErrorResume, onCompleted, configureAwait));
             default:
                 throw new ArgumentException();
         }
@@ -156,5 +158,24 @@ sealed class SubscribeAwaitParallelConcurrentLimit<T>(Func<T, CancellationToken,
         {
             onCompleted(result);
         }
+    }
+}
+
+internal sealed class SubscribeAwaitLatest<T>(Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, bool configureAwait)
+    : AwaitOperationLatestObserver<T>(configureAwait)
+{
+    protected override ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
+    {
+        return onNextAsync(value, cancellationToken);
+    }
+
+    protected override void OnErrorResumeCore(Exception error)
+    {
+        onErrorResume(error);
+    }
+
+    protected override void PublishOnCompleted(Result result)
+    {
+        onCompleted(result);
     }
 }
