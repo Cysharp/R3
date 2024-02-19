@@ -19,9 +19,19 @@ public static partial class ObservableExtensions
     {
         return new Merge<T>(new[] { source, second });
     }
+
+    public static Observable<T> Merge<T>(this Observable<T> source, IEnumerable<Observable<T>> targets)
+    {
+        return new Merge<T>(targets, source);
+    }
+
+    public static Observable<T> Merge<T>(this Observable<T> source, params Observable<T>[] targets)
+    {
+        return new Merge<T>(targets, source);
+    }
 }
 
-internal sealed class Merge<T>(IEnumerable<Observable<T>> sources) : Observable<T>
+internal sealed class Merge<T>(IEnumerable<Observable<T>> sources, Observable<T>? parent = null) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
@@ -29,6 +39,12 @@ internal sealed class Merge<T>(IEnumerable<Observable<T>> sources) : Observable<
         var builder = Disposable.CreateBuilder();
 
         var count = 0;
+        if (parent != null)
+        {
+            parent.Subscribe(new _MergeObserver(merge)).AddTo(ref builder);
+            count++;
+        }
+
         foreach (var item in sources)
         {
             item.Subscribe(new _MergeObserver(merge)).AddTo(ref builder);

@@ -1657,6 +1657,8 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **MaxByAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **MaxByAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `IComparer<TKey>` comparer, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **Merge**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
+| **Merge**(this `Observable<T>` source, `IEnumerable<Observable<T>>` targets) | `Observable<T>` | 
+| **Merge**(this `Observable<T>` source, params Observable<T>[] targets) | `Observable<T>` |
 | **MinAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **MinAsync**(this `Observable<T>` source, `IComparer<T>` comparer, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **MinAsync**(this `Observable<TSource>` source, `Func<TSource, TResult>` selector, `CancellationToken` cancellationToken = default) | `Task<TResult>` | 
