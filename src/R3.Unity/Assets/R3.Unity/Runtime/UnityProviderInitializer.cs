@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace R3
 {
+#if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoad]
+#endif
     public static class UnityProviderInitializer
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
