@@ -18,7 +18,7 @@ namespace R3
         FreeListCore<IFrameRunnerWorkItem> list;
         readonly object gate = new object();
 
-        public PlayerLoopTiming PlayerLoopTiming { get; }
+        internal PlayerLoopTiming PlayerLoopTiming { get; }
 
         internal UnityFrameProvider(PlayerLoopTiming playerLoopTiming)
         {
