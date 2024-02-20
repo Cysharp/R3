@@ -7,7 +7,7 @@ public static partial class Observable
         return new Merge<T>(sources);
     }
 
-    public static Observable<T> Merge<T>(IEnumerable<Observable<T>> sources)
+    public static Observable<T> Merge<T>(this IEnumerable<Observable<T>> sources)
     {
         return new Merge<T>(sources);
     }
