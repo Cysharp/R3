@@ -1,6 +1,6 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame).
 
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
@@ -782,6 +782,7 @@ Although standard support is provided for the following platforms, by implementi
 * [Avalonia](#avalonia)
 * [MAUI](#mau)
 * [WinForms](#winforms)
+* [WinUI3](#winui3)
 * [Unity](#unity)
 * [Godot](#godot)
 * [Stride](#stride)
@@ -1016,6 +1017,33 @@ internal static class Program
 `SetDefaultObservableSystem` takes ISynchronizeInvoke (such as Form or Control). This makes the Timer operate on the thread to which it belongs.
 
 FrameProvider is executed as one frame using the hook of MessageFilter.
+
+### WinUI3
+
+> PM> Install-Package [R3Extensions.WinUI3](https://www.nuget.org/packages/R3Extensions.WinUI3)
+
+R3Extensions.WinUI3 package has these providers.
+
+* WinUI3DispatcherTimerProvider
+* WinUI3RenderingFrameProvider
+
+Calling `WinUI3ProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with the aforementioned providers.
+
+```csharp
+public partial class App : Application
+{
+    public App()
+    {
+        this.InitializeComponent();
+
+        // Add this line.
+        // You need to set UnhandledExceptionHandler
+        WinUI3ProviderInitializer.SetDefaultObservableSystem(ex => Trace.WriteLine(ex.ToString()));
+    }
+
+    // OnLaunched...
+}
+```
 
 ### Unity
 
