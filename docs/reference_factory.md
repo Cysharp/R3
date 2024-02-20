@@ -38,7 +38,7 @@
 | **IntervalFrame**(`Int32` periodFrame, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **IntervalFrame**(`Int32` periodFrame, `FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **Merge**(params `Observable<T>[]` sources) | `Observable<T>` | 
-| **Merge**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
+| **Merge**(this `IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **Merge**(this `Observable<Observable<T>>` sources) | `Observable<T>` | 
 | **Never**() | `Observable<T>` | 
 | **NextFrame**(`CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
