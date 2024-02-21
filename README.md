@@ -521,11 +521,11 @@ Furthermore, you can specify special behaviors when asynchronous methods are pro
 
 | Name | ReturnType |
 | --- | --- |
-| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = True) | `Observable<TResult>` |
-| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = True) | `Observable<T>` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = True) | `IDisposable` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = True) | `IDisposable` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = True) | `IDisposable` |
+| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<TResult>` |
+| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<T>` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
 
 ```csharp
 public enum AwaitOperation
@@ -540,8 +540,8 @@ public enum AwaitOperation
     Parallel,
     /// <summary>All values are sent immediately to the asynchronous method, but the results are queued and passed to the next operator in order.</summary>
     SequentialParallel,
-    /// <summary>Only the latest value is queued, and the next value waits for the completion of the asynchronous method.</summary>
-    Latest,
+    /// <summary>Send the first value and the last value while the asynchronous method is running.</summary>
+    ThrottleFirstLast
 }
 ```
 
@@ -557,6 +557,10 @@ button.OnClickAsObservable()
     .SubscribeToText(text);
 ```
 
+`maxConcurrent` is only effective for `Parallel` and `SequentialParallel`, allowing control over the number of parallel operations. By default, it allows unlimited parallelization.
+
+`cancelOnCompleted` lets you choose whether to cancel the ongoing asynchronous method (by setting CancellationToken to Cancel) when the `OnCompleted` event is received. The default is true, meaning it will be cancelled. If set to false, it waits for the completion of the asynchronous method before calling the subsequent `OnCompleted` (potentially after issuing OnNext, depending on the case).
+
 Additionally, the following time-related filtering methods can also accept asynchronous methods.
 
 | Name | ReturnType |
@@ -564,6 +568,9 @@ Additionally, the following time-related filtering methods can also accept async
 | **Debounce**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` throttleDurationSelector, `Boolean` configureAwait = true) | `Observable<T>` |
 | **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` |
 | **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` |
+| **ThrottleFirstLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` |
+
+These asynchronous methods are immediately canceled when `OnCompleted` is issued, and the subsequent `OnCompleted` is executed.
 
 Concurrency Policy
 ---
