@@ -5,53 +5,53 @@ namespace R3;
 public static partial class ObservableExtensions
 {
     /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
-    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true, int maxConcurrent = -1)
+    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = true, int maxConcurrent = -1)
     {
-        return new SelectAwait<T, TResult>(source, selector, awaitOperations, configureAwait, maxConcurrent);
+        return new SelectAwait<T, TResult>(source, selector, awaitOperations, configureAwait, cancelOnCompleted, maxConcurrent);
     }
 }
 
-internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations, bool configureAwait, int maxConcurrent) : Observable<TResult>
+internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations, bool configureAwait, bool cancelOnCompleted, int maxConcurrent) : Observable<TResult>
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
         switch (awaitOperations)
         {
             case AwaitOperation.Sequential:
-                return source.Subscribe(new SelectAwaitSequential(observer, selector, configureAwait));
+                return source.Subscribe(new SelectAwaitSequential(observer, selector, configureAwait, cancelOnCompleted));
             case AwaitOperation.Drop:
-                return source.Subscribe(new SelectAwaitDrop(observer, selector, configureAwait));
+                return source.Subscribe(new SelectAwaitDrop(observer, selector, configureAwait, cancelOnCompleted));
             case AwaitOperation.Switch:
-                return source.Subscribe(new SelectAwaitSwitch(observer, selector, configureAwait));
+                return source.Subscribe(new SelectAwaitSwitch(observer, selector, configureAwait, cancelOnCompleted));
             case AwaitOperation.Parallel:
                 if (maxConcurrent == -1)
                 {
-                    return source.Subscribe(new SelectAwaitParallel(observer, selector, configureAwait));
+                    return source.Subscribe(new SelectAwaitParallel(observer, selector, configureAwait, cancelOnCompleted));
                 }
                 else
                 {
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
-                    return source.Subscribe(new SelectAwaitParallelConcurrentLimit(observer, selector, configureAwait, maxConcurrent));
+                    return source.Subscribe(new SelectAwaitParallelConcurrentLimit(observer, selector, configureAwait, cancelOnCompleted, maxConcurrent));
                 }
             case AwaitOperation.SequentialParallel:
                 if (maxConcurrent == -1)
                 {
-                    return source.Subscribe(new SelectAwaitSequentialParallel(observer, selector, configureAwait));
+                    return source.Subscribe(new SelectAwaitSequentialParallel(observer, selector, configureAwait, cancelOnCompleted));
                 }
                 else
                 {
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
-                    return source.Subscribe(new SelectAwaitSequentialParallelConcurrentLimit(observer, selector, configureAwait, maxConcurrent));
+                    return source.Subscribe(new SelectAwaitSequentialParallelConcurrentLimit(observer, selector, configureAwait, cancelOnCompleted, maxConcurrent));
                 }
             case AwaitOperation.Latest:
-                return source.Subscribe(new SelectAwaitLatest(observer, selector, configureAwait));
+                return source.Subscribe(new SelectAwaitLatest(observer, selector, configureAwait, cancelOnCompleted));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class SelectAwaitSequential(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-        : AwaitOperationSequentialObserver<T>(configureAwait)
+    sealed class SelectAwaitSequential(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationSequentialObserver<T>(configureAwait, cancelOnCompleted)
     {
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -73,8 +73,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitDrop(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-        : AwaitOperationDropObserver<T>(configureAwait)
+    sealed class SelectAwaitDrop(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationDropObserver<T>(configureAwait, cancelOnCompleted)
     {
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -96,8 +96,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-        : AwaitOperationParallelObserver<T>(configureAwait)
+    sealed class SelectAwaitParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationParallelObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -130,8 +130,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
     }
 
 
-    sealed class SelectAwaitSwitch(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-        : AwaitOperationSwitchObserver<T>(configureAwait)
+    sealed class SelectAwaitSwitch(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationSwitchObserver<T>(configureAwait, cancelOnCompleted)
     {
         protected override void OnErrorResumeCore(Exception error)
         {
@@ -162,8 +162,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitSequentialParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-        : AwaitOperationSequentialParallelObserver<T, TResult>(configureAwait)
+    sealed class SelectAwaitSequentialParallel(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationSequentialParallelObserver<T, TResult>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -190,8 +190,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitParallelConcurrentLimit(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, int maxConcurrent)
-        : AwaitOperationParallelConcurrentLimitObserver<T>(configureAwait, maxConcurrent)
+    sealed class SelectAwaitParallelConcurrentLimit(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted, int maxConcurrent)
+        : AwaitOperationParallelConcurrentLimitObserver<T>(configureAwait, cancelOnCompleted, maxConcurrent)
     {
 
 #if NET6_0_OR_GREATER
@@ -223,8 +223,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitSequentialParallelConcurrentLimit(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, int maxConcurrent)
-        : AwaitOperationSequentialParallelConcurrentLimitObserver<T, TResult>(configureAwait, maxConcurrent)
+    sealed class SelectAwaitSequentialParallelConcurrentLimit(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted, int maxConcurrent)
+        : AwaitOperationSequentialParallelConcurrentLimitObserver<T, TResult>(configureAwait, cancelOnCompleted, maxConcurrent)
     {
 
 #if NET6_0_OR_GREATER
@@ -251,8 +251,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitLatest(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait)
-        : AwaitOperationLatestObserver<T>(configureAwait)
+    sealed class SelectAwaitLatest(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationLatestObserver<T>(configureAwait, cancelOnCompleted)
     {
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]
