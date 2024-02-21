@@ -2,25 +2,25 @@
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> ThrottleLatestFrame<T>(this Observable<T> source, int frameCount)
+    public static Observable<T> ThrottleFirstLastFrame<T>(this Observable<T> source, int frameCount)
     {
-        return new ThrottleLatestFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
+        return new ThrottleFirstLastFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
     }
 
-    public static Observable<T> ThrottleLatestFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
+    public static Observable<T> ThrottleFirstLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
-        return new ThrottleLatestFrame<T>(source, frameCount, frameProvider);
+        return new ThrottleFirstLastFrame<T>(source, frameCount, frameProvider);
     }
 }
 
-internal sealed class ThrottleLatestFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
+internal sealed class ThrottleFirstLastFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _ThrottleLatestFrame(observer, frameCount.NormalizeFrame(), frameProvider));
+        return source.Subscribe(new _ThrottleFirstLastFrame(observer, frameCount.NormalizeFrame(), frameProvider));
     }
 
-    sealed class _ThrottleLatestFrame : Observer<T>, IFrameRunnerWorkItem
+    sealed class _ThrottleFirstLastFrame : Observer<T>, IFrameRunnerWorkItem
     {
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
@@ -31,7 +31,7 @@ internal sealed class ThrottleLatestFrame<T>(Observable<T> source, int frameCoun
         int currentFrame;
         bool running;
 
-        public _ThrottleLatestFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
+        public _ThrottleFirstLastFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
             this.frameCount = frameCount;

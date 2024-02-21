@@ -1,15 +1,15 @@
 ﻿namespace R3.Tests.OperatorTests;
 
-public class ThrottleLatestTest
+public class ThrottleFirstLastTest
 {
-    // ThrottleLatest(TimeSpan)
+    // ThrottleFirstLast(TimeSpan)
     [Fact]
-    public void ThrottleLatest()
+    public void ThrottleFirstLast()
     {
         var timeProvider = new FakeTimeProvider();
 
         var publisher = new Subject<int>();
-        var list = publisher.ThrottleLatest(TimeSpan.FromSeconds(3), timeProvider).ToLiveList();
+        var list = publisher.ThrottleFirstLast(TimeSpan.FromSeconds(3), timeProvider).ToLiveList();
 
         publisher.OnNext(1);
         list.AssertEqual([1]);
@@ -42,15 +42,15 @@ public class ThrottleLatestTest
         list.AssertIsCompleted();
     }
 
-    // ThrottleLatest(async)
+    // ThrottleFirstLast(async)
     [Fact]
-    public void ThrottleLatestAsyncSampler()
+    public void ThrottleFirstLastAsyncSampler()
     {
         SynchronizationContext.SetSynchronizationContext(null);
 
         var publisher = new Subject<int>();
         var fakeTime = new FakeTimeProvider();
-        var list = publisher.ThrottleLatest(async (x, ct) =>
+        var list = publisher.ThrottleFirstLast(async (x, ct) =>
         {
             await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
         }).ToLiveList();
@@ -86,15 +86,15 @@ public class ThrottleLatestTest
         list.AssertIsCompleted();
     }
 
-    // ThrottleLatest(Observable)
+    // ThrottleFirstLast(Observable)
     [Fact]
-    public void ThrottleLatestObservableSampler()
+    public void ThrottleFirstLastObservableSampler()
     {
         SynchronizationContext.SetSynchronizationContext(null);
 
         var publisher = new Subject<int>();
         var sampler = new Subject<Unit>();
-        var list = publisher.ThrottleLatest(sampler).ToLiveList();
+        var list = publisher.ThrottleFirstLast(sampler).ToLiveList();
 
         publisher.OnNext(1); // gate close
         list.AssertEqual([1]);
@@ -130,15 +130,15 @@ public class ThrottleLatestTest
     }
 
 
-    // ThrottleLatestFrame
+    // ThrottleFirstLastFrame
 
     [Fact]
-    public void ThrottleLatestFrame()
+    public void ThrottleFirstLastFrame()
     {
         var frameProvider = new FakeFrameProvider();
 
         var publisher = new Subject<int>();
-        var list = publisher.ThrottleLatestFrame(3, frameProvider).ToLiveList();
+        var list = publisher.ThrottleFirstLastFrame(3, frameProvider).ToLiveList();
 
         publisher.OnNext(1);
         list.AssertEqual([1]);

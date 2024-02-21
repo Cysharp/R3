@@ -2,35 +2,35 @@
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> ThrottleLatest<T>(this Observable<T> source, TimeSpan timeSpan)
+    public static Observable<T> ThrottleFirstLast<T>(this Observable<T> source, TimeSpan timeSpan)
     {
-        return new ThrottleLatest<T>(source, timeSpan, ObservableSystem.DefaultTimeProvider);
+        return new ThrottleFirstLast<T>(source, timeSpan, ObservableSystem.DefaultTimeProvider);
     }
 
-    public static Observable<T> ThrottleLatest<T>(this Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider)
+    public static Observable<T> ThrottleFirstLast<T>(this Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider)
     {
-        return new ThrottleLatest<T>(source, timeSpan, timeProvider);
+        return new ThrottleFirstLast<T>(source, timeSpan, timeProvider);
     }
 
-    public static Observable<T> ThrottleLatest<T, TSample>(this Observable<T> source, Observable<TSample> sampler)
+    public static Observable<T> ThrottleFirstLast<T, TSample>(this Observable<T> source, Observable<TSample> sampler)
     {
-        return new ThrottleLatestObservableSampler<T, TSample>(source, sampler);
+        return new ThrottleFirstLastObservableSampler<T, TSample>(source, sampler);
     }
 
-    public static Observable<T> ThrottleLatest<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait = true)
+    public static Observable<T> ThrottleFirstLast<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait = true)
     {
-        return new ThrottleLatestAsyncSampler<T>(source, sampler, configureAwait);
+        return new ThrottleFirstLastAsyncSampler<T>(source, sampler, configureAwait);
     }
 }
 
-internal sealed class ThrottleLatest<T>(Observable<T> source, TimeSpan interval, TimeProvider timeProvider) : Observable<T>
+internal sealed class ThrottleFirstLast<T>(Observable<T> source, TimeSpan interval, TimeProvider timeProvider) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _ThrottleLatest(observer, interval.Normalize(), timeProvider));
+        return source.Subscribe(new _ThrottleFirstLast(observer, interval.Normalize(), timeProvider));
     }
 
-    sealed class _ThrottleLatest : Observer<T>
+    sealed class _ThrottleFirstLast : Observer<T>
     {
         static readonly TimerCallback timerCallback = RaiseOnNext;
 
@@ -42,7 +42,7 @@ internal sealed class ThrottleLatest<T>(Observable<T> source, TimeSpan interval,
         bool hasValue;
         bool timerIsRunning;
 
-        public _ThrottleLatest(Observer<T> observer, TimeSpan interval, TimeProvider timeProvider)
+        public _ThrottleFirstLast(Observer<T> observer, TimeSpan interval, TimeProvider timeProvider)
         {
             this.observer = observer;
             this.interval = interval;
@@ -85,7 +85,7 @@ internal sealed class ThrottleLatest<T>(Observable<T> source, TimeSpan interval,
 
         static void RaiseOnNext(object? state)
         {
-            var self = (_ThrottleLatest)state!;
+            var self = (_ThrottleFirstLast)state!;
             lock (self.gate)
             {
                 self.timerIsRunning = false;
@@ -100,14 +100,14 @@ internal sealed class ThrottleLatest<T>(Observable<T> source, TimeSpan interval,
     }
 }
 
-internal sealed class ThrottleLatestAsyncSampler<T>(Observable<T> source, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observable<T>
+internal sealed class ThrottleFirstLastAsyncSampler<T>(Observable<T> source, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _ThrottleLatest(observer, sampler, configureAwait));
+        return source.Subscribe(new _ThrottleFirstLast(observer, sampler, configureAwait));
     }
 
-    sealed class _ThrottleLatest(Observer<T> observer, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observer<T>
+    sealed class _ThrottleFirstLast(Observer<T> observer, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observer<T>
     {
         readonly object gate = new object();
         readonly CancellationTokenSource cancellationTokenSource = new();
@@ -179,14 +179,14 @@ internal sealed class ThrottleLatestAsyncSampler<T>(Observable<T> source, Func<T
     }
 }
 
-internal sealed class ThrottleLatestObservableSampler<T, TSample>(Observable<T> source, Observable<TSample> sampler) : Observable<T>
+internal sealed class ThrottleFirstLastObservableSampler<T, TSample>(Observable<T> source, Observable<TSample> sampler) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _ThrottleLatest(observer, sampler));
+        return source.Subscribe(new _ThrottleFirstLast(observer, sampler));
     }
 
-    sealed class _ThrottleLatest : Observer<T>
+    sealed class _ThrottleFirstLast : Observer<T>
     {
         readonly Observer<T> observer;
         readonly object gate = new object();
@@ -195,7 +195,7 @@ internal sealed class ThrottleLatestObservableSampler<T, TSample>(Observable<T> 
         bool hasValue;
         bool closing;
 
-        public _ThrottleLatest(Observer<T> observer, Observable<TSample> sampler)
+        public _ThrottleFirstLast(Observer<T> observer, Observable<TSample> sampler)
         {
             this.observer = observer;
             var sampleObserver = new SamplerObserver(this);
@@ -248,7 +248,7 @@ internal sealed class ThrottleLatestObservableSampler<T, TSample>(Observable<T> 
             }
         }
 
-        sealed class SamplerObserver(_ThrottleLatest parent) : Observer<TSample>
+        sealed class SamplerObserver(_ThrottleFirstLast parent) : Observer<TSample>
         {
             protected override void OnNextCore(TSample value)
             {
