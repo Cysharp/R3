@@ -10,6 +10,11 @@ namespace R3
 #endif
     public static class UnityProviderInitializer
     {
+        static UnityProviderInitializer()
+        {
+            SetDefaultObservableSystem();
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         public static void SetDefaultObservableSystem()
         {
