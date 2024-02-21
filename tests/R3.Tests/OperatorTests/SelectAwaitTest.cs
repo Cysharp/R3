@@ -462,7 +462,7 @@ public class SelectAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(x), timeProvider, ct);
                 return x * 100;
-            }, AwaitOperation.SequentialParallel, configureAwait: false, maxConcurrent: 2)
+            }, AwaitOperation.SequentialParallel, configureAwait: false, cancelOnCompleted: false, maxConcurrent: 2)
             .ToLiveList();
 
         subject.OnNext(2); // 2 seconds wait
@@ -527,7 +527,7 @@ public class SelectAwaitTest
         liveList.AssertEqual([100]);
 
         timeProvider.Advance(3);
-        liveList.AssertEqual([100,500]);
+        liveList.AssertEqual([100, 500]);
 
         subject.OnNext(6);
         subject.OnNext(7);

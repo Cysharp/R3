@@ -247,7 +247,7 @@ public class WhereAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x % 2 != 0;
-            }, AwaitOperation.Parallel, maxConcurrent: 2)
+            }, AwaitOperation.Parallel, cancelOnCompleted: false, maxConcurrent: 2)
             .Select(x => x * 100)
             .ToLiveList();
 

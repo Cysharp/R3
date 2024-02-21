@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Threading;
+using System.Threading.Channels;
 
 namespace R3;
 
@@ -22,15 +23,17 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     readonly Channel<T> channel;
     bool completed;
 
     protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationSequentialObserver(bool configureAwait)
+    public AwaitOperationSequentialObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
         this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<T>();
 
         RunQueueWorker();
@@ -43,15 +46,17 @@ internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            channel.Writer.TryComplete();
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
         }
 
         Volatile.Write(ref completed, true);
-        channel.Writer.TryComplete(); // exit wait read loop
+        channel.Writer.TryComplete();
     }
 
     protected override sealed void DisposeCore()
@@ -108,14 +113,16 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     int runningState; // 0 = stopped, 1 = running, 2 = complete
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationDropObserver(bool configureAwait)
+    public AwaitOperationDropObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
     }
 
     protected override sealed void OnNextCore(T value)
@@ -128,8 +135,9 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
@@ -138,6 +146,7 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
         if (Interlocked.Exchange(ref runningState, 2) == 0)
         {
             PublishOnCompleted(result);
+            Dispose();
         }
     }
 
@@ -168,6 +177,7 @@ internal abstract class AwaitOperationDropObserver<T> : Observer<T>
             if (Interlocked.CompareExchange(ref runningState, 0, 1) == 2)
             {
                 PublishOnCompleted(Result.Success);
+                Dispose();
             }
         }
     }
@@ -177,16 +187,18 @@ internal abstract class AwaitOperationSwitchObserver<T> : Observer<T>
 {
     CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     protected readonly object gate = new object();
     bool running;
     bool completed;
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationSwitchObserver(bool configureAwait)
+    public AwaitOperationSwitchObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
     }
 
     protected override sealed void OnNextCore(T value)
@@ -209,8 +221,9 @@ internal abstract class AwaitOperationSwitchObserver<T> : Observer<T>
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
@@ -278,16 +291,18 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     protected readonly object gate = new object(); // need to use gate.
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
     int runningCount = 0;
     bool completed;
 
-    public AwaitOperationParallelObserver(bool configureAwait)
+    public AwaitOperationParallelObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
     }
 
     protected override sealed void OnNextCore(T value)
@@ -298,8 +313,9 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
@@ -351,15 +367,17 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     readonly Channel<(T, ValueTask<TTaskValue>)> channel;
     bool completed;
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationSequentialParallelObserver(bool configureAwait)
+    public AwaitOperationSequentialParallelObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
         this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<(T, ValueTask<TTaskValue>)>();
 
         RunQueueWorker();
@@ -373,8 +391,10 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            channel.Writer.TryComplete();
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
@@ -436,7 +456,7 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
     }
 }
 
-internal abstract class AwaitOperationParallelConcurrentLimitObserver<T>(bool configureAwait, int maxConcurrent) : Observer<T>
+internal abstract class AwaitOperationParallelConcurrentLimitObserver<T>(bool configureAwait, bool cancelOnCompleted, int maxConcurrent) : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource = new();
     protected readonly object gate = new object(); // need to use gate.
@@ -465,8 +485,9 @@ internal abstract class AwaitOperationParallelConcurrentLimitObserver<T>(bool co
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
@@ -532,6 +553,7 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     readonly int maxConcurrent;
     readonly object gate = new object();
     readonly Channel<(T, ValueTask<TTaskValue>)> channel;
@@ -541,10 +563,11 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationSequentialParallelConcurrentLimitObserver(bool configureAwait, int maxConcurrent)
+    public AwaitOperationSequentialParallelConcurrentLimitObserver(bool configureAwait, bool cancelOnCompleted, int maxConcurrent)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
         this.maxConcurrent = maxConcurrent;
         this.channel = ChannelUtility.CreateSingleReadeWriterUnbounded<(T, ValueTask<TTaskValue>)>();
 
@@ -570,8 +593,10 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            channel.Writer.TryComplete();
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;
@@ -671,15 +696,17 @@ internal abstract class AwaitOperationLatestObserver<T> : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
+    readonly bool cancelOnCompleted;
     readonly Channel<T> channel;
     bool completed;
 
     protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationLatestObserver(bool configureAwait)
+    public AwaitOperationLatestObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;
+        this.cancelOnCompleted = cancelOnCompleted;
         this.channel = ChannelUtility.CreateSingleReadeWriterSingularBounded<T>();
 
         RunQueueWorker();
@@ -692,8 +719,10 @@ internal abstract class AwaitOperationLatestObserver<T> : Observer<T>
 
     protected override sealed void OnCompletedCore(Result result)
     {
-        if (result.IsFailure)
+        if (cancelOnCompleted || result.IsFailure)
         {
+            channel.Writer.TryComplete();
+            cancellationTokenSource.Cancel();
             PublishOnCompleted(result);
             Dispose();
             return;

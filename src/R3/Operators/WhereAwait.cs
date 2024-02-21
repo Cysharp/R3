@@ -5,13 +5,13 @@ namespace R3;
 public static partial class ObservableExtensions
 {
     /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
-    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true, int maxConcurrent = -1)
+    public static Observable<T> WhereAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = true, int maxConcurrent = -1)
     {
-        return new WhereAwait<T>(source, predicate, awaitOperations, configureAwait, maxConcurrent);
+        return new WhereAwait<T>(source, predicate, awaitOperations, configureAwait, cancelOnCompleted, maxConcurrent);
     }
 }
 
-internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations, bool configureAwait, int maxConcurrent)
+internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationToken, ValueTask<bool>> predicate, AwaitOperation awaitOperations, bool configureAwait, bool cancelOnCompleted, int maxConcurrent)
     : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
@@ -19,42 +19,42 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         switch (awaitOperations)
         {
             case AwaitOperation.Sequential:
-                return source.Subscribe(new WhereAwaitSequential(observer, predicate, configureAwait));
+                return source.Subscribe(new WhereAwaitSequential(observer, predicate, configureAwait, cancelOnCompleted));
             case AwaitOperation.Drop:
-                return source.Subscribe(new WhereAwaitDrop(observer, predicate, configureAwait));
+                return source.Subscribe(new WhereAwaitDrop(observer, predicate, configureAwait, cancelOnCompleted));
             case AwaitOperation.Switch:
-                return source.Subscribe(new WhereAwaitSwitch(observer, predicate, configureAwait));
+                return source.Subscribe(new WhereAwaitSwitch(observer, predicate, configureAwait, cancelOnCompleted));
             case AwaitOperation.Parallel:
                 if (maxConcurrent == -1)
                 {
-                    return source.Subscribe(new WhereAwaitParallel(observer, predicate, configureAwait));
+                    return source.Subscribe(new WhereAwaitParallel(observer, predicate, configureAwait, cancelOnCompleted));
                 }
                 else
                 {
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
-                    return source.Subscribe(new WhereAwaitParallelConcurrentLimit(observer, predicate, configureAwait, maxConcurrent));
+                    return source.Subscribe(new WhereAwaitParallelConcurrentLimit(observer, predicate, configureAwait, cancelOnCompleted, maxConcurrent));
                 }
 
 
             case AwaitOperation.SequentialParallel:
                 if (maxConcurrent == -1)
                 {
-                    return source.Subscribe(new WhereAwaitSequentialParallel(observer, predicate, configureAwait));
+                    return source.Subscribe(new WhereAwaitSequentialParallel(observer, predicate, configureAwait, cancelOnCompleted));
                 }
                 else
                 {
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
-                    return source.Subscribe(new WhereAwaitSequentialParallelConcurrentLimit(observer, predicate, configureAwait, maxConcurrent));
+                    return source.Subscribe(new WhereAwaitSequentialParallelConcurrentLimit(observer, predicate, configureAwait, cancelOnCompleted, maxConcurrent));
                 }
             case AwaitOperation.Latest:
-                return source.Subscribe(new WhereAwaitLatest(observer, predicate, configureAwait));
+                return source.Subscribe(new WhereAwaitLatest(observer, predicate, configureAwait, cancelOnCompleted));
             default:
                 throw new ArgumentException();
         }
     }
 
-    sealed class WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        : AwaitOperationSequentialObserver<T>(configureAwait)
+    sealed class WhereAwaitSequential(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationSequentialObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -82,8 +82,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        : AwaitOperationDropObserver<T>(configureAwait)
+    sealed class WhereAwaitDrop(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationDropObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -108,8 +108,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        : AwaitOperationParallelObserver<T>(configureAwait)
+    sealed class WhereAwaitParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationParallelObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -143,8 +143,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitSwitch(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        : AwaitOperationSwitchObserver<T>(configureAwait)
+    sealed class WhereAwaitSwitch(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationSwitchObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -178,8 +178,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitSequentialParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        : AwaitOperationSequentialParallelObserver<T, bool>(configureAwait)
+    sealed class WhereAwaitSequentialParallel(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationSequentialParallelObserver<T, bool>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER
@@ -209,8 +209,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitParallelConcurrentLimit(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, int maxConcurrent)
-        : AwaitOperationParallelConcurrentLimitObserver<T>(configureAwait, maxConcurrent)
+    sealed class WhereAwaitParallelConcurrentLimit(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted, int maxConcurrent)
+        : AwaitOperationParallelConcurrentLimitObserver<T>(configureAwait, cancelOnCompleted, maxConcurrent)
     {
 
 #if NET6_0_OR_GREATER
@@ -244,8 +244,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitSequentialParallelConcurrentLimit(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, int maxConcurrent)
-        : AwaitOperationSequentialParallelConcurrentLimitObserver<T, bool>(configureAwait, maxConcurrent)
+    sealed class WhereAwaitSequentialParallelConcurrentLimit(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted, int maxConcurrent)
+        : AwaitOperationSequentialParallelConcurrentLimitObserver<T, bool>(configureAwait, cancelOnCompleted, maxConcurrent)
     {
 
 #if NET6_0_OR_GREATER
@@ -275,8 +275,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitLatest(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait)
-        : AwaitOperationLatestObserver<T>(configureAwait)
+    sealed class WhereAwaitLatest(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationLatestObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER

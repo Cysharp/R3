@@ -126,13 +126,13 @@ internal sealed class ThrottleLastAsyncSampler<T>(Observable<T> source, Func<T, 
 
         protected override void OnCompletedCore(Result result)
         {
+            cancellationTokenSource.Cancel();
             observer.OnCompleted(result);
         }
 
         protected override void DisposeCore()
         {
             cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
         }
 
         async Task RaiseOnNextAsync(T value)

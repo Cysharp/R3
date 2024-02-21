@@ -147,6 +147,8 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
         {
             lock (gate)
             {
+                cancellationTokenSource.Cancel(); // cancel executing async process first
+
                 if (hasValue)
                 {
                     observer.OnNext(latestValue!);
@@ -160,7 +162,6 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
         protected override void DisposeCore()
         {
             cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
         }
 
         async Task PublishOnNextAfterAsync(T value, int id, CancellationToken cancellationToken)
