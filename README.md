@@ -1671,6 +1671,10 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **FirstOrDefaultAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `T` defaultValue = default, `CancellationToken` cancellationToken = default) | `Task<T>` | 
 | **ForEachAsync**(this `Observable<T>` source, `Action<T>` action, `CancellationToken` cancellationToken = default) | `Task` | 
 | **ForEachAsync**(this `Observable<T>` source, `Action<T, Int32>` action, `CancellationToken` cancellationToken = default) | `Task` | 
+| **FrameCount**(this `Observable<T>` source) | `Observable<ValueTuple<Int64, T>>` | 
+| **FrameCount**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<ValueTuple<Int64, T>>` | 
+| **FrameInterval**(this `Observable<T>` source) | `Observable<ValueTuple<Int64, T>>` | 
+| **FrameInterval**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<ValueTuple<Int64, T>>` | 
 | **IgnoreElements**(this `Observable<T>` source) | `Observable<T>` | 
 | **IgnoreElements**(this `Observable<T>` source, `Action<T>` doOnNext) | `Observable<T>` | 
 | **IgnoreOnErrorResume**(this `Observable<T>` source) | `Observable<T>` | 
@@ -1731,7 +1735,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **Select**(this `Observable<T>` source, `Func<T, Int32, TResult>` selector) | `Observable<TResult>` | 
 | **Select**(this `Observable<T>` source, `TState` state, `Func<T, TState, TResult>` selector) | `Observable<TResult>` | 
 | **Select**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, TResult>` selector) | `Observable<TResult>` | 
-| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `Observable<TResult>` | 
+| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = true, `Int32` maxConcurrent = -1) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TResult>>` selector) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Observable<TCollection>>` collectionSelector, `Func<TSource, TCollection, TResult>` resultSelector) | `Observable<TResult>` | 
 | **SelectMany**(this `Observable<TSource>` source, `Func<TSource, Int32, Observable<TResult>>` selector) | `Observable<TResult>` | 
@@ -1758,9 +1762,9 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
 | **SubscribeOn**(this `Observable<T>` source, `SynchronizationContext` synchronizationContext) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 
@@ -1802,16 +1806,26 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **ThrottleFirstFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **ThrottleFirstLast**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
+| **ThrottleFirstLast**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
+| **ThrottleFirstLast**(this `Observable<T>` source, `Observable<TSample>` sampler) | `Observable<T>` | 
+| **ThrottleFirstLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` | 
+| **ThrottleFirstLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
+| **ThrottleFirstLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `Observable<TSample>` sampler) | `Observable<T>` | 
 | **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **ThrottleLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **TimeInterval**(this `Observable<T>` source) | `Observable<ValueTuple<TimeSpan, T>>` | 
+| **TimeInterval**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<ValueTuple<TimeSpan, T>>` | 
 | **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime) | `Observable<T>` | 
 | **Timeout**(this `Observable<T>` source, `TimeSpan` dueTime, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **TimeoutFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T>` | 
 | **TimeoutFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
+| **Timestamp**(this `Observable<T>` source) | `Observable<ValueTuple<Int64, T>>` | 
+| **Timestamp**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<ValueTuple<Int64, T>>` | 
 | **ToArrayAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<T[]>` | 
 | **ToAsyncEnumerable**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `IAsyncEnumerable<T>` | 
 | **ToDictionaryAsync**(this `Observable<T>` source, `Func<T, TKey>` keySelector, `CancellationToken` cancellationToken = default) | `Task<Dictionary<TKey, T>>` | 
@@ -1833,7 +1847,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **Where**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, TState, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, Boolean>` predicate) | `Observable<T>` | 
-| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Int32` maxConcurrent = -1) | `Observable<T>` | 
+| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperations = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = true, `Int32` maxConcurrent = -1) | `Observable<T>` | 
 | **WithLatestFrom**(this `Observable<TFirst>` first, `Observable<TSecond>` second, `Func<TFirst, TSecond, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Zip**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Func<T1, T2, T3, TResult>` resultSelector) | `Observable<TResult>` | 
