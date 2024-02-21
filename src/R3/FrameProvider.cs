@@ -20,7 +20,14 @@ public sealed class FakeFrameProvider : FrameProvider
 
     public FakeFrameProvider()
     {
-        list = new FreeListCore<IFrameRunnerWorkItem>(gate);
+        this.list = new FreeListCore<IFrameRunnerWorkItem>(gate);
+        this.frameCount = 0;
+    }
+
+    public FakeFrameProvider(long frameCount)
+    {
+        this.list = new FreeListCore<IFrameRunnerWorkItem>(gate);
+        this.frameCount = frameCount;
     }
 
     public override long GetFrameCount()
