@@ -324,7 +324,7 @@ public class WhereAwaitTest
     }
 
     [Fact]
-    public void Latest()
+    public void ThrottleFirstLast()
     {
         SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
 
@@ -336,7 +336,7 @@ public class WhereAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x % 2 != 0;
-            }, AwaitOperation.Latest)
+            }, AwaitOperation.ThrottleFirstLast)
             .Select(x => x * 100)
             .ToLiveList();
 

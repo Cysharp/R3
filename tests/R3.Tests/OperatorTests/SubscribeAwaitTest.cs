@@ -207,7 +207,7 @@ public class SubscribeAwaitTest
     }
 
     [Fact]
-    public void Latest()
+    public void ThrottleFirstLast()
     {
         SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
 
@@ -220,7 +220,7 @@ public class SubscribeAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 liveList.Add(x * 100);
-            }, AwaitOperation.Latest);
+            }, AwaitOperation.ThrottleFirstLast);
 
         subject.OnNext(1);
         subject.OnNext(2);

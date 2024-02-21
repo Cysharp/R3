@@ -15,8 +15,8 @@ public enum AwaitOperation
     Parallel,
     /// <summary>All values are sent immediately to the asynchronous method, but the results are queued and passed to the next operator in order.</summary>
     SequentialParallel,
-    /// <summary>Only the latest value is queued, and the next value waits for the completion of the asynchronous method.</summary>
-    Latest,
+    /// <summary>Send the first value and the last value while the asynchronous method is running.</summary>
+    ThrottleFirstLast,
 }
 
 internal abstract class AwaitOperationSequentialObserver<T> : Observer<T>
@@ -692,7 +692,7 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
     }
 }
 
-internal abstract class AwaitOperationLatestObserver<T> : Observer<T>
+internal abstract class AwaitOperationThrottleFirstLastObserver<T> : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
@@ -702,7 +702,7 @@ internal abstract class AwaitOperationLatestObserver<T> : Observer<T>
 
     protected override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
-    public AwaitOperationLatestObserver(bool configureAwait, bool cancelOnCompleted)
+    public AwaitOperationThrottleFirstLastObserver(bool configureAwait, bool cancelOnCompleted)
     {
         this.cancellationTokenSource = new CancellationTokenSource();
         this.configureAwait = configureAwait;

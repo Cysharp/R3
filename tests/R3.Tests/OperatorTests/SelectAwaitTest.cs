@@ -497,7 +497,7 @@ public class SelectAwaitTest
     }
 
     [Fact]
-    public void Latest()
+    public void ThrottleFirstLast()
     {
         SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
 
@@ -509,7 +509,7 @@ public class SelectAwaitTest
             {
                 await Task.Delay(TimeSpan.FromSeconds(3), timeProvider, ct);
                 return x * 100;
-            }, AwaitOperation.Latest, configureAwait: false)
+            }, AwaitOperation.ThrottleFirstLast, configureAwait: false)
             .ToLiveList();
 
         subject.OnNext(1);
@@ -549,7 +549,7 @@ public class SelectAwaitTest
     }
 
     [Fact]
-    public async Task LatestCancel()
+    public async Task ThrottleFirstLastCancel()
     {
         SynchronizationContext.SetSynchronizationContext(null); // xUnit insert fucking SynchronizationContext so ignore it.
 
@@ -570,7 +570,7 @@ public class SelectAwaitTest
                     canceled = true;
                     throw;
                 }
-            }, AwaitOperation.Latest)
+            }, AwaitOperation.ThrottleFirstLast)
             .ToLiveList();
 
         subject.OnNext(1);

@@ -46,8 +46,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
                     return source.Subscribe(new WhereAwaitSequentialParallelConcurrentLimit(observer, predicate, configureAwait, cancelOnCompleted, maxConcurrent));
                 }
-            case AwaitOperation.Latest:
-                return source.Subscribe(new WhereAwaitLatest(observer, predicate, configureAwait, cancelOnCompleted));
+            case AwaitOperation.ThrottleFirstLast:
+                return source.Subscribe(new WhereAwaitThrottleFirstLast(observer, predicate, configureAwait, cancelOnCompleted));
             default:
                 throw new ArgumentException();
         }
@@ -275,8 +275,8 @@ internal sealed class WhereAwait<T>(Observable<T> source, Func<T, CancellationTo
         }
     }
 
-    sealed class WhereAwaitLatest(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
-        : AwaitOperationLatestObserver<T>(configureAwait, cancelOnCompleted)
+    sealed class WhereAwaitThrottleFirstLast(Observer<T> observer, Func<T, CancellationToken, ValueTask<bool>> predicate, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationThrottleFirstLastObserver<T>(configureAwait, cancelOnCompleted)
     {
 
 #if NET6_0_OR_GREATER

@@ -43,8 +43,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
                     if (maxConcurrent == 0 || maxConcurrent < -1) throw new ArgumentException("maxConcurrent must be a -1 or greater than 1.");
                     return source.Subscribe(new SelectAwaitSequentialParallelConcurrentLimit(observer, selector, configureAwait, cancelOnCompleted, maxConcurrent));
                 }
-            case AwaitOperation.Latest:
-                return source.Subscribe(new SelectAwaitLatest(observer, selector, configureAwait, cancelOnCompleted));
+            case AwaitOperation.ThrottleFirstLast:
+                return source.Subscribe(new SelectAwaitThrottleFirstLast(observer, selector, configureAwait, cancelOnCompleted));
             default:
                 throw new ArgumentException();
         }
@@ -251,8 +251,8 @@ internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, Canc
         }
     }
 
-    sealed class SelectAwaitLatest(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
-        : AwaitOperationLatestObserver<T>(configureAwait, cancelOnCompleted)
+    sealed class SelectAwaitThrottleFirstLast(Observer<TResult> observer, Func<T, CancellationToken, ValueTask<TResult>> selector, bool configureAwait, bool cancelOnCompleted)
+        : AwaitOperationThrottleFirstLastObserver<T>(configureAwait, cancelOnCompleted)
     {
 #if NET6_0_OR_GREATER
         [AsyncMethodBuilderAttribute(typeof(PoolingAsyncValueTaskMethodBuilder))]

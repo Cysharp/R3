@@ -15,7 +15,7 @@ public class AwaitOperationCancelOnCompleted
     [InlineData(AwaitOperation.Switch)]
     [InlineData(AwaitOperation.Parallel)]
     [InlineData(AwaitOperation.SequentialParallel)]
-    [InlineData(AwaitOperation.Latest)]
+    [InlineData(AwaitOperation.ThrottleFirstLast)]
     public void SelectAwaitCancelOnCompletedTrue(AwaitOperation op)
     {
         SynchronizationContext.SetSynchronizationContext(null);
@@ -52,7 +52,7 @@ public class AwaitOperationCancelOnCompleted
     [InlineData(AwaitOperation.Switch)]
     [InlineData(AwaitOperation.Parallel)]
     [InlineData(AwaitOperation.SequentialParallel)]
-    [InlineData(AwaitOperation.Latest)]
+    [InlineData(AwaitOperation.ThrottleFirstLast)]
     public void SelectAwaitCancelOnCompletedFalse(AwaitOperation op)
     {
         SynchronizationContext.SetSynchronizationContext(null);

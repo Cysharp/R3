@@ -40,8 +40,8 @@ public static partial class ObservableExtensions
                 return source.Subscribe(new SubscribeAwaitSwitch<T>(onNextAsync, onErrorResume, onCompleted, configureAwait, cancelOnCompleted));
             case AwaitOperation.SequentialParallel:
                 throw new ArgumentException("SubscribeAwait does not support SequentialParallel. Use Sequential for sequential operation, use parallel for parallel operation instead.");
-            case AwaitOperation.Latest:
-                return source.Subscribe(new SubscribeAwaitLatest<T>(onNextAsync, onErrorResume, onCompleted, configureAwait, cancelOnCompleted));
+            case AwaitOperation.ThrottleFirstLast:
+                return source.Subscribe(new SubscribeAwaitThrottleFirstLast<T>(onNextAsync, onErrorResume, onCompleted, configureAwait, cancelOnCompleted));
             default:
                 throw new ArgumentException();
         }
@@ -161,8 +161,8 @@ sealed class SubscribeAwaitParallelConcurrentLimit<T>(Func<T, CancellationToken,
     }
 }
 
-internal sealed class SubscribeAwaitLatest<T>(Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, bool configureAwait, bool cancelOnCompleted)
-    : AwaitOperationLatestObserver<T>(configureAwait, cancelOnCompleted)
+internal sealed class SubscribeAwaitThrottleFirstLast<T>(Func<T, CancellationToken, ValueTask> onNextAsync, Action<Exception> onErrorResume, Action<Result> onCompleted, bool configureAwait, bool cancelOnCompleted)
+    : AwaitOperationThrottleFirstLastObserver<T>(configureAwait, cancelOnCompleted)
 {
     protected override ValueTask OnNextAsync(T value, CancellationToken cancellationToken, bool configureAwait)
     {

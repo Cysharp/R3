@@ -34,68 +34,43 @@ public class NewBehaviourScript : MonoBehaviour
     public SerializableReactiveProperty<int> NANTOKAMARU;
     //public NantonakuProperty NANTOKAMARU;
 
-
-    public Button button;
+    public Button button1;
+    public Button button2;
     // Text text;
 
     public NoAwakeTest noAwake;
 
-    void Start()
+    async void Start()
     {
-        //button.OnClickAsObservable()
-        //    .SelectAwait(async (_, ct) =>
-        //    {
-        //        var req = await UnityWebRequest.Get("https://google.com/").SendWebRequest().WithCancellation(ct);
-        //        return req.downloadHandler.text;
-        //    }, AwaitOperations.Drop)
-        //    .SubscribeToText(text);
+        Observer<Unit> dis = (Observer<Unit>)button1
+               .OnClickAsObservable()
+               .SubscribeAwait(async (_, ct) =>
+               {
+                   await UniTask.Delay(1000, cancellationToken: ct);
+                   Debug.Log("Clicked!");
+               }, AwaitOperation.Drop);
 
-        Disposable.Create(() =>
-        {
-            // Debug.Log("Register");
-        }).AddTo(noAwake);
+        Observer<Unit> dis2 = (Observer<Unit>)button2
+            .OnClickAsObservable()
+            .Subscribe(_ => Debug.Log("Clicked!"));
 
+        await UniTask.Yield();
 
-        button.OnClickAsObservable()
-            .Do(x => Debug.Log($"Do:{Thread.CurrentThread.ManagedThreadId}"))
-            .SubscribeAwait(async (_, ct) =>
-            {
-                Debug.Log($"Before Await:{Thread.CurrentThread.ManagedThreadId}");
-                var time = Time.time;
-                while (Time.time - time < 1f)
-                {
-                    transform.position += Vector3.forward * Time.deltaTime;
-                    await UniTask.Yield(ct);
-                    Debug.Log($"After Yield:{Thread.CurrentThread.ManagedThreadId}");
-                }
+        Destroy(button1.gameObject);
 
-            }, AwaitOperation.Sequential/*, configureAwait: false*/)
-            .AddTo(this);
+        await UniTask.Yield();
+
+        Debug.Log(dis.IsDisposed); // True
+
+        await UniTask.Yield();
+
+        Destroy(button2.gameObject);
+
+        await UniTask.Yield();
+
+        Debug.Log(dis2.IsDisposed); // True
 
 
-        //var subject = new Subject<int>();
-
-        //subject
-        //    .Do(x => Debug.Log($"Do:{Thread.CurrentThread.ManagedThreadId}"))
-        //    .SubscribeAwait(async (_, ct) =>
-        //    {
-        //        Debug.Log($"Before Await:{Thread.CurrentThread.ManagedThreadId}");
-        //        await UniTask.Yield(ct);
-        //        Debug.Log($"After Yield:{Thread.CurrentThread.ManagedThreadId}");
-        //    }, AwaitOperation.Sequential/*, configureAwait: false*/);
-
-
-        //subject.OnNext(10);
-        //subject.OnNext(20);
-        //subject.OnNext(30);
-
-
-        var d = Disposable.CreateBuilder();
-        Observable.EveryUpdate().Subscribe().AddTo(ref d);
-        Observable.EveryUpdate().Subscribe().AddTo(ref d);
-        Observable.EveryUpdate().Subscribe().AddTo(ref d);
-
-        
 
     }
 
