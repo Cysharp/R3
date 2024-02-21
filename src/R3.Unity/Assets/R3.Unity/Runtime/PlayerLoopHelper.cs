@@ -24,7 +24,7 @@ namespace R3
         public struct TimeUpdate { };
     }
 
-    public enum PlayerLoopTiming
+    internal enum PlayerLoopTiming
     {
         Initialization = 0,
         EarlyUpdate = 1,
