@@ -1,38 +1,37 @@
-﻿using System.Runtime.InteropServices;
-
-namespace R3;
+﻿namespace R3;
 
 public static partial class ObservableExtensions
 {
-    public static Observable<T> ThrottleLastFrame<T>(this Observable<T> source, int frameCount)
+    public static Observable<T> ThrottleLatestFrame<T>(this Observable<T> source, int frameCount)
     {
-        return new ThrottleLastFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
+        return new ThrottleLatestFrame<T>(source, frameCount, ObservableSystem.DefaultFrameProvider);
     }
 
-    public static Observable<T> ThrottleLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
+    public static Observable<T> ThrottleLatestFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
-        return new ThrottleLastFrame<T>(source, frameCount, frameProvider);
+        return new ThrottleLatestFrame<T>(source, frameCount, frameProvider);
     }
 }
 
-internal sealed class ThrottleLastFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
+internal sealed class ThrottleLatestFrame<T>(Observable<T> source, int frameCount, FrameProvider frameProvider) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _ThrottleLastFrame(observer, frameCount.NormalizeFrame(), frameProvider));
+        return source.Subscribe(new _ThrottleLatestFrame(observer, frameCount.NormalizeFrame(), frameProvider));
     }
 
-    sealed class _ThrottleLastFrame : Observer<T>, IFrameRunnerWorkItem
+    sealed class _ThrottleLatestFrame : Observer<T>, IFrameRunnerWorkItem
     {
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
         readonly int frameCount;
         readonly object gate = new object();
         T? lastValue;
+        bool hasValue;
         int currentFrame;
         bool running;
 
-        public _ThrottleLastFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
+        public _ThrottleLatestFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
             this.frameCount = frameCount;
@@ -48,9 +47,13 @@ internal sealed class ThrottleLastFrame<T>(Observable<T> source, int frameCount,
                     running = true;
                     currentFrame = 0;
                     frameProvider.Register(this);
+                    observer.OnNext(value);
                 }
-
-                lastValue = value;
+                else
+                {
+                    hasValue = true;
+                    lastValue = value;
+                }
             }
         }
 
@@ -72,8 +75,11 @@ internal sealed class ThrottleLastFrame<T>(Observable<T> source, int frameCount,
             {
                 if (++currentFrame == frameCount)
                 {
-                    observer.OnNext(lastValue!);
-                    lastValue = default;
+                    if (hasValue)
+                    {
+                        observer.OnNext(lastValue!);
+                        lastValue = default;
+                    }
                     running = false;
                     return false;
                 }
