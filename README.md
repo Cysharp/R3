@@ -371,7 +371,7 @@ When cancelled, OnCompleted is sent, and all subscriptions are unsubscribed.
 
 R3 incorporates a system called ObservableTracker. When activated, it allows you to view all subscription statuses.
 
-```
+```csharp
 ObservableTracker.EnableTracking = true; // default is false
 ObservableTracker.EnableStackTrace = true;
 
