@@ -1890,6 +1890,7 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `ThrottleFrame` -> `DebounceFrame`
 * `Sample` -> `ThrottleLast`
 * `SampleFrame` -> `ThrottleLastFrame`
+* `StartWith` -> `Prepend`
 * `ObserveEveryValueChanged(this T value)` -> `Observable.EveryValueChanged(T value)`
 * `DistinctUntilChanged(selector)` -> `DistinctUntilChangedBy`
 * `Finally` -> `Do(onDisposed:)`
@@ -1898,8 +1899,12 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `AsyncSubject<T>` -> `TaskCompletionSource<T>`
 * `StableCompositeDisposable` -> `Disposable.Combine`
 * `IScheduler` -> `TimeProvider`
+* Return single value methods -> `***Async` (or `Take(1)`, `TakeLast(1)`)
+* `ToTask()`, `ToUniTask()` -> `LastAsync()` or `FirstAsync()`
+* `IReadOnlyReactiveProperty.Value` -> `ReadOnlyReactiveProperty.CurrentValue`
+* `ReactiveProperty.SkipLatestValueOnSubscribe()` → `.Skip(1)`
+* `MainThreadDispatcher.OnApplicationQuitAsObservable` → `Application.exitCancellationToken`
 * `ReactiveCollection` / `ReactiveDictionary` -> [ObservableCollections.R3](https://github.com/Cysharp/ObservableCollections)
-* Return single value methods -> `***Async`
 * `ObjectPool` in UniRx -> use [UniTask](https://github.com/Cysharp/UniTask) and make yourself
 * MessageBroker in UniRx -> [MessagePipe](https://github.com/Cysharp/MessagePipe)
 * Logger in UniRx -> [ZLogger](https://github.com/Cysharp/ZLogger/)
