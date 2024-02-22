@@ -2,7 +2,6 @@
 
 The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame).
 
-
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
 * Stopping the pipeline at OnError is a billion-dollar mistake.
@@ -19,7 +18,7 @@ In other words, LINQ is not for EveryThing, and we believe that the essence of R
 
 To address the shortcomings of dotnet/reactive, we have made changes to the core interfaces. In recent years, Rx-like frameworks optimized for language features, such as [Kotlin Flow](https://kotlinlang.org/docs/flow.html) and [Swift Combine](https://developer.apple.com/documentation/combine), have been standardized. C# has also evolved significantly, now at C# 12, and we believe there is a need for an Rx that aligns with the latest C#.
 
-Improving performance was also a theme in the reimplementation. For example, this is the result of the terrible performance of IScheudler and the performance difference caused by its removal.
+Improving performance was also a theme in the reimplementation. For example, this is the result of the terrible performance of IScheduler and the performance difference caused by its removal.
 
 ![image](https://github.com/Cysharp/ZLogger/assets/46207/68a12664-a840-4725-a87c-8fdbb03b4a02)
 `Observable.Range(1, 10000).Subscribe()`
@@ -31,6 +30,46 @@ You can also see interesting results in allocations with the addition and deleti
 
 This is because dotnet/reactive has adopted ImmutableArray (or its equivalent) for Subject, which results in the allocation of a new array every time one is added or removed. Depending on the design of the application, a large number of subscriptions can occur (we have seen this especially in the complexity of games), which can be a critical issue. In R3, we have devised a way to achieve high performance while avoiding ImmutableArray.
 
+Table of Contents
+---
+
+* [Core Interface](#core-interface)
+* [TimeProvider instead of IScheduler](#timeprovider-instead-of-ischeduler)
+* [Frame based operations](#frame-based-operations)
+* [Subjects(ReactiveProperty)](#subjectsreactiveproperty)
+* [Disposable](#disposable)
+* [Subscription Management](#subscription-management)
+  * [ObservableTracker](#observabletracker)
+* [ObservableSystem, UnhandledExceptionHandler](#observablesystem-unhandledexceptionhandler)
+  * [UnhandledExceptionHandler](#unhandledexceptionhandler)
+* [Result Handling](#result-handling)
+* [Unit Testing](#unit-testing)
+* [Interoperability with `IObservable<T>`](#interoperability-with-iobservablet)
+* [Interoperability with `async/await`](#interoperability-with-asyncawait)
+* [Concurrency Policy](#concurrency-policy)
+* [ObservableCollections](#observablecollections)
+* [XAML Platforms(`BindableReactiveProperty<T>`)](#xaml-platformsbindablereactivepropertyt)
+  * [ReactiveCommand](#reactivecommand)
+* [Platform Supports](#platform-supports)
+  * [WPF](#wpf)
+  * [Avalonia](#avalonia)
+  * [MAUI](#maui)
+  * [WinForms](#winforms)
+  * [WinUI3](#winui3)
+  * [Unity](#unity)
+    * [`SerializableReactiveProperty<T>`](#serializablereactivepropertyt)
+    * [Triggers](#triggers)
+  * [Godot](#godot)
+  * [Stride](#stride)
+    * [Usage](#usage)
+  * [MonoGame](#monogame)
+  * [LogicLooper](#logiclooper)
+* [Operator Reference](#operator-reference)
+  * [Factory](#factory)
+  * [Operator](#operator)
+* [Class/Method name changes from dotnet/reactive and neuecc/UniRx](#classmethod-name-changes-from-dotnetreactive-and-neueccunirx)
+* [License](#license)
+
 Core Interface
 ---
 This library is distributed via NuGet, supporting .NET Standard 2.0, .NET Standard 2.1, .NET 6(.NET 7) and .NET 8 or above.
@@ -39,7 +78,7 @@ This library is distributed via NuGet, supporting .NET Standard 2.0, .NET Standa
 
 Some platforms(WPF, Avalonia, Unity, Godot) requires additional step to install. Please see [Platform Supports](#platform-supports) section in below.
 
-R3 code is almostly same as standard Rx. Make the Observable via factory methods(Timer, Interval, FromEvent, Subject, etc...) and chain operator via LINQ methods. Therefore, your knowledge about Rx and documentation on Rx can be almost directly applied. If you are new to Rx, the [ReactiveX](https://reactivex.io/intro.html) website and [Introduction to Rx.NET](https://introtorx.com/) would be useful resources for reference.
+R3 code is mostly the same as standard Rx. Make the Observable via factory methods(Timer, Interval, FromEvent, Subject, etc...) and chain operator via LINQ methods. Therefore, your knowledge about Rx and documentation on Rx can be almost directly applied. If you are new to Rx, the [ReactiveX](https://reactivex.io/intro.html) website and [Introduction to Rx.NET](https://introtorx.com/) would be useful resources for reference.
 
 ```csharp
 using R3;
@@ -131,7 +170,7 @@ There are also several operators unique to frame-based processing.
 Observable.EveryUpdate().Subscribe(x => Console.WriteLine(x));
 
 // take value until next frame
-_eventSoure.TakeUntil(Obserable.NextFrame()).Subscribe();
+_eventSource.TakeUntil(Observable.NextFrame()).Subscribe();
 
 // polling value changed
 Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => WidthText.Text = x.ToString());
@@ -345,7 +384,7 @@ public partial class MainWindow : Window
 
 Additionally, there are other utilities for Disposables as follows.
 
-```
+```csharp
 Disposable.Create(Action);
 Disposable.Dispose(...);
 SingleAssignmentDisposable
@@ -387,7 +426,7 @@ ObservableTracker.ForEachActiveTask(x =>
 });
 ```
 
-```
+```csharp
 TrackingState { TrackingId = 1, FormattedType = Timer._Timer, AddTime = 2024/01/09 4:11:39, StackTrace =... }
 TrackingState { TrackingId = 2, FormattedType = Where`1._Where<Unit>, AddTime = 2024/01/09 4:11:39, StackTrace =... }
 TrackingState { TrackingId = 3, FormattedType = Take`1._Take<Unit>, AddTime = 2024/01/09 4:11:39, StackTrace =... }
@@ -1000,7 +1039,6 @@ R3Extensions.WinForms package has these providers.
 
 Calling `WinFormsProviderInitializer.SetDefaultObservableSystem()` at startup(Program.Main) will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `WinFormsFrameProvider` and `WinFormsTimerProvider`.
 
-
 ```csharp
 using R3.WinForms;
 
@@ -1158,7 +1196,7 @@ public static Observable<(T0 Arg0, T1 Arg1, T2 Arg2)> AsObservable<T0, T1, T2>(t
 public static Observable<(T0 Arg0, T1 Arg1, T2 Arg2, T3 Arg3)> AsObservable<T0, T1, T2, T3>(this UnityEngine.Events.UnityEvent<T0, T1, T2, T3> unityEvent, CancellationToken cancellationToken = default)
 ```
 
-Additionally, with extension methods for uGUI, uGUI events can be easily converted to Observables. OnValueChangedAsObservable starts the subscription by first emitting the latest value at the time of subscription. Andalso when the associated component is destroyed, it emits an OnCompleted event to ensure the subscription is reliably cancelled.
+Additionally, with extension methods for uGUI, uGUI events can be easily converted to Observables. OnValueChangedAsObservable starts the subscription by first emitting the latest value at the time of subscription. Also, when the associated component is destroyed it emits an OnCompleted event to ensure the subscription is reliably cancelled.
 
 ```csharp
 public static IDisposable SubscribeToText(this Observable<string> source, Text text)
@@ -1244,7 +1282,7 @@ public class NewBehaviourScript : MonoBehaviour
 
 R3 can handle [MonoBehaviour messages](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) with R3.Triggers:
 
-These can also be handled more easily by directly subscribing to observables returned by extension methods on Component/GameObject. These methods inject ObservableTrigger automaticaly.
+These can also be handled more easily by directly subscribing to observables returned by extension methods on Component/GameObject. These methods inject ObservableTrigger automatically.
 
 ```csharp
 using R3;
