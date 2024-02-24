@@ -1305,7 +1305,7 @@ public partial class Node2D : Godot.Node2D
             });
     }
 
-    protected override void Dispose(bool disposing)
+    public override void _ExitTree()
     {
         subscription?.Dispose();
     }
