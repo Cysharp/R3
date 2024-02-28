@@ -521,11 +521,11 @@ Furthermore, you can specify special behaviors when asynchronous methods are pro
 
 | Name | ReturnType |
 | --- | --- |
-| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<TResult>` |
-| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<T>` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperations` awaitOperations = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
+| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<TResult>` |
+| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<T>` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
 
 ```csharp
 public enum AwaitOperation
@@ -1892,6 +1892,7 @@ Class/Method name changes from dotnet/reactive and neuecc/UniRx
 * `SampleFrame` -> `ThrottleLastFrame`
 * `StartWith` -> `Prepend`
 * `ObserveEveryValueChanged(this T value)` -> `Observable.EveryValueChanged(T value)`
+* `Distinct(selector)` -> `DistinctBy`
 * `DistinctUntilChanged(selector)` -> `DistinctUntilChangedBy`
 * `Finally` -> `Do(onDisposed:)`
 * `Do***` -> `Do(on***:)`
