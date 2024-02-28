@@ -252,4 +252,54 @@ public class ChunkTest
 
         list.AssertIsCompleted();
     }
+
+    // Async
+    [Fact]
+    public void ChunkAsync()
+    {
+        var publisher = new Subject<int>();
+        var tp = new FakeTimeProvider();
+        var list = publisher.Chunk(async (x, ct) =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(3), tp);
+
+        }).ToLiveList();
+
+        publisher.OnNext(1);
+        publisher.OnNext(10);
+        publisher.OnNext(100);
+        list.AssertEqual([]);
+
+        tp.Advance(3);
+
+        list.AssertEqual([[1, 10, 100]]);
+
+        publisher.OnNext(1000);
+        publisher.OnNext(10000);
+        list.AssertEqual([[1, 10, 100]]);
+
+        tp.Advance(3);
+        list.AssertEqual([[1, 10, 100], [1000, 10000]]);
+
+        publisher.OnNext(2);
+        publisher.OnNext(20);
+        publisher.OnNext(200);
+
+        list.AssertEqual([[1, 10, 100], [1000, 10000]]);
+
+        tp.Advance(1);
+        list.AssertEqual([[1, 10, 100], [1000, 10000]]);
+
+        tp.Advance(2);
+        list.AssertEqual([[1, 10, 100], [1000, 10000], [2, 20, 200]]);
+
+        publisher.OnNext(500);
+
+        publisher.OnCompleted();
+
+        list.AssertEqual([[1, 10, 100], [1000, 10000], [2, 20, 200], [500]]);
+        list.AssertIsCompleted();
+    }
 }
+
+
