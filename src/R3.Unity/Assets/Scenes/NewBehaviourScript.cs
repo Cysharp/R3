@@ -40,35 +40,12 @@ public class NewBehaviourScript : MonoBehaviour
 
     public NoAwakeTest noAwake;
 
-    async void Start()
+     void Start()
     {
-        Observer<Unit> dis = (Observer<Unit>)button1
-               .OnClickAsObservable()
-               .SubscribeAwait(async (_, ct) =>
-               {
-                   await UniTask.Delay(1000, cancellationToken: ct);
-                   Debug.Log("Clicked!");
-               }, AwaitOperation.Drop);
-
-        Observer<Unit> dis2 = (Observer<Unit>)button2
-            .OnClickAsObservable()
-            .Subscribe(_ => Debug.Log("Clicked!"));
-
-        await UniTask.Yield();
-
-        Destroy(button1.gameObject);
-
-        await UniTask.Yield();
-
-        Debug.Log(dis.IsDisposed); // True
-
-        await UniTask.Yield();
-
-        Destroy(button2.gameObject);
-
-        await UniTask.Yield();
-
-        Debug.Log(dis2.IsDisposed); // True
+        rpInt.Subscribe(x =>
+        {
+            Debug.Log(x);
+        });
 
 
 
