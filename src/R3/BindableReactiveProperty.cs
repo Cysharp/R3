@@ -14,14 +14,56 @@ public interface IBindableReactiveProperty
     void OnNext(object? value);
 }
 
+public abstract class ReadOnlyBindableReactiveProperty<T> : ReactivePropertyBase<T>, INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public ReadOnlyBindableReactiveProperty()
+        : base()
+    {
+    }
+
+    public ReadOnlyBindableReactiveProperty(T value)
+        : base(value)
+    {
+    }
+
+    public ReadOnlyBindableReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
+    : base(value, equalityComparer)
+    {
+    }
+}
+
 // all operators need to call from UI Thread(not thread-safe)
 
 #if NET6_0_OR_GREATER
 [System.Text.Json.Serialization.JsonConverter(typeof(BindableReactivePropertyJsonConverterFactory))]
 #endif
-public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
+public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
 {
     IDisposable? subscription;
+
+    public T Value
+    {
+        get => this.currentValue;
+        set
+        {
+            OnValueChanging(ref value);
+
+            if (EqualityComparer != null)
+            {
+                if (EqualityComparer.Equals(this.currentValue, value))
+                {
+                    return;
+                }
+            }
+
+            this.currentValue = value;
+            OnValueChanged(value);
+
+            OnNextCore(value);
+        }
+    }
 
     // ctor
 

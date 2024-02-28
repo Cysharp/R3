@@ -1,4 +1,6 @@
-﻿namespace R3.Tests;
+﻿using System.Text.Json;
+
+namespace R3.Tests;
 
 public class ReactivePropertyTest
 {
@@ -48,5 +50,14 @@ public class ReactivePropertyTest
 
         list.AssertIsCompleted();
         list.AssertEqual(["foo"]);
+    }
+
+    [Fact]
+    public void SerializeTest()
+    {
+        var rp = new ReactiveProperty<string>("foo");
+        var rrp = rp.ToReadOnlyReactiveProperty("");
+        JsonSerializer.Serialize(rp).Should().Be("\"foo\"");
+        JsonSerializer.Serialize(rrp).Should().Be("""{"CurrentValue":"foo"}""");
     }
 }

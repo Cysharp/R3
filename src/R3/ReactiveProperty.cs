@@ -22,19 +22,8 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 #if NET6_0_OR_GREATER
 [JsonConverter(typeof(ReactivePropertyJsonConverterFactory))]
 #endif
-public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
+public class ReactiveProperty<T> : ReactivePropertyBase<T>
 {
-    T currentValue;
-    IEqualityComparer<T>? equalityComparer;
-    FreeListCore<Subscription> list; // struct(array, int)
-    CompleteState completeState;     // struct(int, IntPtr)
-
-    public IEqualityComparer<T>? EqualityComparer => equalityComparer;
-
-    public override T CurrentValue => currentValue;
-
-    public bool IsDisposed => completeState.IsDisposed;
-
     public T Value
     {
         get => this.currentValue;
@@ -57,16 +46,52 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         }
     }
 
-    public ReactiveProperty() : this(default!)
+    public ReactiveProperty() : base()
     {
     }
 
-    public ReactiveProperty(T value)
-        : this(value, EqualityComparer<T>.Default)
+    public ReactiveProperty(T value) : base(value)
     {
     }
 
     public ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
+        : base(value, equalityComparer)
+    {
+    }
+
+    protected ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer, bool callOnValueChangeInBaseConstructor) : base(value, equalityComparer, callOnValueChangeInBaseConstructor)
+    {
+    }
+}
+
+// not abstract to json serialization
+
+#if NET6_0_OR_GREATER
+[JsonConverter(typeof(ReactivePropertyJsonConverterFactory))]
+#endif
+public class ReactivePropertyBase<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
+{
+    protected T currentValue;
+    IEqualityComparer<T>? equalityComparer;
+    FreeListCore<Subscription> list; // struct(array, int)
+    CompleteState completeState;     // struct(int, IntPtr)
+
+    public IEqualityComparer<T>? EqualityComparer => equalityComparer;
+
+    public override T CurrentValue => currentValue;
+
+    public bool IsDisposed => completeState.IsDisposed;
+
+    public ReactivePropertyBase() : this(default!)
+    {
+    }
+
+    public ReactivePropertyBase(T value)
+        : this(value, EqualityComparer<T>.Default)
+    {
+    }
+
+    public ReactivePropertyBase(T value, IEqualityComparer<T>? equalityComparer)
     {
         this.equalityComparer = equalityComparer;
         this.list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
@@ -76,7 +101,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         OnValueChanged(value);
     }
 
-    protected ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer, bool callOnValueChangeInBaseConstructor)
+    protected ReactivePropertyBase(T value, IEqualityComparer<T>? equalityComparer, bool callOnValueChangeInBaseConstructor)
     {
         this.equalityComparer = equalityComparer;
         this.list = new FreeListCore<Subscription>(this);
@@ -99,7 +124,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public void ForceNotify()
     {
-        OnNext(Value);
+        OnNext(currentValue);
     }
 
     public void OnNext(T value)
@@ -111,7 +136,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         OnNextCore(value);
     }
 
-    void OnNextCore(T value)
+    protected void OnNextCore(T value)
     {
         if (completeState.IsCompleted) return;
 
@@ -213,9 +238,9 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     {
         public readonly Observer<T> observer;
         readonly int removeKey;
-        ReactiveProperty<T>? parent;
+        ReactivePropertyBase<T>? parent;
 
-        public Subscription(ReactiveProperty<T> parent, Observer<T> observer)
+        public Subscription(ReactivePropertyBase<T> parent, Observer<T> observer)
         {
             this.parent = parent;
             this.observer = observer;
@@ -260,7 +285,7 @@ public class ReactivePropertyJsonConverterFactory : JsonConverterFactory
     {
         while (type != null)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ReactiveProperty<>))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ReactivePropertyBase<>))
             {
                 return type;
             }
@@ -274,23 +299,23 @@ public class ReactivePropertyJsonConverterFactory : JsonConverterFactory
     protected virtual Type GenericConverterType => typeof(ReactivePropertyJsonConverter<>);
 }
 
-public class ReactivePropertyJsonConverter<T> : JsonConverter<ReactiveProperty<T>>
+public class ReactivePropertyJsonConverter<T> : JsonConverter<ReactivePropertyBase<T>>
 {
-    public override void Write(Utf8JsonWriter writer, ReactiveProperty<T> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ReactivePropertyBase<T> value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, value.Value, options);
+        JsonSerializer.Serialize(writer, value.CurrentValue, options);
     }
 
-    public override ReactiveProperty<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ReactivePropertyBase<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var v = JsonSerializer.Deserialize<T>(ref reader, options);
         return CreateReactiveProperty(v!);
     }
 
     // allow customize
-    protected virtual ReactiveProperty<T> CreateReactiveProperty(T value)
+    protected virtual ReactivePropertyBase<T> CreateReactiveProperty(T value)
     {
-        return new ReactiveProperty<T>(value);
+        return new ReactivePropertyBase<T>(value);
     }
 
     public override bool CanConvert(Type typeToConvert)
@@ -302,7 +327,7 @@ public class ReactivePropertyJsonConverter<T> : JsonConverter<ReactiveProperty<T
     {
         while (type != null)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ReactiveProperty<>))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ReactivePropertyBase<>))
             {
                 return type;
             }
@@ -322,7 +347,7 @@ internal class BindableReactivePropertyJsonConverterFactory : ReactivePropertyJs
 
 internal class BindableReactivePropertyJsonConverter<T> : ReactivePropertyJsonConverter<T>
 {
-    protected override ReactiveProperty<T> CreateReactiveProperty(T value)
+    protected override ReactivePropertyBase<T> CreateReactiveProperty(T value)
     {
         return new BindableReactiveProperty<T>(value);
     }
