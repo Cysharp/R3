@@ -5,17 +5,17 @@ namespace R3;
 public static partial class ObservableExtensions
 {
     /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
-    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = true, int maxConcurrent = -1)
+    public static Observable<TResult> SelectAwait<T, TResult>(this Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = true, int maxConcurrent = -1)
     {
-        return new SelectAwait<T, TResult>(source, selector, awaitOperations, configureAwait, cancelOnCompleted, maxConcurrent);
+        return new SelectAwait<T, TResult>(source, selector, awaitOperation, configureAwait, cancelOnCompleted, maxConcurrent);
     }
 }
 
-internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperations, bool configureAwait, bool cancelOnCompleted, int maxConcurrent) : Observable<TResult>
+internal sealed class SelectAwait<T, TResult>(Observable<T> source, Func<T, CancellationToken, ValueTask<TResult>> selector, AwaitOperation awaitOperation, bool configureAwait, bool cancelOnCompleted, int maxConcurrent) : Observable<TResult>
 {
     protected override IDisposable SubscribeCore(Observer<TResult> observer)
     {
-        switch (awaitOperations)
+        switch (awaitOperation)
         {
             case AwaitOperation.Sequential:
                 return source.Subscribe(new SelectAwaitSequential(observer, selector, configureAwait, cancelOnCompleted));
