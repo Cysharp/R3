@@ -94,14 +94,16 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
 
         readonly Observer<T[]> observer;
         readonly List<T> list; // lock gate
-        readonly ITimer timer;
+        readonly TimeProvider timeProvider;
+        readonly TimeSpan timeSpan;
+        ITimer? timer;
 
         public _Chunk(Observer<T[]> observer, TimeSpan timeSpan, TimeProvider timeProvider)
         {
             this.observer = observer;
+            this.timeSpan = timeSpan;
+            this.timeProvider = timeProvider;
             this.list = new List<T>();
-            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-            this.timer.Change(timeSpan, timeSpan);
         }
 
         protected override void OnNextCore(T value)
@@ -109,6 +111,11 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
             lock (list)
             {
                 list.Add(value);
+                if (timer == null)
+                {
+                    this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
+                    this.timer.InvokeOnce(timeSpan);
+                }
             }
         }
 
@@ -132,7 +139,10 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
 
         protected override void DisposeCore()
         {
-            timer.Dispose();
+            lock (list)
+            {
+                timer?.Dispose();
+            }
         }
 
         static void TimerCallback(object? state)
@@ -149,6 +159,7 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
                     self.observer.OnNext(self.list.ToArray());
                     self.list.Clear();
                 }
+                self.timer = null;
             }
         }
     }
@@ -167,10 +178,11 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
         static readonly TimerCallback timerCallback = TimerCallback;
 
         readonly Observer<T[]> observer;
-        readonly ITimer timer;
         readonly int count;
         readonly TimeSpan timeSpan;
+        readonly TimeProvider timeProvider;
         readonly object gate = new object();
+        ITimer? timer;
         T[] buffer;
         int index;
         int timerId;
@@ -180,9 +192,8 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
             this.observer = observer;
             this.count = count;
             this.timeSpan = timeSpan;
+            this.timeProvider = timeProvider;
             this.buffer = new T[count];
-            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-            this.timer.Change(timeSpan, timeSpan);
         }
 
         protected override void OnNextCore(T value)
@@ -192,7 +203,8 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
                 buffer[index++] = value;
                 if (index == count)
                 {
-                    timer.Stop(); // stop timer for restart
+                    timer?.Stop(); // stop timer for restart
+                    timer = null;
 
                     try
                     {
@@ -202,9 +214,16 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
                     }
                     finally
                     {
-                        // Restart and increment timerId
+                        // increment timerId for restart
                         timerId = unchecked(timerId += 1);
-                        timer.Change(timeSpan, timeSpan);
+                    }
+                }
+                else
+                {
+                    if (timer == null)
+                    {
+                        timer = timeProvider.CreateStoppedTimer(timerCallback, this);
+                        timer.InvokeOnce(timeSpan);
                     }
                 }
             }
@@ -229,7 +248,7 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
 
         protected override void DisposeCore()
         {
-            timer.Dispose();
+            timer?.Dispose();
         }
 
         static void TimerCallback(object? state)
@@ -252,6 +271,7 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
                     span.Clear();
                     self.index = 0;
                 }
+                self.timer = null;
             }
         }
     }
