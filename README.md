@@ -1605,11 +1605,13 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **Catch**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
 | **Catch**(this `Observable<T>` source, `Func<TException, Observable<T>>` errorHandler) | `Observable<T>` | 
 | **Chunk**(this `Observable<T>` source, `Int32` count) | `Observable<T[]>` | 
+| **Chunk**(this `Observable<T>` source, `Int32` count, `Int32` skip) | `Observable<T[]>` | 
 | **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T[]>` | 
 | **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan, `TimeProvider` timeProvider) | `Observable<T[]>` | 
 | **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan, `Int32` count) | `Observable<T[]>` | 
 | **Chunk**(this `Observable<T>` source, `TimeSpan` timeSpan, `Int32` count, `TimeProvider` timeProvider) | `Observable<T[]>` | 
 | **Chunk**(this `Observable<TSource>` source, `Observable<TWindowBoundary>` windowBoundaries) | `Observable<TSource[]>` | 
+| **Chunk**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncWindow, `Boolean` configureAwait = true) | `Observable<T[]>` | 
 | **ChunkFrame**(this `Observable<T>` source) | `Observable<T[]>` | 
 | **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount) | `Observable<T[]>` | 
 | **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T[]>` | 
