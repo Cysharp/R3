@@ -1,4 +1,6 @@
-﻿namespace R3;
+﻿using System;
+
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -6,6 +8,13 @@ public static partial class ObservableExtensions
     {
         if (count <= 0) throw new ArgumentOutOfRangeException("count <= 0");
         return new Chunk<T>(source, count);
+    }
+
+    public static Observable<T[]> Chunk<T>(this Observable<T> source, int count, int skip)
+    {
+        if (count <= 0) throw new ArgumentOutOfRangeException("count <= 0");
+        if (skip <= 0) return Chunk(source, count);
+        return new ChunkCountSkip<T>(source, count, skip);
     }
 
     public static Observable<T[]> Chunk<T>(this Observable<T> source, TimeSpan timeSpan)
@@ -74,6 +83,63 @@ internal sealed class Chunk<T>(Observable<T> source, int count) : Observable<T[]
             {
                 observer.OnNext(buffer.AsSpan(0, index).ToArray());
             }
+
+            observer.OnCompleted(result);
+        }
+    }
+}
+
+// count + skip
+internal sealed class ChunkCountSkip<T>(Observable<T> source, int count, int skip) : Observable<T[]>
+{
+    protected override IDisposable SubscribeCore(Observer<T[]> observer)
+    {
+        return source.Subscribe(new _Chunk(observer, count, skip));
+    }
+
+    sealed class _Chunk(Observer<T[]> observer, int count, int skip) : Observer<T>
+    {
+        Queue<(int, T[])> q = new();
+        int queueIndex = -1; // start is -1.
+
+        protected override void OnNextCore(T value)
+        {
+            queueIndex++;
+
+            if (queueIndex % skip == 0)
+            {
+                q.Enqueue((0, new T[count]));
+            }
+
+            var len = q.Count;
+            for (int i = 0; i < len; i++)
+            {
+                var (index, array) = q.Dequeue();
+                array[index] = value;
+                index++;
+                if (index == count)
+                {
+                    observer.OnNext(array);
+                }
+                else
+                {
+                    q.Enqueue((index, array));
+                }
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            foreach (var (index, array) in q)
+            {
+                observer.OnNext(array.AsSpan(0, index).ToArray());
+            }
+            q.Clear();
 
             observer.OnCompleted(result);
         }
