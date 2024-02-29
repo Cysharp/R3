@@ -105,16 +105,17 @@ internal sealed class ThrottleLastAsyncSampler<T>(Observable<T> source, Func<T, 
         readonly object gate = new object();
         readonly CancellationTokenSource cancellationTokenSource = new();
         T? lastValue;
-        Task? taskRunner;
+        bool isRunning;
 
         protected override void OnNextCore(T value)
         {
             lock (gate)
             {
                 lastValue = value;
-                if (taskRunner == null)
+                if (!isRunning)
                 {
-                    taskRunner = RaiseOnNextAsync(value);
+                    isRunning = true;
+                    RaiseOnNextAsync(value);
                 }
             }
         }
@@ -135,7 +136,7 @@ internal sealed class ThrottleLastAsyncSampler<T>(Observable<T> source, Func<T, 
             cancellationTokenSource.Cancel();
         }
 
-        async Task RaiseOnNextAsync(T value)
+        async void RaiseOnNextAsync(T value)
         {
             try
             {
@@ -155,7 +156,7 @@ internal sealed class ThrottleLastAsyncSampler<T>(Observable<T> source, Func<T, 
                 {
                     observer.OnNext(lastValue!);
                     lastValue = default;
-                    taskRunner = null;
+                    isRunning = false;
                 }
             }
         }

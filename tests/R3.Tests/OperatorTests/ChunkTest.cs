@@ -257,6 +257,8 @@ public class ChunkTest
     [Fact]
     public void ChunkAsync()
     {
+        SynchronizationContext.SetSynchronizationContext(null);
+
         var publisher = new Subject<int>();
         var tp = new FakeTimeProvider();
         var list = publisher.Chunk(async (x, ct) =>
