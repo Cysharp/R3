@@ -112,7 +112,7 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
         readonly object gate = new object();
         T? latestValue;
         bool hasValue;
-        Task? runningTask;
+        bool isRunning;
         int taskId;
         CancellationTokenSource cancellationTokenSource = new();
 
@@ -123,7 +123,7 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
                 latestValue = value;
                 hasValue = true;
 
-                if (runningTask != null)
+                if (isRunning)
                 {
                     cancellationTokenSource.Cancel();
                     cancellationTokenSource = new CancellationTokenSource();
@@ -131,7 +131,9 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
 
                 var newId = unchecked(taskId + 1);
                 Volatile.Write(ref taskId, newId);
-                runningTask = PublishOnNextAfterAsync(value, newId, cancellationTokenSource.Token);
+
+                isRunning = true;
+                PublishOnNextAfterAsync(value, newId, cancellationTokenSource.Token);
             }
         }
 
@@ -164,7 +166,7 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
             cancellationTokenSource.Cancel();
         }
 
-        async Task PublishOnNextAfterAsync(T value, int id, CancellationToken cancellationToken)
+        async void PublishOnNextAfterAsync(T value, int id, CancellationToken cancellationToken)
         {
             try
             {
@@ -188,7 +190,7 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
                     observer.OnNext(latestValue!);
                     hasValue = false;
                     latestValue = default;
-                    runningTask = null;
+                    isRunning = false;
 
                 END:
                     { }

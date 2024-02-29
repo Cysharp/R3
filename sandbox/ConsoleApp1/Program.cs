@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Time.Testing;
 using R3;
 using System.ComponentModel.DataAnnotations;
+using System.Reactive.Concurrency;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -9,10 +10,6 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading.Channels;
 
 
-SynchronizationContext.SetSynchronizationContext(new MySyncContext());
-
-
-var channel = ChannelUtility.CreateSingleReadeWriterUnbounded<int>();
 
 //var t = Foo();
 
@@ -23,29 +20,21 @@ var channel = ChannelUtility.CreateSingleReadeWriterUnbounded<int>();
 
 
 //t.Wait();
-var timeProvider = new FakeTimeProvider();
 
-var subject = new Subject<int>();
 
-subject
-    .Do(x => Console.WriteLine($"Do:{Thread.CurrentThread.ManagedThreadId}"))
-    .SubscribeAwait(async (_, ct) =>
+Observable.Interval(TimeSpan.FromSeconds(1))
+    .Index()
+    .Chunk(async (_, ct) =>
     {
-        Console.WriteLine($"Before Await:{Thread.CurrentThread.ManagedThreadId}");
-        await Task.Delay(TimeSpan.FromSeconds(1), timeProvider, ct);
-        Console.WriteLine($"After Yield:{Thread.CurrentThread.ManagedThreadId}");
-    }, AwaitOperation.Sequential/*, configureAwait: false*/);
+        await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(0, 5)), ct);
+    })
+    .Subscribe(x =>
+    {
+        Console.WriteLine(string.Join(", ", x));
+    });
 
 
-subject.OnNext(10);
-subject.OnNext(20);
-subject.OnNext(30);
-
-timeProvider.Advance(TimeSpan.FromSeconds(1));
 Console.ReadLine();
-
-
-
 
 
 internal static class ChannelUtility

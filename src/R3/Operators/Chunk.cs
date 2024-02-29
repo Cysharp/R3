@@ -1,4 +1,6 @@
-﻿namespace R3;
+﻿using System;
+
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -6,6 +8,13 @@ public static partial class ObservableExtensions
     {
         if (count <= 0) throw new ArgumentOutOfRangeException("count <= 0");
         return new Chunk<T>(source, count);
+    }
+
+    public static Observable<T[]> Chunk<T>(this Observable<T> source, int count, int skip)
+    {
+        if (count <= 0) throw new ArgumentOutOfRangeException("count <= 0");
+        if (skip <= 0) return Chunk(source, count);
+        return new ChunkCountSkip<T>(source, count, skip);
     }
 
     public static Observable<T[]> Chunk<T>(this Observable<T> source, TimeSpan timeSpan)
@@ -31,6 +40,11 @@ public static partial class ObservableExtensions
     public static Observable<TSource[]> Chunk<TSource, TWindowBoundary>(this Observable<TSource> source, Observable<TWindowBoundary> windowBoundaries)
     {
         return new ChunkWindow<TSource, TWindowBoundary>(source, windowBoundaries);
+    }
+
+    public static Observable<T[]> Chunk<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> asyncWindow, bool configureAwait = true)
+    {
+        return new ChunkAsync<T>(source, asyncWindow, configureAwait);
     }
 }
 
@@ -75,6 +89,63 @@ internal sealed class Chunk<T>(Observable<T> source, int count) : Observable<T[]
     }
 }
 
+// count + skip
+internal sealed class ChunkCountSkip<T>(Observable<T> source, int count, int skip) : Observable<T[]>
+{
+    protected override IDisposable SubscribeCore(Observer<T[]> observer)
+    {
+        return source.Subscribe(new _Chunk(observer, count, skip));
+    }
+
+    sealed class _Chunk(Observer<T[]> observer, int count, int skip) : Observer<T>
+    {
+        Queue<(int, T[])> q = new();
+        int queueIndex = -1; // start is -1.
+
+        protected override void OnNextCore(T value)
+        {
+            queueIndex++;
+
+            if (queueIndex % skip == 0)
+            {
+                q.Enqueue((0, new T[count]));
+            }
+
+            var len = q.Count;
+            for (int i = 0; i < len; i++)
+            {
+                var (index, array) = q.Dequeue();
+                array[index] = value;
+                index++;
+                if (index == count)
+                {
+                    observer.OnNext(array);
+                }
+                else
+                {
+                    q.Enqueue((index, array));
+                }
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            foreach (var (index, array) in q)
+            {
+                observer.OnNext(array.AsSpan(0, index).ToArray());
+            }
+            q.Clear();
+
+            observer.OnCompleted(result);
+        }
+    }
+}
+
 // Time
 internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, TimeProvider timeProvider) : Observable<T[]>
 {
@@ -89,14 +160,16 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
 
         readonly Observer<T[]> observer;
         readonly List<T> list; // lock gate
-        readonly ITimer timer;
+        readonly TimeProvider timeProvider;
+        readonly TimeSpan timeSpan;
+        ITimer? timer;
 
         public _Chunk(Observer<T[]> observer, TimeSpan timeSpan, TimeProvider timeProvider)
         {
             this.observer = observer;
+            this.timeSpan = timeSpan;
+            this.timeProvider = timeProvider;
             this.list = new List<T>();
-            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-            this.timer.Change(timeSpan, timeSpan);
         }
 
         protected override void OnNextCore(T value)
@@ -104,6 +177,11 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
             lock (list)
             {
                 list.Add(value);
+                if (timer == null)
+                {
+                    this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
+                    this.timer.InvokeOnce(timeSpan);
+                }
             }
         }
 
@@ -127,7 +205,10 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
 
         protected override void DisposeCore()
         {
-            timer.Dispose();
+            lock (list)
+            {
+                timer?.Dispose();
+            }
         }
 
         static void TimerCallback(object? state)
@@ -144,6 +225,7 @@ internal sealed class ChunkTime<T>(Observable<T> source, TimeSpan timeSpan, Time
                     self.observer.OnNext(self.list.ToArray());
                     self.list.Clear();
                 }
+                self.timer = null;
             }
         }
     }
@@ -162,10 +244,11 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
         static readonly TimerCallback timerCallback = TimerCallback;
 
         readonly Observer<T[]> observer;
-        readonly ITimer timer;
         readonly int count;
         readonly TimeSpan timeSpan;
+        readonly TimeProvider timeProvider;
         readonly object gate = new object();
+        ITimer? timer;
         T[] buffer;
         int index;
         int timerId;
@@ -175,9 +258,8 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
             this.observer = observer;
             this.count = count;
             this.timeSpan = timeSpan;
+            this.timeProvider = timeProvider;
             this.buffer = new T[count];
-            this.timer = timeProvider.CreateStoppedTimer(timerCallback, this);
-            this.timer.Change(timeSpan, timeSpan);
         }
 
         protected override void OnNextCore(T value)
@@ -187,7 +269,8 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
                 buffer[index++] = value;
                 if (index == count)
                 {
-                    timer.Stop(); // stop timer for restart
+                    timer?.Stop(); // stop timer for restart
+                    timer = null;
 
                     try
                     {
@@ -197,9 +280,16 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
                     }
                     finally
                     {
-                        // Restart and increment timerId
+                        // increment timerId for restart
                         timerId = unchecked(timerId += 1);
-                        timer.Change(timeSpan, timeSpan);
+                    }
+                }
+                else
+                {
+                    if (timer == null)
+                    {
+                        timer = timeProvider.CreateStoppedTimer(timerCallback, this);
+                        timer.InvokeOnce(timeSpan);
                     }
                 }
             }
@@ -224,7 +314,7 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
 
         protected override void DisposeCore()
         {
-            timer.Dispose();
+            timer?.Dispose();
         }
 
         static void TimerCallback(object? state)
@@ -247,6 +337,7 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
                     span.Clear();
                     self.index = 0;
                 }
+                self.timer = null;
             }
         }
     }
@@ -337,6 +428,86 @@ internal sealed class ChunkWindow<T, TWindowBoundary>(Observable<T> source, Obse
             protected override void OnCompletedCore(Result result)
             {
                 parent.OnCompleted();
+            }
+        }
+    }
+}
+
+// Async
+internal sealed class ChunkAsync<T>(Observable<T> source, Func<T, CancellationToken, ValueTask> asyncWindow, bool configureAwait) : Observable<T[]>
+{
+    protected override IDisposable SubscribeCore(Observer<T[]> observer)
+    {
+        return source.Subscribe(new _Chunk(observer, asyncWindow, configureAwait));
+    }
+
+    sealed class _Chunk(Observer<T[]> observer, Func<T, CancellationToken, ValueTask> asyncWindow, bool configureAwait) : Observer<T>
+    {
+        readonly List<T> list = new List<T>();
+        CancellationTokenSource cancellationTokenSource = new();
+        bool isRunning;
+
+        protected override void OnNextCore(T value)
+        {
+            lock (list)
+            {
+                list.Add(value);
+                if (!isRunning)
+                {
+                    isRunning = true;
+                    StartWindow(value);
+                }
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            cancellationTokenSource.Cancel();
+
+            lock (list)
+            {
+                if (list.Count > 0)
+                {
+                    observer.OnNext(list.ToArray());
+                    list.Clear();
+                }
+            }
+
+            observer.OnCompleted(result);
+        }
+
+        protected override void DisposeCore()
+        {
+            cancellationTokenSource.Cancel();
+        }
+
+        async void StartWindow(T value)
+        {
+            try
+            {
+                await asyncWindow(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException oce && oce.CancellationToken == cancellationTokenSource.Token)
+                {
+                    return;
+                }
+                OnErrorResume(ex);
+            }
+            finally
+            {
+                lock (list)
+                {
+                    observer.OnNext(list.ToArray());
+                    list.Clear();
+                    isRunning = false;
+                }
             }
         }
     }
