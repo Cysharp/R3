@@ -15,8 +15,6 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
     public abstract void Dispose();
 }
 
-// almostly same code as Subject<T>.
-
 // allow inherit
 
 #if NET6_0_OR_GREATER
@@ -26,7 +24,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 {
     T currentValue;
     IEqualityComparer<T>? equalityComparer;
-    FreeListCore<Subscription> list; // struct(array, int)
+    ObserverNode? root; // Root of LinkedList Node(Root.Previous is Last)
     CompleteState completeState;     // struct(int, IntPtr)
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
@@ -69,8 +67,6 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     public ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
     {
         this.equalityComparer = equalityComparer;
-        this.list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
-
         OnValueChanging(ref value);
         this.currentValue = value;
         OnValueChanged(value);
@@ -79,7 +75,6 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     protected ReactiveProperty(T value, IEqualityComparer<T>? equalityComparer, bool callOnValueChangeInBaseConstructor)
     {
         this.equalityComparer = equalityComparer;
-        this.list = new FreeListCore<Subscription>(this);
 
         if (callOnValueChangeInBaseConstructor)
         {
@@ -115,9 +110,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     {
         if (completeState.IsCompleted) return;
 
-        foreach (var subscription in list.AsSpan())
+        var node = Volatile.Read(ref root);
+        while (node != null)
         {
-            subscription?.observer.OnNext(value);
+            node.Observer.OnNext(value);
+            node = node.Next;
         }
     }
 
@@ -127,9 +124,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
         OnReceiveError(error);
 
-        foreach (var subscription in list.AsSpan())
+        var node = Volatile.Read(ref root);
+        while (node != null)
         {
-            subscription?.observer.OnErrorResume(error);
+            node.Observer.OnErrorResume(error);
+            node = node.Next;
         }
     }
 
@@ -146,9 +145,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             OnReceiveError(result.Exception);
         }
 
-        foreach (var subscription in list.AsSpan())
+        var node = Volatile.Read(ref root);
+        while (node != null)
         {
-            subscription?.observer.OnCompleted(result);
+            node.Observer.OnCompleted(result);
+            node = node.Next;
         }
     }
 
@@ -165,13 +166,13 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         // raise latest value on subscribe(before add observer to list)
         observer.OnNext(currentValue);
 
-        var subscription = new Subscription(this, observer); // create subscription and add observer to list.
+        var subscription = new ObserverNode(this, observer); // create subscription
 
         // need to check called completed during adding
         result = completeState.TryGetResult();
         if (result != null)
         {
-            subscription.observer.OnCompleted(result.Value);
+            subscription.Observer.OnCompleted(result.Value);
             subscription.Dispose();
             return Disposable.Empty;
         }
@@ -191,14 +192,16 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             if (callOnCompleted && !alreadyCompleted)
             {
                 // not yet disposed so can call list iteration
-                foreach (var subscription in list.AsSpan())
+                var node = Volatile.Read(ref root);
+                while (node != null)
                 {
-                    subscription?.observer.OnCompleted();
+                    node.Observer.OnCompleted();
+                    node = node.Next;
                 }
             }
 
             DisposeCore();
-            list.Dispose();
+            Volatile.Write(ref root, null);
         }
     }
 
@@ -209,17 +212,32 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         return (currentValue == null) ? "(null)" : currentValue.ToString();
     }
 
-    sealed class Subscription : IDisposable
+    sealed class ObserverNode : IDisposable
     {
-        public readonly Observer<T> observer;
-        readonly int removeKey;
+        public readonly Observer<T> Observer;
+
         ReactiveProperty<T>? parent;
 
-        public Subscription(ReactiveProperty<T> parent, Observer<T> observer)
+        public ObserverNode Previous { get; set; }
+        public ObserverNode? Next { get; set; }
+
+        public ObserverNode(ReactiveProperty<T> parent, Observer<T> observer)
         {
             this.parent = parent;
-            this.observer = observer;
-            parent.list.Add(this, out removeKey); // for the thread-safety, add and set removeKey in same lock.
+            this.Observer = observer;
+
+            if (parent.root == null)
+            {
+                Volatile.Write(ref parent.root, this);
+                this.Previous = this;
+            }
+            else
+            {
+                var last = parent.root.Previous;
+                last.Next = this;
+                this.Previous = last;
+                parent.root.Previous = this; // this as last
+            }
         }
 
         public void Dispose()
@@ -227,8 +245,31 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             var p = Interlocked.Exchange(ref parent, null);
             if (p == null) return;
 
-            // removeKey is index, will reuse if remove completed so only allows to call from here and must not call twice.
-            p.list.Remove(removeKey);
+            if (this.Previous == this) // single list
+            {
+                p.root = null;
+                return;
+            }
+
+            if (p.root == this)
+            {
+                var next = this.Next;
+                p.root = next;
+                if (next != null)
+                {
+                    next.Previous = this.Previous;
+                }
+            }
+            else
+            {
+                var prev = this.Previous;
+                var next = this.Next;
+                prev.Next = next;
+                if (next != null)
+                {
+                    next.Previous = prev;
+                }
+            }
         }
     }
 }
