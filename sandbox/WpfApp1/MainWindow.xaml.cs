@@ -59,11 +59,26 @@ public class BasicUsagesViewModel : IDisposable
 {
     public BindableReactiveProperty<string> Input { get; }
     public BindableReactiveProperty<string> Output { get; }
+    public ReadOnlyBindableReactiveProperty<string> OutputRO { get; }
+    public ReadOnlyBindableReactiveProperty<string> OutputRO2 { get; }
+    public ReactiveCommand<Unit> AddCommand { get; } = new();
 
     public BasicUsagesViewModel()
     {
         Input = new BindableReactiveProperty<string>("");
         Output = Input.Select(x => x.ToUpper()).ToBindableReactiveProperty("");
+        var rrp = Input.ToReadOnlyReactiveProperty("");
+        OutputRO = Input.ToReadOnlyBindableReactiveProperty("");
+        OutputRO2 = rrp.ToReadOnlyBindableReactiveProperty("");
+        AddCommand.SubscribeAwait(async (_, _) =>
+        {
+            var i = 0;
+            while (i++ < 10)
+            {
+                Input.Value += "@";
+                await Task.Delay(500);
+            }
+        });
     }
 
     public void Dispose()

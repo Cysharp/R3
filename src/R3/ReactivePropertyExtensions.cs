@@ -32,21 +32,13 @@ public static class ReactivePropertyExtensions
 
     public static ReadOnlyBindableReactiveProperty<T> ToReadOnlyBindableReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
     {
-        if (source is ReadOnlyBindableReactiveProperty<T> rrp)
-        {
-            return rrp;
-        }
         return source.ToReadOnlyBindableReactiveProperty(EqualityComparer<T>.Default, initialValue);
     }
 
     public static ReadOnlyBindableReactiveProperty<T> ToReadOnlyBindableReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
     {
-        if (source is ReadOnlyBindableReactiveProperty<T> rrp)
-        {
-            return rrp;
-        }
-        // allow to cast ReactiveProperty<T>
-        return new ConnectedBindableReactiveProperty<T>(source, initialValue, equalityComparer);
+        // allow to cast BindableReactiveProperty<T>
+        return new ConnectedBindableReactiveProperty<T>(source, initialValue, equalityComparer, isReadOnly: true);
     }
 }
 
@@ -88,8 +80,8 @@ internal sealed class ConnectedBindableReactiveProperty<T> : BindableReactivePro
 {
     readonly IDisposable sourceSubscription;
 
-    public ConnectedBindableReactiveProperty(Observable<T> source, T initialValue, IEqualityComparer<T>? equalityComparer)
-        : base(initialValue, equalityComparer)
+    public ConnectedBindableReactiveProperty(Observable<T> source, T initialValue, IEqualityComparer<T>? equalityComparer, bool isReadOnly = false)
+        : base(initialValue, equalityComparer, isReadOnly)
     {
         this.sourceSubscription = source.Subscribe(new Observer(this));
     }

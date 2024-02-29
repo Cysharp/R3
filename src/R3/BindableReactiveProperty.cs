@@ -42,6 +42,7 @@ public abstract class ReadOnlyBindableReactiveProperty<T> : ReactivePropertyBase
 public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
 {
     IDisposable? subscription;
+    bool isReadOnly = false;
 
     public T Value
     {
@@ -82,12 +83,24 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
     {
     }
 
-    // ToBindableReactiveProperty
+    public BindableReactiveProperty(T value, IEqualityComparer<T>? equalityComparer, bool isReadOnly)
+    : base(value, equalityComparer)
+    {
+        this.isReadOnly = isReadOnly;
+    }
 
     internal BindableReactiveProperty(Observable<T> source, T initialValue, IEqualityComparer<T>? equalityComparer)
         : base(initialValue, equalityComparer)
     {
         this.subscription = source.Subscribe(new Observer(this));
+    }
+
+    // ToBindableReactiveProperty
+
+    public ReadOnlyBindableReactiveProperty<T> ToReadOnlyBindableReactiveProperty(T initialValue = default!)
+    {
+        isReadOnly = true;
+        return this;
     }
 
     protected override void DisposeCore()
@@ -131,7 +144,7 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
 
                 if (!validationContext.TryValidateValue(value, errors))
                 {
-                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.GetDataErrorsChangedEventArgs(isReadOnly));
 
                     // set is completed(validation does not call before set) so continue call PropertyChanged
                 }
@@ -150,12 +163,12 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
                 if (errors != null && errors.Count != 0)
                 {
                     errors.Clear();
-                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.GetDataErrorsChangedEventArgs(isReadOnly));
                 }
             }
         }
 
-        PropertyChanged?.Invoke(this, ValueChangedEventArgs.PropertyChanged);
+        PropertyChanged?.Invoke(this, ValueChangedEventArgs.GetPropertyChangedEventArgs(isReadOnly));
     }
 
     // for INotifyDataErrorInfo
@@ -213,7 +226,7 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
             errors.Add(new ValidationResult(exception.Message));
         }
 
-        ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+        ErrorsChanged?.Invoke(this, ValueChangedEventArgs.GetDataErrorsChangedEventArgs(isReadOnly));
     }
 
     public BindableReactiveProperty<T> EnableValidation()
@@ -302,6 +315,11 @@ internal sealed class PropertyValidationContext(ValidationContext context, Valid
 
 internal static class ValueChangedEventArgs
 {
-    internal static readonly PropertyChangedEventArgs PropertyChanged = new PropertyChangedEventArgs("Value");
-    internal static readonly DataErrorsChangedEventArgs DataErrorsChanged = new DataErrorsChangedEventArgs("Value");
+    static readonly PropertyChangedEventArgs propertyChanged = new PropertyChangedEventArgs("Value");
+    static readonly PropertyChangedEventArgs propertyChangedReadOnly = new PropertyChangedEventArgs("CurrentValue");
+    static readonly DataErrorsChangedEventArgs dataErrorsChanged = new DataErrorsChangedEventArgs("Value");
+    static readonly DataErrorsChangedEventArgs dataErrorsChangedReadOnly = new DataErrorsChangedEventArgs("CurrentValue");
+
+    internal static PropertyChangedEventArgs GetPropertyChangedEventArgs(bool isReadOnly) => isReadOnly ? propertyChangedReadOnly : propertyChanged;
+    internal static DataErrorsChangedEventArgs GetDataErrorsChangedEventArgs(bool isReadOnly) => isReadOnly ? dataErrorsChangedReadOnly : dataErrorsChanged;
 }

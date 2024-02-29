@@ -7,17 +7,21 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
-        <!--<local:BasicUsagesViewModel />-->
-        <!--<local:ValidationViewModel />-->
-        <local:CommandViewModel />
+        <local:BasicUsagesViewModel />
+        <!--<local:ValidationViewModel />
+        <local:CommandViewModel />-->
     </Window.DataContext>
-    <!--<StackPanel>
+    <StackPanel>
         <TextBlock Text="Basic usages" FontSize="24" />
         <Label Content="Input" />
         <TextBox Text="{Binding Input.Value, UpdateSourceTrigger=PropertyChanged}" />
-        <Label Content="Output" />
+        <Label Content="BindableReactiveProperty.Value" />
         <TextBlock Text="{Binding Output.Value}" />
-    </StackPanel>-->
+        <Label Content="ReadOnlyBindableReactiveProperty.CurrentValue" />
+        <TextBlock Text="{Binding OutputRO.CurrentValue}" />
+        <TextBlock Text="{Binding OutputRO2.CurrentValue}" />
+        <Button Content="add" Command="{Binding AddCommand}" />
+    </StackPanel>
 
     <!--<StackPanel Margin="10">
         <Label Content="Validation" />
@@ -28,9 +32,9 @@
     </StackPanel>-->
 
 
-    <StackPanel Margin="10">
+    <!--<StackPanel Margin="10">
         <Label Content="Command" />
         <CheckBox IsChecked="{Binding OnCheck.Value}" />
         <Button Content="Btn" Command="{Binding ShowMessageBox}" />
-    </StackPanel>
+    </StackPanel>-->
 </Window>
