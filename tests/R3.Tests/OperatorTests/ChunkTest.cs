@@ -302,6 +302,48 @@ public class ChunkTest
         list.AssertEqual([[1, 10, 100], [1000, 10000], [2, 20, 200], [500]]);
         list.AssertIsCompleted();
     }
+
+    // count + skip
+    [Fact]
+    public async Task ChunkCountSkip()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        {
+            var xs = await Observable.Range(1, 10).Chunk(3, 1).ToArrayAsync();
+
+            xs[0].Should().Equal(1, 2, 3);
+            xs[1].Should().Equal(2, 3, 4);
+            xs[2].Should().Equal(3, 4, 5);
+            xs[3].Should().Equal(4, 5, 6);
+            xs[4].Should().Equal(5, 6, 7);
+            xs[5].Should().Equal(6, 7, 8);
+            xs[6].Should().Equal(7, 8, 9);
+            xs[7].Should().Equal(8, 9, 10);
+            xs[8].Should().Equal(9, 10);
+            xs[9].Should().Equal(10);
+        }
+
+        // count == skip
+        {
+            var xs = await Observable.Range(1, 10).Chunk(3, 3).ToArrayAsync();
+
+            xs[0].Should().Equal(1, 2, 3);
+            xs[1].Should().Equal(4, 5, 6);
+            xs[2].Should().Equal(7, 8, 9);
+            xs[3].Should().Equal(10);
+        }
+
+        // count < skip
+        {
+            var xs = await Observable.Range(1, 20).Chunk(3, 5).ToArrayAsync();
+
+            xs[0].Should().Equal(1, 2, 3);
+            xs[1].Should().Equal(6, 7, 8);
+            xs[2].Should().Equal(11, 12, 13);
+            xs[3].Should().Equal(16, 17, 18);
+        }
+    }
 }
 
 
