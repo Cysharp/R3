@@ -22,17 +22,6 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 #endif
 public class ReactiveProperty<T> : ReactivePropertyBase<T>
 {
-    T currentValue;
-    IEqualityComparer<T>? equalityComparer;
-    FreeListCore<Subscription> list; // struct(array, int)
-    CompleteState completeState;     // struct(int, IntPtr)
-
-    public IEqualityComparer<T>? EqualityComparer => equalityComparer;
-
-    public override T CurrentValue => currentValue;
-
-    public bool IsDisposed => completeState.IsDisposed;
-
     public T Value
     {
         get => this.currentValue;
@@ -82,9 +71,8 @@ public class ReactivePropertyBase<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 {
     protected T currentValue;
     IEqualityComparer<T>? equalityComparer;
-    FreeListCore<Subscription> list; // struct(array, int)
-    CompleteState completeState;     // struct(int, IntPtr)
     ObserverNode? root; // Root of LinkedList Node(Root.Previous is Last)
+    CompleteState completeState;     // struct(int, IntPtr)
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
 
