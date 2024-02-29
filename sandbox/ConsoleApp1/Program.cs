@@ -26,7 +26,7 @@ Observable.Interval(TimeSpan.FromSeconds(1))
     .Index()
     .Chunk(async (_, ct) =>
     {
-        await Task.Delay(TimeSpan.FromSeconds(0));
+        await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(0, 5)), ct);
     })
     .Subscribe(x =>
     {

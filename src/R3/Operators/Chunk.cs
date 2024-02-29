@@ -359,16 +359,17 @@ internal sealed class ChunkAsync<T>(Observable<T> source, Func<T, CancellationTo
     {
         readonly List<T> list = new List<T>();
         CancellationTokenSource cancellationTokenSource = new();
-        Task? runningTask;
+        bool isRunning;
 
         protected override void OnNextCore(T value)
         {
             lock (list)
             {
                 list.Add(value);
-                if (runningTask == null)
+                if (!isRunning)
                 {
-                    runningTask = StartWindow(value);
+                    isRunning = true;
+                    StartWindow(value);
                 }
             }
         }
@@ -399,7 +400,7 @@ internal sealed class ChunkAsync<T>(Observable<T> source, Func<T, CancellationTo
             cancellationTokenSource.Cancel();
         }
 
-        async Task StartWindow(T value)
+        async void StartWindow(T value)
         {
             try
             {
@@ -419,7 +420,7 @@ internal sealed class ChunkAsync<T>(Observable<T> source, Func<T, CancellationTo
                 {
                     observer.OnNext(list.ToArray());
                     list.Clear();
-                    runningTask = null;
+                    isRunning = false;
                 }
             }
         }
