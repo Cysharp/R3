@@ -32,6 +32,11 @@ public static partial class ObservableExtensions
     {
         return new ChunkWindow<TSource, TWindowBoundary>(source, windowBoundaries);
     }
+
+    public static Observable<T[]> Chunk<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> asyncWindow, bool configureAwait = true)
+    {
+        return new ChunkAsync<T>(source, asyncWindow, configureAwait);
+    }
 }
 
 // Count
@@ -337,6 +342,86 @@ internal sealed class ChunkWindow<T, TWindowBoundary>(Observable<T> source, Obse
             protected override void OnCompletedCore(Result result)
             {
                 parent.OnCompleted();
+            }
+        }
+    }
+}
+
+// Async
+internal sealed class ChunkAsync<T>(Observable<T> source, Func<T, CancellationToken, ValueTask> asyncWindow, bool configureAwait) : Observable<T[]>
+{
+    protected override IDisposable SubscribeCore(Observer<T[]> observer)
+    {
+        return source.Subscribe(new _Chunk(observer, asyncWindow, configureAwait));
+    }
+
+    sealed class _Chunk(Observer<T[]> observer, Func<T, CancellationToken, ValueTask> asyncWindow, bool configureAwait) : Observer<T>
+    {
+        readonly List<T> list = new List<T>();
+        CancellationTokenSource cancellationTokenSource = new();
+        bool isRunning;
+
+        protected override void OnNextCore(T value)
+        {
+            lock (list)
+            {
+                list.Add(value);
+                if (!isRunning)
+                {
+                    isRunning = true;
+                    StartWindow(value);
+                }
+            }
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            cancellationTokenSource.Cancel();
+
+            lock (list)
+            {
+                if (list.Count > 0)
+                {
+                    observer.OnNext(list.ToArray());
+                    list.Clear();
+                }
+            }
+
+            observer.OnCompleted(result);
+        }
+
+        protected override void DisposeCore()
+        {
+            cancellationTokenSource.Cancel();
+        }
+
+        async void StartWindow(T value)
+        {
+            try
+            {
+                await asyncWindow(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException oce && oce.CancellationToken == cancellationTokenSource.Token)
+                {
+                    return;
+                }
+                OnErrorResume(ex);
+            }
+            finally
+            {
+                lock (list)
+                {
+                    observer.OnNext(list.ToArray());
+                    list.Clear();
+                    isRunning = false;
+                }
             }
         }
     }
