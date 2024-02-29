@@ -113,13 +113,13 @@ public class ChunkTest
 
         timeProvider.Advance(TimeSpan.FromSeconds(3));
 
-        list.AssertEqual([1, 10], [100], [1000, 10000], [50, 2], [3], []);
+        list.AssertEqual([1, 10], [100], [1000, 10000], [50, 2], [3]);
 
         publisher.OnNext(4);
 
         publisher.OnCompleted();
 
-        list.AssertEqual([1, 10], [100], [1000, 10000], [50, 2], [3], [], [4]);
+        list.AssertEqual([1, 10], [100], [1000, 10000], [50, 2], [3], [4]);
 
         list.AssertIsCompleted();
     }
