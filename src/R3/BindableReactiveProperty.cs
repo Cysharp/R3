@@ -144,8 +144,12 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
 
                 if (!validationContext.TryValidateValue(value, errors))
                 {
-                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.GetDataErrorsChangedEventArgs(isReadOnly));
-
+                    // need both, even if read-only; because read-only instance by this.ToReadOnlyBindableReactiveProperty() is just a cast with side-effect
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+                    if (isReadOnly)
+                    {
+                        ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChangedReadOnly);
+                    }
                     // set is completed(validation does not call before set) so continue call PropertyChanged
                 }
             }
@@ -163,12 +167,22 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
                 if (errors != null && errors.Count != 0)
                 {
                     errors.Clear();
-                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.GetDataErrorsChangedEventArgs(isReadOnly));
+                    // need both, even if read-only; because read-only instance by this.ToReadOnlyBindableReactiveProperty() is just a cast with side-effect
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+                    if (isReadOnly)
+                    {
+                        ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChangedReadOnly);
+                    }
                 }
             }
         }
 
-        PropertyChanged?.Invoke(this, ValueChangedEventArgs.GetPropertyChangedEventArgs(isReadOnly));
+        // need both, even if read-only; because read-only instance by this.ToReadOnlyBindableReactiveProperty() is just a cast with side-effect
+        PropertyChanged?.Invoke(this, ValueChangedEventArgs.PropertyChanged);
+        if (isReadOnly)
+        {
+            PropertyChanged?.Invoke(this, ValueChangedEventArgs.PropertyChangedReadOnly);
+        }
     }
 
     // for INotifyDataErrorInfo
@@ -226,7 +240,12 @@ public class BindableReactiveProperty<T> : ReadOnlyBindableReactiveProperty<T>, 
             errors.Add(new ValidationResult(exception.Message));
         }
 
-        ErrorsChanged?.Invoke(this, ValueChangedEventArgs.GetDataErrorsChangedEventArgs(isReadOnly));
+        // need both, even if read-only; because read-only instance by this.ToReadOnlyBindableReactiveProperty() is just a cast with side-effect
+        ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+        if (isReadOnly)
+        {
+            ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChangedReadOnly);
+        }
     }
 
     public BindableReactiveProperty<T> EnableValidation()
@@ -315,11 +334,8 @@ internal sealed class PropertyValidationContext(ValidationContext context, Valid
 
 internal static class ValueChangedEventArgs
 {
-    static readonly PropertyChangedEventArgs propertyChanged = new PropertyChangedEventArgs("Value");
-    static readonly PropertyChangedEventArgs propertyChangedReadOnly = new PropertyChangedEventArgs("CurrentValue");
-    static readonly DataErrorsChangedEventArgs dataErrorsChanged = new DataErrorsChangedEventArgs("Value");
-    static readonly DataErrorsChangedEventArgs dataErrorsChangedReadOnly = new DataErrorsChangedEventArgs("CurrentValue");
-
-    internal static PropertyChangedEventArgs GetPropertyChangedEventArgs(bool isReadOnly) => isReadOnly ? propertyChangedReadOnly : propertyChanged;
-    internal static DataErrorsChangedEventArgs GetDataErrorsChangedEventArgs(bool isReadOnly) => isReadOnly ? dataErrorsChangedReadOnly : dataErrorsChanged;
+    internal static readonly PropertyChangedEventArgs PropertyChanged = new PropertyChangedEventArgs("Value");
+    internal static readonly PropertyChangedEventArgs PropertyChangedReadOnly = new PropertyChangedEventArgs("CurrentValue");
+    internal static readonly DataErrorsChangedEventArgs DataErrorsChanged = new DataErrorsChangedEventArgs("Value");
+    internal static readonly DataErrorsChangedEventArgs DataErrorsChangedReadOnly = new DataErrorsChangedEventArgs("CurrentValue");
 }

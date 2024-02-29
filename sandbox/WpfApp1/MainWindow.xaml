@@ -16,10 +16,12 @@
         <Label Content="Input" />
         <TextBox Text="{Binding Input.Value, UpdateSourceTrigger=PropertyChanged}" />
         <Label Content="BindableReactiveProperty.Value" />
-        <TextBlock Text="{Binding Output.Value}" />
+        <TextBlock Text="{Binding Output.Value}" Margin="40 0" />
         <Label Content="ReadOnlyBindableReactiveProperty.CurrentValue" />
-        <TextBlock Text="{Binding OutputRO.CurrentValue}" />
-        <TextBlock Text="{Binding OutputRO2.CurrentValue}" />
+        <Label Content="from BindableReactiveProperty" Margin="20 0" />
+        <TextBlock Text="{Binding OutputRO.CurrentValue}" Margin="40 0" />
+        <Label Content="from ReadOnlyReactiveProperty" Margin="20 0" />
+        <TextBlock Text="{Binding OutputRO2.CurrentValue}" Margin="40 0" />
         <Button Content="add" Command="{Binding AddCommand}" />
     </StackPanel>
 
