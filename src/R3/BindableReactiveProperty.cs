@@ -79,19 +79,24 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
     {
         if (enableNotifyError)
         {
+            // comes new value, require to clear error.
+            var previouslyHasErrors = (errors != null && errors.Count != 0);
+            errors?.Clear();
+
             if (validationContext != null)
             {
                 if (errors == null)
                 {
                     errors = new List<ValidationResult>(validationContext.ValidatorCount);
                 }
-                errors.Clear();
 
                 if (!validationContext.TryValidateValue(value, errors))
                 {
                     ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
-
-                    // set is completed(validation does not call before set) so continue call PropertyChanged
+                }
+                else if (previouslyHasErrors)
+                {
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
                 }
             }
             else if (validator != null)
@@ -101,13 +106,16 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
                 {
                     OnReceiveError(error);
                 }
+                else if (previouslyHasErrors)
+                {
+                    ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
+                }
             }
             else
             {
-                // comes new value, clear error
-                if (errors != null && errors.Count != 0)
+                if (previouslyHasErrors)
                 {
-                    errors.Clear();
+                    // notify error was cleared.
                     ErrorsChanged?.Invoke(this, ValueChangedEventArgs.DataErrorsChanged);
                 }
             }
