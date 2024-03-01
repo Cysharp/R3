@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Time.Testing;
 using R3;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reactive.Concurrency;
 using System.Runtime.CompilerServices;
@@ -22,19 +23,35 @@ using System.Threading.Channels;
 //t.Wait();
 
 
-Observable.Interval(TimeSpan.FromSeconds(1))
-    .Index()
-    .Chunk(async (_, ct) =>
-    {
-        await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(0, 5)), ct);
-    })
-    .Subscribe(x =>
-    {
-        Console.WriteLine(string.Join(", ", x));
-    });
+var p = new Person { Name = "aiueo" };
 
 
-Console.ReadLine();
+p.ObservePropertyChanged(x => x.Name).Subscribe(x => Console.WriteLine($"Changed:{x}"));
+
+p.Name = "kakikukeko";
+p.Name = "sasisuseso";
+
+
+
+public class Person : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    string name = default!;
+
+    public required string Name
+    {
+        get
+        {
+            return name;
+        }
+        set
+        {
+            name = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Name"));
+        }
+    }
+}
 
 
 internal static class ChannelUtility
