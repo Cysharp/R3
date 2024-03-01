@@ -52,9 +52,9 @@ public static class Disposable
         return new AnonymousDisposable(onDisposed);
     }
 
-    public static IDisposable Create<T>(Action<T> onDisposed, T state)
+    public static IDisposable Create<T>(T state, Action<T> onDisposed)
     {
-        return new AnonymousDisposable<T>(onDisposed, state);
+        return new AnonymousDisposable<T>(state, onDisposed);
     }
 
     public static IDisposable Combine(IDisposable disposable1, IDisposable disposable2)
@@ -616,15 +616,15 @@ internal sealed class AnonymousDisposable : IDisposable
 
 internal sealed class AnonymousDisposable<T> : IDisposable
 {
-    volatile Action<T>? onDisposed;
     T state;
+    volatile Action<T>? onDisposed;
 
     // public bool IsDisposed => onDisposed == null;
 
-    public AnonymousDisposable(Action<T> onDisposed, T state)
+    public AnonymousDisposable(T state, Action<T> onDisposed)
     {
-        this.onDisposed = onDisposed;
         this.state = state;
+        this.onDisposed = onDisposed;
     }
 
     public void Dispose()
