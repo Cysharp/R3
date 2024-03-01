@@ -1494,6 +1494,8 @@ Factory methods are defined as static methods in the static class `Observable`.
 | **Never**() | `Observable<T>` | 
 | **NextFrame**(`CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
 | **NextFrame**(`FrameProvider` frameProvider, `CancellationToken` cancellationToken = default) | `Observable<Unit>` | 
+| **ObservePropertyChanged**(this `T` value, `Func<T, TProperty>` propertySelector, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` expr = default) | `Observable<TProperty>` | 
+| **ObservePropertyChanging**(this `T` value, `Func<T, TProperty>` propertySelector, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` expr = default) | `Observable<TProperty>` | 
 | **Range**(`Int32` start, `Int32` count) | `Observable<Int32>` | 
 | **Range**(`Int32` start, `Int32` count, `CancellationToken` cancellationToken) | `Observable<Int32>` | 
 | **Repeat**(`T` value, `Int32` count) | `Observable<T>` | 
