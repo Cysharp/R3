@@ -245,6 +245,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             var p = Interlocked.Exchange(ref parent, null);
             if (p == null) return;
 
+            // keep this.Next for dispose on iterating
+
             if (this.Previous == this) // single list
             {
                 p.root = null;

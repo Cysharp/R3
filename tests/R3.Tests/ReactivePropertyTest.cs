@@ -1,4 +1,6 @@
-﻿namespace R3.Tests;
+﻿using R3.Collections;
+
+namespace R3.Tests;
 
 public class ReactivePropertyTest
 {
@@ -105,5 +107,129 @@ public class ReactivePropertyTest
         var list6 = rp.ToLiveList();
         rp.Value = 6;
         list6.AssertEqual([5, 6]);
+    }
+
+    [Fact]
+    public void NodeDisposeCheck()
+    {
+        {
+            var rp = new ReactiveProperty<int>(1);
+
+            LiveList<int> list1;
+            LiveList<int> list2;
+            LiveList<int> list3 = null!;
+            LiveList<int> list4 = null!;
+            LiveList<int> list5;
+
+            list1 = rp.ToLiveList();
+            list2 = rp.Take(2).Do(_ => { list3?.Dispose(); list4?.Dispose(); }).ToLiveList();
+            list3 = rp.ToLiveList();
+            list4 = rp.ToLiveList();
+            list5 = rp.ToLiveList();
+
+            rp.Value = 10;
+
+            list1.AssertEqual([1, 10]);
+            list2.AssertEqual([1, 10]);
+            list3.AssertEqual([1]);
+            list4.AssertEqual([1]);
+            list5.AssertEqual([1, 10]);
+        }
+        {
+            // Dispose only self.
+            var rp = new ReactiveProperty<int>(1);
+
+            LiveList<int> list1;
+            LiveList<int> list2;
+            LiveList<int> list3 = null!;
+            LiveList<int> list4 = null!;
+            LiveList<int> list5;
+
+            list1 = rp.ToLiveList();
+            list2 = rp.Take(2).Do(_ => { /* list3?.Dispose(); list4?.Dispose(); */}).ToLiveList();
+            list3 = rp.ToLiveList();
+            list4 = rp.ToLiveList();
+            list5 = rp.ToLiveList();
+
+            rp.Value = 10;
+
+            list1.AssertEqual([1, 10]);
+            list2.AssertEqual([1, 10]);
+            list3.AssertEqual([1, 10]);
+            list4.AssertEqual([1, 10]);
+            list5.AssertEqual([1, 10]);
+
+            rp.Value = 20;
+
+            list1.AssertEqual([1, 10, 20]);
+            list2.AssertEqual([1, 10]);
+            list3.AssertEqual([1, 10, 20]);
+            list4.AssertEqual([1, 10, 20]);
+            list5.AssertEqual([1, 10, 20]);
+        }
+        {
+            // Dispose only next one.
+            var rp = new ReactiveProperty<int>(1);
+
+            LiveList<int> list1;
+            LiveList<int> list2;
+            LiveList<int> list3 = null!;
+            LiveList<int> list4 = null!;
+            LiveList<int> list5;
+
+            list1 = rp.ToLiveList();
+            list2 = rp.Do(_ => { list3?.Dispose(); /* list4?.Dispose(); */}).ToLiveList();
+            list3 = rp.ToLiveList();
+            list4 = rp.ToLiveList();
+            list5 = rp.ToLiveList();
+
+            rp.Value = 10;
+
+            list1.AssertEqual([1, 10]);
+            list2.AssertEqual([1, 10]);
+            list3.AssertEqual([1]);
+            list4.AssertEqual([1, 10]);
+            list5.AssertEqual([1, 10]);
+
+            rp.Value = 20;
+
+            list1.AssertEqual([1, 10, 20]);
+            list2.AssertEqual([1, 10, 20]);
+            list3.AssertEqual([1]);
+            list4.AssertEqual([1, 10, 20]);
+            list5.AssertEqual([1, 10, 20]);
+        }
+        {
+            // Dispose only next next one.
+            var rp = new ReactiveProperty<int>(1);
+
+            LiveList<int> list1;
+            LiveList<int> list2;
+            LiveList<int> list3 = null!;
+            LiveList<int> list4 = null!;
+            LiveList<int> list5;
+
+            list1 = rp.ToLiveList();
+            list2 = rp.Do(_ => { list4?.Dispose(); }).ToLiveList();
+            list3 = rp.ToLiveList();
+            list4 = rp.ToLiveList();
+            list5 = rp.ToLiveList();
+
+            rp.Value = 10;
+
+            list1.AssertEqual([1, 10]);
+            list2.AssertEqual([1, 10]);
+            list3.AssertEqual([1, 10]);
+            list4.AssertEqual([1]);
+            list5.AssertEqual([1, 10]);
+
+            rp.Value = 20;
+
+            list1.AssertEqual([1, 10, 20]);
+            list2.AssertEqual([1, 10, 20]);
+            list3.AssertEqual([1, 10, 20]);
+            list4.AssertEqual([1]);
+            list5.AssertEqual([1, 10, 20]);
+        }
     }
 }
