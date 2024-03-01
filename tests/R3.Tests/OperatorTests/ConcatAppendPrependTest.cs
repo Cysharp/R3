@@ -180,4 +180,72 @@ public class ConcatAppendPrependTest
         list.AssertIsCompleted();
         list.AssertEqual([]);
     }
+
+    // Prepend factory
+    [Fact]
+    public void PrependFactory()
+    {
+        {
+            using var list = Observable.Range(1, 3).Prepend(() => 10).ToLiveList();
+            list.AssertEqual([10, 1, 2, 3]);
+        }
+        // with state
+        {
+            var o = new { V = 20 };
+            using var list = Observable.Range(1, 3).Prepend(o, static x => x.V).ToLiveList();
+            list.AssertEqual([20, 1, 2, 3]);
+        }
+    }
+
+    [Fact]
+    public void PrependEnumerable()
+    {
+        // Array
+        {
+            using var list = Observable.Range(1, 3).Prepend([10, 11, 12]).ToLiveList();
+            list.AssertEqual([10, 11, 12, 1, 2, 3]);
+        }
+        // Pure Enumerable
+        {
+            using var list = Observable.Range(1, 3).Prepend(Iterate()).ToLiveList();
+            list.AssertEqual([100, 200, 300, 1, 2, 3]);
+        }
+    }
+
+    [Fact]
+    public void AppendFactory()
+    {
+        {
+            using var list = Observable.Range(1, 3).Append(() => 10).ToLiveList();
+            list.AssertEqual([1, 2, 3, 10]);
+        }
+        // with state
+        {
+            var o = new { V = 20 };
+            using var list = Observable.Range(1, 3).Append(o, static x => x.V).ToLiveList();
+            list.AssertEqual([1, 2, 3, 20]);
+        }
+    }
+
+    [Fact]
+    public void AppendEnumerable()
+    {
+        // Array
+        {
+            using var list = Observable.Range(1, 3).Append([10, 11, 12]).ToLiveList();
+            list.AssertEqual([1, 2, 3, 10, 11, 12]);
+        }
+        // Pure Enumerable
+        {
+            using var list = Observable.Range(1, 3).Append(Iterate()).ToLiveList();
+            list.AssertEqual([1, 2, 3, 100, 200, 300]);
+        }
+    }
+
+    static IEnumerable<int> Iterate()
+    {
+        yield return 100;
+        yield return 200;
+        yield return 300;
+    }
 }
