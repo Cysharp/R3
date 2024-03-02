@@ -22,6 +22,26 @@ public class ObservePropertyTest
     }
 
     [Fact]
+    public void NestedPropertyChanged()
+    {
+        ChangesProperty propertyChanger = new();
+
+        using var liveList = propertyChanger
+            .ObservePropertyChanged(x => x.InnerPropertyChanged, x => x.Value)
+            .ToLiveList();
+
+        liveList.AssertEqual([]);
+
+        propertyChanger.InnerPropertyChanged = new();
+
+        liveList.AssertEqual([0]);
+
+        propertyChanger.InnerPropertyChanged.Value = 1;
+
+        liveList.AssertEqual([0, 1]);
+    }
+
+    [Fact]
     public void PropertyChanging()
     {
         ChangesProperty propertyChanger = new();
@@ -40,6 +60,7 @@ public class ObservePropertyTest
     class ChangesProperty : INotifyPropertyChanged, INotifyPropertyChanging
     {
         private int _value;
+        private ChangesProperty _innerPropertyChanged;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PropertyChangingEventHandler? PropertyChanging;
@@ -48,6 +69,12 @@ public class ObservePropertyTest
         {
             get => _value;
             set => SetField(ref _value, value);
+        }
+
+        public ChangesProperty InnerPropertyChanged
+        {
+            get => _innerPropertyChanged;
+            set => SetField(ref _innerPropertyChanged, value);
         }
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
