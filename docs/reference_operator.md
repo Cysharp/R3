@@ -10,6 +10,9 @@
 | **AnyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **AnyAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **Append**(this `Observable<T>` source, `T` value) | `Observable<T>` | 
+| **Append**(this `Observable<T>` source, `IEnumerable<T>` values) | `Observable<T>` | 
+| **Append**(this `Observable<T>` source, `Func<T>` valueFactory) | `Observable<T>` | 
+| **Append**(this `Observable<T>` source, `TState` state, `Func<TState, T>` valueFactory) | `Observable<T>` | 
 | **AsObservable**(this `Observable<T>` source) | `Observable<T>` | 
 | **AsSystemObservable**(this `Observable<T>` source) | `IObservable<T>` | 
 | **AsUnitObservable**(this `Observable<T>` source) | `Observable<Unit>` | 
@@ -142,6 +145,9 @@
 | **OnErrorResumeAsFailure**(this `Observable<T>` source) | `Observable<T>` | 
 | **Pairwise**(this `Observable<T>` source) | `Observable<ValueTuple<T, T>>` | 
 | **Prepend**(this `Observable<T>` source, `T` value) | `Observable<T>` | 
+| **Prepend**(this `Observable<T>` source, `IEnumerable<T>` values) | `Observable<T>` | 
+| **Prepend**(this `Observable<T>` source, `Func<T>` valueFactory) | `Observable<T>` | 
+| **Prepend**(this `Observable<T>` source, `TState` state, `Func<TState, T>` valueFactory) | `Observable<T>` | 
 | **Publish**(this `Observable<T>` source) | `ConnectableObservable<T>` | 
 | **Publish**(this `Observable<T>` source, `T` initialValue) | `ConnectableObservable<T>` | 
 | **RefCount**(this `ConnectableObservable<T>` source) | `Observable<T>` | 
@@ -186,6 +192,7 @@
 | **SkipUntil**(this `Observable<T>` source, `Observable<TOther>` other) | `Observable<T>` | 
 | **SkipUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
 | **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncFunc, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
 | **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = true, `Int32` maxConcurrent = -1) | `IDisposable` | 
@@ -224,6 +231,7 @@
 | **TakeUntil**(this `Observable<T>` source, `Observable<TOther>` other) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncFunc, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **TakeWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **TakeWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
 | **ThrottleFirst**(this `Observable<T>` source, `TimeSpan` timeSpan) | `Observable<T>` | 
