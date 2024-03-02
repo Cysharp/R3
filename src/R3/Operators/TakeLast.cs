@@ -17,7 +17,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> TakeLast<T>(this Observable<T> source, TimeSpan duration, TimeProvider timeProvider)
     {
-        return new TakeLastTime<T>(source, duration, timeProvider);
+        return new TakeLastTime<T>(source, duration.Normalize(), timeProvider);
     }
 
     // TakeLastFrame
@@ -29,7 +29,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> TakeLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
-        return new TakeLastFrame<T>(source, frameCount, frameProvider);
+        return new TakeLastFrame<T>(source, frameCount.NormalizeFrame(), frameProvider);
     }
 }
 

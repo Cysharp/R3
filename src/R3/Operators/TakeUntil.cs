@@ -25,6 +25,11 @@ public static partial class ObservableExtensions
     {
         return new TakeUntilT<T>(source, task);
     }
+
+    public static Observable<T> TakeUntil<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> asyncFunc, bool configureAwait = true)
+    {
+        return new TakeUntilAsync<T>(source, asyncFunc, configureAwait);
+    }
 }
 
 internal sealed class TakeUntil<T, TOther>(Observable<T> source, Observable<TOther> other) : Observable<T>
@@ -187,6 +192,69 @@ internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observabl
             {
                 OnCompleted(Result.Failure(ex));
             }
+        }
+    }
+}
+
+internal sealed class TakeUntilAsync<T>(Observable<T> source, Func<T, CancellationToken, ValueTask> asyncFunc, bool configureAwait) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        return source.Subscribe(new _TakeUntil(observer, asyncFunc, configureAwait));
+    }
+
+    sealed class _TakeUntil(Observer<T> observer, Func<T, CancellationToken, ValueTask> asyncFunc, bool configureAwait) : Observer<T>, IDisposable
+    {
+        readonly CancellationTokenSource cancellationTokenSource = new();
+        int isTaskRunning;
+
+        protected override void OnNextCore(T value)
+        {
+            var isFirstValue = (Interlocked.Exchange(ref isTaskRunning, 1) == 0);
+            if (isFirstValue)
+            {
+                TaskStart(value);
+            }
+
+            observer.OnNext(value);
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            cancellationTokenSource.Cancel(); // cancel executing async process first
+            observer.OnCompleted(result);
+        }
+
+        protected override void DisposeCore()
+        {
+            cancellationTokenSource.Cancel();
+        }
+
+        async void TaskStart(T value)
+        {
+
+            try
+            {
+                await asyncFunc(value, cancellationTokenSource.Token).ConfigureAwait(configureAwait);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException oce && oce.CancellationToken == cancellationTokenSource.Token)
+                {
+                    return;
+                }
+
+                // error is Stop
+                observer.OnCompleted(Result.Failure(ex));
+                return;
+            }
+
+            observer.OnCompleted();
         }
     }
 }

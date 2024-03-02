@@ -23,7 +23,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> Take<T>(this Observable<T> source, TimeSpan duration, TimeProvider timeProvider)
     {
-        return new TakeTime<T>(source, duration, timeProvider);
+        return new TakeTime<T>(source, duration.Normalize(), timeProvider);
     }
 
     // TakeFrame
@@ -35,7 +35,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> TakeFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
-        return new TakeFrame<T>(source, frameCount, frameProvider);
+        return new TakeFrame<T>(source, frameCount.NormalizeFrame(), frameProvider);
     }
 }
 
