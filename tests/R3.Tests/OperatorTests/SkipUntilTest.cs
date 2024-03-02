@@ -73,4 +73,28 @@ public class SkipUntilTest
         publisher1.OnCompleted();
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public void Async()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher1 = new Subject<int>();
+        var tcs = new TaskCompletionSource();
+        var list = publisher1.SkipUntil(async (x,ct) => await tcs.Task).ToLiveList();
+
+        publisher1.OnNext(1);
+        publisher1.OnNext(2);
+        publisher1.OnNext(3);
+        list.AssertEqual([]);
+
+        tcs.TrySetResult();
+
+        publisher1.OnNext(999999);
+        publisher1.OnNext(9999990);
+
+        list.AssertEqual([999999, 9999990]);
+        publisher1.OnCompleted();
+        list.AssertIsCompleted();
+    }
 }

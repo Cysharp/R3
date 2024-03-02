@@ -17,7 +17,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> SkipLast<T>(this Observable<T> source, TimeSpan duration, TimeProvider timeProvider)
     {
-        return new SkipLastTime<T>(source, duration, timeProvider);
+        return new SkipLastTime<T>(source, duration.Normalize(), timeProvider);
     }
 
     // SkipLastFrame
@@ -29,7 +29,7 @@ public static partial class ObservableExtensions
 
     public static Observable<T> SkipLastFrame<T>(this Observable<T> source, int frameCount, FrameProvider frameProvider)
     {
-        return new SkipLastFrame<T>(source, frameCount, frameProvider);
+        return new SkipLastFrame<T>(source, frameCount.NormalizeFrame(), frameProvider);
     }
 }
 

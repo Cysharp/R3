@@ -61,4 +61,25 @@ public class TakeUntilTest
         list.AssertEqual([1, 2, 3]);
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public  void Async()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+
+        var publisher1 = new Subject<int>();
+        var tcs = new TaskCompletionSource();
+        var list = publisher1.TakeUntil(async (x,ct) => await tcs.Task).ToLiveList();
+
+        publisher1.OnNext(1);
+        publisher1.OnNext(2);
+        publisher1.OnNext(3);
+        list.AssertEqual([1, 2, 3]);
+
+        tcs.TrySetResult();
+
+        list.AssertEqual([1, 2, 3]);
+        list.AssertIsCompleted();
+
+    }
 }
