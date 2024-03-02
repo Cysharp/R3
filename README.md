@@ -569,6 +569,12 @@ Additionally, the following time-related filtering/aggregating methods can also 
 | **ThrottleFirst**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` |
 | **ThrottleLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` |
 | **ThrottleFirstLast**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` sampler, `Boolean` configureAwait = true) | `Observable<T>` |
+| **SkipUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncFunc, `Boolean` configureAwait = true) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncFunc, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **Chunk**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncWindow, `Boolean` configureAwait = true) | `Observable<T[]>` | 
 
 For example, by using the asynchronous function version of Chunk, you can naturally and easily write complex processes such as generating chunks at random times instead of fixed times.
@@ -641,6 +647,16 @@ Parallel.For(0, 1000, new ParallelOptions { MaxDegreeOfParallelism = 10 }, x => 
 This means that the issuance of OnNext must always be done on a single thread. Also, ReactiveProperty, which corresponds to BehaviorSubject in dotnet/reactive, is not thread-safe itself, so updating the value (set Value or call OnNext) must always be done on a single thread.
 
 For converting external inputs into Observables, such as with FromEvent, and when the source of input issues in a multi-threaded manner, it is necessary to synchronize using `Synchronize` to construct the correct operator chain.
+
+Sampling Timing
+---
+The `Sample(TimeSpan)` in dotnet/reactive starts a timer in the background when subscribed to, and uses that interval for filtering. Additionally, the timer continues to run in the background indefinitely.
+
+`ThrottleFirst/Last/FirstLast(TimeSpan)` in R3 behaves differently; the timer is stopped upon subscription and only starts when a value arrives. If the timer is stopped at that time, it starts, and then stops the timer after the specified duration.
+
+Also, overloads that accept an asynchronous function `Func<T, CancellationToken, ValueTask>`, such as `ThrottleFirst/Last/FirstLast`, `Chunk`, `SkipUntil`, `TakeUntil`), behave in such a way that if the asynchronous function is not running when a value arrives, the execution of the asynchronous function begins.
+
+This change is expected to result in consistent behavior across all operators.
 
 ObservableCollections
 ---
