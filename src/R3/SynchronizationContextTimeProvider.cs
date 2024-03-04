@@ -1,21 +1,21 @@
 ﻿namespace R3;
 
-public sealed class SynchronizationContextTimerProvider : TimeProvider
+public sealed class SynchronizationContextTimeProvider : TimeProvider
 {
     readonly SynchronizationContext? synchronizationContext;
     readonly TimeProvider timeProvider;
 
-    public SynchronizationContextTimerProvider()
+    public SynchronizationContextTimeProvider()
         : this(SynchronizationContext.Current)
     {
     }
 
-    public SynchronizationContextTimerProvider(SynchronizationContext? synchronizationContext)
+    public SynchronizationContextTimeProvider(SynchronizationContext? synchronizationContext)
         : this(synchronizationContext, TimeProvider.System)
     {
     }
 
-    public SynchronizationContextTimerProvider(SynchronizationContext? synchronizationContext, TimeProvider timeProvider)
+    public SynchronizationContextTimeProvider(SynchronizationContext? synchronizationContext, TimeProvider timeProvider)
     {
         this.synchronizationContext = synchronizationContext;
         this.timeProvider = timeProvider;
@@ -23,11 +23,11 @@ public sealed class SynchronizationContextTimerProvider : TimeProvider
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        return new SynchronizationContextTimerTimer(timeProvider, synchronizationContext, callback, state, dueTime, period);
+        return new SynchronizationContextTimer(timeProvider, synchronizationContext, callback, state, dueTime, period);
     }
 }
 
-internal sealed class SynchronizationContextTimerTimer : ITimer
+internal sealed class SynchronizationContextTimer : ITimer
 {
     static readonly TimerCallback wrappedCallback = InvokeCallback;
     static readonly SendOrPostCallback postCallback = PostCallback;
@@ -37,17 +37,19 @@ internal sealed class SynchronizationContextTimerTimer : ITimer
     readonly TimerCallback callback;
     readonly object? state;
 
-    public SynchronizationContextTimerTimer(TimeProvider timeProvider, SynchronizationContext? synchronizationContext, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+    public SynchronizationContextTimer(TimeProvider timeProvider, SynchronizationContext? synchronizationContext, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        this.timer = timeProvider.CreateTimer(wrappedCallback, this, dueTime, period);
         this.synchronizationContext = synchronizationContext;
         this.callback = callback;
         this.state = state;
+
+        // CreateTimer call after all private field set
+        this.timer = timeProvider.CreateTimer(wrappedCallback, this, dueTime, period);
     }
 
     static void InvokeCallback(object? state)
     {
-        var self = (SynchronizationContextTimerTimer)state!;
+        var self = (SynchronizationContextTimer)state!;
 
         if (self.synchronizationContext == null)
         {
@@ -61,7 +63,7 @@ internal sealed class SynchronizationContextTimerTimer : ITimer
 
     static void PostCallback(object? state)
     {
-        var self = (SynchronizationContextTimerTimer)state!;
+        var self = (SynchronizationContextTimer)state!;
         self.callback.Invoke(self.state);
     }
 

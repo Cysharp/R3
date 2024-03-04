@@ -1,11 +1,77 @@
-﻿namespace R3;
+﻿using System;
+
+namespace R3;
 
 public static class ObservableSystem
 {
-    public static TimeProvider DefaultTimeProvider { get; set; } = TimeProvider.System;
-    public static FrameProvider DefaultFrameProvider { get; set; } = new NotSupportedFrameProvider();
+    static IServiceProvider? serviceProvider;
+    static Func<IServiceProvider>? serviceProviderFactory;
 
+    static TimeProvider defaultTimeProvider = TimeProvider.System;
+    static FrameProvider defaultFrameProvider = new NotSupportedFrameProvider();
     static Action<Exception> unhandledException = DefaultUnhandledExceptionHandler;
+
+    public static TimeProvider DefaultTimeProvider
+    {
+        get
+        {
+            var services = serviceProvider;
+            if (serviceProviderFactory != null)
+            {
+                services = serviceProviderFactory();
+            }
+
+            if (services != null)
+            {
+                var provider = services.GetService(typeof(TimeProvider));
+                if (provider != null)
+                {
+                    return (TimeProvider)provider;
+                }
+            }
+            return defaultTimeProvider;
+        }
+        set
+        {
+            defaultTimeProvider = value;
+        }
+    }
+
+    public static FrameProvider DefaultFrameProvider
+    {
+        get
+        {
+            var services = serviceProvider;
+            if (serviceProviderFactory != null)
+            {
+                services = serviceProviderFactory();
+            }
+
+            if (services != null)
+            {
+                var provider = services.GetService(typeof(FrameProvider));
+                if (provider != null)
+                {
+                    return (FrameProvider)provider;
+                }
+            }
+            return defaultFrameProvider;
+        }
+        set
+        {
+            defaultFrameProvider = value;
+        }
+    }
+
+    public static void RegisterServiceProvider(IServiceProvider? serviceProvider)
+    {
+        ObservableSystem.serviceProvider = serviceProvider;
+    }
+
+    public static void RegisterServiceProvider(Func<IServiceProvider> serviceProviderFactory)
+    {
+        ObservableSystem.serviceProviderFactory = serviceProviderFactory;
+    }
 
     // Prevent +=, use Set and Get method.
     public static void RegisterUnhandledExceptionHandler(Action<Exception> unhandledExceptionHandler)

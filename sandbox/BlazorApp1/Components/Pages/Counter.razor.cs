@@ -10,17 +10,19 @@ public partial class Counter : IDisposable
 
     // Inject R3 Custom TimeProvider
     // builder.Services.AddScoped<TimeProvider>(_ => new SynchronizationContextTimerProvider())
-    [Inject]
-    public required TimeProvider TimeProvider { get; init; }
+    //[Inject]
+    //public required TimeProvider TimeProvider { get; init; }
 
     protected override void OnInitialized()
     {
-        subscription = Observable.Interval(TimeSpan.FromSeconds(1), TimeProvider)
+        subscription = Observable.Interval(TimeSpan.FromSeconds(1))
             .Subscribe(_ =>
             {
                 currentCount++;
                 StateHasChanged();
             });
+
+        
     }
 
     public void Dispose()
