@@ -130,14 +130,11 @@ public static partial class Observable
         where T : INotifyPropertyChanged
         where TProperty1 : INotifyPropertyChanging
     {
-        if (propertySelector1Expr == null) throw new ArgumentNullException(propertySelector1Expr);
         if (propertySelector2Expr == null) throw new ArgumentNullException(propertySelector2Expr);
 
-        var property1Name = propertySelector1Expr!.Substring(propertySelector1Expr.LastIndexOf('.') + 1);
         var property2Name = propertySelector2Expr!.Substring(propertySelector2Expr.LastIndexOf('.') + 1);
 
-
-        return new ObservePropertyChanged<T, TProperty1>(value, propertySelector1, property1Name, true, cancellationToken)
+        return ObservePropertyChanged(value, propertySelector1, true, cancellationToken, propertySelector1Expr)
             .Select(
                 (propertySelector2, property2Name, pushCurrentValueOnSubscribe, cancellationToken),
                 (firstPropertyValue, state) =>
@@ -166,31 +163,19 @@ public static partial class Observable
         where TProperty1 : INotifyPropertyChanged
         where TProperty2 : INotifyPropertyChanging
     {
-        if (propertySelector1Expr == null) throw new ArgumentNullException(propertySelector1Expr);
-        if (propertySelector2Expr == null) throw new ArgumentNullException(propertySelector2Expr);
         if (propertySelector3Expr == null) throw new ArgumentNullException(propertySelector3Expr);
 
-        var property1Name = propertySelector1Expr!.Substring(propertySelector1Expr.LastIndexOf('.') + 1);
-        var property2Name = propertySelector2Expr!.Substring(propertySelector2Expr.LastIndexOf('.') + 1);
         var property3Name = propertySelector3Expr!.Substring(propertySelector3Expr.LastIndexOf('.') + 1);
 
-        return new ObservePropertyChanged<T, TProperty1>(value, propertySelector1, property1Name, pushCurrentValueOnSubscribe, cancellationToken)
+        return ObservePropertyChanged(value, propertySelector1, propertySelector2, true, cancellationToken, propertySelector1Expr, propertySelector2Expr)
             .Select(
-                (propertySelector2, property2Name, propertySelector3, property3Name, pushCurrentValueOnSubscribe, cancellationToken),
-                (firstPropertyValue, state) =>
-                    (firstPropertyValue is not null
-                        ? new ObservePropertyChanged<TProperty1, TProperty2>(
-                                firstPropertyValue, state.propertySelector2, state.property2Name, true, state.cancellationToken)
-                            .Select(
-                                (state.propertySelector3, state.property3Name, pushCurrentValueOnSubscribe, cancellationToken),
-                                (secondPropertyValue, state2) =>
-                                    secondPropertyValue is not null
-                                        ? new ObservePropertyChanging<TProperty2, TProperty3>(secondPropertyValue,
-                                            state2.propertySelector3, state2.property3Name, state2.pushCurrentValueOnSubscribe,
-                                            state2.cancellationToken)
-                                        : Empty<TProperty3>())
-                            .Switch()
-                        : Empty<TProperty3>()))
+                (propertySelector3, property3Name, pushCurrentValueOnSubscribe, cancellationToken),
+                (secondPropertyValue, state) =>
+                    secondPropertyValue is not null
+                        ? new ObservePropertyChanging<TProperty2, TProperty3>(secondPropertyValue,
+                            state.propertySelector3, state.property3Name, state.pushCurrentValueOnSubscribe,
+                            state.cancellationToken)
+                        : Empty<TProperty3>())
             .Switch();
     }
 }
