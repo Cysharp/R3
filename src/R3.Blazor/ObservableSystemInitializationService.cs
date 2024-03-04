@@ -4,28 +4,38 @@ public static class BlazorR3Extensions
 {
     public static IServiceCollection AddBlazorR3(this IServiceCollection services)
     {
-        services.AddHttpContextAccessor();
-        services.AddScoped<TimeProvider>(_ => new SynchronizationContextTimeProvider());
-        services.AddHostedService<ObservableSystemInitializationService>();
+        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(), null!);
+    }
 
-        return services;
+    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Action<Exception> unhandledExceptionHandler)
+    {
+        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(), unhandledExceptionHandler);
     }
 
     public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory)
     {
+        return AddBlazorR3(services, timeProviderFactory, null!);
+    }
+
+    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory, Action<Exception> unhandledExceptionHandler)
+    {
         services.AddHttpContextAccessor();
         services.AddScoped<TimeProvider>(timeProviderFactory);
-        services.AddHostedService<ObservableSystemInitializationService>();
+        services.AddHostedService(sp => new ObservableSystemInitializationService(sp.GetRequiredService<IHttpContextAccessor>(), unhandledExceptionHandler));
 
         return services;
     }
 }
 
-public sealed class ObservableSystemInitializationService(IHttpContextAccessor accessor) : IHostedService
+public sealed class ObservableSystemInitializationService(IHttpContextAccessor accessor, Action<Exception>? unhandledExceptionHandler) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
         ObservableSystem.RegisterServiceProvider(() => accessor.HttpContext!.RequestServices);
+        if (unhandledExceptionHandler != null)
+        {
+            ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
+        }
         return Task.CompletedTask;
     }
 
