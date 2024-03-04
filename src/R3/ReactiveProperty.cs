@@ -111,9 +111,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         if (completeState.IsCompleted) return;
 
         var node = Volatile.Read(ref root);
+        var last = node?.Previous;
         while (node != null)
         {
             node.Observer.OnNext(value);
+            if (node == last) return;
             node = node.Next;
         }
     }
@@ -125,9 +127,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         OnReceiveError(error);
 
         var node = Volatile.Read(ref root);
+        var last = node?.Previous;
         while (node != null)
         {
             node.Observer.OnErrorResume(error);
+            if (node == last) return;
             node = node.Next;
         }
     }
@@ -146,9 +150,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         }
 
         var node = Volatile.Read(ref root);
+        var last = node?.Previous;
         while (node != null)
         {
             node.Observer.OnCompleted(result);
+            if (node == last) return;
             node = node.Next;
         }
     }

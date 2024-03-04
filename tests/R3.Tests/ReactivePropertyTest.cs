@@ -1,4 +1,5 @@
 ﻿using R3.Collections;
+using System.Collections.Generic;
 
 namespace R3.Tests;
 
@@ -231,5 +232,29 @@ public class ReactivePropertyTest
             list4.AssertEqual([1]);
             list5.AssertEqual([1, 10, 20]);
         }
+    }
+
+    [Fact]
+    public void RecursiveSubscribe()
+    {
+        var rp = new ReactiveProperty<int>(0);
+
+        List<LiveList<int>> recList = new();
+
+        var list = rp.Do(x =>
+            {
+                recList.Add(rp.ToLiveList());
+            })
+            .ToLiveList();
+
+        list.AssertEqual([0]);
+        recList[0].AssertEqual([0]);
+
+        rp.Value = 99;
+        list.AssertEqual([0, 99]);
+        recList[0].AssertEqual([0, 99]);
+        recList[1].AssertEqual([99]);
+
+
     }
 }
