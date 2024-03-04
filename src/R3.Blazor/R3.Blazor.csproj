@@ -14,6 +14,7 @@
         <PackageId>R3Extensions.Blazor</PackageId>
         <PackageTags>rx</PackageTags>
         <Description>Blazor Provider and Methods for R3.</Description>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
     <ItemGroup>
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
