@@ -1,6 +1,6 @@
 # R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame), [Blazor](#blazor).
 
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
@@ -904,8 +904,7 @@ Although standard support is provided for the following platforms, by implementi
 * [Stride](#stride)
 * [MonoGame](#monogame)
 * [LogicLooper](#logiclooper)
-
-Add support planning [LogicLooper](https://github.com/Cysharp/LogicLooper).
+* [Blazor](#blazor)
 
 ### WPF
 
@@ -1545,6 +1544,95 @@ That supports two special providers.
 
 * LogicLooperFrameProvider
 * LogicLooperTimerProvider
+
+### Blazor
+
+R3 extensions for Blazor.
+
+> PM> Install-Package [R3Extensions.Blazor](https://www.nuget.org/packages/R3Extensions.Blazor)
+
+```csharp
+// Add this line before Build()
+builder.Services.AddBlazorR3();
+
+var app = builder.Build();
+```
+
+When you call `AddBlazorR3` on IServiceCollection, a TimeProvider corresponding to the request scope is implicitly used and automatically marshaled to the current request. This eliminates the need for InvokeAsync when calling time-related methods within Blazor.
+
+```csharp
+public partial class Counter : IDisposable
+{
+    int currentCount = 0;
+    IDisposable? subscription;
+
+    protected override void OnInitialized()
+    {
+        subscription = Observable.Interval(TimeSpan.FromSeconds(1))
+            .Subscribe(_ =>
+            {
+                // no needs InvokeAsync
+                currentCount++;
+                StateHasChanged();
+            });
+    }
+
+    public void Dispose()
+    {
+        subscription?.Dispose();
+    }
+}
+```
+
+In this case, since all default TimeProviders are tied to the request, you must explicitly pass `TimeProvider.System` for executions that are not related to a request.
+
+There is also a way to utilize R3 in Blazor without using `AddBlazorR3`. One method is to use `ObserveOnCurrentSynchronizationContext`.
+
+```csharp
+subscription = Observable.Interval(TimeSpan.FromSeconds(1)) // default TimeProvider is TimeProvider.System
+    .ObserveOnCurrentSynchronizationContext() // uses Blazor RendererSynchronizationContext
+    .Subscribe(_ =>
+    {
+        currentCount++;
+        StateHasChanged();
+    });
+```
+
+Another method is to inject the TimeProvider. By manually setting up a `SynchronizationContextTimeProvider` tied to the request scope, you can use a custom TimeProvider without changing the default TimeProvider. Also, in this case, it is easy to substitute a `FakeTimeProvider` for unit testing.
+
+```csharp
+// use AddScoped instead of AddBlazorR3
+builder.Services.AddScoped<TimeProvider, SynchronizationContextTimeProvider>();
+
+var app = builder.Build();
+```
+
+```csharp
+public partial class Counter : IDisposable
+{
+    int currentCount = 0;
+    IDisposable? subscription;
+
+    // Inject scoped TimeProvider manually(in bUnit testing, inject FakeTimeProvider)
+    [Inject]
+    public required TimeProvider TimeProvider { get; init; }
+
+    protected override void OnInitialized()
+    {
+        subscription = Observable.Interval(TimeSpan.FromSeconds(1), TimeProvider)
+            .Subscribe(_ =>
+            {
+                currentCount++;
+                StateHasChanged();
+            });
+    }
+
+    public void Dispose()
+    {
+        subscription?.Dispose();
+    }
+}
+```
 
 Operator Reference
 ---

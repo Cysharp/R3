@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add this line.
+// Add this line
 builder.Services.AddBlazorR3();
 
 var app = builder.Build();
