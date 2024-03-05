@@ -66,10 +66,12 @@ public static class ObservableSystem
     public static void RegisterServiceProvider(IServiceProvider? serviceProvider)
     {
         ObservableSystem.serviceProvider = serviceProvider;
+        ObservableSystem.serviceProviderFactory = null;
     }
 
     public static void RegisterServiceProvider(Func<IServiceProvider> serviceProviderFactory)
     {
+        ObservableSystem.serviceProvider = null;
         ObservableSystem.serviceProviderFactory = serviceProviderFactory;
     }
 
