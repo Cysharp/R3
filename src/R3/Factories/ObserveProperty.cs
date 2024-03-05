@@ -27,7 +27,7 @@ public static partial class Observable
     /// `propertySelector1` and `propertySelector2` must be a Func specifying a simple property. For example, it extracts "Foo" from `x => x.Foo`.
     /// </summary>
     public static Observable<TProperty2> ObservePropertyChanged<T, TProperty1, TProperty2>(this T value,
-        Func<T, TProperty1> propertySelector1,
+        Func<T, TProperty1?> propertySelector1,
         Func<TProperty1, TProperty2> propertySelector2,
         bool pushCurrentValueOnSubscribe = true,
         CancellationToken cancellationToken = default,
@@ -42,7 +42,7 @@ public static partial class Observable
         var property1Name = propertySelector1Expr!.Substring(propertySelector1Expr.LastIndexOf('.') + 1);
         var property2Name = propertySelector2Expr!.Substring(propertySelector2Expr.LastIndexOf('.') + 1);
 
-        return new ObservePropertyChanged<T, TProperty1>(value, propertySelector1, property1Name, true, cancellationToken)
+        return new ObservePropertyChanged<T, TProperty1?>(value, propertySelector1, property1Name, true, cancellationToken)
             .Select(
                 (propertySelector2, property2Name, pushCurrentValueOnSubscribe, cancellationToken),
                 (firstPropertyValue, state) =>
@@ -59,8 +59,8 @@ public static partial class Observable
     /// `propertySelector1`, `propertySelector2`, and `propertySelector3` must be a Func specifying a simple property. For example, it extracts "Foo" from `x => x.Foo`.
     /// </summary>
     public static Observable<TProperty3> ObservePropertyChanged<T, TProperty1, TProperty2, TProperty3>(this T value,
-        Func<T, TProperty1> propertySelector1,
-        Func<TProperty1, TProperty2> propertySelector2,
+        Func<T, TProperty1?> propertySelector1,
+        Func<TProperty1, TProperty2?> propertySelector2,
         Func<TProperty2, TProperty3> propertySelector3,
         bool pushCurrentValueOnSubscribe = true,
         CancellationToken cancellationToken = default,
@@ -79,12 +79,12 @@ public static partial class Observable
         var property2Name = propertySelector2Expr!.Substring(propertySelector2Expr.LastIndexOf('.') + 1);
         var property3Name = propertySelector3Expr!.Substring(propertySelector3Expr.LastIndexOf('.') + 1);
 
-        return new ObservePropertyChanged<T, TProperty1>(value, propertySelector1, property1Name, true, cancellationToken)
+        return new ObservePropertyChanged<T, TProperty1?>(value, propertySelector1, property1Name, true, cancellationToken)
             .Select(
                 (propertySelector2, property2Name, propertySelector3, property3Name, pushCurrentValueOnSubscribe, cancellationToken),
                 (firstPropertyValue, state) =>
                     firstPropertyValue is not null
-                        ? new ObservePropertyChanged<TProperty1, TProperty2>(firstPropertyValue, state.propertySelector2, state.property2Name, true, state.cancellationToken)
+                        ? new ObservePropertyChanged<TProperty1, TProperty2?>(firstPropertyValue, state.propertySelector2, state.property2Name, true, state.cancellationToken)
                             .Select(
                                 (state.propertySelector3, state.property3Name, pushCurrentValueOnSubscribe, cancellationToken),
                                 (secondPropertyValue, state2) =>
@@ -121,7 +121,7 @@ public static partial class Observable
     /// `propertySelector1` and `propertySelector2` must be a Func specifying a simple property. For example, it extracts "Foo" from `x => x.Foo`.
     /// </summary>
     public static Observable<TProperty2> ObservePropertyChanging<T, TProperty1, TProperty2>(this T value,
-        Func<T, TProperty1> propertySelector1,
+        Func<T, TProperty1?> propertySelector1,
         Func<TProperty1, TProperty2> propertySelector2,
         bool pushCurrentValueOnSubscribe = true,
         CancellationToken cancellationToken = default,
@@ -151,8 +151,8 @@ public static partial class Observable
     /// `propertySelector1`, `propertySelector2`, and `propertySelector3` must be a Func specifying a simple property. For example, it extracts "Foo" from `x => x.Foo`.
     /// </summary>
     public static Observable<TProperty3> ObservePropertyChanging<T, TProperty1, TProperty2, TProperty3>(this T value,
-        Func<T, TProperty1> propertySelector1,
-        Func<TProperty1, TProperty2> propertySelector2,
+        Func<T, TProperty1?> propertySelector1,
+        Func<TProperty1, TProperty2?> propertySelector2,
         Func<TProperty2, TProperty3> propertySelector3,
         bool pushCurrentValueOnSubscribe = true,
         CancellationToken cancellationToken = default,
