@@ -140,7 +140,7 @@ public class ObservePropertyTest
     class ChangesProperty : INotifyPropertyChanged, INotifyPropertyChanging
     {
         private int _value;
-        private ChangesProperty _innerPropertyChanged;
+        private ChangesProperty _innerPropertyChanged = default!;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PropertyChangingEventHandler? PropertyChanging;
