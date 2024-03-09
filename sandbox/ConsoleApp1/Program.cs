@@ -2,6 +2,7 @@
 using R3;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -12,26 +13,26 @@ using System.Threading.Channels;
 
 
 
-//var t = Foo();
+var p1 = new ReactiveProperty<int>();
+p1.Skip(1).Subscribe(x => Debug.Log("[P1]" + x));
 
-// Task.Run(() => 10).ConfigureAwait(ConfigureAwaitOptions.None);
-//Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+var d = p1.Skip(1).Subscribe(x => Debug.Log("[P2]" + x));
 
-//channel.Writer.TryWrite(100);
+d.Dispose();
 
+p1.Skip(1).Subscribe(x => Debug.Log("[P3]" + x));
 
-//t.Wait();
-
-
-var p = new Person { Name = "aiueo" };
-
-
-p.ObservePropertyChanged(x => x.Name).Subscribe(x => Console.WriteLine($"Changed:{x}"));
-
-p.Name = "kakikukeko";
-p.Name = "sasisuseso";
+p1.Value = 1;
+p1.Value = 2;
 
 
+public static class Debug
+{
+    public static void Log(string x)
+    {
+        Console.WriteLine(x);
+    }
+}
 
 public class Person : INotifyPropertyChanged
 {

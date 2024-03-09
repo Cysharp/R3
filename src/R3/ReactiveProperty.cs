@@ -218,6 +218,27 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         return (currentValue == null) ? "(null)" : currentValue.ToString();
     }
 
+    // debugging property
+
+#if DEBUG
+
+    public int NodeCount
+    {
+        get
+        {
+            var count = 0;
+            var node = root;
+            while (node != null)
+            {
+                count++;
+                node = node.Next;
+            }
+            return count;
+        }
+    }
+
+#endif
+
     sealed class ObserverNode : IDisposable
     {
         public readonly Observer<T> Observer;
@@ -226,6 +247,14 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
         public ObserverNode Previous { get; set; }
         public ObserverNode? Next { get; set; }
+
+
+        // for debugging property
+#if DEBUG
+        public bool IsRootNode => parent?.root == this;
+        public bool IsSingleRootNode => IsRootNode && Previous == this;
+        public bool HasNext => Previous == this;
+#endif
 
         public ObserverNode(ReactiveProperty<T> parent, Observer<T> observer)
         {
@@ -265,7 +294,14 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                 p.root = next;
                 if (next != null)
                 {
-                    next.Previous = this.Previous;
+                    if (next.Next != null)
+                    {
+                        next.Previous = this.Previous;
+                    }
+                    else
+                    {
+                        next.Previous = next;
+                    }
                 }
             }
             else
@@ -275,7 +311,16 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                 prev.Next = next;
                 if (next != null)
                 {
-                    next.Previous = prev;
+                    if (next.Next != null)
+                    {
+                        next.Previous = prev;
+                    }
+                }
+
+                // root is single node
+                if (p.root != null && p.root.Next == null)
+                {
+                    p.root.Previous = p.root;
                 }
             }
         }

@@ -1,5 +1,6 @@
 ﻿using R3.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace R3.Tests;
 
@@ -256,5 +257,23 @@ public class ReactivePropertyTest
         recList[1].AssertEqual([99]);
 
 
+    }
+
+    [Fact]
+    public void RootChangedFromSecond()
+    {
+
+        var p1 = new ReactiveProperty<int>();
+        var p1List = p1.Skip(1).ToLiveList();
+
+        p1.Skip(1).Subscribe().Dispose(); // Subscribe and Dispose
+
+        var p3List = p1.Skip(1).ToLiveList();
+
+        p1.Value = 1;
+        p1.Value = 2;
+
+        p1List.AssertEqual([1, 2]);
+        p3List.AssertEqual([1, 2]);
     }
 }
