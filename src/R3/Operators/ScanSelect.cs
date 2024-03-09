@@ -71,8 +71,8 @@ internal sealed class ScanSelect<T, TResult, TState>(Observable<T> source, Func<
     {
         readonly Observer<TResult> observer;
         readonly Func<T, T, TState, TResult> selector;
+        readonly TState state;
         T accumulation;
-        TState state;
 
         public _ScanSelect(Observer<TResult> observer, Func<T, T, TState, TResult> selector, TState state)
         {
