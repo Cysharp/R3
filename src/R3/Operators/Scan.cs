@@ -24,13 +24,13 @@ internal sealed class Scan<TSource>(Observable<TSource> source, Func<TSource, TS
     {
         readonly Observer<TSource> observer;
         readonly Func<TSource, TSource, TSource> accumulator;
-        TSource state;
+        TSource accumulation;
         bool hasValue;
 
         public _Scan(Observer<TSource> observer, Func<TSource, TSource, TSource> accumulator)
         {
             this.observer = observer;
-            this.state = default!;
+            this.accumulation = default!;
             this.accumulator = accumulator;
         }
 
@@ -39,13 +39,13 @@ internal sealed class Scan<TSource>(Observable<TSource> source, Func<TSource, TS
             if (!hasValue)
             {
                 hasValue = true;
-                state = value;
-                observer.OnNext(state);
+                accumulation = value;
+                observer.OnNext(accumulation);
                 return;
             }
 
-            state = accumulator(state, value);
-            observer.OnNext(state);
+            accumulation = accumulator(accumulation, value);
+            observer.OnNext(accumulation);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -71,19 +71,19 @@ internal sealed class Scan<TSource, TAccumulate>(Observable<TSource> source, TAc
     {
         readonly Observer<TAccumulate> observer;
         readonly Func<TAccumulate, TSource, TAccumulate> accumulator;
-        TAccumulate state;
+        TAccumulate accumulation;
 
         public _Scan(Observer<TAccumulate> observer, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> accumulator)
         {
             this.observer = observer;
-            this.state = seed;
+            this.accumulation = seed;
             this.accumulator = accumulator;
         }
 
         protected override void OnNextCore(TSource value)
         {
-            state = accumulator(state, value);
-            observer.OnNext(state);
+            accumulation = accumulator(accumulation, value);
+            observer.OnNext(accumulation);
         }
 
         protected override void OnErrorResumeCore(Exception error)
