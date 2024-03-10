@@ -276,4 +276,54 @@ public class ReactivePropertyTest
         p1List.AssertEqual([1, 2]);
         p3List.AssertEqual([1, 2]);
     }
+
+    [Fact]
+    public void RemoveLastNode()
+    {
+        var log = new List<string>();
+
+        var count = 0;
+        var r = new ReactiveProperty<int>(count);
+        var ctsA = new CancellationTokenSource();
+        var ctsB = new CancellationTokenSource();
+        var ctsC = new CancellationTokenSource();
+        r.Subscribe(x => log.Add($"A = {x}")).RegisterTo(ctsA.Token);
+        r.Subscribe(x => log.Add($"B = {x}")).RegisterTo(ctsB.Token);
+        r.Subscribe(x => log.Add($"C = {x}")).RegisterTo(ctsC.Token);
+        ctsA.Cancel();
+        ctsA.Dispose();
+        log.Add("A disposed");
+
+        ctsA = new CancellationTokenSource();
+        r.Subscribe(x => log.Add($"A = {x}")).RegisterTo(ctsA.Token);
+        log.Add("A re-registered");
+        ctsA.Cancel();
+        ctsA.Dispose();
+        log.Add("A disposed");
+        ctsA = new CancellationTokenSource();
+        r.Subscribe(x => log.Add($"A = {x}")).RegisterTo(ctsA.Token);
+        log.Add("A re-registered");
+        r.Value = ++count;
+        r.Value = ++count;
+
+        var actual = string.Join(Environment.NewLine, log);
+
+        actual.Should().Be("""
+A = 0
+B = 0
+C = 0
+A disposed
+A = 0
+A re-registered
+A disposed
+A = 0
+A re-registered
+B = 1
+C = 1
+A = 1
+B = 2
+C = 2
+A = 2
+""");
+    }
 }

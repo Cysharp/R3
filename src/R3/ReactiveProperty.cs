@@ -237,6 +237,21 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         }
     }
 
+    ObserverNode[] Nodes
+    {
+        get
+        {
+            var list = new List<ObserverNode>();
+            var node = root;
+            while (node != null)
+            {
+                list.Add(node);
+                node = node.Next;
+            }
+            return list.ToArray();
+        }
+    }
+
 #endif
 
     sealed class ObserverNode : IDisposable
@@ -249,11 +264,18 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         public ObserverNode? Next { get; set; }
 
 
-        // for debugging property
+        // for debugging field/property
 #if DEBUG
+        static int idGenerator;
+        public int Id = Interlocked.Increment(ref idGenerator);
         public bool IsRootNode => parent?.root == this;
         public bool IsSingleRootNode => IsRootNode && Previous == this;
         public bool HasNext => Previous == this;
+
+        public override string ToString()
+        {
+            return $"{Previous.Id} -> ({Id}) -> {Next?.Id}";
+        }
 #endif
 
         public ObserverNode(ReactiveProperty<T> parent, Observer<T> observer)
@@ -317,10 +339,18 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                     }
                 }
 
-                // root is single node
-                if (p.root != null && p.root.Next == null)
+                // modify root
+                if (p.root != null)
                 {
-                    p.root.Previous = p.root;
+                    // root is single node
+                    if (p.root.Next == null)
+                    {
+                        p.root.Previous = p.root;
+                    }
+                    else if (p.root.Previous == this)
+                    {
+                        p.root.Previous = prev;
+                    }
                 }
             }
         }

@@ -12,19 +12,61 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading.Channels;
 
 
+var count = 0;
+var r = new ReactiveProperty<int>(count);
+var ctsA = new CancellationTokenSource();
+var ctsB = new CancellationTokenSource();
+var ctsC = new CancellationTokenSource();
+r.Subscribe(x => Debug.Log($"A = {x}")).RegisterTo(ctsA.Token);
+r.Subscribe(x => Debug.Log($"B = {x}")).RegisterTo(ctsB.Token);
+r.Subscribe(x => Debug.Log($"C = {x}")).RegisterTo(ctsC.Token);
+ctsA.Cancel();
+ctsA.Dispose();
+Debug.Log("A disposed");
 
-var p1 = new ReactiveProperty<int>();
-p1.Skip(1).Subscribe(x => Debug.Log("[P1]" + x));
+ctsA = new CancellationTokenSource();
+r.Subscribe(x => Debug.Log($"A = {x}")).RegisterTo(ctsA.Token);
+Debug.Log("A re-registered");
+ctsA.Cancel();
+ctsA.Dispose();
+Debug.Log("A disposed");
+ctsA = new CancellationTokenSource();
+r.Subscribe(x => Debug.Log($"A = {x}")).RegisterTo(ctsA.Token);
+Debug.Log("A re-registered");
+r.Value = ++count;
+r.Value = ++count;
 
-var d = p1.Skip(1).Subscribe(x => Debug.Log("[P2]" + x));
+// Expected operation:
+// A = 0
+// B = 0
+// C = 0
+// A disposed
+// A = 0
+// A re-registered
+// A disposed
+// A = 0
+// A re-registered
+// A = 1
+// B = 1
+// C = 1
+// A = 2
+// B = 2
+// C = 2
 
-d.Dispose();
-
-p1.Skip(1).Subscribe(x => Debug.Log("[P3]" + x));
-
-p1.Value = 1;
-p1.Value = 2;
-
+// However, the actual operation is:
+// A = 0
+// B = 0
+// C = 0
+// A disposed
+// A = 0
+// A re-registered
+// A disposed
+// A = 0
+// A re-registered
+// B = 1
+// C = 1
+// B = 2
+// C = 2
 
 public static class Debug
 {
