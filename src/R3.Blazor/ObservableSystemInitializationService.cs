@@ -1,15 +1,17 @@
-﻿namespace R3;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace R3;
 
 public static class BlazorR3Extensions
 {
     public static IServiceCollection AddBlazorR3(this IServiceCollection services)
     {
-        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(), null!);
+        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(() => SynchronizationContext.Current), null!);
     }
 
     public static IServiceCollection AddBlazorR3(this IServiceCollection services, Action<Exception> unhandledExceptionHandler)
     {
-        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(), unhandledExceptionHandler);
+        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(() => SynchronizationContext.Current), unhandledExceptionHandler);
     }
 
     public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory)
@@ -20,7 +22,7 @@ public static class BlazorR3Extensions
     public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory, Action<Exception> unhandledExceptionHandler)
     {
         services.AddHttpContextAccessor();
-        services.AddScoped<TimeProvider>(timeProviderFactory);
+        services.TryAddSingleton<TimeProvider>(timeProviderFactory);
         services.AddHostedService(sp => new ObservableSystemInitializationService(sp.GetRequiredService<IHttpContextAccessor>(), unhandledExceptionHandler));
 
         return services;
