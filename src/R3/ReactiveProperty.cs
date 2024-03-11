@@ -410,6 +410,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                 }
                 else
                 {
+                    // node is not root, previous must exists
                     this.Previous!.Next = this.Next;
                     if (this.Next != null)
                     {
@@ -417,6 +418,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                     }
                     else
                     {
+                        // next does not exists, previous is last node so modify root
                         p.root!.Previous = this.Previous;
                     }
                 }
