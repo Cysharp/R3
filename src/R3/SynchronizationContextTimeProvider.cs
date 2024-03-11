@@ -2,7 +2,7 @@
 
 public sealed class SynchronizationContextTimeProvider : TimeProvider
 {
-    readonly SynchronizationContext? synchronizationContext;
+    readonly Func<SynchronizationContext?> synchronizationContextAccessor;
     readonly TimeProvider timeProvider;
 
     public SynchronizationContextTimeProvider()
@@ -15,15 +15,26 @@ public sealed class SynchronizationContextTimeProvider : TimeProvider
     {
     }
 
+    public SynchronizationContextTimeProvider(Func<SynchronizationContext?> synchronizationContextAccessor)
+        : this(synchronizationContextAccessor, TimeProvider.System)
+    {
+    }
+
     public SynchronizationContextTimeProvider(SynchronizationContext? synchronizationContext, TimeProvider timeProvider)
     {
-        this.synchronizationContext = synchronizationContext;
+        this.synchronizationContextAccessor = () => synchronizationContext;
+        this.timeProvider = timeProvider;
+    }
+
+    public SynchronizationContextTimeProvider(Func<SynchronizationContext?> synchronizationContextAccessor, TimeProvider timeProvider)
+    {
+        this.synchronizationContextAccessor = synchronizationContextAccessor;
         this.timeProvider = timeProvider;
     }
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        return new SynchronizationContextTimer(timeProvider, synchronizationContext, callback, state, dueTime, period);
+        return new SynchronizationContextTimer(timeProvider, synchronizationContextAccessor(), callback, state, dueTime, period);
     }
 }
 
