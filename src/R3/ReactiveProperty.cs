@@ -41,6 +41,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public override T CurrentValue => currentValue;
 
+    public bool HasObservers => Volatile.Read(ref root) != null;
     public bool IsCompleted => completeState == CompletedSuccess || completeState == CompletedFailure;
     public bool IsDisposed => completeState == Disposed;
     public bool IsCompletedOrDisposed => IsCompleted || IsDisposed;

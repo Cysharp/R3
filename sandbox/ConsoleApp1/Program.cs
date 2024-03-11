@@ -13,17 +13,32 @@ using System.Threading.Channels;
 
 
 var p1 = new ReactiveProperty<int>();
-p1.Skip(1).Subscribe(x => Debug.Log("[P1]" + x));
+
+Console.WriteLine(p1.HasObservers);
+var d = p1.Skip(1).Subscribe(x => Debug.Log("[P1]" + x));
+
+
 
 var d1 = p1.Skip(1).Subscribe(x => Debug.Log("[P2]" + x));
 var d2 = p1.Skip(1).Subscribe(x => Debug.Log("[P2]" + x));
 d1.Dispose();
 d2.Dispose();
 
-p1.Skip(1).Subscribe(x => Debug.Log("[P3]" + x)); // P3 is not raised
+var d3 = p1.Skip(1).Subscribe(x => Debug.Log("[P3]" + x)); // P3 is not raised
+
+Console.WriteLine(p1.HasObservers);
 
 p1.Value = 1;
 p1.Value = 2;
+
+d.Dispose();
+
+Console.WriteLine(p1.HasObservers);
+
+d3.Dispose();
+
+Console.WriteLine(p1.HasObservers);
+
 
 public static class Debug
 {
