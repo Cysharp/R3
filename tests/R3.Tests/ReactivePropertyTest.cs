@@ -326,4 +326,93 @@ C = 2
 A = 2
 """);
     }
+
+    [Fact]
+    public void RemoveMiddle()
+    {
+        var log = new List<string>();
+
+        var p1 = new ReactiveProperty<int>();
+        p1.Skip(1).Subscribe(x => log.Add("[P1]" + x)); // alive
+
+        var d1 = p1.Skip(1).Subscribe(x => log.Add("[P2]" + x));
+        var d2 = p1.Skip(1).Subscribe(x => log.Add("[P2]" + x));
+        d1.Dispose();
+        d2.Dispose();
+
+        p1.Skip(1).Subscribe(x => log.Add("[P3]" + x)); // alive
+
+        p1.Value = 1;
+        p1.Value = 2;
+
+        var actual = string.Join(Environment.NewLine, log);
+
+        actual.Should().Be("""
+[P1]1
+[P3]1
+[P1]2
+[P3]2
+""");
+    }
+
+
+
+    [Fact]
+    public void RemoveFirst()
+    {
+        var log = new List<string>();
+
+        var p1 = new ReactiveProperty<int>();
+        var d1 = p1.Skip(1).Subscribe(x => log.Add("[P1]" + x));
+
+        var d2 = p1.Skip(1).Subscribe(x => log.Add("[P2_1]" + x)); // alive
+        var d3 = p1.Skip(1).Subscribe(x => log.Add("[P2_2]" + x)); // alive
+        
+        d1.Dispose();
+
+        p1.Skip(1).Subscribe(x => log.Add("[P3]" + x)); // alive
+
+        p1.Value = 1;
+        p1.Value = 2;
+
+        var actual = string.Join(Environment.NewLine, log);
+
+        actual.Should().Be("""
+[P2_1]1
+[P2_2]1
+[P3]1
+[P2_1]2
+[P2_2]2
+[P3]2
+""");
+    }
+
+    [Fact]
+    public void RemoveLast()
+    {
+        var log = new List<string>();
+
+        var p1 = new ReactiveProperty<int>();
+        p1.Skip(1).Subscribe(x => log.Add("[P1]" + x)); // alive
+
+        var d1 = p1.Skip(1).Subscribe(x => log.Add("[P2]" + x)); // alive
+        var d2 = p1.Skip(1).Subscribe(x => log.Add("[P2]" + x)); // alive
+
+        var d3 = p1.Skip(1).Subscribe(x => log.Add("[P3]" + x));
+        d3.Dispose();
+
+        p1.Value = 1;
+        p1.Value = 2;
+
+        var actual = string.Join(Environment.NewLine, log);
+
+        actual.Should().Be("""
+[P1]1
+[P2]1
+[P2]1
+[P1]2
+[P2]2
+[P2]2
+""");
+    }
 }

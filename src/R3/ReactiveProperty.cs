@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 #endif
 
+using System.Diagnostics;
+
 namespace R3;
 
 public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
@@ -260,7 +262,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
         ReactiveProperty<T>? parent;
 
-        public ObserverNode Previous { get; set; }
+        public ObserverNode? Previous { get; set; } // Previous is last node or root(null).
         public ObserverNode? Next { get; set; }
 
 
@@ -269,12 +271,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         static int idGenerator;
         public int Id = Interlocked.Increment(ref idGenerator);
         public bool IsRootNode => parent?.root == this;
-        public bool IsSingleRootNode => IsRootNode && Previous == this;
-        public bool HasNext => Previous == this;
+        public bool IsSingleRootNode => IsRootNode && Previous == null;
 
         public override string ToString()
         {
-            return $"{Previous.Id} -> ({Id}) -> {Next?.Id}";
+            return $"{Previous?.Id} -> ({Id}) -> {Next?.Id}";
         }
 #endif
 
@@ -283,17 +284,20 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             this.parent = parent;
             this.Observer = observer;
 
+            // Add node(self) to list(ReactiveProperty)
             if (parent.root == null)
             {
+                // Single list(both previous and next is null)
                 Volatile.Write(ref parent.root, this);
-                this.Previous = this;
             }
             else
             {
-                var last = parent.root.Previous;
-                last.Next = this;
-                this.Previous = last;
-                parent.root.Previous = this; // this as last
+                // previous is last, null then root is last.
+                var lastNode = parent.root.Previous ?? parent.root;
+
+                lastNode.Next = this;
+                this.Previous = lastNode;
+                parent.root.Previous = this;
             }
         }
 
@@ -304,53 +308,43 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
             // keep this.Next for dispose on iterating
 
-            if (this.Previous == this) // single list
-            {
-                p.root = null;
-                return;
-            }
+            // Remove node(self) from list(ReactiveProperty)
 
-            if (p.root == this)
+            if (this == p.root)
             {
-                var next = this.Next;
-                p.root = next;
-                if (next != null)
+                if (this.Previous == null || this.Next == null)
                 {
-                    if (next.Next != null)
+                    // case of single list
+                    p.root = null;
+                }
+                else
+                {
+                    // otherwise, root is next node.
+                    var root = this.Next;
+
+                    // single list.
+                    if (root.Next == null)
                     {
-                        next.Previous = this.Previous;
+                        root.Previous = null;
                     }
                     else
                     {
-                        next.Previous = next;
+                        root.Previous = this.Previous; // as last.
                     }
+
+                    p.root = root;
                 }
             }
             else
             {
-                var prev = this.Previous;
-                var next = this.Next;
-                prev.Next = next;
-                if (next != null)
+                this.Previous!.Next = this.Next;
+                if (this.Next != null)
                 {
-                    if (next.Next != null)
-                    {
-                        next.Previous = prev;
-                    }
+                    this.Next.Previous = this.Previous;
                 }
-
-                // modify root
-                if (p.root != null)
+                else
                 {
-                    // root is single node
-                    if (p.root.Next == null)
-                    {
-                        p.root.Previous = p.root;
-                    }
-                    else if (p.root.Previous == this)
-                    {
-                        p.root.Previous = prev;
-                    }
+                    p.root!.Previous = this.Previous;
                 }
             }
         }
