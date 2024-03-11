@@ -4,8 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 #endif
 
-using System.Diagnostics;
-
 namespace R3;
 
 public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
@@ -24,16 +22,28 @@ public abstract class ReadOnlyReactiveProperty<T> : Observable<T>, IDisposable
 #endif
 public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 {
+    const byte NotCompleted = 0;
+    const byte CompletedSuccess = 1;
+    const byte CompletedFailure = 2;
+    const byte Disposed = 3;
+
+    // Memory Size: 1(byte) + 8(IntPtr) + sizeof(T) + 8(IntPtr) and subscriptions(nodes).
+    byte completeState;
+    Exception? error;
     T currentValue;
-    IEqualityComparer<T>? equalityComparer;
-    ObserverNode? root; // Root of LinkedList Node(Root.Previous is Last)
-    CompleteState completeState;     // struct(int, IntPtr)
+    IEqualityComparer<T>? equalityComparer; // allow null for no-compare
+
+    // For reduce memory usage, ReactiveProperty<T> itself is LinkedList and subscription represents LinkedListNode.
+    // The last of node is root.Previous(if null, single list).
+    ObserverNode? root;
 
     public IEqualityComparer<T>? EqualityComparer => equalityComparer;
 
     public override T CurrentValue => currentValue;
 
-    public bool IsDisposed => completeState.IsDisposed;
+    public bool IsCompleted => completeState == CompletedSuccess || completeState == CompletedFailure;
+    public bool IsDisposed => completeState == Disposed;
+    public bool IsCompletedOrDisposed => IsCompleted || IsDisposed;
 
     public T Value
     {
@@ -110,7 +120,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     void OnNextCore(T value)
     {
-        if (completeState.IsCompleted) return;
+        ThrowIfDisposed();
+        if (IsCompleted) return;
 
         var node = Volatile.Read(ref root);
         var last = node?.Previous;
@@ -124,7 +135,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public void OnErrorResume(Exception error)
     {
-        if (completeState.IsCompleted) return;
+        ThrowIfDisposed();
+        if (IsCompleted) return;
 
         OnReceiveError(error);
 
@@ -140,10 +152,25 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public void OnCompleted(Result result)
     {
-        var status = completeState.TrySetResult(result);
-        if (status != CompleteState.ResultStatus.Done)
+        ThrowIfDisposed();
+        if (IsCompleted) return;
+
+        ObserverNode? node = null;
+        lock (this) // I know lock(this) is dangerous.
         {
-            return; // already completed
+            if (completeState == NotCompleted)
+            {
+                completeState = result.IsSuccess ? CompletedSuccess : CompletedFailure;
+                error = result.Exception;
+                node = Volatile.Read(ref root);
+                Volatile.Write(ref root, null); // when complete, List is clear.
+            }
+            else
+            {
+                // IsCompleted = do-nothing, IsDisposed = throw
+                ThrowIfDisposed();
+                return;
+            }
         }
 
         if (result.IsFailure)
@@ -151,7 +178,6 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             OnReceiveError(result.Exception);
         }
 
-        var node = Volatile.Read(ref root);
         var last = node?.Previous;
         while (node != null)
         {
@@ -163,29 +189,64 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        var result = completeState.TryGetResult();
-        if (result != null)
+        Result? completedResult;
+        lock (this)
         {
-            observer.OnNext(currentValue);
-            observer.OnCompleted(result.Value);
-            return Disposable.Empty;
+            ThrowIfDisposed();
+            if (IsCompleted)
+            {
+                completedResult = (error == null) ? Result.Success : Result.Failure(error);
+            }
+            else
+            {
+                completedResult = null;
+            }
+        }
+
+        if (completedResult != null)
+        {
+            goto PUBLISH_CURRENT_AND_RESULT;
         }
 
         // raise latest value on subscribe(before add observer to list)
         observer.OnNext(currentValue);
 
-        var subscription = new ObserverNode(this, observer); // create subscription
-
-        // need to check called completed during adding
-        result = completeState.TryGetResult();
-        if (result != null)
+        lock (this)
         {
-            subscription.Observer.OnCompleted(result.Value);
-            subscription.Dispose();
+            ThrowIfDisposed();
+            if (IsCompleted)
+            {
+                completedResult = (error == null) ? Result.Success : Result.Failure(error);
+                goto PUBLISH_RESULT;
+            }
+
+            // create subscription and add to list in lock.
+            var subscription = new ObserverNode(this, observer);
+            return subscription;
+        }
+
+    PUBLISH_CURRENT_AND_RESULT:
+        if (completedResult != null)
+        {
+            if (completedResult.Value.IsSuccess)
+            {
+                observer.OnNext(currentValue);
+            }
+            observer.OnCompleted(completedResult.Value);
             return Disposable.Empty;
         }
 
-        return subscription;
+    PUBLISH_RESULT:
+        if (completedResult != null)
+        {
+            observer.OnCompleted(completedResult.Value);
+        }
+        return Disposable.Empty;
+    }
+
+    void ThrowIfDisposed()
+    {
+        if (IsDisposed) throw new ObjectDisposedException("");
     }
 
     public override void Dispose()
@@ -195,22 +256,31 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     public void Dispose(bool callOnCompleted)
     {
-        if (completeState.TrySetDisposed(out var alreadyCompleted))
+        ObserverNode? node = null;
+        lock (this)
         {
-            if (callOnCompleted && !alreadyCompleted)
+            if (completeState == Disposed)
             {
-                // not yet disposed so can call list iteration
-                var node = Volatile.Read(ref root);
-                while (node != null)
-                {
-                    node.Observer.OnCompleted();
-                    node = node.Next;
-                }
+                return;
             }
 
-            DisposeCore();
+            // not yet disposed so can call list iteration
+            if (callOnCompleted && !IsCompleted)
+            {
+                node = Volatile.Read(ref root);
+            }
+
             Volatile.Write(ref root, null);
+            completeState = Disposed;
         }
+
+        while (node != null)
+        {
+            node.Observer.OnCompleted();
+            node = node.Next;
+        }
+
+        DisposeCore();
     }
 
     protected virtual void DisposeCore() { }
@@ -284,7 +354,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             this.parent = parent;
             this.Observer = observer;
 
-            // Add node(self) to list(ReactiveProperty)
+            // Add node(self) to list(ReactiveProperty), called in lock
             if (parent.root == null)
             {
                 // Single list(both previous and next is null)
@@ -307,44 +377,47 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             if (p == null) return;
 
             // keep this.Next for dispose on iterating
-
             // Remove node(self) from list(ReactiveProperty)
-
-            if (this == p.root)
+            lock (p)
             {
-                if (this.Previous == null || this.Next == null)
-                {
-                    // case of single list
-                    p.root = null;
-                }
-                else
-                {
-                    // otherwise, root is next node.
-                    var root = this.Next;
+                if (p.IsCompletedOrDisposed) return;
 
-                    // single list.
-                    if (root.Next == null)
+                if (this == p.root)
+                {
+                    if (this.Previous == null || this.Next == null)
                     {
-                        root.Previous = null;
+                        // case of single list
+                        p.root = null;
                     }
                     else
                     {
-                        root.Previous = this.Previous; // as last.
-                    }
+                        // otherwise, root is next node.
+                        var root = this.Next;
 
-                    p.root = root;
-                }
-            }
-            else
-            {
-                this.Previous!.Next = this.Next;
-                if (this.Next != null)
-                {
-                    this.Next.Previous = this.Previous;
+                        // single list.
+                        if (root.Next == null)
+                        {
+                            root.Previous = null;
+                        }
+                        else
+                        {
+                            root.Previous = this.Previous; // as last.
+                        }
+
+                        p.root = root;
+                    }
                 }
                 else
                 {
-                    p.root!.Previous = this.Previous;
+                    this.Previous!.Next = this.Next;
+                    if (this.Next != null)
+                    {
+                        this.Next.Previous = this.Previous;
+                    }
+                    else
+                    {
+                        p.root!.Previous = this.Previous;
+                    }
                 }
             }
         }
