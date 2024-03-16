@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Windows.Input; // for XAML binding
 
 namespace R3;
@@ -24,6 +24,13 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
         this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
         this.subscription = this.Subscribe(execute);
+    }
+
+    public ReactiveCommand(Func<T, CancellationToken, ValueTask> executeAsync, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = true, int maxSequential = -1)
+    {
+        this.list = new FreeListCore<Subscription>(this);
+        this.canExecute = true;
+        this.subscription = this.SubscribeAwait(executeAsync, awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
     }
 
     public ReactiveCommand(Observable<bool> canExecuteSource, bool initialCanExecute)
@@ -182,6 +189,20 @@ public static class ReactiveCommandExtensions
         var command = new ReactiveCommand<Unit>(canExecuteSource, initialCanExecute);
 
         var subscription = command.Subscribe(execute);
+        command.CombineSubscription(subscription);
+
+        return command;
+    }
+
+    public static ReactiveCommand<T> ToReactiveCommand<T>(
+        this Observable<bool> canExecuteSource, Func<T, CancellationToken, ValueTask> executeAsync,
+        bool initialCanExecute = true,
+        AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true,
+        bool cancelOnCompleted = true, int maxSequential = -1)
+    {
+        var command = new ReactiveCommand<T>(canExecuteSource, initialCanExecute);
+
+        var subscription = command.SubscribeAwait(async (x, ct) => await executeAsync(x, ct), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
         command.CombineSubscription(subscription);
 
         return command;
