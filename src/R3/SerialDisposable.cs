@@ -38,22 +38,25 @@ public struct SerialDisposableCore
         }
         set
         {
-            var field = Interlocked.CompareExchange(ref current, value, null);
-            if (field == null)
+            var field = Volatile.Read(ref current);
+            while (true)
             {
-                // ok to set.
-                return;
-            }
+                if (field == DisposedSentinel.Instance)
+                {
+                    // We've already been disposed, so dispose the value we've just been given.
+                    value?.Dispose();
+                    return;
+                }
 
-            if (field == DisposedSentinel.Instance)
-            {
-                // We've already been disposed, so dispose the value we've just been given.
-                value?.Dispose();
-                return;
-            }
+                var exchangedCurrent = Interlocked.CompareExchange(ref current, value, field);
+                if (exchangedCurrent == field)
+                {
+                    exchangedCurrent?.Dispose();
+                    return;
+                }
 
-            // otherwise, dispose previous disposable
-            field.Dispose();
+                field = exchangedCurrent;
+            }
         }
     }
 
