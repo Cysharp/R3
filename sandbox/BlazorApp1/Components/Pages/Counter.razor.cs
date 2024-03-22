@@ -16,10 +16,19 @@ public partial class Counter : IDisposable
                 currentCount++;
                 StateHasChanged();
             });
+
+        Observable
+            .EveryValueChanged(this, x => x.currentCount)
+            .Subscribe(cc => { Console.WriteLine($"Current Count: {cc}"); });
     }
 
     public void Dispose()
     {
         subscription?.Dispose();
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
     }
 }

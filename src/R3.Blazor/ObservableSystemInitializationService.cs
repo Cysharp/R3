@@ -1,28 +1,31 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace R3;
 
 public static class BlazorR3Extensions
 {
-    public static IServiceCollection AddBlazorR3(this IServiceCollection services)
+    public static TimeSpan DefaultPeriod = TimeSpan.FromMilliseconds(16.7d);
+
+    public static IServiceCollection AddBlazorR3(this IServiceCollection services, TimeSpan? dueTime = null, TimeSpan? period = null)
     {
-        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(() => SynchronizationContext.Current), null!);
+        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(), _ => new TimerFrameProvider(dueTime ?? TimeSpan.Zero, period ?? DefaultPeriod), null!);
     }
 
-    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Action<Exception> unhandledExceptionHandler)
+    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Action<Exception> unhandledExceptionHandler, TimeSpan? dueTime = null,  TimeSpan? period = null)
     {
-        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(() => SynchronizationContext.Current), unhandledExceptionHandler);
+        return AddBlazorR3(services, _ => new SynchronizationContextTimeProvider(), _ => new TimerFrameProvider(dueTime ?? TimeSpan.Zero, period ?? DefaultPeriod), unhandledExceptionHandler);
     }
 
-    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory)
+    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory, Func<IServiceProvider, FrameProvider> frameProviderFactory)
     {
-        return AddBlazorR3(services, timeProviderFactory, null!);
+        return AddBlazorR3(services, timeProviderFactory, frameProviderFactory, null!);
     }
 
-    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory, Action<Exception> unhandledExceptionHandler)
+    public static IServiceCollection AddBlazorR3(this IServiceCollection services, Func<IServiceProvider, TimeProvider> timeProviderFactory, Func<IServiceProvider, FrameProvider> frameProviderFactory, Action<Exception> unhandledExceptionHandler)
     {
         services.AddHttpContextAccessor();
-        services.TryAddSingleton<TimeProvider>(timeProviderFactory);
+        services.TryAddScoped<TimeProvider>(timeProviderFactory);
+        services.TryAddScoped<FrameProvider>(frameProviderFactory);
         services.AddHostedService(sp => new ObservableSystemInitializationService(sp.GetRequiredService<IHttpContextAccessor>(), unhandledExceptionHandler));
 
         return services;
