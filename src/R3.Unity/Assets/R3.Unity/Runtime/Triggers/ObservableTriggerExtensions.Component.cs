@@ -329,7 +329,7 @@ namespace R3.Triggers
         // uGUI
 
         #region ObservableEventTrigger classes
-
+#if R3_UGUI_SUPPORT
         public static Observable<BaseEventData> OnDeselectAsObservable(this UIBehaviour component)
         {
             if (component == null || component.gameObject == null) return Observable.Empty<BaseEventData>();
@@ -431,7 +431,7 @@ namespace R3.Triggers
             if (component == null || component.gameObject == null) return Observable.Empty<PointerEventData>();
             return GetOrAddComponent<ObservableScrollTrigger>(component.gameObject).OnScrollAsObservable();
         }
-
+#endif
         #endregion
 
         #region ObservableParticleTrigger
