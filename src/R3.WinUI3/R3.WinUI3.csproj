@@ -1,14 +1,32 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Uno.Sdk">
     <PropertyGroup>
-        <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
-        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <DotNetVersion>net8.0</DotNetVersion>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows')) or '$(EnableWindowsTargeting)' == 'true'">$(TargetFrameworks);$(DotNetVersion)-windows10.0.22621</TargetFrameworks>
+        <TargetFrameworks>$(TargetFrameworks);$(DotNetVersion)</TargetFrameworks>
+        <TargetFrameworks Condition="'$(OverrideTargetFramework)'!=''">$(OverrideTargetFramework)</TargetFrameworks>
+
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
+        <GenerateLibraryLayout>true</GenerateLibraryLayout>
+        <!--
+            If you encounter this error message:
+
+              error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll.
+              Please update to a newer .NET SDK in order to reference this assembly.
+
+            This means that the two packages below must be aligned with the "build" version number of
+            the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
+            must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
+        -->
+        <!-- <WindowsSdkPackageVersion>10.0.22621.31</WindowsSdkPackageVersion> -->
+
         <Nullable>enable</Nullable>
         <RootNamespace>R3.WinUI3</RootNamespace>
-        <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
         <UseWinUI>true</UseWinUI>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>1701;1702;1591;1573</NoWarn>
+        <NoWarn>$(NoWarn);1701;1702;1591;1573;NETSDK1206</NoWarn>
 
         <!-- For CI Build -->
         <!-- https://github.com/dotnet/maui/issues/5886 -->
@@ -22,8 +40,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230913002" />
-        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
+        <PackageReference Include="Uno.WinUI" Version="$(UnoVersion)" Condition="$(TargetFramework.Contains('windows10')) != 'true'" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" Condition="$(TargetFramework.Contains('windows10'))" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" Condition="$(TargetFramework.Contains('windows10'))" />
     </ItemGroup>
     <ItemGroup>
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
