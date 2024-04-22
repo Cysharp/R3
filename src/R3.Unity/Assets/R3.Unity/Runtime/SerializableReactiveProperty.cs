@@ -25,6 +25,11 @@ namespace R3
         {
         }
 
+        public SerializableReactiveProperty(T value, IEqualityComparer<T>? equalityComparer)
+            : base(value, equalityComparer)
+        {
+        }
+
         protected override void OnValueChanged(T value)
         {
             this.value = value;
