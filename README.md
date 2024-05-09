@@ -145,7 +145,46 @@ Observable.EveryValueChanged(this, x => x.Height).Subscribe(x => HeightText.Text
 
 Subjects(ReactiveProperty)
 ---
-In R3, there are four types of Subjects: `Subject`, `ReactiveProperty`, `ReplaySubject`, and `ReplayFrameSubject`. `ReactiveProperty` corresponds to what would be a `BehaviorSubject`, but with the added functionality of eliminating duplicate values. Since you can choose to enable or disable duplicate elimination, it effectively becomes a superior alternative to `BehaviorSubject`, leading to the removal of `BehaviorSubject`.
+In R3, there are four types of Subjects: `Subject`, `ReactiveProperty`, `ReplaySubject`, and `ReplayFrameSubject`.
+
+`Subject` is an event in Rx. Just as an event can register multiple Actions and distribute values using Invoke, a `Subject` can register multiple `Observer`s and distribute values using OnNext, OnErrorResume, and OnCompleted. There are variations of Subject, such as `ReactiveProperty`, which holds a single value internally, `ReplaySubject`, which holds multiple values based on count or time, and `ReplayFrameSubject`, which holds multiple values based on frame time. The internally recorded values are distributed when Subscribe is called.
+
+ `ReactiveProperty` corresponds to what would be a `BehaviorSubject`, but with the added functionality of eliminating duplicate values. Since you can choose to enable or disable duplicate elimination, it effectively becomes a superior alternative to `BehaviorSubject`, leading to the removal of `BehaviorSubject`.
+
+Here's an example of creating an observable model using `ReactiveProperty`:
+
+```csharp
+// Reactive Notification Model
+public class Enemy
+{
+    public ReactiveProperty<long> CurrentHp { get; private set; }
+
+    public ReactiveProperty<bool> IsDead { get; private set; }
+
+    public Enemy(int initialHp)
+    {
+        // Declarative Property
+        CurrentHp = new ReactiveProperty<long>(initialHp);
+        IsDead = CurrentHp.Select(x => x <= 0).ToReactiveProperty();
+    }
+}
+
+// ---
+
+// Click button, HP decrement
+MyButton.OnClickAsObservable().Subscribe(_ => enemy.CurrentHp.Value -= 99);
+
+// subscribe from notification model.
+enemy.CurrentHp.Subscribe(x => Console.WriteLine("HP:" + x));
+enemy.IsDead.Where(isDead => isDead == true)
+    .Subscribe(_ =>
+    {
+        // when dead, disable button
+        MyButton.SetDisable();
+    });
+```
+
+In `ReactiveProperty`, the value is updated by `.Value` and if it is identical to the current value, no notification is issued. If you want to force notification of a value even if it is the same, call `.OnNext(value)`.
 
 `ReactiveProperty` has equivalents in other frameworks as well, such as [Android LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [Kotlin StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow), particularly effective for data binding in UI contexts. In .NET, there is a library called [runceel/ReactiveProperty](https://github.com/runceel/ReactiveProperty), which I originally created.
 
