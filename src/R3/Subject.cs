@@ -143,6 +143,11 @@ public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
         list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
     }
 
+    public Subject(CancellationToken cancellationToken) : this()
+    {
+        this.RegisterTo(cancellationToken);
+    }
+
     public bool IsDisposed => completeState.IsDisposed;
 
     public void OnNext(T value)
