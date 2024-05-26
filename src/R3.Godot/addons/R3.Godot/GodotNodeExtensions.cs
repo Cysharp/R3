@@ -3,7 +3,7 @@ using Godot;
 
 namespace R3;
 
-public static class NodeExtensions
+public static class GodotNodeExtensions
 {
     /// <summary>
     /// Dispose self on target node has bee tree exited.
