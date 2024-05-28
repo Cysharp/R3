@@ -874,7 +874,7 @@ public class CommandViewModel : IDisposable
 
     public void Dispose()
     {
-        Disposable.Combine(OnCheck, ShowMessageBox);
+        Disposable.Combine(OnCheck, ShowMessageBox).Dispose();
     }
 }
 ```
