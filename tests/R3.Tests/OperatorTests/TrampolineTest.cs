@@ -77,4 +77,42 @@ B : OnPlayerAddTeam
 C : OnPlayerAddTeam
 """);
     }
+
+
+    [Fact]
+    public void TrampolineIsReusable()
+    {
+        var sender = new Subject<string>();
+        var receiver = sender.Trampoline().Share();
+
+        var log = new List<string>();
+
+        // A
+        receiver.Subscribe(x =>
+        {
+            log.Add(x);
+            if (x == "OnPlayerJoined") sender.OnNext("OnPlayerAddTeam");
+        });
+
+        sender.OnNext("OnPlayerJoined");
+
+        var msg = string.Join(Environment.NewLine, log);
+
+        msg.Should().Be("""
+                        OnPlayerJoined
+                        OnPlayerAddTeam
+                        """);
+
+        // reset logs
+        log.Clear();
+
+        // send again
+        sender.OnNext("OnPlayerJoined");
+
+        msg = string.Join(Environment.NewLine, log);
+        msg.Should().Be("""
+                        OnPlayerJoined
+                        OnPlayerAddTeam
+                        """);
+    }
 }

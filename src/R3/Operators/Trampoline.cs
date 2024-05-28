@@ -67,6 +67,7 @@ internal sealed class Trampoline<T>(Observable<T> source) : Observable<T>
 
                 if (!queue.TryDequeue(out value))
                 {
+                    running = false;
                     return;
                 }
             }
