@@ -96,7 +96,7 @@ public partial class ObservableTrackerDebuggerPlugin : EditorDebuggerPlugin
                     foreach (GDArray item in data[1].AsGodotArray())
                     {
                         var state = new TrackingState()
-                        { 
+                        {
                             TrackingId = item[0].AsInt32(),
                             FormattedType = item[1].AsString(),
                             AddTime = new DateTime(item[2].AsInt64()),
@@ -113,17 +113,19 @@ public partial class ObservableTrackerDebuggerPlugin : EditorDebuggerPlugin
 
     public void RegisterReceivedActiveTasks(int sessionId, Action<IEnumerable<TrackingState>> action)
     {
-        sessions[sessionId].ReceivedActiveTasks += action;
+        if (sessions.Count > 0)
+            sessions[sessionId].ReceivedActiveTasks += action;
     }
-    
+
     public void UnregisterReceivedActiveTasks(int sessionId, Action<IEnumerable<TrackingState>> action)
     {
-        sessions[sessionId].ReceivedActiveTasks -= action;
+        if (sessions.Count > 0)
+            sessions[sessionId].ReceivedActiveTasks -= action;
     }
 
     public void UpdateTrackingStates(int sessionId, bool forceUpdate = false)
     {
-        if (sessions[sessionId].debuggerSession.IsActive())
+        if (sessions.Count > 0 && sessions[sessionId].debuggerSession.IsActive())
         {
             sessions[sessionId].debuggerSession.SendMessage(MessageHeader + ":" + Message_RequestActiveTasks, new () { forceUpdate });
         }
@@ -131,7 +133,7 @@ public partial class ObservableTrackerDebuggerPlugin : EditorDebuggerPlugin
 
     public void SetEnableStates(int sessionId, bool enableTracking, bool enableStackTrace)
     {
-        if (sessions[sessionId].debuggerSession.IsActive())
+        if (sessions.Count > 0 && sessions[sessionId].debuggerSession.IsActive())
         {
             sessions[sessionId].debuggerSession.SendMessage(MessageHeader + ":" + Message_SetEnableStates, new () { enableTracking, enableStackTrace});
         }
@@ -139,7 +141,7 @@ public partial class ObservableTrackerDebuggerPlugin : EditorDebuggerPlugin
 
     public void InvokeGCCollect(int sessionId)
     {
-        if (sessions[sessionId].debuggerSession.IsActive())
+        if (sessions.Count > 0 && sessions[sessionId].debuggerSession.IsActive())
         {
             sessions[sessionId].debuggerSession.SendMessage(MessageHeader + ":" + Message_InvokeGCCollect);
         }
