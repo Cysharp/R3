@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace R3.Internal;
 
-public sealed class RingBuffer<T> : IList<T>, IReadOnlyList<T>
+internal sealed class RingBuffer<T> : IList<T>, IReadOnlyList<T>
 {
     T[] buffer;
     int head;
@@ -325,7 +325,7 @@ public sealed class RingBuffer<T> : IList<T>, IReadOnlyList<T>
     }
 }
 
-public ref struct RingBufferSpan<T>
+internal ref struct RingBufferSpan<T>
 {
     public readonly ReadOnlySpan<T> First;
     public readonly ReadOnlySpan<T> Second;
