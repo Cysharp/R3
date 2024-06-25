@@ -2,14 +2,13 @@
 
 public static partial class Observable
 {
-    public static Observable<T> Defer<T>(Func<Observable<T>> observableFactory)
+    public static Observable<T> Defer<T>(Func<Observable<T>> observableFactory, bool rawObserver = false)
     {
-        return new Defer<T>(observableFactory);
+        return new Defer<T>(observableFactory, rawObserver);
     }
 }
 
-
-internal sealed class Defer<T>(Func<Observable<T>> observableFactory) : Observable<T>
+internal sealed class Defer<T>(Func<Observable<T>> observableFactory, bool rawObserver) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
@@ -24,6 +23,6 @@ internal sealed class Defer<T>(Func<Observable<T>> observableFactory) : Observab
             return Disposable.Empty;
         }
 
-        return observable.Subscribe(observer);
+        return observable.Subscribe(rawObserver ? observer : observer.Wrap());
     }
 }

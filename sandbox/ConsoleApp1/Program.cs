@@ -1,17 +1,15 @@
 ﻿using R3;
 
-var subject = new Subject<Observable<int>>();
+// check https://github.com/Cysharp/R3/issues/226
 
-var disposable = subject.Switch().Subscribe();
+//Observable.ReturnUnit()
+//  .SelectMany(selector: _ => Observable
+//    .Defer(observableFactory: () => Observable.ReturnUnit().SubscribeOnThreadPool())
+//    // .SubscribeOnThreadPool()
+//  ) // Observable<Unit>
+//  .Subscribe();
 
-var observable1 = new Subject<int>();
-var observable2 = new Subject<int>();
-var observable3 = new Subject<int>();
-var observable4 = new Subject<int>();
 
-subject.OnNext(observable1.Do(onDispose: () => Console.WriteLine("Dispose 1")));
-subject.OnNext(observable2.Do(onDispose: () => Console.WriteLine("Dispose 2")));
-subject.OnNext(observable3.Do(onDispose: () => Console.WriteLine("Dispose 3")));
-subject.OnNext(observable4.Do(onDispose: () => Console.WriteLine("Dispose 4")));
+Observable.Defer(observableFactory: () => Observable.ReturnUnit().Delay(TimeSpan.FromSeconds(1))).Subscribe();
 
-disposable.Dispose();
+Console.ReadLine();
