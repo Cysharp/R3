@@ -31,16 +31,10 @@ public class TrampolineTest
 
         sender.OnNext("OnPlayerJoined");
 
-        var msg = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var msg = string.Join('|', log);
 
-        msg.Should().Be("""
-A : OnPlayerJoined
-A : OnPlayerAddTeam
-B : OnPlayerAddTeam
-C : OnPlayerAddTeam
-B : OnPlayerJoined
-C : OnPlayerJoined
-""");
+        msg.Should().Be("A : OnPlayerJoined|A : OnPlayerAddTeam|B : OnPlayerAddTeam|C : OnPlayerAddTeam|B : OnPlayerJoined|C : OnPlayerJoined");
     }
 
     [Fact]
@@ -66,16 +60,10 @@ C : OnPlayerJoined
 
         sender.OnNext("OnPlayerJoined");
 
-        var msg = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var msg = string.Join('|', log);
 
-        msg.Should().Be("""
-A : OnPlayerJoined
-B : OnPlayerJoined
-C : OnPlayerJoined
-A : OnPlayerAddTeam
-B : OnPlayerAddTeam
-C : OnPlayerAddTeam
-""");
+        msg.Should().Be("A : OnPlayerJoined|B : OnPlayerJoined|C : OnPlayerJoined|A : OnPlayerAddTeam|B : OnPlayerAddTeam|C : OnPlayerAddTeam");
     }
 
 
@@ -96,12 +84,10 @@ C : OnPlayerAddTeam
 
         sender.OnNext("OnPlayerJoined");
 
-        var msg = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var msg = string.Join('|', log);
 
-        msg.Should().Be("""
-                        OnPlayerJoined
-                        OnPlayerAddTeam
-                        """);
+        msg.Should().Be("OnPlayerJoined|OnPlayerAddTeam");
 
         // reset logs
         log.Clear();
@@ -109,10 +95,8 @@ C : OnPlayerAddTeam
         // send again
         sender.OnNext("OnPlayerJoined");
 
-        msg = string.Join(Environment.NewLine, log);
-        msg.Should().Be("""
-                        OnPlayerJoined
-                        OnPlayerAddTeam
-                        """);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        msg = string.Join('|', log);
+        msg.Should().Be("OnPlayerJoined|OnPlayerAddTeam");
     }
 }

@@ -306,25 +306,10 @@ public class ReactivePropertyTest
         r.Value = ++count;
         r.Value = ++count;
 
-        var actual = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var actual = string.Join('|', log);
 
-        actual.Should().Be("""
-A = 0
-B = 0
-C = 0
-A disposed
-A = 0
-A re-registered
-A disposed
-A = 0
-A re-registered
-B = 1
-C = 1
-A = 1
-B = 2
-C = 2
-A = 2
-""");
+        actual.Should().Be("A = 0|B = 0|C = 0|A disposed|A = 0|A re-registered|A disposed|A = 0|A re-registered|B = 1|C = 1|A = 1|B = 2|C = 2|A = 2");
     }
 
     [Fact]
@@ -345,14 +330,10 @@ A = 2
         p1.Value = 1;
         p1.Value = 2;
 
-        var actual = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var actual = string.Join('|', log);
 
-        actual.Should().Be("""
-[P1]1
-[P3]1
-[P1]2
-[P3]2
-""");
+        actual.Should().Be("[P1]1|[P3]1|[P1]2|[P3]2");
     }
 
 
@@ -375,16 +356,10 @@ A = 2
         p1.Value = 1;
         p1.Value = 2;
 
-        var actual = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var actual = string.Join('|', log);
 
-        actual.Should().Be("""
-[P2_1]1
-[P2_2]1
-[P3]1
-[P2_1]2
-[P2_2]2
-[P3]2
-""");
+        actual.Should().Be("[P2_1]1|[P2_2]1|[P3]1|[P2_1]2|[P2_2]2|[P3]2");
     }
 
     [Fact]
@@ -404,15 +379,9 @@ A = 2
         p1.Value = 1;
         p1.Value = 2;
 
-        var actual = string.Join(Environment.NewLine, log);
+        //This test has been failing because it was dependent on newline, which is different across platforms.
+        var actual = string.Join('|', log);
 
-        actual.Should().Be("""
-[P1]1
-[P2]1
-[P2]1
-[P1]2
-[P2]2
-[P2]2
-""");
+        actual.Should().Be("[P1]1|[P2]1|[P2]1|[P1]2|[P2]2|[P2]2");
     }
 }
