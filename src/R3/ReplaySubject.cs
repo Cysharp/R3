@@ -56,11 +56,11 @@ public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
         {
             Trim();
             replayBuffer.AddLast((timeProvider?.GetTimestamp() ?? 0, value));
-        }
 
-        foreach (var subscription in list.AsSpan())
-        {
-            subscription?.observer.OnNext(value);
+            foreach (var subscription in list.AsSpan())
+            {
+                subscription?.observer.OnNext(value);
+            }
         }
     }
 
@@ -103,27 +103,27 @@ public sealed class ReplaySubject<T> : Observable<T>, ISubject<T>, IDisposable
             {
                 observer.OnNext(item.value);
             }
+
+            var result = completeState.TryGetResult();
+            if (result != null)
+            {
+                observer.OnCompleted(result.Value);
+                return Disposable.Empty;
+            }
+
+            var subscription = new Subscription(this, observer); // create subscription and add observer to list.
+
+            // need to check called completed during adding
+            result = completeState.TryGetResult();
+            if (result != null)
+            {
+                subscription.observer.OnCompleted(result.Value);
+                subscription.Dispose();
+                return Disposable.Empty;
+            }
+
+            return subscription;
         }
-
-        var result = completeState.TryGetResult();
-        if (result != null)
-        {
-            observer.OnCompleted(result.Value);
-            return Disposable.Empty;
-        }
-
-        var subscription = new Subscription(this, observer); // create subscription and add observer to list.
-
-        // need to check called completed during adding
-        result = completeState.TryGetResult();
-        if (result != null)
-        {
-            subscription.observer.OnCompleted(result.Value);
-            subscription.Dispose();
-            return Disposable.Empty;
-        }
-
-        return subscription;
     }
 
     public void Dispose()
