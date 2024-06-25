@@ -1591,14 +1591,19 @@ R3 extensions for Blazor.
 
 > PM> Install-Package [R3Extensions.Blazor](https://www.nuget.org/packages/R3Extensions.Blazor)
 
+If project target is WebAssembly Blazor, import `R3Extensions.BlazorWebAssembly` instead.
+
+> PM> Install-Package [R3Extensions.BlazorWebAssembly](https://www.nuget.org/packages/R3Extensions.BlazorWebAssembly)
+
 ```csharp
 // Add this line before Build()
+// for WebAssembly use AddBlazorWebAssemblyR3() instead.
 builder.Services.AddBlazorR3();
 
 var app = builder.Build();
 ```
 
-When you call `AddBlazorR3` on IServiceCollection, a TimeProvider corresponding to the request scope is implicitly used and automatically marshaled to the current request. This eliminates the need for InvokeAsync when calling time-related methods within Blazor.
+When you call `AddBlazorR3/AddBlazorWebAssemblyR3` on IServiceCollection, a TimeProvider corresponding to the request scope is implicitly used and automatically marshaled to the current request. This eliminates the need for InvokeAsync when calling time-related methods within Blazor.
 
 ```csharp
 public partial class Counter : IDisposable
@@ -1626,7 +1631,7 @@ public partial class Counter : IDisposable
 
 In this case, since all default TimeProviders are tied to the request, you must explicitly pass `TimeProvider.System` for executions that are not related to a request.
 
-There is also a way to utilize R3 in Blazor without using `AddBlazorR3`. One method is to use `ObserveOnCurrentSynchronizationContext`.
+There is also a way to utilize R3 in Blazor without using `AddBlazorR3/AddBlazorWebAssemblyR3`. One method is to use `ObserveOnCurrentSynchronizationContext`.
 
 ```csharp
 subscription = Observable.Interval(TimeSpan.FromSeconds(1)) // default TimeProvider is TimeProvider.System

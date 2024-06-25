@@ -20,6 +20,7 @@
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
 
         <!-- Display name -->
         <ApplicationTitle>MauiApp1</ApplicationTitle>
