@@ -13,7 +13,7 @@
 | **Create**(`TState` state, `Func<Observer<T>, TState, CancellationToken, ValueTask>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
 | **CreateFrom**(`Func<CancellationToken, IAsyncEnumerable<T>>` factory) | `Observable<T>` | 
 | **CreateFrom**(`TState` state, `Func<CancellationToken, TState, IAsyncEnumerable<T>>` factory) | `Observable<T>` | 
-| **Defer**(`Func<Observable<T>>` observableFactory) | `Observable<T>` | 
+| **Defer**(`Func<Observable<T>>` observableFactory, `Boolean` rawObserver = false) | `Observable<T>` | 
 | **Empty**() | `Observable<T>` | 
 | **Empty**(`TimeProvider` timeProvider) | `Observable<T>` | 
 | **Empty**(`TimeSpan` dueTime, `TimeProvider` timeProvider) | `Observable<T>` | 
