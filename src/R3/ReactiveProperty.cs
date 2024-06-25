@@ -28,6 +28,8 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     const byte Disposed = 3;
 
     // Memory Size: 1(byte) + 8(IntPtr) + sizeof(T) + 8(IntPtr) and subscriptions(nodes).
+    // completeState may be aligned to 32 bit boundary, because C# guarantees 32 bit reads and writes to be atomic, and so it may align fields
+    // to 4 byte boundary to ensure atomicity.
     byte completeState;
     Exception? error;
     T currentValue;
@@ -51,20 +53,23 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         get => this.currentValue;
         set
         {
-            OnValueChanging(ref value);
-
-            if (EqualityComparer != null)
+            lock (this)
             {
-                if (EqualityComparer.Equals(this.currentValue, value))
+                OnValueChanging(ref value);
+
+                if (EqualityComparer != null)
                 {
-                    return;
+                    if (EqualityComparer.Equals(this.currentValue, value))
+                    {
+                        return;
+                    }
                 }
+
+                this.currentValue = value;
+                OnValueChanged(value);
+
+                OnNextCore(value);
             }
-
-            this.currentValue = value;
-            OnValueChanged(value);
-
-            OnNextCore(value);
         }
     }
 
@@ -110,27 +115,34 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         OnNext(Value);
     }
 
-    public void OnNext(T value)
-    {
-        OnValueChanging(ref value);
-        this.currentValue = value; // different from Subject<T>; set value before raise OnNext
-        OnValueChanged(value);  // for inheritance types.
-
-        OnNextCore(value);
-    }
-
     void OnNextCore(T value)
     {
         ThrowIfDisposed();
-        if (IsCompleted) return;
+        if (IsCompleted)
+            return;
 
         var node = Volatile.Read(ref root);
         var last = node?.Previous;
         while (node != null)
         {
             node.Observer.OnNext(value);
-            if (node == last) return;
+            if (node == last)
+                return;
             node = node.Next;
+        }
+    }
+
+    public void OnNext(T value)
+    {
+        lock (this)
+        {
+            OnValueChanging(ref value);
+
+            this.currentValue = value; // different from Subject<T>; set value before raise OnNext
+
+            OnValueChanged(value);  // for inheritance types.
+
+            OnNextCore(value);
         }
     }
 
@@ -139,15 +151,19 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         ThrowIfDisposed();
         if (IsCompleted) return;
 
-        OnReceiveError(error);
-
-        var node = Volatile.Read(ref root);
-        var last = node?.Previous;
-        while (node != null)
+        lock (this)
         {
-            node.Observer.OnErrorResume(error);
-            if (node == last) return;
-            node = node.Next;
+            OnReceiveError(error);
+
+            var node = Volatile.Read(ref root);
+            var last = node?.Previous;
+            while (node != null)
+            {
+                node.Observer.OnErrorResume(error);
+                if (node == last)
+                    return;
+                node = node.Next;
+            }
         }
     }
 
@@ -172,25 +188,27 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                 ThrowIfDisposed();
                 return;
             }
-        }
 
-        if (result.IsFailure)
-        {
-            OnReceiveError(result.Exception);
-        }
+            if (result.IsFailure)
+            {
+                OnReceiveError(result.Exception);
+            }
 
-        var last = node?.Previous;
-        while (node != null)
-        {
-            node.Observer.OnCompleted(result);
-            if (node == last) return;
-            node = node.Next;
+            var last = node?.Previous;
+            while (node != null)
+            {
+                node.Observer.OnCompleted(result);
+                if (node == last) return;
+                node = node.Next;
+            }
         }
     }
 
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         Result? completedResult;
+
+        // is lock needed here?
         lock (this)
         {
             ThrowIfDisposed();
@@ -206,11 +224,16 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
         if (completedResult != null)
         {
-            goto PUBLISH_CURRENT_AND_RESULT;
-        }
+            // No need to synchronize here because it is already completed and no new notifications will arrive.
+            if (completedResult.Value.IsSuccess)
+            {
+                observer.OnNext(currentValue);
+            }
 
-        // raise latest value on subscribe(before add observer to list)
-        observer.OnNext(currentValue);
+            observer.OnCompleted(completedResult.Value);
+
+            return Disposable.Empty;
+        }
 
         lock (this)
         {
@@ -221,27 +244,23 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
                 goto PUBLISH_RESULT;
             }
 
+            // raise latest value on subscribe(before add observer to list)
+            // To ensure integrity, currentValue read is put under the lock.
+            observer.OnNext(currentValue);
+
             // create subscription and add to list in lock.
             var subscription = new ObserverNode(this, observer);
+
             return subscription;
         }
 
-    PUBLISH_CURRENT_AND_RESULT:
-        if (completedResult != null)
-        {
-            if (completedResult.Value.IsSuccess)
-            {
-                observer.OnNext(currentValue);
-            }
-            observer.OnCompleted(completedResult.Value);
-            return Disposable.Empty;
-        }
 
     PUBLISH_RESULT:
         if (completedResult != null)
         {
             observer.OnCompleted(completedResult.Value);
         }
+
         return Disposable.Empty;
     }
 
