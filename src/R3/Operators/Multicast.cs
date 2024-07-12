@@ -16,7 +16,7 @@ public static partial class ObservableExtensions
 
     public static ConnectableObservable<T> Publish<T>(this Observable<T> source, T initialValue)
     {
-        return source.Multicast(new ReactiveProperty<T>(initialValue, equalityComparer: null));
+        return source.Multicast(new BehaviorSubject<T>(initialValue));
     }
 
     public static ConnectableObservable<T> Replay<T>(this Observable<T> source)
