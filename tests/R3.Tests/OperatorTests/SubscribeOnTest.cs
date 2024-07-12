@@ -17,6 +17,16 @@ public class SubscribeOnTest
     }
 
     [Fact]
+    public async Task Synchronize()
+    {
+        var gate = new object();
+        var values = await Observable.Range(1, 10)
+            .SubscribeOnSynchronize(gate)
+            .ToArrayAsync();
+        values.Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    }
+
+    [Fact]
     public async Task SyncContext()
     {
         var syncContext = new CustomSyncContext();

@@ -12,6 +12,11 @@ public static partial class ObservableExtensions
         return new SubscribeOnThreadPool<T>(source);
     }
 
+    public static Observable<T> SubscribeOnSynchronize<T>(this Observable<T> source, object gate, bool rawObserver = false)
+    {
+        return new SubscribeOnSynchronize<T>(source, gate, rawObserver);
+    }
+
     public static Observable<T> SubscribeOn<T>(this Observable<T> source, SynchronizationContext? synchronizationContext)
     {
         if (synchronizationContext == null)
@@ -151,6 +156,18 @@ internal sealed class SubscribeOnThreadPool<T>(Observable<T> source) : Observabl
         protected override void DisposeCore()
         {
             disposable.Dispose();
+        }
+    }
+}
+
+internal sealed class SubscribeOnSynchronize<T>(Observable<T> source, object gate, bool rawObserver) : Observable<T>
+{
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        observer = rawObserver ? observer : observer.Wrap();
+        lock (gate)
+        {
+            return source.Subscribe(observer);
         }
     }
 }
