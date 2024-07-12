@@ -2053,6 +2053,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **SubscribeOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **SubscribeOnCurrentSynchronizationContext**(this `Observable<T>` source) | `Observable<T>` | 
+| **SubscribeOnSynchronize**(this `Observable<T>` source, `Object` gate, `Boolean` rawObserver = false) | `Observable<T>` | 
 | **SubscribeOnThreadPool**(this `Observable<T>` source) | `Observable<T>` | 
 | **SumAsync**(this `Observable<Int32>` source, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
 | **SumAsync**(this `Observable<TSource>` source, `Func<TSource, Int32>` selector, `CancellationToken` cancellationToken = default) | `Task<Int32>` | 
