@@ -46,7 +46,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     public bool IsDisposed => completeState == Disposed;
     public bool IsCompletedOrDisposed => IsCompleted || IsDisposed;
 
-    public T Value
+    public virtual T Value
     {
         get => this.currentValue;
         set
@@ -105,12 +105,12 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
     protected virtual void OnValueChanging(ref T value) { }
     protected ref T GetValueRef() => ref currentValue; // dangerous
 
-    public void ForceNotify()
+    public virtual void ForceNotify()
     {
         OnNext(Value);
     }
 
-    public void OnNext(T value)
+    public virtual void OnNext(T value)
     {
         OnValueChanging(ref value);
         this.currentValue = value; // different from Subject<T>; set value before raise OnNext
@@ -119,7 +119,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         OnNextCore(value);
     }
 
-    void OnNextCore(T value)
+    protected virtual void OnNextCore(T value)
     {
         ThrowIfDisposed();
         if (IsCompleted) return;
@@ -522,5 +522,19 @@ internal class BindableReactivePropertyJsonConverter<T> : ReactivePropertyJsonCo
     }
 }
 
+// for SynchronizedReactiveProperty
+
+internal class SynchronizedReactivePropertyJsonConverterFactory : ReactivePropertyJsonConverterFactory
+{
+    protected override Type GenericConverterType => typeof(SynchronizedReactivePropertyJsonConverter<>);
+}
+
+internal class SynchronizedReactivePropertyJsonConverter<T> : ReactivePropertyJsonConverter<T>
+{
+    protected override ReactiveProperty<T> CreateReactiveProperty(T value)
+    {
+        return new SynchronizedReactiveProperty<T>(value);
+    }
+}
 
 #endif
