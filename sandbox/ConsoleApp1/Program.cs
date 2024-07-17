@@ -1,23 +1,10 @@
 ﻿using R3;
-using System.Diagnostics;
 
-// https://github.com/Cysharp/R3/issues/232
+var r1 = Observable.Return(1);
+var r2 = Observable.Interval(TimeSpan.FromSeconds(1)).Index();
 
+r1.Concat(r2).Subscribe(Console.WriteLine);
 
-Observable.Concat(
-    Observable.Return("Start"),
-    SomeAsyncTask().ToObservable(),
-    Observable.Return("End")
-).Subscribe(r =>
-{
-    Console.WriteLine("Result:" + r);
-});
+await Task.Delay(TimeSpan.FromDays(1)); // wait
 
 
-Console.ReadLine();
-
-async ValueTask<string> SomeAsyncTask()
-{
-    await Task.Delay(1000);
-    return "result";
-}

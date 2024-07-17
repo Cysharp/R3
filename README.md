@@ -686,34 +686,22 @@ subject.Take(100).Count().Subscribe(x => Console.WriteLine(x));
 Parallel.For(0, 1000, new ParallelOptions { MaxDegreeOfParallelism = 10 }, x => subject.OnNext(x));
 ```
 
-This means that the issuance of OnNext must always be done on a single thread. Also, ReactiveProperty, which corresponds to BehaviorSubject in dotnet/reactive, is not thread-safe itself, so updating the value (set Value or call OnNext) must always be done on a single thread.
-
-For converting external inputs into Observables, such as with FromEvent, and when the source of input issues in a multi-threaded manner, it is necessary to synchronize using `Synchronize` to construct the correct operator chain.
-
-Of course, simply surrounding it with `lock` is also effective.
+This means that the issuance of OnNext must always be done on a single thread. For converting external inputs into Observables, such as with `FromEvent`, and when the source of input issues in a multi-threaded manner, it is necessary to synchronize using `Synchronize` to construct the correct operator chain.
 
 ```csharp
-lock(gate)
-{
-    subject.OnNext(value);
-}
+subject.Synchronoize(gate).Take(100).Count().Subscribe();
 ```
 
-Unlike other Subjects, ReactiveProperty's OnNext/Subscribe operations are not thread-safe. Therefore, when using it in a multi-threaded environment, both operations need to be locked.
+In R3, ReplaySubject and BehaviorSubject do not require Synchronize and are thread-safe, including OnNext.
+
+ReactiveProperty is not thread-safe and OnNext, set Value and Susbcribe cannot be called simultaneously. If you need to use it in such a situation, use `SynchronizedReactiveProperty` instead.
 
 ```csharp
-lock(gate)
+class MyClass
 {
-    reactiveProperty.Value = value;
-}
-
-lock(gate)
-{
-    reactiveProperty.Subscribe(observer);
+    public SynchronizedReactiveProperty<int> Prop { get; } = new();
 }
 ```
-
-Regarding Dispose of subscription, it is thread-safe. Additionally, if it's not possible to lock ReactiveProperty itself, you can use `SubscribeOnSynchronize` to apply a lock during Subscribe operations within the operator.
 
 Sampling Timing
 ---
