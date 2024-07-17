@@ -37,9 +37,7 @@ internal sealed class Concat<T>(IEnumerable<Observable<T>> sources) : Observable
 
         public SerialDisposableCore disposable;
         int id = 0;
-        Observable<T>? current;
         readonly object gate = new object();
-
 
         public _Concat(Observer<T> observer, IEnumerable<Observable<T>> sources)
         {
