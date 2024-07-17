@@ -1,4 +1,6 @@
-﻿namespace R3;
+﻿using System;
+
+namespace R3;
 
 public static partial class Observable
 {
@@ -32,7 +34,12 @@ internal sealed class Concat<T>(IEnumerable<Observable<T>> sources) : Observable
     {
         public Observer<T> observer;
         public IEnumerator<Observable<T>> enumerator;
+
         public SerialDisposableCore disposable;
+        int id = 0;
+        Observable<T>? current;
+        readonly object gate = new object();
+
 
         public _Concat(Observer<T> observer, IEnumerable<Observable<T>> sources)
         {
@@ -50,7 +57,7 @@ internal sealed class Concat<T>(IEnumerable<Observable<T>> sources) : Observable
             }
             else
             {
-                disposable.Disposable = enumerator.Current.Subscribe(new _ConcatObserver(this));
+                SubscribeNext();
                 return this;
             }
         }
@@ -59,6 +66,21 @@ internal sealed class Concat<T>(IEnumerable<Observable<T>> sources) : Observable
         {
             enumerator.Dispose();
             disposable.Dispose();
+        }
+
+        public void SubscribeNext()
+        {
+            lock (gate)
+            {
+                id++;
+                var currentId = id;
+                var d = enumerator.Current.Subscribe(new _ConcatObserver(this));
+                // if already invoked next observable(called oncompleted), no need to set disapoble(oncompleted calls dispose self)
+                if (currentId == id)
+                {
+                    disposable.Disposable = d;
+                }
+            }
         }
     }
 
@@ -91,7 +113,7 @@ internal sealed class Concat<T>(IEnumerable<Observable<T>> sources) : Observable
             {
                 if (parent.enumerator.MoveNext())
                 {
-                    parent.disposable.Disposable = parent.enumerator.Current.Subscribe(new _ConcatObserver(parent));
+                    parent.SubscribeNext();
                 }
                 else
                 {

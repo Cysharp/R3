@@ -1,15 +1,23 @@
 ﻿using R3;
+using System.Diagnostics;
 
-// check https://github.com/Cysharp/R3/issues/226
-
-//Observable.ReturnUnit()
-//  .SelectMany(selector: _ => Observable
-//    .Defer(observableFactory: () => Observable.ReturnUnit().SubscribeOnThreadPool())
-//    // .SubscribeOnThreadPool()
-//  ) // Observable<Unit>
-//  .Subscribe();
+// https://github.com/Cysharp/R3/issues/232
 
 
-Observable.Defer(observableFactory: () => Observable.ReturnUnit().Delay(TimeSpan.FromSeconds(1))).Subscribe();
+Observable.Concat(
+    Observable.Return("Start"),
+    SomeAsyncTask().ToObservable(),
+    Observable.Return("End")
+).Subscribe(r =>
+{
+    Console.WriteLine("Result:" + r);
+});
+
 
 Console.ReadLine();
+
+async ValueTask<string> SomeAsyncTask()
+{
+    await Task.Delay(1000);
+    return "result";
+}

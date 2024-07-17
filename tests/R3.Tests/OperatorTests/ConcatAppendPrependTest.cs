@@ -248,4 +248,74 @@ public class ConcatAppendPrependTest
         yield return 200;
         yield return 300;
     }
+
+    [Fact]
+    public void ConcatTail()
+    {
+        var fakeTime = new FakeTimeProvider();
+
+        using var list = Observable.Concat(
+                Observable.Return(1), // immediate
+                Observable.Timer(TimeSpan.FromSeconds(1), fakeTime).Select(_ => 2), // delay
+                Observable.Return(3), // immediate
+                Observable.Timer(TimeSpan.FromSeconds(1), fakeTime).Select(_ => 4) // delay
+            )
+            .ToLiveList();
+
+        list.AssertEqual([1]);
+
+        fakeTime.Advance(1);
+
+        list.AssertEqual([1, 2, 3]);
+
+        fakeTime.Advance(1);
+
+        list.AssertEqual([1, 2, 3, 4]);
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ConcatAllImmediateTail()
+    {
+        using var list = Observable.Concat(
+                Observable.Return(1), // immediate
+                Observable.Return(2),
+                Observable.Return(3), // immediate
+                Observable.Return(4)
+            )
+            .ToLiveList();
+
+        list.AssertEqual([1, 2, 3, 4]);
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ConcatAllDelay()
+    {
+        var fakeTime = new FakeTimeProvider();
+
+        using var list = Observable.Concat(
+                Observable.Timer(TimeSpan.FromSeconds(1), fakeTime).Select(_ => 1), // delay
+                Observable.Timer(TimeSpan.FromSeconds(1), fakeTime).Select(_ => 2), // delay
+                Observable.Timer(TimeSpan.FromSeconds(1), fakeTime).Select(_ => 3), // delay
+                Observable.Timer(TimeSpan.FromSeconds(1), fakeTime).Select(_ => 4) // delay
+            )
+            .ToLiveList();
+
+        list.AssertEqual([]);
+
+        fakeTime.Advance(1);
+        list.AssertEqual([1]);
+
+        fakeTime.Advance(1);
+        list.AssertEqual([1, 2]);
+
+        fakeTime.Advance(1);
+        list.AssertEqual([1, 2, 3]);
+
+        fakeTime.Advance(1);
+        list.AssertEqual([1, 2, 3, 4]);
+
+        list.AssertIsCompleted();
+    }
 }
