@@ -19,7 +19,13 @@ public class SynchronizedReactiveProperty<T> : ReactiveProperty<T>
 
     public override T Value
     {
-        get => base.Value;
+        get
+        {
+            lock (this)
+            {
+                return base.Value;
+            }
+        }
         set
         {
             lock (this)
