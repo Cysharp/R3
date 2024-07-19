@@ -553,7 +553,7 @@ list.AssertIsCompleted();
 ```csharp
 public static class LiveListExtensions
 {
-    // Shoud() is xUnit + FluentAssertions
+    // Should() is xUnit + FluentAssertions
     public static void AssertEqual<T>(this LiveList<T> list, params T[] expected)
     {
         list.Should().Equal(expected);
