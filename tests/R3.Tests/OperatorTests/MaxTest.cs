@@ -11,8 +11,29 @@ public class MaxTest
     [Fact]
     public async Task MultipleValue()
     {
-        var min = await new[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable().MaxAsync();
-        min.Should().Be(10);
+        var max = await new[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable().MaxAsync();
+        max.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task First()
+    {
+        var max = await new[] { 10, 1, 3, 4, 6, 7, 5 }.ToObservable().MaxAsync();
+        max.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task Last()
+    {
+        var max = await new[] { 6, 2, 7, 1, 3, 4, 10 }.ToObservable().MaxAsync();
+        max.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task Midway()
+    {
+        var max = await new[] { 6, 2, 7, 10, 3, 4, 1 }.ToObservable().MaxAsync();
+        max.Should().Be(10);
     }
 
     [Fact]
