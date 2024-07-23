@@ -13,19 +13,25 @@ public static class Disposable
         return new DisposableBuilder();
     }
 
-    public static void AddTo(this IDisposable disposable, ref DisposableBuilder builder)
+    public static T AddTo<T>(this T disposable, ref DisposableBuilder builder)
+        where T : IDisposable
     {
         builder.Add(disposable);
+        return disposable;
     }
 
-    public static void AddTo(this IDisposable disposable, ref DisposableBag bag)
+    public static T AddTo<T>(this T disposable, ref DisposableBag bag)
+        where T : IDisposable
     {
         bag.Add(disposable);
+        return disposable;
     }
 
-    public static void AddTo(this IDisposable disposable, ICollection<IDisposable> disposables)
+    public static T AddTo<T>(this T disposable, ICollection<IDisposable> disposables)
+        where T : IDisposable
     {
         disposables.Add(disposable);
+        return disposable;
     }
 
     // AddTo is already used in UniTask so avoid name conflict...
