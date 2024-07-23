@@ -26,6 +26,27 @@ public class MinMaxTest
     }
 
     [Fact]
+    public async Task First()
+    {
+        var minMax = await new[] { 1, 5, 3, 4, 6, 7, 10 }.ToObservable().MinMaxAsync();
+        minMax.Should().Be((1, 10));
+    }
+
+    [Fact]
+    public async Task Last()
+    {
+        var minMax = await new[] { 10, 2, 3, 4, 6, 7, 1 }.ToObservable().MinMaxAsync();
+        minMax.Should().Be((1, 10));
+    }
+
+    [Fact]
+    public async Task Midway()
+    {
+        var minMax = await new[] { 2, 4, 10, 3, 1, 6, 7, 5 }.ToObservable().MinMaxAsync();
+        minMax.Should().Be((1, 10));
+    }
+
+    [Fact]
     public async Task Error()
     {
         var o = Observable.Range(1, 10).Select(x =>
