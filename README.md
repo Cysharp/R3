@@ -1273,7 +1273,10 @@ There are two installation steps required to use it in Unity.
 
 2. Install the `R3.Unity` package by referencing the git URL
 
-* `https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity`
+```
+https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity
+```
+
 ![image](https://github.com/Cysharp/ZLogger/assets/46207/7325d266-05b4-47c9-b06a-a67a40368dd2)
 ![image](https://github.com/Cysharp/ZLogger/assets/46207/29bf5636-4d6a-4e75-a3d8-3f8408bd8c51)
 
