@@ -23,6 +23,27 @@ public class MinTest
     }
 
     [Fact]
+    public async Task First()
+    {
+        var min = await new[] { 1, 10, 3, 4, 6, 7, 5 }.ToObservable().MinAsync();
+        min.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Last()
+    {
+        var min = await new[] { 2, 10, 3, 4, 6, 7, 1 }.ToObservable().MinAsync();
+        min.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Midway()
+    {
+        var min = await new[] { 2, 10, 3, 4, 1, 6, 7, 5 }.ToObservable().MinAsync();
+        min.Should().Be(1);
+    }
+
+    [Fact]
     public async Task Error()
     {
         var error = Observable.Range(1, 10).Select(x =>

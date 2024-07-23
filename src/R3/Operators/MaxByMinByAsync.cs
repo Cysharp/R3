@@ -41,6 +41,7 @@ internal sealed class MaxByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
         {
             hasValue = true;
             latestValue = value;
+            latestKey = keySelector(value);
             return;
         }
 
@@ -49,7 +50,6 @@ internal sealed class MaxByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
         {
             latestValue = value;
             latestKey = key;
-            hasValue = true;
         }
     }
 
@@ -91,6 +91,7 @@ internal sealed class MinByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
         {
             hasValue = true;
             latestValue = value;
+            latestKey = keySelector(value);
             return;
         }
 
@@ -99,7 +100,6 @@ internal sealed class MinByAsync<T, TKey>(Func<T, TKey> keySelector, IComparer<T
         {
             latestValue = value;
             latestKey = key;
-            hasValue = true;
         }
     }
 
