@@ -41,8 +41,8 @@ public abstract class Observer<T> : IDisposable
     int calledOnCompleted;
     int disposed;
 
-    public bool IsDisposed => Volatile.Read(ref disposed) != 0;
-    bool IsCalledCompleted => Volatile.Read(ref calledOnCompleted) != 0;
+    public bool IsDisposed => disposed != 0;
+    bool IsCalledCompleted => calledOnCompleted != 0;
 
     // enable/disable auto dispose on completed.
     protected virtual bool AutoDisposeOnCompleted => true;

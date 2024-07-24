@@ -71,8 +71,7 @@ internal struct CompleteState
     {
         get
         {
-            var currentState = Volatile.Read(ref completeState);
-            switch (currentState)
+            switch (completeState)
             {
                 case NotCompleted:
                     return false;
