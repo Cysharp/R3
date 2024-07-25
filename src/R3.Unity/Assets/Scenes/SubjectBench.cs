@@ -44,7 +44,7 @@ public class SubjectBench : MonoBehaviour
 
     public int ccccc;
     Subject<EventBusMsg<int>> subject = new Subject<EventBusMsg<int>>();
-    LegacySubject<EventBusMsg<int>> legacysubject = new LegacySubject<EventBusMsg<int>>();
+    // LegacySubject<EventBusMsg<int>> legacysubject = new LegacySubject<EventBusMsg<int>>();
 
 
     void SetupSubject()
@@ -57,7 +57,7 @@ public class SubjectBench : MonoBehaviour
         }
         for (int i = 0; i < 1000; i++)
         {
-            legacysubject.Subscribe(OnReceiveMsg);
+            // legacysubject.Subscribe(OnReceiveMsg);
         }
 
     }
@@ -76,7 +76,7 @@ public class SubjectBench : MonoBehaviour
     {
         for (int i = 0; i < 100000; i++)
         {
-            legacysubject.OnNext(msg);
+            // legacysubject.OnNext(msg);
         }
     }
 
