@@ -14,7 +14,7 @@
 #>
 namespace R3;
 
-public static partial class ObservableExtensions
+public static partial class Observable
 {
 <# for (var i = 2; i <= GenerateTCount; i++ ) { #>
     public static Observable<TResult> ZipLatest<<#= generateT(i) #>, TResult>(

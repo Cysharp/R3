@@ -1,6 +1,6 @@
 ﻿namespace R3;
 
-public static partial class ObservableExtensions
+public static partial class Observable
 {
     public static Observable<TResult> ZipLatest<T1, T2, TResult>(
         this

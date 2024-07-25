@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace R3;
 
-public static partial class ObservableExtensions
+public static partial class Observable
 {
     public static Observable<TResult> CombineLatest<T1, T2, TResult>(
         this

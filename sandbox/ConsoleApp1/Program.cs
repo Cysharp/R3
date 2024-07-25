@@ -27,3 +27,6 @@ v.OnNext(0);
 
 
 Console.ReadLine();
+
+// Observable.Zip(v, v, v, (x, y, z) => 1);
+
