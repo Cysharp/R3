@@ -63,13 +63,13 @@ public class TakeUntilTest
     }
 
     [Fact]
-    public  void Async()
+    public void Async()
     {
         SynchronizationContext.SetSynchronizationContext(null);
 
         var publisher1 = new Subject<int>();
         var tcs = new TaskCompletionSource();
-        var list = publisher1.TakeUntil(async (x,ct) => await tcs.Task).ToLiveList();
+        var list = publisher1.TakeUntil(async (x, ct) => await tcs.Task).ToLiveList();
 
         publisher1.OnNext(1);
         publisher1.OnNext(2);
@@ -81,5 +81,17 @@ public class TakeUntilTest
         list.AssertEqual([1, 2, 3]);
         list.AssertIsCompleted();
 
+    }
+
+    [Fact]
+    public void Predicate()
+    {
+        var sequence = new[] { "A", "B", "C", "D", "E", "F", "G" };
+
+        sequence.ToObservable().TakeUntil(x => x == "E").ToLiveList().AssertEqual("A", "B", "C", "D", "E");
+        sequence.ToObservable().TakeUntil(x => x == "A").ToLiveList().AssertEqual("A");
+
+        sequence.ToObservable().TakeUntil((x, i) => i == 4).ToLiveList().AssertEqual("A", "B", "C", "D", "E");
+        sequence.ToObservable().TakeUntil((x, i) => i == 0).ToLiveList().AssertEqual("A");
     }
 }
