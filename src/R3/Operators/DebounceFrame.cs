@@ -26,15 +26,17 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
         readonly Observer<T> observer;
         readonly int frameCount;
         readonly object gate = new object();
+        readonly FrameProvider frameProvider;
         T? latestValue;
         bool hasvalue;
         int currentFrame;
+        bool isRunning;
 
         public _DebounceFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
             this.frameCount = frameCount;
-            frameProvider.Register(this);
+            this.frameProvider = frameProvider;
         }
 
         protected override void OnNextCore(T value)
@@ -44,6 +46,12 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
                 latestValue = value;
                 hasvalue = true;
                 currentFrame = 0;
+
+                if (!isRunning)
+                {
+                    isRunning = true;
+                    frameProvider.Register(this);
+                }
             }
         }
 
@@ -80,11 +88,15 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
                         hasvalue = false;
                         latestValue = default;
                         currentFrame = 0;
+                        isRunning = false;
+                        return false;
                     }
                 }
                 else
                 {
                     currentFrame = 0;
+                    isRunning = false;
+                    return false;
                 }
             }
 

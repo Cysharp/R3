@@ -344,6 +344,119 @@ public class ChunkTest
             xs[3].Should().Equal(16, 17, 18);
         }
     }
+
+    // FrameOperator should start on OnNext
+
+    [Fact]
+    public void ChunkFrame2()
+    {
+        var publisher = new Subject<int>();
+        var provider = new FakeFrameProvider();
+
+        using var list = publisher.ChunkFrame(5, provider).ToLiveList();
+
+        provider.Advance(8); // tick 8 frame before OnNext(time is not starting)
+
+        publisher.OnNext(1); // start timer
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+
+        provider.Advance(2);
+
+        list.AssertEmpty();
+
+        provider.Advance(3);
+
+        list[0].Should().Equal(1, 2, 3);
+
+        provider.Advance(4); // timer is stopping
+
+        publisher.OnNext(4);
+
+        provider.Advance(1);
+
+        list.Count.Should().Be(1);
+
+        publisher.OnNext(5);
+
+        provider.Advance(4);
+
+        list[1].Should().Equal(4, 5);
+
+        publisher.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ChunkFrameCount2()
+    {
+        var publisher = new Subject<int>();
+        var provider = new FakeFrameProvider();
+
+        using var list = publisher.ChunkFrame(frameCount: 5, count: 10, provider).ToLiveList();
+
+        provider.Advance(8); // tick 8 frame before OnNext(time is not starting)
+
+        publisher.OnNext(1); // start timer
+        publisher.OnNext(2);
+        publisher.OnNext(3);
+
+        provider.Advance(2);
+
+        list.AssertEmpty();
+
+        provider.Advance(3);
+
+        list[0].Should().Equal(1, 2, 3);
+
+        provider.Advance(4); // timer is stopping
+
+        publisher.OnNext(4);
+
+        provider.Advance(1);
+
+        list.Count.Should().Be(1);
+
+        publisher.OnNext(5);
+
+        provider.Advance(4);
+
+        list[1].Should().Equal(4, 5);
+
+        publisher.OnCompleted();
+
+        list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public void ChunkFrameCount2_countfull()
+    {
+        var publisher = new Subject<int>();
+        var provider = new FakeFrameProvider();
+
+        using var list = publisher.ChunkFrame(frameCount: 5, count: 2, provider).ToLiveList();
+
+        provider.Advance(8); // tick 8 frame before OnNext(time is not starting)
+
+        publisher.OnNext(1); // start timer
+
+        provider.Advance(3);
+
+        publisher.OnNext(2); // count full, timer reset
+
+        list[0].Should().Equal(1, 2);
+
+        publisher.OnNext(3);
+
+        provider.Advance(2);
+
+        list.Count().Should().Be(1);
+
+        provider.Advance(3);
+
+        list[1].Should().Equal(3);
+    }
 }
 
 

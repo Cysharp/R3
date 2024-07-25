@@ -43,15 +43,17 @@ internal sealed class ChunkFrame<T>(Observable<T> source, int frameCount, FrameP
     {
         readonly Observer<T[]> observer;
         readonly List<T> list; // lock gate
+        readonly FrameProvider frameProvider;
         readonly int periodFrame;
         int currentFrame;
+        bool running;
 
         public _Chunk(Observer<T[]> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
             this.periodFrame = frameCount;
+            this.frameProvider = frameProvider;
             this.list = new List<T>();
-            frameProvider.Register(this);
         }
 
         protected override void OnNextCore(T value)
@@ -59,6 +61,12 @@ internal sealed class ChunkFrame<T>(Observable<T> source, int frameCount, FrameP
             lock (list)
             {
                 list.Add(value);
+                if (!running)
+                {
+                    currentFrame = 0;
+                    running = true;
+                    frameProvider.Register(this);
+                }
             }
         }
 
@@ -88,16 +96,10 @@ internal sealed class ChunkFrame<T>(Observable<T> source, int frameCount, FrameP
             {
                 if (++currentFrame == periodFrame)
                 {
-                    currentFrame = 0;
-                    if (list.Count == 0)
-                    {
-                        observer.OnNext(Array.Empty<T>());
-                    }
-                    else
-                    {
-                        observer.OnNext(list.ToArray());
-                        list.Clear();
-                    }
+                    observer.OnNext(list.ToArray());
+                    list.Clear();
+                    running = false;
+                    return false;
                 }
             }
             return true;
@@ -118,6 +120,8 @@ internal sealed class ChunkFrameCount<T>(Observable<T> source, int frameCount, i
         readonly int periodFrame;
         readonly int count;
         readonly object gate = new object();
+        readonly FrameProvider frameProvider;
+        bool running;
         T[] buffer;
         int index;
         int currentFrame;
@@ -128,7 +132,7 @@ internal sealed class ChunkFrameCount<T>(Observable<T> source, int frameCount, i
             this.periodFrame = frameCount;
             this.count = count;
             this.buffer = new T[count];
-            frameProvider.Register(this);
+            this.frameProvider = frameProvider;
         }
 
         protected override void OnNextCore(T value)
@@ -138,12 +142,17 @@ internal sealed class ChunkFrameCount<T>(Observable<T> source, int frameCount, i
                 buffer[index++] = value;
                 if (index == count)
                 {
-                    // reset currentFrame
                     currentFrame = 0;
 
                     index = 0;
                     observer.OnNext(buffer);
                     buffer = new T[count];
+                }
+                else if (!running)
+                {
+                    currentFrame = 0;
+                    running = true;
+                    frameProvider.Register(this);
                 }
             }
         }
@@ -171,21 +180,22 @@ internal sealed class ChunkFrameCount<T>(Observable<T> source, int frameCount, i
 
             lock (gate)
             {
+                if (index == 0) // stop when count buffer is published
+                {
+                    running = false;
+                    return false;
+                }
+
                 if (++currentFrame == periodFrame)
                 {
-                    currentFrame = 0;
-                    if (index == 0)
-                    {
-                        observer.OnNext(Array.Empty<T>());
-                    }
-                    else
-                    {
-                        var span = buffer.AsSpan(0, index);
-                        observer.OnNext(span.ToArray());
-                        // reuse buffer
-                        span.Clear();
-                        index = 0;
-                    }
+                    var span = buffer.AsSpan(0, index);
+                    observer.OnNext(span.ToArray());
+                    // reuse buffer
+                    span.Clear();
+                    index = 0;
+
+                    running = false;
+                    return false;
                 }
             }
             return true;
