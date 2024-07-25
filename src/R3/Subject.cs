@@ -1,4 +1,8 @@
-﻿namespace R3;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+namespace R3;
 
 // thread-safety state for Subject.
 internal struct CompleteState
@@ -67,8 +71,10 @@ internal struct CompleteState
         return false;
     }
 
+    // throws exception when state is disposed
     public bool IsCompleted
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
             switch (completeState)
@@ -89,6 +95,15 @@ internal struct CompleteState
     }
 
     public bool IsDisposed => Volatile.Read(ref completeState) == Disposed;
+
+    public bool IsCompletedOrDisposed
+    {
+        get
+        {
+            var state = Volatile.Read(ref completeState);
+            return state == Disposed || state == CompletedSuccess || state == CompletedFailure;
+        }
+    }
 
     public Result? TryGetResult()
     {
@@ -132,12 +147,237 @@ internal struct CompleteState
     }
 }
 
-public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
+public class Subject<T> : Observable<T>, ISubject<T>, IDisposable
+{
+    // similar implementation to ReactiveProperty
+
+    CompleteState completeState;
+    ObserverNode? root;
+    ulong version = 1;
+
+    public bool IsDisposed => completeState.IsDisposed;
+    internal bool IsCompletedOrDisposed => completeState.IsCompletedOrDisposed;
+
+    public void OnNext(T value)
+    {
+        if (completeState.IsCompleted) return;
+
+        var currentVersion = GetVersion();
+        var node = root;
+        while (node != null)
+        {
+            if (node.Version > currentVersion) break;
+            node.Observer.OnNext(value);
+            node = node.Next;
+        }
+    }
+
+    public void OnErrorResume(Exception error)
+    {
+        if (completeState.IsCompleted) return;
+
+        var currentVersion = GetVersion();
+        var node = root;
+        while (node != null)
+        {
+            if (node.Version > currentVersion) break;
+            node.Observer.OnErrorResume(error);
+            node = node.Next;
+        }
+    }
+
+    public void OnCompleted(Result result)
+    {
+        var status = completeState.TrySetResult(result);
+        if (status != CompleteState.ResultStatus.Done)
+        {
+            return; // already completed
+        }
+
+        var currentVersion = GetVersion();
+        var node = root;
+        while (node != null)
+        {
+            if (node.Version > currentVersion) break;
+            node.Observer.OnCompleted(result);
+            node = node.Next;
+        }
+    }
+
+    protected override IDisposable SubscribeCore(Observer<T> observer)
+    {
+        var result = completeState.TryGetResult();
+        if (result != null)
+        {
+            observer.OnCompleted(result.Value);
+            return Disposable.Empty;
+        }
+
+        var subscription = new ObserverNode(this, observer, version);
+
+        // need to check called completed during adding
+        result = completeState.TryGetResult();
+        if (result != null)
+        {
+            subscription.Observer.OnCompleted(result.Value);
+            subscription.Dispose();
+            return Disposable.Empty;
+        }
+
+        return subscription;
+    }
+
+    void ThrowIfDisposed()
+    {
+        if (IsDisposed) throw new ObjectDisposedException("");
+    }
+
+    public void Dispose()
+    {
+        if (completeState.TrySetDisposed(out var alreadyCompleted))
+        {
+            if (!alreadyCompleted)
+            {
+                var currentVersion = GetVersion();
+                var node = root;
+                while (node != null)
+                {
+                    if (node.Version > currentVersion) break;
+                    node.Observer.OnCompleted();
+                    node = node.Next;
+                }
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    ulong GetVersion()
+    {
+        ulong currentVersion;
+        if (version == ulong.MaxValue)
+        {
+            ResetAllObserverVersion();
+            currentVersion = 0;
+        }
+        else
+        {
+            currentVersion = version++;
+        }
+        return currentVersion;
+
+        void ResetAllObserverVersion()
+        {
+            lock (this)
+            {
+                var node = root;
+                while (node != null)
+                {
+                    node.Version = 0;
+                    node = node.Next;
+                }
+
+                version = 1; // also reset version
+            }
+        }
+    }
+
+    sealed class ObserverNode : IDisposable
+    {
+        public readonly Observer<T> Observer;
+
+        Subject<T>? parent;
+
+        public ObserverNode? Previous { get; set; } // Previous is last node or root(null).
+        public ObserverNode? Next { get; set; }
+        public ulong Version; // internal use, allow reset
+
+        public ObserverNode(Subject<T> parent, Observer<T> observer, ulong version)
+        {
+            this.parent = parent;
+            this.Observer = observer;
+            this.Version = version;
+
+            lock (parent)
+            {
+                if (parent.root == null)
+                {
+                    // Single list(both previous and next is null)
+                    Volatile.Write(ref parent.root, this);
+                }
+                else
+                {
+                    // previous is last, null then root is last.
+                    var lastNode = parent.root.Previous ?? parent.root;
+
+                    lastNode.Next = this;
+                    this.Previous = lastNode;
+                    parent.root.Previous = this;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            var p = Interlocked.Exchange(ref parent, null);
+            if (p == null) return;
+
+            // keep this.Next for dispose on iterating
+            // Remove node(self) from list
+            lock (p)
+            {
+                if (p.IsCompletedOrDisposed) return;
+
+                if (this == p.root)
+                {
+                    if (this.Previous == null || this.Next == null)
+                    {
+                        // case of single list
+                        p.root = null;
+                    }
+                    else
+                    {
+                        // otherwise, root is next node.
+                        var root = this.Next;
+
+                        // single list.
+                        if (root.Next == null)
+                        {
+                            root.Previous = null;
+                        }
+                        else
+                        {
+                            root.Previous = this.Previous; // as last.
+                        }
+
+                        p.root = root;
+                    }
+                }
+                else
+                {
+                    // node is not root, previous must exists
+                    this.Previous!.Next = this.Next;
+                    if (this.Next != null)
+                    {
+                        this.Next.Previous = this.Previous;
+                    }
+                    else
+                    {
+                        // next does not exists, previous is last node so modify root
+                        p.root!.Previous = this.Previous;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+public sealed class LegacySubject<T> : Observable<T>, ISubject<T>, IDisposable
 {
     FreeListCore<Subscription> list; // struct(array, int)
     CompleteState completeState;     // struct(int, IntPtr)
 
-    public Subject()
+    public LegacySubject()
     {
         list = new FreeListCore<Subscription>(this); // use self as gate(reduce memory usage), this is slightly dangerous so don't lock this in user.
     }
@@ -227,9 +467,9 @@ public sealed class Subject<T> : Observable<T>, ISubject<T>, IDisposable
     {
         public readonly Observer<T> observer;
         readonly int removeKey;
-        Subject<T>? parent;
+        LegacySubject<T>? parent;
 
-        public Subscription(Subject<T> parent, Observer<T> observer)
+        public Subscription(LegacySubject<T> parent, Observer<T> observer)
         {
             this.parent = parent;
             this.observer = observer;

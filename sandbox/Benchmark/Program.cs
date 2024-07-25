@@ -81,3 +81,82 @@ public class SubjectSubscribeDispose
         }
     }
 }
+
+
+
+//[Config(typeof(BenchmarkConfig))]
+//public class SubjectVsSlim
+//{
+//    const int C = 100000;
+
+//    Subject<int> subject = new();
+//    SubjectSlim<int> subjectSlim = new();
+
+//    [IterationSetup]
+//    public void Setup()
+//    {
+//        for (int i = 0; i < C; i++)
+//        {
+//            subject.Subscribe();
+//        }
+//        for (int i = 0; i < C; i++)
+//        {
+//            subjectSlim.Subscribe();
+//        }
+//    }
+
+//    [Benchmark]
+//    public void Subject()
+//    {
+//        subject.OnNext(1);
+//    }
+
+//    [Benchmark]
+//    public void SubjectSlim()
+//    {
+//        subjectSlim.OnNext(1);
+//    }
+//}
+
+
+//[Config(typeof(BenchmarkConfig))]
+//public class SubjectVsSlim2
+//{
+//    const int C = 100000;
+
+//    IDisposable[] disposables = default!;
+
+//    [IterationSetup]
+//    public void Setup()
+//    {
+//        disposables = new IDisposable[C];
+//    }
+
+//    [Benchmark]
+//    public void Subject()
+//    {
+//        var subject = new global::R3.Subject<int>();
+//        for (int i = 0; i < C; i++)
+//        {
+//            disposables[i] = subject.Subscribe();
+//        }
+//        for (int i = 0; i < C; i++)
+//        {
+//            disposables[i].Dispose();
+//        }
+//    }
+
+//    [Benchmark]
+//    public void SubjectSlim()
+//    {
+//        var subject = new global::R3.SubjectSlim<int>();
+//        for (int i = 0; i < C; i++)
+//        {
+//            disposables[i] = subject.Subscribe();
+//        }
+//        for (int i = 0; i < C; i++)
+//        {
+//            disposables[i].Dispose();
+//        }
+//    }
+//}

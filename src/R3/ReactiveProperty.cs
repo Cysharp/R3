@@ -124,7 +124,7 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         ThrowIfDisposed();
         if (IsCompleted) return;
 
-        var node = Volatile.Read(ref root);
+        var node = root;
         var last = node?.Previous;
         while (node != null)
         {
