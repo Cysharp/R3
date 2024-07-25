@@ -29,6 +29,16 @@ public static class ReactivePropertyExtensions
     {
         return new BindableReactiveProperty<T>(source, initialValue, equalityComparer);
     }
+
+    public static IBindableReactiveProperty ToBindableReadOnlyReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
+    {
+        return new BindableReactiveProperty<T>(source, initialValue, EqualityComparer<T>.Default);
+    }
+
+    public static IBindableReactiveProperty ToBindableReadOnlyReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
+    {
+        return new BindableReactiveProperty<T>(source, initialValue, equalityComparer);
+    }
 }
 
 internal sealed class ConnectedReactiveProperty<T> : ReactiveProperty<T>

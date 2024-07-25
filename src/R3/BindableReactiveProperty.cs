@@ -8,9 +8,15 @@ using System.Runtime.CompilerServices;
 namespace R3;
 
 // for binding(TriggerAction, Behavior) usage
-public interface IBindableReactiveProperty
+
+public interface IBindableReadOnlyReactiveProperty : INotifyPropertyChanged, INotifyDataErrorInfo, IDisposable
 {
-    object? Value { get; set; }
+    object? Value { get; }
+}
+
+public interface IBindableReactiveProperty : IBindableReadOnlyReactiveProperty
+{
+    new object? Value { get; set; }
     void OnNext(object? value);
 }
 
@@ -19,7 +25,7 @@ public interface IBindableReactiveProperty
 #if NET6_0_OR_GREATER
 [System.Text.Json.Serialization.JsonConverter(typeof(BindableReactivePropertyJsonConverterFactory))]
 #endif
-public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyChanged, INotifyDataErrorInfo, IBindableReactiveProperty
+public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiveProperty
 {
     IDisposable? subscription;
 
@@ -252,6 +258,13 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, INotifyPropertyC
     void IBindableReactiveProperty.OnNext(object? value)
     {
         OnNext((T)value!);
+    }
+
+    // IBindableReadOnlyReactiveProperty
+
+    object? IBindableReadOnlyReactiveProperty.Value
+    {
+        get => Value;
     }
 }
 

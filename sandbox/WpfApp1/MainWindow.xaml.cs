@@ -58,12 +58,12 @@ public partial class MainWindow : Window
 public class BasicUsagesViewModel : IDisposable
 {
     public BindableReactiveProperty<string> Input { get; }
-    public BindableReactiveProperty<string> Output { get; }
+    public IBindableReadOnlyReactiveProperty Output { get; }
 
     public BasicUsagesViewModel()
     {
         Input = new BindableReactiveProperty<string>("");
-        Output = Input.Select(x => x.ToUpper()).ToBindableReactiveProperty("");
+        Output = Input.Select(x => x.ToUpper()).ToBindableReadOnlyReactiveProperty("");
     }
 
     public void Dispose()
