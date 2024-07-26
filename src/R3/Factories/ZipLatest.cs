@@ -25,7 +25,6 @@ internal sealed class ZipLatest<T>(IEnumerable<Observable<T>> sources) : Observa
         readonly Observer<T[]> observer;
         readonly Observable<T>[] sources;
         readonly CombineLatestObserver[] observers;
-        int completedCount;
 
         public _CombineLatest(Observer<T[]> observer, IEnumerable<Observable<T>> sources)
         {
@@ -66,9 +65,14 @@ internal sealed class ZipLatest<T>(IEnumerable<Observable<T>> sources) : Observa
 
         public void TryPublishOnNext()
         {
+            var hasCompletedObserver = false;
             foreach (var item in observers)
             {
                 if (!item.HasValue) return;
+                if (item.IsCompleted)
+                {
+                    hasCompletedObserver = true;
+                }
             }
 
             var values = new T[observers.Length];
@@ -77,9 +81,15 @@ internal sealed class ZipLatest<T>(IEnumerable<Observable<T>> sources) : Observa
                 values[i] = observers[i].GetValue();
             }
             observer.OnNext(values);
+
+            if (hasCompletedObserver)
+            {
+                observer.OnCompleted();
+                Dispose();
+            }
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -88,12 +98,21 @@ internal sealed class ZipLatest<T>(IEnumerable<Observable<T>> sources) : Observa
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == sources.Length)
+                if (empty || AllObserverIsCompleted())
                 {
                     observer.OnCompleted();
                     Dispose();
                 }
             }
+        }
+
+        bool AllObserverIsCompleted()
+        {
+            foreach (var item in observers)
+            {
+                if (!item.IsCompleted) return false;
+            }
+            return true;
         }
 
         public void Dispose()
@@ -108,6 +127,7 @@ internal sealed class ZipLatest<T>(IEnumerable<Observable<T>> sources) : Observa
         {
             T? value;
             public bool HasValue { get; private set; }
+            public bool IsCompleted { get; private set; }
 
             public T GetValue()
             {
@@ -134,7 +154,11 @@ internal sealed class ZipLatest<T>(IEnumerable<Observable<T>> sources) : Observa
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.observer)
+                {
+                    IsCompleted = true;
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }

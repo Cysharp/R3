@@ -114,7 +114,7 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
             }
             else
             {
-                if (empty || <#= generateIsCompleted(i) #>)
+                if (empty || (<#= generateIsCompleted(i) #>))
                 {
                     observer.OnCompleted();
                     Dispose();

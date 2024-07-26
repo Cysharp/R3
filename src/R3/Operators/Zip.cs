@@ -296,7 +296,7 @@ internal sealed class Zip<T1, T2, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -430,7 +430,7 @@ internal sealed class Zip<T1, T2, T3, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -572,7 +572,7 @@ internal sealed class Zip<T1, T2, T3, T4, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -722,7 +722,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -880,7 +880,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1046,7 +1046,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1220,7 +1220,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1402,7 +1402,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1592,7 +1592,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1790,7 +1790,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1996,7 +1996,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TRe
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2210,7 +2210,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted && observer13.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted && observer13.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2432,7 +2432,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted && observer13.IsCompleted && observer14.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted && observer13.IsCompleted && observer14.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2662,7 +2662,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
             }
             else
             {
-                if (empty || observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted && observer13.IsCompleted && observer14.IsCompleted && observer15.IsCompleted)
+                if (empty || (observer1.IsCompleted && observer2.IsCompleted && observer3.IsCompleted && observer4.IsCompleted && observer5.IsCompleted && observer6.IsCompleted && observer7.IsCompleted && observer8.IsCompleted && observer9.IsCompleted && observer10.IsCompleted && observer11.IsCompleted && observer12.IsCompleted && observer13.IsCompleted && observer14.IsCompleted && observer15.IsCompleted))
                 {
                     observer.OnCompleted();
                     Dispose();

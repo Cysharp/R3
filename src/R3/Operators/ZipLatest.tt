@@ -11,6 +11,8 @@
     var generateSources = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"source{i}").ToArray());
     var generateHasValue = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.HasValue").ToArray());
     var generateValue = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"observer{i}.GetValue()").ToArray());
+    var generateIsCompleted = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.IsCompleted").ToArray());
+    var generateIsCompletedOr = (int x) => string.Join(" || ", Enumerable.Range(1, x).Select(i => $"observer{i}.IsCompleted").ToArray());
 #>
 namespace R3;
 
@@ -44,8 +46,6 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
 
     sealed class _ZipLatest : IDisposable
     {
-        const int SourceCount = <#= i #>;
-
         readonly Observer<TResult> observer;
 <# for (var j = 1; j <= i; j++ ) { #>
         readonly Observable<T<#= j #>> source<#= j #>;
@@ -96,10 +96,16 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
             {
                 var result = resultSelector(<#= generateValue(i) #>);
                 observer.OnNext(result);
+                
+                if (<#= generateIsCompletedOr(i) #>)
+                {
+                    observer.OnCompleted();
+                    Dispose();
+                }
             }
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -108,7 +114,7 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                if (empty || (<#= generateIsCompleted(i) #>))
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -127,6 +133,7 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
         {
             T? value;
             public bool HasValue { get; private set; }
+            public bool IsCompleted { get; private set; }
 
             public T GetValue()
             {
@@ -153,7 +160,11 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    IsCompleted = true;
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
