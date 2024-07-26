@@ -270,7 +270,7 @@ public sealed class ClampedReactiveProperty2<T>
 
 Additionally, `ReactiveProperty` supports serialization with `System.Text.JsonSerializer` in .NET 6 and above. For earlier versions, you need to implement `ReactivePropertyJsonConverterFactory` under the existing implementation and add it to the Converter.
 
-As an internal implementation, `ReactiveProperty` has a lightweight implementation that consumes less memory compared to other Subjects. However, in exchange, its behavior differs slightly, especially in multi-threaded environments. For precautions related to multi-threading, please refer to the [Concurrency Policy](#concurrency-policy) section.
+As an internal implementation, `Subject` and `ReactiveProperty` has a lightweight implementation that consumes less memory. However, in exchange, its behavior differs slightly, especially in multi-threaded environments. For precautions related to multi-threading, please refer to the [Concurrency Policy](#concurrency-policy) section.
 
 Disposable
 ---
@@ -735,6 +735,8 @@ This means that the issuance of OnNext must always be done on a single thread. F
 subject.Synchronoize(gate).Take(100).Count().Subscribe();
 ```
 
+Unlike dotnet/reactive, R3.Subject.OnNext is not ThreadSafe. If you are calling OnNext from multiple threads, please use a lock.
+
 In R3, ReplaySubject and BehaviorSubject do not require Synchronize and are thread-safe, including OnNext.
 
 ReactiveProperty is not thread-safe and OnNext, set Value and Susbcribe cannot be called simultaneously. If you need to use it in such a situation, use `SynchronizedReactiveProperty` instead.
@@ -910,6 +912,8 @@ public class ValidationViewModel : IDisposable
 ```
 
 ![image](https://github.com/Cysharp/R3/assets/46207/f80149e6-1573-46b5-9a77-b78776dd3527)
+
+There is also `IReadOnlyBindableReactiveProperty`, which is preferable when ReadOnly is required in binding. However, unless there are special circumstances, it is recommended to use `BindableReactiveProperty<T>`, which allows mutability.
 
 ### ReactiveCommand
 
