@@ -296,7 +296,7 @@ internal sealed class CombineLatest<T1, T2, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -305,7 +305,8 @@ internal sealed class CombineLatest<T1, T2, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -343,7 +344,10 @@ internal sealed class CombineLatest<T1, T2, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -428,7 +432,7 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -437,7 +441,8 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -476,7 +481,10 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -568,7 +576,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -577,7 +585,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -617,7 +626,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -716,7 +728,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -725,7 +737,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -766,7 +779,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -872,7 +888,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -881,7 +897,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -923,7 +940,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -1036,7 +1056,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -1045,7 +1065,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1088,7 +1109,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -1208,7 +1232,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -1217,7 +1241,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1261,7 +1286,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -1388,7 +1416,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -1397,7 +1425,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1442,7 +1471,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -1576,7 +1608,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -1585,7 +1617,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1631,7 +1664,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -1772,7 +1808,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -1781,7 +1817,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -1828,7 +1865,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -1976,7 +2016,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -1985,7 +2025,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2033,7 +2074,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -2188,7 +2232,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -2197,7 +2241,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2246,7 +2291,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -2408,7 +2456,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -2417,7 +2465,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2467,7 +2516,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }
@@ -2636,7 +2688,7 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -2645,7 +2697,8 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -2696,7 +2749,10 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }

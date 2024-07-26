@@ -86,7 +86,7 @@ internal sealed class CombineLatest<T>(IEnumerable<Observable<T>> sources) : Obs
             observer.OnNext(values);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -95,7 +95,8 @@ internal sealed class CombineLatest<T>(IEnumerable<Observable<T>> sources) : Obs
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == sources.Length)
+                completedCount += 1;
+                if (empty || completedCount == sources.Length)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -135,7 +136,10 @@ internal sealed class CombineLatest<T>(IEnumerable<Observable<T>> sources) : Obs
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.observers)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }

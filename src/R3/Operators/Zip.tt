@@ -46,8 +46,6 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = <#= i #>;
-
         readonly Observer<TResult> observer;
 <# for (var j = 1; j <= i; j++ ) { #>
         readonly Observable<T<#= j #>> source<#= j #>;

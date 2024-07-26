@@ -47,4 +47,116 @@ public class CombineLatestTest
 
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public void CombineLatestCompletedCheck()
+    {
+        {
+            var source1 = new Subject<int>();
+            var source2 = new Subject<int>();
+            var source3 = new Subject<int>();
+            using var list = Observable.CombineLatest(source1, source2, source3, ValueTuple.Create).ToLiveList();
+
+            // no value cached complete
+            source1.OnCompleted();
+
+            list.AssertIsCompleted();
+        }
+        {
+            var source1 = new Subject<int>();
+            var source2 = new Subject<int>();
+            var source3 = new Subject<int>();
+            using var list = Observable.CombineLatest(source1, source2, source3, ValueTuple.Create).ToLiveList();
+
+            // value cached, ok
+            source1.OnNext(1);
+            source1.OnCompleted();
+
+            list.AssertIsNotCompleted();
+        }
+    }
+
+    [Fact]
+    public void CombineLatestCompletedCheck2()
+    {
+        var source1 = new Subject<int>();
+        var source2 = new Subject<int>();
+        var source3 = new Subject<int>();
+
+        using var list = Observable.CombineLatest(source1, source2, source3, ValueTuple.Create).ToLiveList();
+
+        source1.OnNext(1);
+        source2.OnNext(10);
+        source3.OnNext(100);
+
+        list.AssertEqual((1, 10, 100));
+
+        source1.OnCompleted();
+        list.AssertIsNotCompleted();
+
+        source2.OnCompleted();
+        list.AssertIsNotCompleted();
+
+        source3.OnNext(200);
+        list.AssertEqual((1, 10, 100), (1, 10, 200));
+
+        source3.OnCompleted();
+        list.AssertIsCompleted(); // all completed
+    }
+
+    [Fact]
+    public void NthCombineLatestCompletedCheck()
+    {
+        {
+            var source1 = new Subject<int>();
+            var source2 = new Subject<int>();
+            var source3 = new Subject<int>();
+            using var list = Observable.CombineLatest(source1, source2, source3).ToLiveList();
+
+            // no value cached complete
+            source1.OnCompleted();
+
+            list.AssertIsCompleted();
+        }
+        {
+            var source1 = new Subject<int>();
+            var source2 = new Subject<int>();
+            var source3 = new Subject<int>();
+            using var list = Observable.CombineLatest(source1, source2, source3).ToLiveList();
+
+            // value cached, ok
+            source1.OnNext(1);
+            source1.OnCompleted();
+
+            list.AssertIsNotCompleted();
+        }
+    }
+
+    [Fact]
+    public void NthCombineLatestCompletedCheck2()
+    {
+        var source1 = new Subject<int>();
+        var source2 = new Subject<int>();
+        var source3 = new Subject<int>();
+
+        using var list = Observable.CombineLatest(source1, source2, source3).ToLiveList();
+
+        source1.OnNext(1);
+        source2.OnNext(10);
+        source3.OnNext(100);
+
+        list.AssertEqual([1, 10, 100]);
+
+        source1.OnCompleted();
+        list.AssertIsNotCompleted();
+
+        source2.OnCompleted();
+        list.AssertIsNotCompleted();
+
+        source3.OnNext(200);
+        list.AssertEqual([1, 10, 100], [1, 10, 200]);
+
+        source3.OnCompleted();
+        list.AssertIsCompleted(); // all completed
+    }
 }

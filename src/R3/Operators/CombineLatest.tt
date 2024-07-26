@@ -112,7 +112,7 @@ internal sealed class CombineLatest<<#= generateT(i) #>, TResult>(
             observer.OnNext(result);
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -121,7 +121,8 @@ internal sealed class CombineLatest<<#= generateT(i) #>, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                completedCount += 1;
+                if (empty || completedCount == SourceCount)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -160,7 +161,10 @@ internal sealed class CombineLatest<<#= generateT(i) #>, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    parent.TryPublishOnCompleted(result, !HasValue);
+                }
             }
         }
     }

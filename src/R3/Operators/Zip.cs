@@ -233,8 +233,6 @@ internal sealed class Zip<T1, T2, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 2;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -363,8 +361,6 @@ internal sealed class Zip<T1, T2, T3, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 3;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -501,8 +497,6 @@ internal sealed class Zip<T1, T2, T3, T4, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 4;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -647,8 +641,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 5;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -801,8 +793,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 6;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -963,8 +953,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 7;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -1133,8 +1121,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 8;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -1311,8 +1297,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 9;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -1497,8 +1481,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 10;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -1691,8 +1673,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 11;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -1893,8 +1873,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TRe
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 12;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -2103,8 +2081,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 13;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -2321,8 +2297,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 14;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
@@ -2547,8 +2521,6 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
 
     sealed class _Zip : IDisposable
     {
-        const int SourceCount = 15;
-
         readonly Observer<TResult> observer;
         readonly Observable<T1> source1;
         readonly Observable<T2> source2;
