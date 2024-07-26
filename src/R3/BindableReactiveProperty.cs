@@ -9,12 +9,12 @@ namespace R3;
 
 // for binding(TriggerAction, Behavior) usage
 
-public interface IBindableReadOnlyReactiveProperty : INotifyPropertyChanged, INotifyDataErrorInfo, IDisposable
+public interface IReadOnlyBindableReactiveProperty : INotifyPropertyChanged, INotifyDataErrorInfo, IDisposable
 {
     object? Value { get; }
 }
 
-public interface IBindableReactiveProperty : IBindableReadOnlyReactiveProperty
+public interface IBindableReactiveProperty : IReadOnlyBindableReactiveProperty
 {
     new object? Value { get; set; }
     void OnNext(object? value);
@@ -262,7 +262,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
 
     // IBindableReadOnlyReactiveProperty
 
-    object? IBindableReadOnlyReactiveProperty.Value
+    object? IReadOnlyBindableReactiveProperty.Value
     {
         get => Value;
     }
