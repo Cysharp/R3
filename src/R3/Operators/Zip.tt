@@ -55,7 +55,6 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
         readonly ZipObserver<T<#= j #>> observer<#= j #>;
 <# } #>        
         readonly object gate = new object();
-        int completedCount;
 
         public _Zip(
             Observer<TResult> observer,

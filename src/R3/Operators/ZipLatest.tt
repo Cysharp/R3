@@ -55,7 +55,6 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
         readonly ZipLatestObserver<T<#= j #>> observer<#= j #>;
 <# } #>        
         readonly object gate = new object();
-        int completedCount;
 
         public _ZipLatest(
             Observer<TResult> observer,
