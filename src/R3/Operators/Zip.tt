@@ -9,7 +9,9 @@
 
     var generateT = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"T{i}").ToArray());
     var generateSources = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"source{i}").ToArray());
-    var generateHasValue = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.HasValue").ToArray());
+    var generateHasValue = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.HasValue(out var shouldComplete{i})").ToArray());
+    var generateIsCompleted = (int x) => string.Join(" && ", Enumerable.Range(1, x).Select(i => $"observer{i}.IsCompleted").ToArray());
+    var generateShouldComplete = (int x) => string.Join(" || ", Enumerable.Range(1, x).Select(i => $"shouldComplete{i}").ToArray());
     var generateValue = (int x) => string.Join(", ", Enumerable.Range(1, x).Select(i => $"observer{i}.Values.Dequeue()").ToArray());
 #>
 namespace R3;
@@ -96,10 +98,16 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
             {
                 var result = resultSelector(<#= generateValue(i) #>);
                 observer.OnNext(result);
+
+                if (<#= generateShouldComplete(i) #>)
+                {
+                    observer.OnCompleted();
+                    Dispose();
+                }
             }
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -108,7 +116,7 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == SourceCount)
+                if (empty || <#= generateIsCompleted(i) #>)
                 {
                     observer.OnCompleted();
                     Dispose();
@@ -125,8 +133,15 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
 
         sealed class ZipObserver<T>(_Zip parent) : Observer<T>
         {
-            public Queue<T> Values { get; private set; } = new Queue<T>();
-            public bool HasValue => Values.Count != 0;
+            public Queue<T> Values { get; } = new Queue<T>();
+            public bool IsCompleted { get; private set; }
+
+            public bool HasValue(out bool shouldComplete)
+            {
+                var count = Values.Count;
+                shouldComplete = IsCompleted && count == 1;
+                return count != 0;
+            }
 
             protected override void OnNextCore(T value)
             {
@@ -144,7 +159,11 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.gate)
+                {
+                    IsCompleted = true;
+                    parent.TryPublishOnCompleted(result, Values.Count == 0);
+                }
             }
         }
     }

@@ -24,8 +24,7 @@ internal sealed class Zip<T>(IEnumerable<Observable<T>> sources) : Observable<T[
     {
         readonly Observer<T[]> observer;
         readonly Observable<T>[] sources;
-        readonly ZipObserver[] observers;
-        int completedCount;
+        readonly ZipObserver[] observers; // as lock gate
 
         public _Zip(Observer<T[]> observer, IEnumerable<Observable<T>> sources)
         {
@@ -66,9 +65,14 @@ internal sealed class Zip<T>(IEnumerable<Observable<T>> sources) : Observable<T[
 
         public void TryPublishOnNext()
         {
+            bool requireCallOnCompleted = false;
             foreach (var item in observers)
             {
-                if (!item.HasValue) return;
+                if (!item.HasValue(out var shouldComplete)) return;
+                if (shouldComplete)
+                {
+                    requireCallOnCompleted = true;
+                }
             }
 
             var values = new T[observers.Length];
@@ -77,9 +81,15 @@ internal sealed class Zip<T>(IEnumerable<Observable<T>> sources) : Observable<T[
                 values[i] = observers[i].Values.Dequeue();
             }
             observer.OnNext(values);
+
+            if (requireCallOnCompleted)
+            {
+                observer.OnCompleted();
+                Dispose();
+            }
         }
 
-        public void TryPublishOnCompleted(Result result)
+        public void TryPublishOnCompleted(Result result, bool empty)
         {
             if (result.IsFailure)
             {
@@ -88,12 +98,21 @@ internal sealed class Zip<T>(IEnumerable<Observable<T>> sources) : Observable<T[
             }
             else
             {
-                if (Interlocked.Increment(ref completedCount) == sources.Length)
+                if (empty || AllObserverIsCompleted())
                 {
                     observer.OnCompleted();
                     Dispose();
                 }
             }
+        }
+
+        bool AllObserverIsCompleted()
+        {
+            foreach (var item in observers)
+            {
+                if (!item.IsCompleted) return false;
+            }
+            return true;
         }
 
         public void Dispose()
@@ -106,8 +125,15 @@ internal sealed class Zip<T>(IEnumerable<Observable<T>> sources) : Observable<T[
 
         sealed class ZipObserver(_Zip parent) : Observer<T>
         {
-            public Queue<T> Values { get; private set; } = new Queue<T>();
-            public bool HasValue => Values.Count != 0;
+            public Queue<T> Values { get; } = new Queue<T>();
+            public bool IsCompleted { get; private set; }
+
+            public bool HasValue(out bool shouldComplete)
+            {
+                var count = Values.Count;
+                shouldComplete = IsCompleted && count == 1;
+                return count != 0;
+            }
 
             protected override void OnNextCore(T value)
             {
@@ -125,7 +151,11 @@ internal sealed class Zip<T>(IEnumerable<Observable<T>> sources) : Observable<T[
 
             protected override void OnCompletedCore(Result result)
             {
-                parent.TryPublishOnCompleted(result);
+                lock (parent.observers)
+                {
+                    IsCompleted = true;
+                    parent.TryPublishOnCompleted(result, Values.Count == 0);
+                }
             }
         }
     }

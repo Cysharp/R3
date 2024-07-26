@@ -1,32 +1,22 @@
 ﻿using R3;
 using System.Threading.Channels;
+using System.Xml.Serialization;
 
 
+var a = new Subject<int>();
+var b = new Subject<int>();
+
+a.Zip(b, (x, y) => (x, y)).Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("complete"));
 
 
-async ValueTask<string> Something(CancellationToken ct)
-{
-    Console.WriteLine("Starting Task");
-    await Task.Delay(1000, ct);
-    Console.WriteLine("Ending Task");
-    Console.WriteLine(ct.IsCancellationRequested);
-    return "result";
-}
+a.OnNext(1);
+b.OnNext(2);
+a.OnNext(3);
 
-Subject<int> v = new Subject<int>();
-
-var dd = v
-.Take(1)
-.SelectAwait(async (v, ct) => await Something(ct))
-.Subscribe(v =>
-{
-    Console.WriteLine(v);
-}, _ => Console.WriteLine("end"));
-
-v.OnNext(0);
+a.OnCompleted();
+b.OnNext(4);
 
 
-Console.ReadLine();
-
-// Observable.Zip(v, v, v, (x, y, z) => 1);
-
+b.OnNext(5);
+b.OnNext(6);
+b.OnNext(7);
