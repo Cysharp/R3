@@ -63,7 +63,7 @@ public class BasicUsagesViewModel : IDisposable
     public BasicUsagesViewModel()
     {
         Input = new BindableReactiveProperty<string>("");
-        Output = Input.Select(x => x.ToUpper()).ToBindableReadOnlyReactiveProperty("");
+        Output = Input.Select(x => x.ToUpper()).ToReadOnlyBindableReactiveProperty("");
     }
 
     public void Dispose()
