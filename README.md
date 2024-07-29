@@ -4,7 +4,7 @@ The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [Un
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
-* Stopping the pipeline at OnError is a billion-dollar mistake.
+* Stopping the pipeline at OnError is a mistake.
 * IScheduler is the root of poor performance.
 * Frame-based operations, a missing feature in Rx, are especially important in game engines.
 * Single asynchronous operations should be entirely left to async/await.
