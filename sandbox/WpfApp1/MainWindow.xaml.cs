@@ -58,7 +58,7 @@ public partial class MainWindow : Window
 public class BasicUsagesViewModel : IDisposable
 {
     public BindableReactiveProperty<string> Input { get; }
-    public IReadOnlyBindableReactiveProperty Output { get; }
+    public IReadOnlyBindableReactiveProperty<string> Output { get; }
 
     public BasicUsagesViewModel()
     {

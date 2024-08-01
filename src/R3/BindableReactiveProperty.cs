@@ -14,10 +14,29 @@ public interface IReadOnlyBindableReactiveProperty : INotifyPropertyChanged, INo
     object? Value { get; }
 }
 
+public interface IReadOnlyBindableReactiveProperty<T> : IReadOnlyBindableReactiveProperty
+{
+    new T Value { get; }
+    IReadOnlyBindableReactiveProperty<T> EnableValidation();
+    IReadOnlyBindableReactiveProperty<T> EnableValidation(Func<T, Exception?> validator);
+    IReadOnlyBindableReactiveProperty<T> EnableValidation<TClass>([CallerMemberName] string? propertyName = null!);
+    IReadOnlyBindableReactiveProperty<T> EnableValidation(Expression<Func<IReadOnlyBindableReactiveProperty<T>?>> selfSelector);
+}
+
 public interface IBindableReactiveProperty : IReadOnlyBindableReactiveProperty
 {
     new object? Value { get; set; }
     void OnNext(object? value);
+}
+
+public interface IBindableReactiveProperty<T> : IBindableReactiveProperty, IReadOnlyBindableReactiveProperty<T>
+{
+    new T Value { get; set; }
+    void OnNext(T value);
+    new IBindableReactiveProperty<T> EnableValidation();
+    new IBindableReactiveProperty<T> EnableValidation(Func<T, Exception?> validator);
+    new IBindableReactiveProperty<T> EnableValidation<TClass>([CallerMemberName] string? propertyName = null!);
+    IBindableReactiveProperty<T> EnableValidation(Expression<Func<IBindableReactiveProperty<T>?>> selfSelector);
 }
 
 // all operators need to call from UI Thread(not thread-safe)
@@ -25,7 +44,7 @@ public interface IBindableReactiveProperty : IReadOnlyBindableReactiveProperty
 #if NET6_0_OR_GREATER
 [System.Text.Json.Serialization.JsonConverter(typeof(BindableReactivePropertyJsonConverterFactory))]
 #endif
-public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiveProperty
+public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiveProperty<T>
 {
     IDisposable? subscription;
 
@@ -260,11 +279,43 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
         OnNext((T)value!);
     }
 
-    // IBindableReadOnlyReactiveProperty
+    IBindableReactiveProperty<T> IBindableReactiveProperty<T>.EnableValidation() => EnableValidation();
+
+    IBindableReactiveProperty<T> IBindableReactiveProperty<T>.EnableValidation(Func<T, Exception?> validator) => EnableValidation(validator);
+
+    IBindableReactiveProperty<T> IBindableReactiveProperty<T>.EnableValidation<TClass>(string? propertyName) => EnableValidation<TClass>(propertyName);
+
+    IBindableReactiveProperty<T> IBindableReactiveProperty<T>.EnableValidation(Expression<Func<IBindableReactiveProperty<T>?>> selfSelector)
+    {
+        var memberExpression = (MemberExpression)selfSelector.Body;
+        var propertyInfo = (PropertyInfo)memberExpression.Member;
+        SetValidationContext(propertyInfo);
+
+        enableNotifyError = true;
+        return this;
+    }
+
+    // IReadOnlyBindableReactiveProperty
 
     object? IReadOnlyBindableReactiveProperty.Value
     {
         get => Value;
+    }
+
+    IReadOnlyBindableReactiveProperty<T> IReadOnlyBindableReactiveProperty<T>.EnableValidation() => EnableValidation();
+
+    IReadOnlyBindableReactiveProperty<T> IReadOnlyBindableReactiveProperty<T>.EnableValidation(Func<T, Exception?> validator) => EnableValidation(validator);
+
+    IReadOnlyBindableReactiveProperty<T> IReadOnlyBindableReactiveProperty<T>.EnableValidation<TClass>(string? propertyName) => EnableValidation<TClass>(propertyName);
+
+    IReadOnlyBindableReactiveProperty<T> IReadOnlyBindableReactiveProperty<T>.EnableValidation(Expression<Func<IReadOnlyBindableReactiveProperty<T>?>> selfSelector)
+    {
+        var memberExpression = (MemberExpression)selfSelector.Body;
+        var propertyInfo = (PropertyInfo)memberExpression.Member;
+        SetValidationContext(propertyInfo);
+
+        enableNotifyError = true;
+        return this;
     }
 }
 
