@@ -21,6 +21,7 @@ public interface IReadOnlyBindableReactiveProperty<T> : IReadOnlyBindableReactiv
     IReadOnlyBindableReactiveProperty<T> EnableValidation(Func<T, Exception?> validator);
     IReadOnlyBindableReactiveProperty<T> EnableValidation<TClass>([CallerMemberName] string? propertyName = null!);
     IReadOnlyBindableReactiveProperty<T> EnableValidation(Expression<Func<IReadOnlyBindableReactiveProperty<T>?>> selfSelector);
+    Observable<T> AsObservable();
 }
 
 public interface IBindableReactiveProperty : IReadOnlyBindableReactiveProperty
@@ -315,6 +316,11 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
         SetValidationContext(propertyInfo);
 
         enableNotifyError = true;
+        return this;
+    }
+
+    public Observable<T> AsObservable()
+    {
         return this;
     }
 }
