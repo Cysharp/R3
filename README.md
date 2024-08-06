@@ -913,7 +913,7 @@ public class ValidationViewModel : IDisposable
 
 ![image](https://github.com/Cysharp/R3/assets/46207/f80149e6-1573-46b5-9a77-b78776dd3527)
 
-There is also `IReadOnlyBindableReactiveProperty`, which is preferable when ReadOnly is required in binding. However, unless there are special circumstances, it is recommended to use `BindableReactiveProperty<T>`, which allows mutability.
+There is also `IReadOnlyBindableReactiveProperty<T>`, which is preferable when ReadOnly is required in binding, can create from `IObservable<T>.ToReadOnlyBindableReactiveProperty<T>`.
 
 ### ReactiveCommand
 
