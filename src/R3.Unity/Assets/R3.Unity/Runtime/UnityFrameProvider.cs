@@ -14,6 +14,7 @@ namespace R3
         public static readonly FrameProvider PreLateUpdate = new UnityFrameProvider(PlayerLoopTiming.PreLateUpdate);
         public static readonly FrameProvider PostLateUpdate = new UnityFrameProvider(PlayerLoopTiming.PostLateUpdate);
         public static readonly FrameProvider TimeUpdate = new UnityFrameProvider(PlayerLoopTiming.TimeUpdate);
+        public static readonly FrameProvider PostFixedUpdate = new UnityFrameProvider(PlayerLoopTiming.PostFixedUpdate);
 
         FreeListCore<IFrameRunnerWorkItem> list;
         readonly object gate = new object();

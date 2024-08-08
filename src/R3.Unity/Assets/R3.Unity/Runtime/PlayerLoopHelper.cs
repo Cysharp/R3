@@ -14,14 +14,15 @@ namespace R3
 {
     public static class R3LoopRunners
     {
-        public struct Initialization { };
-        public struct EarlyUpdate { };
-        public struct FixedUpdate { };
-        public struct PreUpdate { };
-        public struct Update { };
-        public struct PreLateUpdate { };
-        public struct PostLateUpdate { };
-        public struct TimeUpdate { };
+        public struct R3Initialization { };
+        public struct R3EarlyUpdate { };
+        public struct R3FixedUpdate { };
+        public struct R3PreUpdate { };
+        public struct R3Update { };
+        public struct R3PreLateUpdate { };
+        public struct R3PostLateUpdate { };
+        public struct R3TimeUpdate { };
+        public struct R3PostFixedUpdate { };
     }
 
     internal enum PlayerLoopTiming
@@ -34,6 +35,8 @@ namespace R3
         PreLateUpdate = 5,
         PostLateUpdate = 6,
         TimeUpdate = 7,
+
+        PostFixedUpdate = 8 // new in v1.2.4
     }
 
     public static class PlayerLoopHelper
@@ -68,19 +71,21 @@ namespace R3
 
         public static void Initialize(ref PlayerLoopSystem playerLoop)
         {
-            runners = new UnityFrameProvider[8];
+            runners = new UnityFrameProvider[9];
 
             var newLoop = playerLoop.subSystemList.ToArray();
 
             // Initialization
-            InsertLoop(newLoop, typeof(PlayerLoopType.Initialization), typeof(R3LoopRunners.Initialization), runners[0] = (UnityFrameProvider)UnityFrameProvider.Initialization);
-            InsertLoop(newLoop, typeof(PlayerLoopType.EarlyUpdate), typeof(R3LoopRunners.EarlyUpdate), runners[1] = (UnityFrameProvider)UnityFrameProvider.EarlyUpdate);
-            InsertLoop(newLoop, typeof(PlayerLoopType.FixedUpdate), typeof(R3LoopRunners.FixedUpdate), runners[2] = (UnityFrameProvider)UnityFrameProvider.FixedUpdate);
-            InsertLoop(newLoop, typeof(PlayerLoopType.PreUpdate), typeof(R3LoopRunners.PreUpdate), runners[3] = (UnityFrameProvider)UnityFrameProvider.PreUpdate);
-            InsertLoop(newLoop, typeof(PlayerLoopType.Update), typeof(R3LoopRunners.Update), runners[4] = (UnityFrameProvider)UnityFrameProvider.Update);
-            InsertLoop(newLoop, typeof(PlayerLoopType.PreLateUpdate), typeof(R3LoopRunners.PreLateUpdate), runners[5] = (UnityFrameProvider)UnityFrameProvider.PreLateUpdate);
-            InsertLoop(newLoop, typeof(PlayerLoopType.PostLateUpdate), typeof(R3LoopRunners.PostLateUpdate), runners[6] = (UnityFrameProvider)UnityFrameProvider.PostLateUpdate);
-            InsertLoop(newLoop, typeof(PlayerLoopType.TimeUpdate), typeof(R3LoopRunners.TimeUpdate), runners[7] = (UnityFrameProvider)UnityFrameProvider.TimeUpdate);
+            InsertLoop(newLoop, typeof(PlayerLoopType.Initialization), typeof(R3LoopRunners.R3Initialization), runners[0] = (UnityFrameProvider)UnityFrameProvider.Initialization);
+            InsertLoop(newLoop, typeof(PlayerLoopType.EarlyUpdate), typeof(R3LoopRunners.R3EarlyUpdate), runners[1] = (UnityFrameProvider)UnityFrameProvider.EarlyUpdate);
+            InsertLoop(newLoop, typeof(PlayerLoopType.FixedUpdate), typeof(R3LoopRunners.R3FixedUpdate), runners[2] = (UnityFrameProvider)UnityFrameProvider.FixedUpdate);
+            InsertLoop(newLoop, typeof(PlayerLoopType.PreUpdate), typeof(R3LoopRunners.R3PreUpdate), runners[3] = (UnityFrameProvider)UnityFrameProvider.PreUpdate);
+            InsertLoop(newLoop, typeof(PlayerLoopType.Update), typeof(R3LoopRunners.R3Update), runners[4] = (UnityFrameProvider)UnityFrameProvider.Update);
+            InsertLoop(newLoop, typeof(PlayerLoopType.PreLateUpdate), typeof(R3LoopRunners.R3PreLateUpdate), runners[5] = (UnityFrameProvider)UnityFrameProvider.PreLateUpdate);
+            InsertLoop(newLoop, typeof(PlayerLoopType.PostLateUpdate), typeof(R3LoopRunners.R3PostLateUpdate), runners[6] = (UnityFrameProvider)UnityFrameProvider.PostLateUpdate);
+            InsertLoop(newLoop, typeof(PlayerLoopType.TimeUpdate), typeof(R3LoopRunners.R3TimeUpdate), runners[7] = (UnityFrameProvider)UnityFrameProvider.TimeUpdate);
+            // FixedUpdate - Post
+            InsertLoop(newLoop, typeof(PlayerLoopType.FixedUpdate), typeof(R3LoopRunners.R3PostFixedUpdate), runners[8] = (UnityFrameProvider)UnityFrameProvider.PostFixedUpdate);
 
             playerLoop.subSystemList = newLoop;
             PlayerLoop.SetPlayerLoop(playerLoop);
@@ -127,10 +132,14 @@ namespace R3
             var source = subSystemList.Where(x => x.type != loopRunnerType).ToArray(); // remove duplicate(initialized previously)
             var dest = new PlayerLoopSystem[source.Length + 1];
 
-            Array.Copy(source, 0, dest, 1, source.Length);
-
             // insert first
-            dest[0] = new PlayerLoopSystem
+            var insertIndex = (runner.PlayerLoopTiming != PlayerLoopTiming.PostFixedUpdate)
+                ? 0 // insert first
+                : dest.Length - 1; // insert last
+
+            Array.Copy(source, 0, dest, insertIndex == 0 ? 1 : 0, source.Length);
+
+            dest[insertIndex] = new PlayerLoopSystem
             {
                 type = loopRunnerType,
                 updateDelegate = runner.Run
