@@ -2202,6 +2202,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, TState, Boolean>` predicate) | `Observable<T>` | 
 | **Where**(this `Observable<T>` source, `TState` state, `Func<T, Int32, TState, Boolean>` predicate) | `Observable<T>` | 
 | **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `Observable<T>` | 
+| **WhereNotNull**(this `Observable<TResult>` source) | `Observable<TResult>` | 
 | **WithLatestFrom**(this `Observable<TFirst>` first, `Observable<TSecond>` second, `Func<TFirst, TSecond, TResult>` resultSelector) | `Observable<TResult>` | 
 
 In dotnet/reactive, methods that return a single `IObservable<T>` (such as `First`) are all provided only as `***Async`, returning `Task<T>`. Additionally, to align with the naming of Enumerable, `Buffer` has been changed to `Chunk`.
