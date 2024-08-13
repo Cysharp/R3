@@ -43,14 +43,20 @@ internal sealed class TakeLast<T>(Observable<T> source, int count) : Observable<
     sealed class _TakeLast(Observer<T> observer, int count) : Observer<T>, IDisposable
     {
         Queue<T> queue = new Queue<T>(count);
+        bool takeCompleted = false;
 
         protected override void OnNextCore(T value)
         {
-            if (queue.Count == count && queue.Count != 0)
+            lock (queue)
             {
-                queue.Dequeue();
+                if (takeCompleted) return;
+
+                if (queue.Count == count && queue.Count != 0)
+                {
+                    queue.Dequeue();
+                }
+                queue.Enqueue(value);
             }
-            queue.Enqueue(value);
         }
 
         protected override void OnErrorResumeCore(Exception error)
@@ -66,16 +72,26 @@ internal sealed class TakeLast<T>(Observable<T> source, int count) : Observable<
                 return;
             }
 
-            foreach (var item in queue)
+            lock (queue)
             {
-                observer.OnNext(item);
+                takeCompleted = true;
+
+                foreach (var item in queue)
+                {
+                    observer.OnNext(item);
+                    if (IsDisposed) return; // sometimes called Clear during iterating
+                }
             }
+
             observer.OnCompleted();
         }
 
         protected override void DisposeCore()
         {
-            queue.Clear();
+            lock (queue)
+            {
+                queue.Clear();
+            }
         }
     }
 }
@@ -94,6 +110,7 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
         readonly Queue<(long timestamp, T value)> queue = new();
         readonly TimeSpan duration;
         readonly TimeProvider timeProvider;
+        bool takeCompleted = false;
 
         public _TakeLastTime(Observer<T> observer, TimeSpan duration, TimeProvider timeProvider)
         {
@@ -106,6 +123,7 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
         {
             lock (gate)
             {
+                if(takeCompleted) return;
                 var current = timeProvider.GetTimestamp();
                 queue.Enqueue((current, value));
                 Trim(current);
@@ -124,6 +142,8 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
         {
             lock (gate)
             {
+                takeCompleted = true;
+
                 if (result.IsFailure)
                 {
                     observer.OnCompleted(result);
@@ -134,6 +154,7 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
                 foreach (var item in queue)
                 {
                     observer.OnNext(item.value);
+                    if (IsDisposed) return; // sometimes called Clear during iterating
                 }
                 observer.OnCompleted();
             }
@@ -171,6 +192,7 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
         readonly Queue<(long frameCount, T value)> queue = new();
         readonly int frameCount;
         readonly FrameProvider frameProvider;
+        bool takeCompleted = false;
 
         public _TakeLastFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
@@ -183,6 +205,8 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
         {
             lock (gate)
             {
+                if (takeCompleted) return;
+
                 var current = frameProvider.GetFrameCount();
                 queue.Enqueue((current, value));
                 Trim(current);
@@ -201,6 +225,8 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
         {
             lock (gate)
             {
+                takeCompleted = true;
+
                 if (result.IsFailure)
                 {
                     observer.OnCompleted(result);
@@ -211,6 +237,7 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
                 foreach (var item in queue)
                 {
                     observer.OnNext(item.value);
+                    if (IsDisposed) return; // sometimes called Clear during iterating
                 }
                 observer.OnCompleted();
             }

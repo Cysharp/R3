@@ -3,20 +3,22 @@ using System.Threading.Channels;
 using System.Xml.Serialization;
 
 
-var a = new Subject<int>();
-var b = new Subject<int>();
 
-a.Zip(b, (x, y) => (x, y)).Subscribe(x => Console.WriteLine(x), _ => Console.WriteLine("complete"));
+var current = ObservableSystem.GetUnhandledExceptionHandler();
 
 
-a.OnNext(1);
-b.OnNext(2);
-a.OnNext(3);
 
-a.OnCompleted();
-b.OnNext(4);
+var status = Observable.Interval(TimeSpan.FromMilliseconds(100)).Index();
+var doSomething = Observable.Interval(TimeSpan.FromMilliseconds(100)).Take(5);
+
+status.TakeUntil(doSomething.TakeLast(1)).Subscribe(_ => { }, ex =>
+{
+    Console.WriteLine("E" + ex);
+}, r =>
+{
+    Console.WriteLine("R" + r);
+});
 
 
-b.OnNext(5);
-b.OnNext(6);
-b.OnNext(7);
+Console.ReadLine()
+;

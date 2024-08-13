@@ -2,7 +2,7 @@
 
 namespace R3.Tests.OperatorTests;
 
-public class TakeLastTest
+public class TakeLastTest(ITestOutputHelper helper)
 {
     [Fact]
     public async Task Take()
@@ -58,5 +58,34 @@ public class TakeLastTest
 
         list.AssertEqual([3, 4, 5]);
         list.AssertIsCompleted();
+    }
+
+    [Fact]
+    public async Task DisposeQueue()
+    {
+        var defaultHandler = ObservableSystem.GetUnhandledExceptionHandler();
+        Exception? exception = null; 
+        ObservableSystem.RegisterUnhandledExceptionHandler(ex =>
+        {
+            exception = ex;
+        });
+        try
+        {
+            var status = Observable.Interval(TimeSpan.FromMilliseconds(100)).Index();
+            var doSomething = Observable.Interval(TimeSpan.FromMilliseconds(100)).Take(5);
+
+            var end = new TaskCompletionSource();
+            status.TakeUntil(doSomething.TakeLast(1)).Subscribe(_ => end.TrySetResult());
+
+            await end.Task;
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+            exception!.Should().BeNull();
+            // helper.WriteLine(exception!.Message);
+        }
+        finally
+        {
+            ObservableSystem.RegisterUnhandledExceptionHandler(defaultHandler);
+        }
     }
 }
