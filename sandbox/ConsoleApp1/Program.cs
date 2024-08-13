@@ -1,11 +1,18 @@
 ﻿using R3;
+using System.Diagnostics;
 using System.Threading.Channels;
 using System.Xml.Serialization;
 
 
 
-var status = Observable.Interval(TimeSpan.FromMilliseconds(100)).Index();
-var doSomething = Observable.Interval(TimeSpan.FromMilliseconds(100)).Take(5);
-status.TakeUntil(doSomething.TakeLast(1)).Subscribe(Console.WriteLine, r => Console.WriteLine("end"));
+string[] array = { "a", "b", "c" };
+array
+    .ToObservable()
+    .SubscribeAwait(static async (element, token) =>
+    {
+        Console.WriteLine(element);
+        await Task.Yield();
+    }, AwaitOperation.Sequential);
 
-await Task.Delay(TimeSpan.FromDays(1));
+
+Console.ReadLine();

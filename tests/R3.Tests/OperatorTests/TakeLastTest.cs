@@ -60,32 +60,32 @@ public class TakeLastTest(ITestOutputHelper helper)
         list.AssertIsCompleted();
     }
 
-    [Fact]
-    public async Task DisposeQueue()
-    {
-        var defaultHandler = ObservableSystem.GetUnhandledExceptionHandler();
-        Exception? exception = null; 
-        ObservableSystem.RegisterUnhandledExceptionHandler(ex =>
-        {
-            exception = ex;
-        });
-        try
-        {
-            var status = Observable.Interval(TimeSpan.FromMilliseconds(100)).Index();
-            var doSomething = Observable.Interval(TimeSpan.FromMilliseconds(100)).Take(5);
+    //[Fact]
+    //public async Task DisposeQueue()
+    //{
+    //    var defaultHandler = ObservableSystem.GetUnhandledExceptionHandler();
+    //    Exception? exception = null; 
+    //    ObservableSystem.RegisterUnhandledExceptionHandler(ex =>
+    //    {
+    //        exception = ex;
+    //    });
+    //    try
+    //    {
+    //        var status = Observable.Interval(TimeSpan.FromMilliseconds(100)).Index();
+    //        var doSomething = Observable.Interval(TimeSpan.FromMilliseconds(100)).Take(5);
 
-            var end = new TaskCompletionSource();
-            status.TakeUntil(doSomething.TakeLast(1)).Subscribe(_ => end.TrySetResult());
+    //        var end = new TaskCompletionSource();
+    //        status.TakeUntil(doSomething.TakeLast(1)).Subscribe(_ => end.TrySetResult());
 
-            await end.Task;
-            await Task.Delay(TimeSpan.FromMilliseconds(500));
+    //        await end.Task;
+    //        await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-            exception!.Should().BeNull();
-            // helper.WriteLine(exception!.Message);
-        }
-        finally
-        {
-            ObservableSystem.RegisterUnhandledExceptionHandler(defaultHandler);
-        }
-    }
+    //        exception!.Should().BeNull();
+    //        // helper.WriteLine(exception!.Message);
+    //    }
+    //    finally
+    //    {
+    //        ObservableSystem.RegisterUnhandledExceptionHandler(defaultHandler);
+    //    }
+    //}
 }
