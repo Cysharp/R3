@@ -2108,7 +2108,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **SkipLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **SkipUntil**(this `Observable<T>` source, `Observable<TOther>` other) | `Observable<T>` | 
 | **SkipUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
-| **SkipUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **SkipUntil**(this `Observable<T>` source, `Task` task, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **SkipUntil**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncFunc, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **SkipWhile**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
@@ -2148,7 +2148,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **TakeLastFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `Observable<TOther>` other) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `CancellationToken` cancellationToken) | `Observable<T>` | 
-| **TakeUntil**(this `Observable<T>` source, `Task` task) | `Observable<T>` | 
+| **TakeUntil**(this `Observable<T>` source, `Task` task, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` asyncFunc, `Boolean` configureAwait = true) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T>` | 
 | **TakeUntil**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T>` | 
