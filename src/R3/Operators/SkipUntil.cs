@@ -13,9 +13,9 @@ public static partial class ObservableExtensions
         return new SkipUntilC<T>(source, cancellationToken);
     }
 
-    public static Observable<T> SkipUntil<T>(this Observable<T> source, Task task)
+    public static Observable<T> SkipUntil<T>(this Observable<T> source, Task task, bool configureAwait = true)
     {
-        return new SkipUntilT<T>(source, task);
+        return new SkipUntilT<T>(source, task, configureAwait);
     }
 
     public static Observable<T> SkipUntil<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> asyncFunc, bool configureAwait = true)
@@ -150,20 +150,22 @@ internal sealed class SkipUntilC<T>(Observable<T> source, CancellationToken canc
     }
 }
 
-internal sealed class SkipUntilT<T>(Observable<T> source, Task task) : Observable<T>
+internal sealed class SkipUntilT<T>(Observable<T> source, Task task, bool configureAwait) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _SkipUntil(observer, task));
+        return source.Subscribe(new _SkipUntil(observer, task, configureAwait));
     }
 
     sealed class _SkipUntil : Observer<T>, IDisposable
     {
+        readonly bool configureAwait;
         readonly Observer<T> observer;
         bool open;
 
-        public _SkipUntil(Observer<T> observer, Task task)
+        public _SkipUntil(Observer<T> observer, Task task, bool configureAwait)
         {
+            this.configureAwait = configureAwait;
             this.observer = observer;
             TaskAwait(task);
         }
@@ -190,7 +192,7 @@ internal sealed class SkipUntilT<T>(Observable<T> source, Task task) : Observabl
         {
             try
             {
-                await task.ConfigureAwait(false);
+                await task.ConfigureAwait(configureAwait);
                 Volatile.Write(ref open, true);
             }
             catch (Exception ex)

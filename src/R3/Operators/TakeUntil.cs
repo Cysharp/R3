@@ -21,9 +21,9 @@ public static partial class ObservableExtensions
         return new TakeUntilC<T>(source, cancellationToken);
     }
 
-    public static Observable<T> TakeUntil<T>(this Observable<T> source, Task task)
+    public static Observable<T> TakeUntil<T>(this Observable<T> source, Task task, bool configureAwait = true)
     {
-        return new TakeUntilT<T>(source, task);
+        return new TakeUntilT<T>(source, task, configureAwait);
     }
 
     public static Observable<T> TakeUntil<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> asyncFunc, bool configureAwait = true)
@@ -159,20 +159,22 @@ internal sealed class TakeUntilC<T>(Observable<T> source, CancellationToken canc
     }
 }
 
-internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observable<T>
+internal sealed class TakeUntilT<T>(Observable<T> source, Task task, bool configureAwait) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return source.Subscribe(new _TakeUntil(observer, task));
+        return source.Subscribe(new _TakeUntil(observer, task, configureAwait));
     }
 
     sealed class _TakeUntil : Observer<T>, IDisposable
     {
         readonly Observer<T> observer;
+        readonly bool configureAwait;
 
-        public _TakeUntil(Observer<T> observer, Task task)
+        public _TakeUntil(Observer<T> observer, Task task, bool configureAwait)
         {
             this.observer = observer;
+            this.configureAwait = configureAwait;
             TaskAwait(task);
         }
 
@@ -195,7 +197,7 @@ internal sealed class TakeUntilT<T>(Observable<T> source, Task task) : Observabl
         {
             try
             {
-                await task.ConfigureAwait(false);
+                await task.ConfigureAwait(configureAwait);
                 OnCompleted(Result.Success);
             }
             catch (Exception ex)
