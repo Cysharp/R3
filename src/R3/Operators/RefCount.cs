@@ -18,8 +18,12 @@ internal sealed class RefCount<T>(ConnectableObservable<T> source) : Observable<
     {
         lock (gate)
         {
-            var subcription = source.Subscribe(new _RefCount(this, observer));
-            if (++refCount == 1)
+            // incr refCount before Subscribe(completed source decrement refCount in Subscribe)
+            ++refCount;
+            bool needConnect = refCount == 1;
+            var coObserver = new _RefCount(this, observer);
+            var subcription = source.Subscribe(coObserver);
+            if (needConnect && !coObserver.IsDisposed)
             {
                 connection = source.Connect();
             }
