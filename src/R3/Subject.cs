@@ -232,18 +232,28 @@ public class Subject<T> : Observable<T>, ISubject<T>, IDisposable
 
     public void Dispose()
     {
+        Dispose(true);
+    }
+
+    public void Dispose(bool callOnCompleted)
+    {
         if (completeState.TrySetDisposed(out var alreadyCompleted))
         {
-            if (!alreadyCompleted)
+            if (!alreadyCompleted && callOnCompleted)
             {
                 var currentVersion = GetVersion();
                 var node = root;
+                Volatile.Write(ref root, null);
                 while (node != null)
                 {
                     if (node.Version > currentVersion) break;
                     node.Observer.OnCompleted();
                     node = node.Next;
                 }
+            }
+            else
+            {
+                Volatile.Write(ref root, null);
             }
         }
     }
