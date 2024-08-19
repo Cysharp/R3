@@ -66,6 +66,13 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
     {
     }
 
+    // WinForms reflection data binding require to impl Value in this type
+    public new T Value
+    {
+        get => base.Value;
+        set => base.Value = value;
+    }
+
     // ToBindableReactiveProperty
 
     internal BindableReactiveProperty(Observable<T> source, T initialValue, IEqualityComparer<T>? equalityComparer)
