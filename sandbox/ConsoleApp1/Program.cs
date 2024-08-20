@@ -5,27 +5,22 @@ using System.Threading.Channels;
 using System.Xml.Serialization;
 
 
+var b = new Subject<bool>();
 
-var doScan = Observable.FromAsync(async (token) =>
+
+
+var rp = new ReactiveCommand<int, string>(async (x, ct) =>
 {
-    Console.WriteLine("scan start");
-    await Task.Delay(TimeSpan.FromSeconds(3));
-    Console.WriteLine("scan end");
-    return 5;
+    await Task.Delay(TimeSpan.FromSeconds(1));
+    return x + "foo";
 });
 
-var doCalc = Observable.FromAsync(async (token) =>
-{
-    Console.WriteLine("calc start");
-    await Task.Delay(TimeSpan.FromSeconds(3), token);
-    Console.WriteLine("calc end");
-    return 10;
-});
+rp.Subscribe(x => Console.WriteLine("a:" + x));
+rp.Subscribe(x => Console.WriteLine("b:" + x));
 
-var countDown = Observable.Interval(TimeSpan.FromMilliseconds(300)).Index().Select(v => v > 9 ? 9 : v);
-
-var work = doScan.Select(_ => doCalc).Switch().Replay(1).RefCount();
-countDown.TakeUntil(work.LastAsync()).Concat(work.TakeLast(1)).Subscribe(v => Console.WriteLine($"progress: {v}"));
-
+rp.Execute(0);
+rp.Execute(1);
 
 Console.ReadLine();
+
+rp.Dispose();

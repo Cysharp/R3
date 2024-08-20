@@ -131,6 +131,6 @@ public class CommandViewModel : IDisposable
 
     public void Dispose()
     {
-        Disposable.Combine(OnCheck, ShowMessageBox);
+        Disposable.Dispose(OnCheck, ShowMessageBox);
     }
 }
