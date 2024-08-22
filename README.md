@@ -145,7 +145,7 @@ Observable.EveryValueChanged(this, x => x.Height).Subscribe(x => HeightText.Text
 
 Subjects(ReactiveProperty)
 ---
-In R3, there are firve types of Subjects: `Subject`, `BehaviorSubject`, `ReactiveProperty`, `ReplaySubject`, and `ReplayFrameSubject`.
+In R3, there are five types of Subjects: `Subject`, `BehaviorSubject`, `ReactiveProperty`, `ReplaySubject`, and `ReplayFrameSubject`.
 
 `Subject` is an event in Rx. Just as an event can register multiple Actions and distribute values using Invoke, a `Subject` can register multiple `Observer`s and distribute values using OnNext, OnErrorResume, and OnCompleted. There are variations of Subject, such as `BehaviorSubject` and `ReactiveProperty`, which holds a single value internally, `ReplaySubject`, which holds multiple values based on count or time, and `ReplayFrameSubject`, which holds multiple values based on frame time. The internally recorded values are distributed when Subscribe is called.
 
@@ -462,7 +462,7 @@ public static class ObservableSystem
 
     static void DefaultUnhandledExceptionHandler(Exception exception)
     {
-        Console.WriteLine("R3 UnhandleException: " + exception.ToString());
+        Console.WriteLine("R3 UnhandledException: " + exception.ToString());
     }
 }
 ```
@@ -732,14 +732,14 @@ Parallel.For(0, 1000, new ParallelOptions { MaxDegreeOfParallelism = 10 }, x => 
 This means that the issuance of OnNext must always be done on a single thread. For converting external inputs into Observables, such as with `FromEvent`, and when the source of input issues in a multi-threaded manner, it is necessary to synchronize using `Synchronize` to construct the correct operator chain.
 
 ```csharp
-subject.Synchronoize(gate).Take(100).Count().Subscribe();
+subject.Synchronize(gate).Take(100).Count().Subscribe();
 ```
 
 Unlike dotnet/reactive, R3.Subject.OnNext is not ThreadSafe. If you are calling OnNext from multiple threads, please use a lock.
 
 In R3, ReplaySubject and BehaviorSubject do not require Synchronize and are thread-safe, including OnNext.
 
-ReactiveProperty is not thread-safe and OnNext, set Value and Susbcribe cannot be called simultaneously. If you need to use it in such a situation, use `SynchronizedReactiveProperty` instead.
+ReactiveProperty is not thread-safe and OnNext, set Value and Subscribe cannot be called simultaneously. If you need to use it in such a situation, use `SynchronizedReactiveProperty` instead.
 
 ```csharp
 class MyClass
@@ -864,7 +864,7 @@ public class ValidationViewModel : IDisposable
         // Pattern 2. use EnableValidation(Expression) to enable DataAnnotation validation
         Weight = new BindableReactiveProperty<double>().EnableValidation(() => Weight);
 
-        // Pattern 3. EnableValidation() and call OnErrorResume to set custom error meessage
+        // Pattern 3. EnableValidation() and call OnErrorResume to set custom error message
         CustomValidation1 = new BindableReactiveProperty<double>().EnableValidation();
         customValidation1Subscription = CustomValidation1.Subscribe(x =>
         {
@@ -1273,7 +1273,7 @@ There are two installation steps required to use it in Unity.
 * Open Window from NuGet -> Manage NuGet Packages, Search "R3" and Press Install.
 ![](https://github.com/Cysharp/ZLogger/assets/46207/dbad9bf7-28e3-4856-b0a8-0ff8a2a01d67)
 
-* If you encount version conflicts error, please disable version validation in Player Settings(Edit -> Project Settings -> Player -> Scroll down and expand "Other Settings" than uncheck "Assembly Version Validation" under the "Configuration" section).
+* If you encounter version conflict errors, please disable version validation in Player Settings(Edit -> Project Settings -> Player -> Scroll down and expand "Other Settings" than uncheck "Assembly Version Validation" under the "Configuration" section).
 
 2. Install the `R3.Unity` package by referencing the git URL
 
