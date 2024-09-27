@@ -1,26 +1,45 @@
-﻿using R3;
-//using System.Reactive.Linq;
+﻿//using R3;
+using System.Reactive.Linq;
 using System.Diagnostics;
 using System.Threading.Channels;
 using System.Xml.Serialization;
 
 
-var b = new Subject<bool>();
+// Observable.Range(1,10).MinBy(
+// Enumerable.Range(1,10).MinBy(
+
+var a = new System.Reactive.Subjects.BehaviorSubject<int>(0);
+
+//var d = Disposable.CreateBuilder();
+
+// a.OnNext(
 
 
 
-var rp = new ReactiveCommand<int, string>(async (x, ct) =>
+
+a.Do(v => Debug.Log($"a {v}")).Do(v =>
 {
-    await Task.Delay(TimeSpan.FromSeconds(1));
-    return x + "foo";
-});
+    if (v < 20)
+    {
+        a.OnNext(v + 1);
+    }
+}).Subscribe(); //.AddTo(ref d);
 
-rp.Subscribe(x => Console.WriteLine("a:" + x));
-rp.Subscribe(x => Console.WriteLine("b:" + x));
 
-rp.Execute(0);
-rp.Execute(1);
 
-Console.ReadLine();
+Debug.Log($"a == 1: {a.Value == 1}"); // this should be 20, not 1!
 
-rp.Dispose();
+a.OnNext(0); // this 
+
+Debug.Log($"a == 20: {a.Value == 20}"); // this is correct
+
+
+
+
+public static class Debug
+{
+    public static void Log(string msg)
+    {
+        Console.WriteLine(msg);
+    }
+}

@@ -118,7 +118,7 @@ public class ValidationViewModel : IDisposable
 public class CommandViewModel : IDisposable
 {
     public BindableReactiveProperty<bool> OnCheck { get; }
-    public ReactiveCommand<Unit> ShowMessageBox { get; }
+    public ReactiveCommand ShowMessageBox { get; }
 
     public CommandViewModel()
     {

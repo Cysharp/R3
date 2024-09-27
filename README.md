@@ -917,13 +917,13 @@ There is also `IReadOnlyBindableReactiveProperty<T>`, which is preferable when R
 
 ### ReactiveCommand
 
-`ReactiveCommand<T>` is observable [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand) implementation. It can create from `Observable<bool> canExecuteSource`.
+`ReactiveCommand<T>` and `ReactiveCommand` are observable [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand) implementation. It can create from `Observable<bool> canExecuteSource`.
 
 ```csharp
 public class CommandViewModel : IDisposable
 {
     public BindableReactiveProperty<bool> OnCheck { get; } // bind to CheckBox
-    public ReactiveCommand<Unit> ShowMessageBox { get; }   // bind to Button
+    public ReactiveCommand ShowMessageBox { get; }   // bind to Button, non generics ReactiveCommand is ReactiveCommand<Unit>
 
     public CommandViewModel()
     {

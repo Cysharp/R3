@@ -351,6 +351,27 @@ public class ReactiveCommand<TInput, TOutput> : Observable<TOutput>, ICommand, I
     }
 }
 
+public class ReactiveCommand : ReactiveCommand<Unit>
+{
+    public ReactiveCommand() : base()
+    {
+    }
+
+    public ReactiveCommand(Action<Unit> execute) : base(execute)
+    {
+    }
+
+    public ReactiveCommand(Func<Unit, CancellationToken, ValueTask> executeAsync, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = false, int maxSequential = -1)
+        : base(executeAsync, awaitOperation, configureAwait, cancelOnCompleted, maxSequential)
+    {
+    }
+
+    public ReactiveCommand(Observable<bool> canExecuteSource, bool initialCanExecute)
+        : base(canExecuteSource, initialCanExecute)
+    {
+    }
+}
+
 public static class ReactiveCommandExtensions
 {
     public static ReactiveCommand<T> ToReactiveCommand<T>(this Observable<bool> canExecuteSource, bool initialCanExecute = true)
@@ -375,15 +396,15 @@ public static class ReactiveCommandExtensions
         return command;
     }
 
-    public static ReactiveCommand<Unit> ToReactiveCommand(this Observable<bool> canExecuteSource, bool initialCanExecute = true)
+    public static ReactiveCommand ToReactiveCommand(this Observable<bool> canExecuteSource, bool initialCanExecute = true)
     {
-        var command = new ReactiveCommand<Unit>(canExecuteSource, initialCanExecute);
+        var command = new ReactiveCommand(canExecuteSource, initialCanExecute);
         return command;
     }
 
-    public static ReactiveCommand<Unit> ToReactiveCommand(this Observable<bool> canExecuteSource, Action<Unit> execute, bool initialCanExecute = true)
+    public static ReactiveCommand ToReactiveCommand(this Observable<bool> canExecuteSource, Action<Unit> execute, bool initialCanExecute = true)
     {
-        var command = new ReactiveCommand<Unit>(canExecuteSource, initialCanExecute);
+        var command = new ReactiveCommand(canExecuteSource, initialCanExecute);
 
         var subscription = command.Subscribe(execute);
         command.CombineSubscription(subscription);
