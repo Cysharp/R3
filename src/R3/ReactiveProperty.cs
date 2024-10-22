@@ -190,6 +190,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
 
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
+        return SubscribeCore(observer, true);
+    }
+
+    protected IDisposable SubscribeCore(Observer<T> observer, bool riseOnSubscription)
+    {
         Result? completedResult;
         lock (this)
         {
@@ -210,7 +215,10 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
         }
 
         // raise latest value on subscribe(before add observer to list)
-        observer.OnNext(currentValue);
+        if (riseOnSubscription)
+        {
+            observer.OnNext(currentValue);
+        }
 
         lock (this)
         {
@@ -243,6 +251,11 @@ public class ReactiveProperty<T> : ReadOnlyReactiveProperty<T>, ISubject<T>
             observer.OnCompleted(completedResult.Value);
         }
         return Disposable.Empty;
+    }
+
+    public IDisposable Subscribe(Observer<T> observer, bool riseOnSubscription = true)
+    {
+        return SubscribeCore(observer, riseOnSubscription);
     }
 
     void ThrowIfDisposed()

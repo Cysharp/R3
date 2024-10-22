@@ -229,7 +229,7 @@ public class ReactivePropertyTest
 
             list1.AssertEqual([1, 10, 20]);
             list2.AssertEqual([1, 10, 20]);
-            list3.AssertEqual([1, 10, 20]);
+            list3.AssertEqual([1, 10]);
             list4.AssertEqual([1]);
             list5.AssertEqual([1, 10, 20]);
         }
@@ -414,5 +414,31 @@ A = 2
 [P2]2
 [P2]2
 """);
+    }
+
+    [Fact]
+    public void SubscribeWithRiseOnSubscription()
+    {
+        var rp = new ReactiveProperty<int>(100);
+        var log = new List<int>();
+
+        rp.Subscribe(new AnonymousObserver<int>(log.Add, _ => { }, _ => { }), riseOnSubscription: true);
+        log.Should().Equal(100);
+
+        rp.Value = 200;
+        log.Should().Equal(100, 200);
+    }
+
+    [Fact]
+    public void SubscribeWithoutRiseOnSubscription()
+    {
+        var rp = new ReactiveProperty<int>(100);
+        var log = new List<int>();
+
+        rp.Subscribe(new AnonymousObserver<int>(log.Add, _ => { }, _ => { }), riseOnSubscription: false);
+        log.Should().BeEmpty();
+
+        rp.Value = 200;
+        log.Should().Equal(200);
     }
 }

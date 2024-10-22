@@ -28,6 +28,24 @@ public static class ObservableSubscribeExtensions
         return source.Subscribe(new AnonymousObserver<T>(onNext, onErrorResume, onCompleted));
     }
 
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, bool riseOnSubscription)
+    {
+        return source.Subscribe(new AnonymousObserver<T>(onNext, ObservableSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult), riseOnSubscription);
+    }
+
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Result> onCompleted, bool riseOnSubscription)
+    {
+        return source.Subscribe(new AnonymousObserver<T>(onNext, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted), riseOnSubscription);
+    }
+
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Exception> onErrorResume, Action<Result> onCompleted, bool riseOnSubscription)
+    {
+        return source.Subscribe(new AnonymousObserver<T>(onNext, onErrorResume, onCompleted), riseOnSubscription);
+    }
+
     // with state
 
     [DebuggerStepThrough]
@@ -46,6 +64,24 @@ public static class ObservableSubscribeExtensions
     public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onCompleted)
     {
         return source.Subscribe(new AnonymousObserver<T, TState>(onNext, onErrorResume, onCompleted, state));
+    }
+
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, bool riseOnSubscription)
+    {
+        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, Stubs<TState>.HandleException, Stubs<TState>.HandleResult, state), riseOnSubscription);
+    }
+
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Result, TState> onCompleted, bool riseOnSubscription)
+    {
+        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, Stubs<TState>.HandleException, onCompleted, state), riseOnSubscription);
+    }
+
+    [DebuggerStepThrough]
+    public static IDisposable Subscribe<T, TState>(this Observable<T> source, TState state, Action<T, TState> onNext, Action<Exception, TState> onErrorResume, Action<Result, TState> onCompleted, bool riseOnSubscription)
+    {
+        return source.Subscribe(new AnonymousObserver<T, TState>(onNext, onErrorResume, onCompleted, state), riseOnSubscription);
     }
 }
 
