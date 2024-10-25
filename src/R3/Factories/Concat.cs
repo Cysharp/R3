@@ -4,6 +4,48 @@ namespace R3;
 
 public static partial class Observable
 {
+    /// <summary>
+    ///   <para>
+    ///     Emit the emissions from two or more <see cref="Observable"/>s without interleaving them.
+    ///   </para>
+    ///   <para>
+    ///     ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/concat.html" />
+    ///   </para>
+    ///   <para>
+    ///     In the following examples each column represent single time tick.
+    ///     "--" means no emission on this tick.
+    ///     "|-" means completion.
+    ///   </para>
+    ///   <example>
+    ///     <para>Example 1:</para>
+    ///     <code>
+    /// Number:       1  2  3  4  5  6  7  8  9 10 11
+    /// Sequence 1:  -- 20 -- |- -- -- -- -- -- -- -->
+    /// Sequence 2:  -- 01 -- 02 |- -- -- -- -- -- -->
+    /// Sequence 3:  -- -- -- -- 00 -- 00 -- -- 00 -->
+    ///
+    /// Results:     -- 20 -- 01 00 -- 00 -- -- 00 -->
+    ///                       02                     >
+    ///     </code>
+    ///   </example>
+    ///   <example>
+    ///     <para>Example 2:</para>
+    ///     <code>
+    /// Number:       1  2  3  4  5  6  7  8  9 10 11
+    /// Sequence 1:  -- -- -- -- -- 20 -- |- -- -- -->
+    /// Sequence 2:  -- 01 -- 02 -- |- -- -- -- -- -->
+    /// Sequence 3:  -- -- 00 -- -- -- 00 -- -- 00 -->
+    ///
+    /// Results:     -- -- -- -- -- 20 -- 01 -- 00 -->
+    ///                                   02         >
+    ///                                   00         >
+    ///                                   00         >
+    ///     </code>
+    ///   </example>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sources"></param>
+    /// <returns></returns>
     public static Observable<T> Concat<T>(params Observable<T>[] sources)
     {
         return new Concat<T>(sources);

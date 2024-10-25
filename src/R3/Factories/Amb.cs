@@ -2,6 +2,43 @@
 
 public static partial class Observable
 {
+    /// <summary>
+    ///   <para>
+    ///     Given two or more source <see cref="Observable"/>s, emit all of the items from only the first of these <see cref="Observable"/> to emit an item or notification.
+    ///   </para>
+    ///   <para>
+    ///     ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/amb.html" />
+    ///   </para>
+    ///   <para>
+    ///     In the following examples each column represent single time tick.
+    ///     "--" means no emission on this tick.
+    ///   </para>
+    ///   <example>
+    ///     <para>Example 1:</para>
+    ///     <code>
+    /// Number:      1  2  3  4  5  6  7  8  9 10
+    /// Sequence 1: -- -- -- 20 -- 40 -- 60 -- -->
+    /// Sequence 2: -- 01 -- 02 -- 03 -- -- -- -->
+    /// Sequence 3: -- -- -- -- 00 -- 00 -- 00 -->
+    /// 
+    /// Results:    -- 01 -- 02 -- 03 -- -- -- -->
+    ///     </code>
+    ///   </example>
+    ///   <example>
+    ///     <para>Example 2:</para>
+    ///     <code>
+    ///  Number:      1  2  3  4  5  6  7  8  9
+    ///  Sequence 1: -- -- -- 20 -- 40 -- 60 -->
+    ///  Sequence 2: -- -- -- 01 -- 02 -- 03 -->
+    ///  Sequence 3: -- 00 -- 00 -- 00 -- -- -->
+    ///  
+    ///  Results:    -- 00 -- 00 -- 00 -- -- -->
+    ///     </code>
+    ///   </example>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sources"></param>
+    /// <returns></returns>
     public static Observable<T> Amb<T>(params Observable<T>[] sources)
     {
         return new Amb<T>(sources);

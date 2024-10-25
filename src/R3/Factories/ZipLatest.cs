@@ -2,6 +2,62 @@
 
 public static partial class Observable
 {
+    /// <summary>
+    ///   <para>
+    ///     When an item is emitted by either of multiple <see cref="Observable"/>s, combine the latest not yet zipped item emitted by each <see cref="Observable"/> to an array.
+    ///   </para>
+    ///   <para>
+    ///     In the following examples each column represent single time tick.
+    ///     "--" means no emission on this tick.
+    ///     "|-" means completion.
+    ///   </para>
+    ///   <example>
+    ///     <para>Example 1:</para>
+    ///     <code>
+    /// Number:       1  2  3  4  5  6  7  8  9 10
+    /// Sequence 1:  -- -- -- 20 -- 40 -- 60 -- -->
+    /// Sequence 2:  -- 01 -- 02 -- 03 -- -- -- -->
+    /// Sequence 3:  -- -- -- -- 10 -- 11 -- 12 -->
+    ///
+    /// Results:
+    ///   1: --
+    ///   2: --
+    ///   3: --
+    ///   4: --
+    ///   5: [20,02,10]
+    ///   6: --
+    ///   7: [40,03,11]
+    ///   8: --
+    ///   9: --
+    ///  10: --
+    ///     </code>
+    ///   </example>
+    ///   <example>
+    ///     <para>Example 2:</para>
+    ///     <code>
+    /// Number:       1  2  3  4  5  6  7  8  9 10 11
+    /// Sequence 1:  -- -- -- 20 -- 40 -- 60 |- -- -->
+    /// Sequence 2:  -- 01 -- 02 03 -- |- -- -- -- -->
+    /// Sequence 3:  -- -- 10 -- -- -- -- -- 11 12 -->
+    ///
+    /// Results:
+    ///   1: --
+    ///   2: --
+    ///   3: --
+    ///   4: [20,01,10]
+    ///   5: --
+    ///   6: --
+    ///   7: --
+    ///   8: --
+    ///   9: [60,03,11]
+    ///  10: --
+    ///  11: --
+    ///     </code>
+    ///   </example>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sources"></param>
+    /// <returns></returns>
     public static Observable<T[]> ZipLatest<T>(params Observable<T>[] sources)
     {
         return new ZipLatest<T>(sources);

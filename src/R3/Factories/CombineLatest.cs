@@ -4,6 +4,42 @@ namespace R3;
 
 public static partial class Observable
 {
+    /// <summary>
+    ///   <para>
+    ///     When an item is emitted by either of multiple <see cref="Observable"/>s, combine the latest item emitted by each <see cref="Observable"/> to an array.
+    ///   </para>
+    ///   <para>
+    ///     ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/combinelatest.html" />
+    ///   </para>
+    ///   <para>
+    ///     In the following examples each column represent single time tick. "--" means no emission on this tick.
+    ///   </para>
+    ///   <example>
+    ///     <para>Example:</para>
+    ///     <code>
+    /// Number:      1  2  3  4  5  6  7  8  9 10 11
+    /// Sequence 1: -- -- -- 20 -- 40 -- 60 -- -- -->
+    /// Sequence 2: -- 01 -- 02 -- 03 -- -- -- -- -->
+    /// Sequence 3: -- -- -- -- 00 -- 00 -- -- 00 -->
+    /// 
+    /// Results:
+    ///   1 : --
+    ///   2 : --
+    ///   3 : --
+    ///   4 : --
+    ///   5 : [20,02,00]
+    ///   6 : [40,02,00], [40,03,00]
+    ///   7 : [40,03,00]
+    ///   8 : [60,03,00]
+    ///   9 : --
+    ///   10: [60,03,00]
+    ///   11: --
+    ///     </code>
+    ///   </example>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sources"></param>
+    /// <returns></returns>
     public static Observable<T[]> CombineLatest<T>(params Observable<T>[] sources)
     {
         return new CombineLatest<T>(sources);
