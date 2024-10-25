@@ -1,0 +1,304 @@
+﻿<?xml version="1.0"?>
+<!--
+    This XML is used to store documentation comments that are too long and ugly in source code.
+    
+    Section <members> matches general format of XML comments, so values for newly added members could be
+    taken from R3.xml documentation file that is being generated on compilation.
+    Documentation comments in code could be then replaced as following:
+    <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.ZipLatest``1(R3.Observable{``0}[])']" />
+
+    Section <sharedDocs> is custom section used to store shared documentation that can be included in multiple places.
+    Shared docs could be referenced in documentation comments, as well as right in LongDocs.xml as following:
+    <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+
+    For generation of more examples could use Simulator.cs included sandbox/ConsoleApp1.
+
+    Note:
+    After formatting put <code> tag's contents 8 spaces away from the beginning of the line,
+    otherwise <code> block will have too big tabulation in hint window in VS and VS Code.
+-->
+<doc>
+    <sharedDocs>
+        <shared name="ExampleDescription">
+          <para>
+            In the examples each column represent single time tick.<br/>
+            "--" means no value emission on this tick.<br/>
+            "|-" means acheiving completed state.
+          </para>
+        </shared>
+        <shared name="DefaultDescriptionTypeparamT">
+          <typeparam name="T">Type of payload</typeparam>
+        </shared>
+        <shared name="DefaultDescriptionParamSources">
+          <param name="sources">Source <see cref="T:R3.Observable"/> streams</param>
+        </shared>
+        <shared name="DefaultDescriptionParamSourceAndSecond">
+          <param name="source"><see cref="T:R3.Observable"/> stream</param>
+          <param name="second"><see cref="T:R3.Observable"/> stream</param>
+        </shared>
+        <shared name="DefaultDescriptionReturns">
+          <returns>
+            <see cref="T:R3.Observable"/> stream
+          </returns>
+        </shared>
+    </sharedDocs>
+    <members>
+        <member name="M:R3.Observable.Amb``1(R3.Observable{``0}[])">
+            <summary>
+              <para>
+                Given two or more source <see cref="T:R3.Observable"/>s, emit all of the items from only the first of these <see cref="T:R3.Observable"/> to emit an item or notification.
+              </para>
+              <para>
+                ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/amb.html" />
+              </para>
+              <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+              <example>
+                <para>Example 1:</para>
+                <code>
+        Number:      1  2  3  4  5  6  7  8  9 10
+        Sequence 1: -- -- -- 20 -- 40 -- 60 -- -->
+        Sequence 2: -- 01 -- 02 -- 03 -- -- -- -->
+        Sequence 3: -- -- -- -- 00 -- 00 -- 00 -->
+            
+        Results:    -- 01 -- 02 -- 03 -- -- -- -->
+                </code>
+              </example>
+              <example>
+                <para>Example 2:</para>
+                <code>
+        Number:      1  2  3  4  5  6  7  8  9
+        Sequence 1: -- -- -- 20 -- 40 -- 60 -->
+        Sequence 2: -- -- -- 01 -- 02 -- 03 -->
+        Sequence 3: -- 00 -- 00 -- 00 -- -- -->
+             
+        Results:    -- 00 -- 00 -- 00 -- -- -->
+                </code>
+              </example>
+            </summary>
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionTypeparamT']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionReturns']" />
+        </member>
+        <member name="M:R3.Observable.CombineLatest``1(R3.Observable{``0}[])">
+            <summary>
+              <para>
+                When an item is emitted by either of multiple <see cref="T:R3.Observable"/>s, combine the latest item emitted by each <see cref="T:R3.Observable"/> to an array.
+              </para>
+              <para>
+                ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/combinelatest.html" />
+              </para>
+              <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+              <example>
+                <para>Example:</para>
+                <code>
+        Number:      1  2  3  4  5  6  7  8  9 10 11
+        Sequence 1: -- -- -- 20 -- 40 -- 60 -- -- -->
+        Sequence 2: -- 01 -- 02 -- 03 -- -- -- -- -->
+        Sequence 3: -- -- -- -- 00 -- 00 -- -- 00 -->
+            
+        Results:
+         1 : --
+         2 : --
+         3 : --
+         4 : --
+         5 : [20,02,00]
+         6 : [40,02,00], [40,03,00]
+         7 : [40,03,00]
+         8 : [60,03,00]
+         9 : --
+        10: [60,03,00]
+        11: --
+                </code>
+              </example>
+            </summary>
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionTypeparamT']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionReturns']" />
+        </member>
+        <member name="M:R3.Observable.Concat``1(R3.Observable{``0}[])">
+            <summary>
+              <para>
+                Emit the emissions from two or more <see cref="T:R3.Observable"/>s without interleaving them.
+              </para>
+              <para>
+                ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/concat.html" />
+              </para>
+              <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+              <example>
+                <para>Example 1:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10 11
+        Sequence 1:  -- 20 -- |- -- -- -- -- -- -- -->
+        Sequence 2:  -- 01 -- 02 |- -- -- -- -- -- -->
+        Sequence 3:  -- -- -- -- 00 -- 00 -- -- 00 -->
+            
+        Results:     -- 20 -- 01 00 -- 00 -- -- 00 -->
+                              02                     >
+                </code>
+              </example>
+              <example>
+                <para>Example 2:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10 11
+        Sequence 1:  -- -- -- -- -- 20 -- |- -- -- -->
+        Sequence 2:  -- 01 -- 02 -- |- -- -- -- -- -->
+        Sequence 3:  -- -- 00 -- -- -- 00 -- -- 00 -->
+            
+        Results:     -- -- -- -- -- 20 -- 01 -- 00 -->
+                                          02         >
+                                          00         >
+                                          00         >
+                </code>
+              </example>
+            </summary>
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionTypeparamT']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionReturns']" />
+        </member>
+        <member name="M:R3.Observable.Merge``1(R3.Observable{``0}[])">
+            <summary>
+              <para>
+                Combine multiple <see cref="T:R3.Observable"/>s into one by merging their emissions.
+              </para>
+              <para>
+                ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/merge.html" />
+              </para>
+              <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+              <example>
+                <para>Example 1:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10
+        Sequence 1:  -- -- -- 20 -- 40 -- 60 -- -->
+        Sequence 2:  -- 01 -- 02 -- 03 -- -- -- -->
+        Sequence 3:  -- -- -- -- 00 -- 00 -- 00 -->
+            
+        Results:     -- 01 -- 20 00 40 00 60 00 -->
+                              02    03            >
+                </code>
+              </example>
+              <example>
+                <para>Example 2:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10 11
+        Sequence 1:  -- -- -- -- -- 20 -- |- -- -- -->
+        Sequence 2:  -- 01 -- 02 -- |- -- -- -- -- -->
+        Sequence 3:  -- -- 00 -- -- -- 00 -- -- 00 -->
+            
+        Results:     -- 01 00 02 -- 20 00 -- -- 00 -->
+                </code>
+              </example>
+            </summary>
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionTypeparamT']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionReturns']" />
+        </member>
+        <member name="M:R3.Observable.Zip``1(R3.Observable{``0}[])">
+            <summary>
+              <para>
+                Combine the emissions of multiple <see cref="T:R3.Observable"/>s together via a specified function and emit single items for each combination based on the results of this function.
+              </para>
+              <para>
+                ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/zip.html" />
+              </para>
+              <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+              <example>
+                <para>Example 1:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10
+        Sequence 1:  -- -- -- 20 -- 40 -- 60 -- -->
+        Sequence 2:  -- 01 -- 02 -- 03 -- -- -- -->
+        Sequence 3:  -- -- -- -- 00 -- 00 -- 00 -->
+            
+        Results:
+         1: --
+         2: --
+         3: --
+         4: --
+         5: [20,01,00]
+         6: --
+         7: [40,02,00]
+         8: --
+         9: [60,03,00]
+        10: --
+                </code>
+              </example>
+              <example>
+                <para>Example 2:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10 11
+        Sequence 1:  -- -- -- 20 -- 40 -- 60 |- -- -->
+        Sequence 2:  -- 01 -- 02 03 -- |- -- -- -- -->
+        Sequence 3:  -- -- 00 -- -- -- -- -- 00 00 -->
+            
+        Results:
+         1: --
+         2: --
+         3: --
+         4: [20,01,00]
+         5: --
+         6: --
+         7: --
+         8: --
+         9: [40,02,00]
+         10: [60,03,00]
+         11: --
+                </code>
+              </example>
+            </summary>
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionTypeparamT']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionReturns']" />
+        </member>
+        <member name="M:R3.Observable.ZipLatest``1(R3.Observable{``0}[])">
+            <summary>
+              <para>
+                When an item is emitted by either of multiple <see cref="T:R3.Observable"/>s, combine the latest not yet zipped item emitted by each <see cref="T:R3.Observable"/> to an array.
+              </para>
+              <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='ExampleDescription']" />
+              <example>
+                <para>Example 1:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10
+        Sequence 1:  -- -- -- 20 -- 40 -- 60 -- -->
+        Sequence 2:  -- 01 -- 02 -- 03 -- -- -- -->
+        Sequence 3:  -- -- -- -- 10 -- 11 -- 12 -->
+           
+        Results:
+         1: --
+         2: --
+         3: --
+         4: --
+         5: [20,02,10]
+         6: --
+         7: [40,03,11]
+         8: --
+         9: --
+        10: --
+                </code>
+              </example>
+              <example>
+                <para>Example 2:</para>
+                <code>
+        Number:       1  2  3  4  5  6  7  8  9 10 11
+        Sequence 1:  -- -- -- 20 -- 40 -- 60 |- -- -->
+        Sequence 2:  -- 01 -- 02 03 -- |- -- -- -- -->
+        Sequence 3:  -- -- 10 -- -- -- -- -- 11 12 -->
+           
+        Results:
+         1: --
+         2: --
+         3: --
+         4: [20,01,10]
+         5: --
+         6: --
+         7: --
+         8: --
+         9: [60,03,11]
+        10: --
+        11: --
+                </code>
+              </example>
+            </summary>
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionTypeparamT']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
+            <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionReturns']" />
+        </member>
+    </members>
+</doc>

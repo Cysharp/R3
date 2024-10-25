@@ -2,48 +2,15 @@
 
 public static partial class Observable
 {
-    /// <summary>
-    ///   <para>
-    ///     Given two or more source <see cref="Observable"/>s, emit all of the items from only the first of these <see cref="Observable"/> to emit an item or notification.
-    ///   </para>
-    ///   <para>
-    ///     ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/amb.html" />
-    ///   </para>
-    ///   <para>
-    ///     In the following examples each column represent single time tick.
-    ///     "--" means no emission on this tick.
-    ///   </para>
-    ///   <example>
-    ///     <para>Example 1:</para>
-    ///     <code>
-    /// Number:      1  2  3  4  5  6  7  8  9 10
-    /// Sequence 1: -- -- -- 20 -- 40 -- 60 -- -->
-    /// Sequence 2: -- 01 -- 02 -- 03 -- -- -- -->
-    /// Sequence 3: -- -- -- -- 00 -- 00 -- 00 -->
-    /// 
-    /// Results:    -- 01 -- 02 -- 03 -- -- -- -->
-    ///     </code>
-    ///   </example>
-    ///   <example>
-    ///     <para>Example 2:</para>
-    ///     <code>
-    ///  Number:      1  2  3  4  5  6  7  8  9
-    ///  Sequence 1: -- -- -- 20 -- 40 -- 60 -->
-    ///  Sequence 2: -- -- -- 01 -- 02 -- 03 -->
-    ///  Sequence 3: -- 00 -- 00 -- 00 -- -- -->
-    ///  
-    ///  Results:    -- 00 -- 00 -- 00 -- -- -->
-    ///     </code>
-    ///   </example>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="sources"></param>
-    /// <returns></returns>
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Amb``1(R3.Observable{``0}[])']" />
+    /// <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
     public static Observable<T> Amb<T>(params Observable<T>[] sources)
     {
         return new Amb<T>(sources);
     }
 
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Amb``1(R3.Observable{``0}[])']" />
+    /// <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
     public static Observable<T> Amb<T>(IEnumerable<Observable<T>> sources)
     {
         return new Amb<T>(sources);
@@ -52,6 +19,8 @@ public static partial class Observable
 
 public static partial class ObservableExtensions
 {
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Amb``1(R3.Observable{``0}[])']" />
+    /// <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSourceAndSecond']" />
     public static Observable<T> Amb<T>(this Observable<T> source, Observable<T> second)
     {
         return Observable.Amb(source, second);

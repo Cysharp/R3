@@ -2,70 +2,13 @@
 
 public static partial class Observable
 {
-    /// <summary>
-    ///   <para>
-    ///     Combine the emissions of multiple <see cref="Observable"/>s together via a specified function and emit single items for each combination based on the results of this function.
-    ///   </para>
-    ///   <para>
-    ///     ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/zip.html" />
-    ///   </para>
-    ///   <para>
-    ///     In the following examples each column represent single time tick.
-    ///     "--" means no emission on this tick.
-    ///     "|-" means completion.
-    ///   </para>
-    ///   <example>
-    ///     <para>Example 1:</para>
-    ///     <code>
-    /// Number:       1  2  3  4  5  6  7  8  9 10
-    /// Sequence 1:  -- -- -- 20 -- 40 -- 60 -- -->
-    /// Sequence 2:  -- 01 -- 02 -- 03 -- -- -- -->
-    /// Sequence 3:  -- -- -- -- 00 -- 00 -- 00 -->
-    ///
-    /// Results:
-    ///   1: --
-    ///   2: --
-    ///   3: --
-    ///   4: --
-    ///   5: [20,01,00]
-    ///   6: --
-    ///   7: [40,02,00]
-    ///   8: --
-    ///   9: [60,03,00]
-    ///  10: --
-    ///     </code>
-    ///   </example>
-    ///   <example>
-    ///     <para>Example 2:</para>
-    ///     <code>
-    /// Number:       1  2  3  4  5  6  7  8  9 10 11
-    /// Sequence 1:  -- -- -- 20 -- 40 -- 60 |- -- -->
-    /// Sequence 2:  -- 01 -- 02 03 -- |- -- -- -- -->
-    /// Sequence 3:  -- -- 00 -- -- -- -- -- 00 00 -->
-    ///
-    /// Results:
-    ///   1: --
-    ///   2: --
-    ///   3: --
-    ///   4: [20,01,00]
-    ///   5: --
-    ///   6: --
-    ///   7: --
-    ///   8: --
-    ///   9: [40,02,00]
-    ///  10: [60,03,00]
-    ///  11: --
-    ///     </code>
-    ///   </example>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="sources"></param>
-    /// <returns></returns>
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Zip``1(R3.Observable{``0}[])']" />
     public static Observable<T[]> Zip<T>(params Observable<T>[] sources)
     {
         return new Zip<T>(sources);
     }
 
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Zip``1(R3.Observable{``0}[])']" />
     public static Observable<T[]> Zip<T>(IEnumerable<Observable<T>> sources)
     {
         return new Zip<T>(sources);

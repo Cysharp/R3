@@ -2,50 +2,15 @@
 
 public static partial class Observable
 {
-    /// <summary>
-    ///   <para>
-    ///     Combine multiple <see cref="Observable"/>s into one by merging their emissions.
-    ///   </para>
-    ///   <para>
-    ///     ReactiveX docs link: <see href="https://reactivex.io/documentation/operators/merge.html" />
-    ///   </para>
-    ///   <para>
-    ///     In the following examples each column represent single time tick.
-    ///     "--" means no emission on this tick.
-    ///     "|-" means completion.
-    ///   </para>
-    ///   <example>
-    ///     <para>Example 1:</para>
-    ///     <code>
-    /// Number:       1  2  3  4  5  6  7  8  9 10
-    /// Sequence 1:  -- -- -- 20 -- 40 -- 60 -- -->
-    /// Sequence 2:  -- 01 -- 02 -- 03 -- -- -- -->
-    /// Sequence 3:  -- -- -- -- 00 -- 00 -- 00 -->
-    ///
-    /// Results:     -- 01 -- 20 00 40 00 60 00 -->
-    ///                       02    03            >
-    ///     </code>
-    ///   </example>
-    ///   <example>
-    ///     <para>Example 2:</para>
-    ///     <code>
-    /// Number:       1  2  3  4  5  6  7  8  9 10 11
-    /// Sequence 1:  -- -- -- -- -- 20 -- |- -- -- -->
-    /// Sequence 2:  -- 01 -- 02 -- |- -- -- -- -- -->
-    /// Sequence 3:  -- -- 00 -- -- -- 00 -- -- 00 -->
-    ///
-    /// Results:     -- 01 00 02 -- 20 00 -- -- 00 -->
-    ///     </code>
-    ///   </example>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="sources"></param>
-    /// <returns>Value of type <see cref="Observable{T}"/></returns>
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Merge``1(R3.Observable{``0}[])']" />
+    /// <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
     public static Observable<T> Merge<T>(params Observable<T>[] sources)
     {
         return new Merge<T>(sources);
     }
 
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Merge``1(R3.Observable{``0}[])']" />
+    /// <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSources']" />
     public static Observable<T> Merge<T>(this IEnumerable<Observable<T>> sources)
     {
         return new Merge<T>(sources);
@@ -54,6 +19,8 @@ public static partial class Observable
 
 public static partial class ObservableExtensions
 {
+    /// <include file="LongDocs.xml" path="/doc/members/member[@name='M:R3.Observable.Merge``1(R3.Observable{``0}[])']" />
+    /// <include file="LongDocs.xml" path="/doc/sharedDocs/shared[@name='DefaultDescriptionParamSourceAndSecond']" />
     public static Observable<T> Merge<T>(this Observable<T> source, Observable<T> second)
     {
         return new Merge<T>(new[] { source, second });
