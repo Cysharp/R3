@@ -1,7 +1,9 @@
 {
     "name": "R3.Unity",
     "rootNamespace": "R3",
-    "references": [],
+    "references": [
+        "GUID:fe685ec1767f73d42b749ea8045bfe43"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
@@ -38,6 +40,11 @@
             "name": "com.unity.modules.animation",
             "expression": "",
             "define": "R3_ANIMATION_SUPPORT"
+        },
+        {
+            "name": "com.unity.xr.interaction.toolkit",
+            "expression": "",
+            "define": "R3_XRI_SUPPORT"
         }
     ],
     "noEngineReferences": false
