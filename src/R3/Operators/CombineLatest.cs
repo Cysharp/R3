@@ -244,8 +244,11 @@ internal sealed class CombineLatest<T1, T2, TResult>(
         readonly Func<T1, T2, TResult> resultSelector;
         readonly CombineLatestObserver<T1> observer1;
         readonly CombineLatestObserver<T2> observer2;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -376,8 +379,11 @@ internal sealed class CombineLatest<T1, T2, T3, TResult>(
         readonly CombineLatestObserver<T1> observer1;
         readonly CombineLatestObserver<T2> observer2;
         readonly CombineLatestObserver<T3> observer3;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -516,8 +522,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, TResult>(
         readonly CombineLatestObserver<T2> observer2;
         readonly CombineLatestObserver<T3> observer3;
         readonly CombineLatestObserver<T4> observer4;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -664,8 +673,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, TResult>(
         readonly CombineLatestObserver<T3> observer3;
         readonly CombineLatestObserver<T4> observer4;
         readonly CombineLatestObserver<T5> observer5;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -820,8 +832,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, TResult>(
         readonly CombineLatestObserver<T4> observer4;
         readonly CombineLatestObserver<T5> observer5;
         readonly CombineLatestObserver<T6> observer6;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -984,8 +999,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
         readonly CombineLatestObserver<T5> observer5;
         readonly CombineLatestObserver<T6> observer6;
         readonly CombineLatestObserver<T7> observer7;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -1156,8 +1174,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
         readonly CombineLatestObserver<T6> observer6;
         readonly CombineLatestObserver<T7> observer7;
         readonly CombineLatestObserver<T8> observer8;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -1336,8 +1357,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
         readonly CombineLatestObserver<T7> observer7;
         readonly CombineLatestObserver<T8> observer8;
         readonly CombineLatestObserver<T9> observer9;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -1524,8 +1548,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TRe
         readonly CombineLatestObserver<T8> observer8;
         readonly CombineLatestObserver<T9> observer9;
         readonly CombineLatestObserver<T10> observer10;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -1720,8 +1747,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly CombineLatestObserver<T9> observer9;
         readonly CombineLatestObserver<T10> observer10;
         readonly CombineLatestObserver<T11> observer11;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -1924,8 +1954,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly CombineLatestObserver<T10> observer10;
         readonly CombineLatestObserver<T11> observer11;
         readonly CombineLatestObserver<T12> observer12;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -2136,8 +2169,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly CombineLatestObserver<T11> observer11;
         readonly CombineLatestObserver<T12> observer12;
         readonly CombineLatestObserver<T13> observer13;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -2356,8 +2392,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly CombineLatestObserver<T12> observer12;
         readonly CombineLatestObserver<T13> observer13;
         readonly CombineLatestObserver<T14> observer14;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 
@@ -2584,8 +2623,11 @@ internal sealed class CombineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11
         readonly CombineLatestObserver<T13> observer13;
         readonly CombineLatestObserver<T14> observer14;
         readonly CombineLatestObserver<T15> observer15;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool hasValueAll;
         int completedCount;
 

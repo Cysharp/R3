@@ -39,7 +39,11 @@ internal sealed class StrideFrameTimer : ITimer, IFrameRunnerWorkItem
     TimeSpan period;
     bool isDisposed;
     readonly StrideFrameProvider frameProvider;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
     RunningState runningState;
     double elapsed;
 

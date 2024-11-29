@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -119,7 +119,11 @@ internal sealed class ChunkFrameCount<T>(Observable<T> source, int frameCount, i
         readonly Observer<T[]> observer;
         readonly int periodFrame;
         readonly int count;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         readonly FrameProvider frameProvider;
         bool running;
         T[] buffer;

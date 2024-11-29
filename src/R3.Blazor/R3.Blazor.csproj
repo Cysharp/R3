@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>12</LangVersion>
+        <LangVersion>13</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;1591;1573</NoWarn>
         <RootNamespace>R3</RootNamespace>

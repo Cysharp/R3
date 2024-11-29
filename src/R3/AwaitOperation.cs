@@ -188,7 +188,11 @@ internal abstract class AwaitOperationSwitchObserver<T> : Observer<T>
     CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
     readonly bool cancelOnCompleted;
+#if NET9_0_OR_GREATER
+    protected readonly System.Threading.Lock gate = new();
+#else
     protected readonly object gate = new object();
+#endif
     bool running;
     bool completed;
 
@@ -292,7 +296,11 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
     readonly bool cancelOnCompleted;
+#if NET9_0_OR_GREATER
+    protected readonly System.Threading.Lock gate = new(); // need to use gate.
+#else
     protected readonly object gate = new object(); // need to use gate.
+#endif
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
     int runningCount = 0;
@@ -459,7 +467,11 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
 internal abstract class AwaitOperationParallelConcurrentLimitObserver<T>(bool configureAwait, bool cancelOnCompleted, int maxConcurrent) : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource = new();
+#if NET9_0_OR_GREATER
+    protected readonly System.Threading.Lock gate = new(); // need to use gate.
+#else
     protected readonly object gate = new object(); // need to use gate.
+#endif
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
@@ -555,7 +567,11 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
     readonly bool configureAwait; // continueOnCapturedContext
     readonly bool cancelOnCompleted;
     readonly int maxConcurrent;
+    #if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
     readonly Channel<(T, ValueTask<TTaskValue>)> channel;
     bool completed;
     int runningCount;

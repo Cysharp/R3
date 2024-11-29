@@ -13,7 +13,11 @@ public sealed class LogicLooperFrameProvider : FrameProvider, IDisposable
     Task loop;
     internal long timestamp;
     internal TimeSpan deltaTime;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
 
     public LogicLooperFrameProvider(ILogicLooper looper)
     {

@@ -24,7 +24,11 @@ internal sealed class TimeoutFrame<T>(Observable<T> source, int frameCount, Fram
     {
         readonly Observer<T> observer;
         readonly int frameCount;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         int currentFrame;
 
         public _TimeoutFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)

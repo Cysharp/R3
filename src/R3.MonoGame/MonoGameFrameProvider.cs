@@ -7,7 +7,11 @@ public class MonoGameFrameProvider : FrameProvider
 {
     public static readonly MonoGameFrameProvider Update = new();
 
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new();
+#endif
     FreeListCore<IFrameRunnerWorkItem> list;
     long frameCount;
     bool disposed;

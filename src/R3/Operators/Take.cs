@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -88,7 +88,11 @@ internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeP
 
         readonly Observer<T> observer;
         readonly ITimer timer;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _TakeTime(Observer<T> observer, TimeSpan duration, TimeProvider timeProvider)
         {
@@ -145,7 +149,11 @@ internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FramePr
     {
         readonly Observer<T> observer;
         long remaining;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _TakeFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {

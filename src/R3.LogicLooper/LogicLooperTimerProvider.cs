@@ -28,7 +28,11 @@ internal sealed class FrameTimer : ITimer, IFrameRunnerWorkItem
     readonly TimerCallback callback;
     readonly object? state;
     readonly LogicLooperFrameProvider frameProvider;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
 
     TimeSpan dueTime;
     TimeSpan period;

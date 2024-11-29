@@ -40,7 +40,12 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, Dispatcher di
         readonly Observer<T> observer;
         readonly Dispatcher dispatcher;
         readonly DispatcherPriority? dispatcherPriority;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
+
         SwapListCore<Notification<T>> list;
         bool running;
 

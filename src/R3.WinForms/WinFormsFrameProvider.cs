@@ -14,7 +14,11 @@ public sealed class WinFormsFrameProvider :
     private bool disposed;
     private long frameCount;
     private FreeListCore<IFrameRunnerWorkItem> list;
+#if NET9_0_OR_GREATER
+    private readonly System.Threading.Lock gate = new();
+#else
     private readonly object gate = new object();
+#endif
     private readonly MessageHook filter;
     private readonly MessageFilter? predicate;
 

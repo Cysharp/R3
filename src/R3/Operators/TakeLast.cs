@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -106,7 +106,11 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
     sealed class _TakeLastTime : Observer<T>, IDisposable
     {
         readonly Observer<T> observer;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         readonly Queue<(long timestamp, T value)> queue = new();
         readonly TimeSpan duration;
         readonly TimeProvider timeProvider;
@@ -188,7 +192,11 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
     sealed class _TakeLastFrame : Observer<T>, IDisposable
     {
         readonly Observer<T> observer;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         readonly Queue<(long frameCount, T value)> queue = new();
         readonly int frameCount;
         readonly FrameProvider frameProvider;

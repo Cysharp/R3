@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -77,7 +77,11 @@ public static partial class ObservableExtensions
 
 internal sealed class Multicast<T>(Observable<T> source, ISubject<T> subject) : ConnectableObservable<T>
 {
+    #if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
     Connection? connection;
 
     public override IDisposable Connect()

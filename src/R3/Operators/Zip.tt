@@ -53,8 +53,12 @@ internal sealed class Zip<<#= generateT(i) #>, TResult>(
         readonly Func<<#= generateT(i) #>, TResult> resultSelector;
 <# for (var j = 1; j <= i; j++ ) { #>
         readonly ZipObserver<T<#= j #>> observer<#= j #>;
-<# } #>        
+<# } #>
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _Zip(
             Observer<TResult> observer,

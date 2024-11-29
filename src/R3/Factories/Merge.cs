@@ -46,7 +46,11 @@ internal sealed class Merge<T>(IEnumerable<Observable<T>> sources) : Observable<
     {
         public Observer<T> observer = observer;
         public SingleAssignmentDisposableCore disposable;
+#if NET9_0_OR_GREATER
+        public readonly System.Threading.Lock gate = new();
+#else
         public readonly object gate = new object();
+#endif
 
         int sourceCount = -1; // not set yet.
         int completeCount;

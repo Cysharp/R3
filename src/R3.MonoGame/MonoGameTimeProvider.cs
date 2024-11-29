@@ -13,7 +13,11 @@ public class MonoGameTimeProvider : TimeProvider, IDisposable
     public GameTime GameTime { get; private set; } = new();
 
     FreeListCore<FrameTimer> list;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new();
+#endif
 
     // frame loop is delayed until first register
     bool running;
@@ -110,7 +114,11 @@ internal sealed class FrameTimer : ITimer
     readonly MonoGameTimeProvider timeProvider;
     readonly TimerCallback callback;
     readonly object? state;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new();
+#endif
 
     TimeSpan dueTime;
     TimeSpan period;
@@ -254,4 +262,3 @@ internal sealed class FrameTimer : ITimer
         return default;
     }
 }
-
