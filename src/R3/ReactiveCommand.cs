@@ -9,8 +9,11 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
     CompleteState completeState;     // struct(int, IntPtr)
     IDisposable subscription; // from canExecuteSource (and onNext).
     bool canExecute; // set from observable sequence
+    int executionCount;
 
     public event EventHandler? CanExecuteChanged;
+
+    public ReactiveProperty<bool> IsExecuting { get; } = new();
 
     public ReactiveCommand()
     {
@@ -23,14 +26,14 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
     {
         this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
-        this.subscription = this.Subscribe(execute);
+        this.subscription = this.Subscribe((Command: this, Action: execute), static (value, state) => state.Command.HandleExecution(value, state.Action));
     }
 
     public ReactiveCommand(Func<T, CancellationToken, ValueTask> executeAsync, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = false, int maxSequential = -1)
     {
         this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
-        this.subscription = this.SubscribeAwait(executeAsync, awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
+        this.subscription = this.SubscribeAwait((Command: this, Func: executeAsync), static (value, state, cancellationToken) => state.Command.HandleAsyncExecution(value, state.Func, cancellationToken), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
     }
 
     public ReactiveCommand(Observable<bool> canExecuteSource, bool initialCanExecute)
@@ -89,6 +92,38 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
         this.subscription = Disposable.Combine(this.subscription, disposable);
     }
 
+    private void HandleExecution<T>(T value, Action<T> execute)
+    {
+        try
+        {
+            IsExecuting.Value = Interlocked.Increment(ref executionCount) > 0;
+            execute(value);
+        }
+        finally
+        {
+            if (Interlocked.Decrement(ref executionCount) == 0)
+            {
+                IsExecuting.Value = false;
+            }
+        }
+    }
+
+    private async ValueTask HandleAsyncExecution<T>(T value, Func<T, CancellationToken, ValueTask> executeAsync, CancellationToken cancellationToken)
+    {
+        try
+        {
+            IsExecuting.Value = Interlocked.Increment(ref executionCount) > 0;
+            await executeAsync(value, cancellationToken);
+        }
+        finally
+        {
+            if (Interlocked.Decrement(ref executionCount) == 0)
+            {
+                IsExecuting.Value = false;
+            }
+        }
+    }
+
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
         var result = completeState.TryGetResult();
@@ -130,6 +165,7 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
                 }
             }
 
+            IsExecuting.Dispose();
             list.Dispose();
             subscription.Dispose();
         }
