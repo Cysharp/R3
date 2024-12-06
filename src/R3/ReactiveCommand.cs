@@ -27,14 +27,14 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
     {
         this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
-        this.subscription = this.Subscribe((Command: this, Action: execute), static (value, state) => state.Command.HandleExecution(value, state.Action));
+        this.subscription = this.Subscribe((HandleExecutionAction: (Action<T, Action<T>>)HandleExecution, Action: execute), static (value, state) => state.HandleExecutionAction(value, state.Action));
     }
 
     public ReactiveCommand(Func<T, CancellationToken, ValueTask> executeAsync, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = false, int maxSequential = -1)
     {
         this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
-        this.subscription = this.SubscribeAwait((Command: this, Func: executeAsync), static (value, state, cancellationToken) => state.Command.HandleAsyncExecution(value, state.Func, cancellationToken), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
+        this.subscription = this.SubscribeAwait((HandleAsyncExecutionFunc: (Func<T, Func<T, CancellationToken, ValueTask>, CancellationToken, ValueTask>)HandleAsyncExecution, Func: executeAsync), static (value, state, cancellationToken) => state.HandleAsyncExecutionFunc(value, state.Func, cancellationToken), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
     }
 
     public ReactiveCommand(Observable<bool> canExecuteSource, bool initialCanExecute)
@@ -529,7 +529,7 @@ public static class ReactiveCommandExtensions
     {
         var command = new ReactiveCommand<T>(canExecuteSource, initialCanExecute);
 
-        var subscription = command.SubscribeAwait(executeAsync, async (x, func, ct) => await func(x, ct), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
+        var subscription = command.SubscribeAwait(executeAsync, static async (x, func, ct) => await func(x, ct), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
         command.CombineSubscription(subscription);
 
         return command;
