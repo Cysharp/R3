@@ -93,7 +93,7 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
         this.subscription = Disposable.Combine(this.subscription, disposable);
     }
 
-    private void HandleExecution<T>(T value, Action<T> execute)
+    private void HandleExecution(T value, Action<T> execute)
     {
         try
         {
@@ -118,7 +118,7 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
         }
     }
 
-    private async ValueTask HandleAsyncExecution<T>(T value, Func<T, CancellationToken, ValueTask> executeAsync, CancellationToken cancellationToken)
+    private async ValueTask HandleAsyncExecution(T value, Func<T, CancellationToken, ValueTask> executeAsync, CancellationToken cancellationToken)
     {
         try
         {
