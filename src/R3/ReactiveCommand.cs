@@ -10,6 +10,7 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
     IDisposable subscription; // from canExecuteSource (and onNext).
     bool canExecute; // set from observable sequence
     int executionCount;
+    readonly object gate = new();
 
     public event EventHandler? CanExecuteChanged;
 
@@ -96,14 +97,23 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
     {
         try
         {
-            IsExecuting.Value = Interlocked.Increment(ref executionCount) > 0;
+            lock (gate)
+            {
+                executionCount++;
+                IsExecuting.Value = executionCount > 0;
+            }
+
             execute(value);
         }
         finally
         {
-            if (Interlocked.Decrement(ref executionCount) == 0)
+            lock (gate)
             {
-                IsExecuting.Value = false;
+                executionCount--;
+                if (executionCount == 0)
+                {
+                    IsExecuting.Value = false;
+                }
             }
         }
     }
@@ -112,14 +122,23 @@ public class ReactiveCommand<T> : Observable<T>, ICommand, IDisposable
     {
         try
         {
-            IsExecuting.Value = Interlocked.Increment(ref executionCount) > 0;
+            lock (gate)
+            {
+                executionCount++;
+                IsExecuting.Value = executionCount > 0;
+            }
+
             await executeAsync(value, cancellationToken);
         }
         finally
         {
-            if (Interlocked.Decrement(ref executionCount) == 0)
+            lock (gate)
             {
-                IsExecuting.Value = false;
+                executionCount--;
+                if (executionCount == 0)
+                {
+                    IsExecuting.Value = false;
+                }
             }
         }
     }
@@ -202,11 +221,15 @@ public class ReactiveCommand<TInput, TOutput> : Observable<TOutput>, ICommand, I
     CompleteState completeState;     // struct(int, IntPtr)
     bool canExecute; // set from observable sequence
     IDisposable subscription;
+    int executionCount;
+    readonly object gate = new();
 
     readonly Func<TInput, TOutput>? convert;     // for sync
     SingleAssignmentSubject<TInput>? asyncInput; // for async
 
     public event EventHandler? CanExecuteChanged;
+
+    public ReactiveProperty<bool> IsExecuting { get; } = new();
 
     public ReactiveCommand(Func<TInput, TOutput> convert)
     {
@@ -221,7 +244,7 @@ public class ReactiveCommand<TInput, TOutput> : Observable<TOutput>, ICommand, I
         this.list = new FreeListCore<Subscription>(this);
         this.canExecute = true;
         this.asyncInput = new SingleAssignmentSubject<TInput>();
-        this.subscription = asyncInput.SelectAwait(convertAsync, awaitOperation, configureAwait, cancelOnCompleted, maxSequential).Subscribe(this, static (x, state) =>
+        this.subscription = asyncInput.SelectAwait((Command: this, ConvertAsync: convertAsync), static (value, state, cancellationToken) => state.Command.HandleAsyncExecution(value, state.ConvertAsync, cancellationToken), awaitOperation, configureAwait, cancelOnCompleted, maxSequential).Subscribe(this, static (x, state) =>
         {
             if (state.completeState.IsCompleted) return;
 
@@ -313,6 +336,56 @@ public class ReactiveCommand<TInput, TOutput> : Observable<TOutput>, ICommand, I
         {
             // async
             asyncInput.OnNext(parameter);
+        }
+    }
+
+    private void HandleExecution(TInput value, Action<TInput> execute)
+    {
+        try
+        {
+            lock (gate)
+            {
+                executionCount++;
+                IsExecuting.Value = executionCount > 0;
+            }
+
+            execute(value);
+        }
+        finally
+        {
+            lock (gate)
+            {
+                executionCount--;
+                if (executionCount == 0)
+                {
+                    IsExecuting.Value = false;
+                }
+            }
+        }
+    }
+
+    private async ValueTask<TOutput> HandleAsyncExecution(TInput value, Func<TInput, CancellationToken, ValueTask<TOutput>> executeAsync, CancellationToken cancellationToken)
+    {
+        try
+        {
+            lock (gate)
+            {
+                executionCount++;
+                IsExecuting.Value = executionCount > 0;
+            }
+
+            return await executeAsync(value, cancellationToken);
+        }
+        finally
+        {
+            lock (gate)
+            {
+                executionCount--;
+                if (executionCount == 0)
+                {
+                    IsExecuting.Value = false;
+                }
+            }
         }
     }
 
@@ -456,7 +529,7 @@ public static class ReactiveCommandExtensions
     {
         var command = new ReactiveCommand<T>(canExecuteSource, initialCanExecute);
 
-        var subscription = command.SubscribeAwait(async (x, ct) => await executeAsync(x, ct), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
+        var subscription = command.SubscribeAwait(executeAsync, async (x, func, ct) => await func(x, ct), awaitOperation, configureAwait, cancelOnCompleted, maxSequential);
         command.CombineSubscription(subscription);
 
         return command;
