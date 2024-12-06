@@ -7,19 +7,23 @@ namespace R3;
 
 public static class ReactivePropertyExtensions
 {
-    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
-    {
-        return source.ToReadOnlyReactiveProperty(EqualityComparer<T>.Default, initialValue);
-    }
-
-    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
+    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source)
     {
         if (source is ReadOnlyReactiveProperty<T> rrp)
         {
             return rrp;
         }
 
-        // allow to cast ReactiveProperty<T>
+        return source.ToReadOnlyReactiveProperty(EqualityComparer<T>.Default, default!);
+    }
+
+    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, T initialValue)
+    {
+        return source.ToReadOnlyReactiveProperty(EqualityComparer<T>.Default, initialValue);
+    }
+
+    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
+    {
         return new ConnectedReactiveProperty<T>(source, initialValue, equalityComparer);
     }
 
