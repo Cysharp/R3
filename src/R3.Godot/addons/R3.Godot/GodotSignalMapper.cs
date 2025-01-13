@@ -10,7 +10,7 @@ public static class GodotObjectExtensions
     public static CancellationToken CancelOnExitTree(this Node node)
     {
         CancellationTokenSource cts = new();
-        node.Connect(Node.SignalName.TreeExited, Callable.From(cts.Cancel));
+        node.Connect(Node.SignalName.TreeExited, Callable.From(cts.Cancel), (uint) GodotObject.ConnectFlags.OneShot);
         return cts.Token;
     }
 
