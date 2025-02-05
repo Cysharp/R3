@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Uno.Extensions.Hosting.WinUI" Version="5.2.7" />
+      <PackageReference Include="Uno.WinUI" Version="5.6.33" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\R3\R3.csproj" />
+    </ItemGroup>
+
+</Project>
