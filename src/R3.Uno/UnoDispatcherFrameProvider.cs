@@ -43,34 +43,29 @@ public sealed class UnoRenderingFrameProvider : FrameProvider, IDisposable
     {
         frameCount++;
 
-        try
+        var span = list.AsSpan();
+        for (int i = 0; i < span.Length; i++)
         {
-            var span = list.AsSpan();
-            for (int i = 0; i < span.Length; i++)
+            ref readonly var item = ref span[i];
+            if (item != null)
             {
-                ref readonly var item = ref span[i];
-                if (item != null)
+                try
                 {
-                    try
-                    {
-                        if (!item.MoveNext(frameCount))
-                        {
-                            list.Remove(i);
-                        }
-                    }
-                    catch (Exception ex)
+                    if (!item.MoveNext(frameCount))
                     {
                         list.Remove(i);
-                        ObservableSystem.GetUnhandledExceptionHandler()?.Invoke(ex);
-                        throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    list.Remove(i);
+                    try
+                    {
+                        ObservableSystem.GetUnhandledExceptionHandler()?.Invoke(ex);
+                    }
+                    catch { }
+                }
             }
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception);
-            throw;
         }
     }
 
