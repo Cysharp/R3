@@ -1,4 +1,4 @@
-#if R3_TEXTMESHPRO_SUPPORT && R3_UGUI_SUPPORT
+#if R3_TEXTMESHPRO_SUPPORT
 
 using System;
 using TMPro;
