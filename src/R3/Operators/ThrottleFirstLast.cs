@@ -172,8 +172,9 @@ internal sealed class ThrottleFirstLastAsyncSampler<T>(Observable<T> source, Fun
                         observer.OnNext(lastValue!);
                         lastValue = default;
                         hasValue = false;
-                        isRunning = false;
                     }
+
+                    isRunning = false;
                 }
             }
         }
