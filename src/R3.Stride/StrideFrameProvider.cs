@@ -8,7 +8,11 @@ namespace R3;
 public sealed class StrideFrameProvider : FrameProvider
 {
     FreeListCore<IFrameRunnerWorkItem> list;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
 
     internal StrongBox<double> Delta = default!; // set from Node before running process.
 

@@ -43,7 +43,11 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, IDispatcher d
         readonly Action postCallback;
         readonly Observer<T> observer;
         readonly IDispatcher dispatcher;
-        readonly object gate = new();
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
+    readonly object gate = new();
+#endif
         SwapListCore<Notification<T>> list;
         bool running;
 

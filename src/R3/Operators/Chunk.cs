@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace R3;
 
@@ -247,7 +247,11 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
         readonly int count;
         readonly TimeSpan timeSpan;
         readonly TimeProvider timeProvider;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         ITimer? timer;
         T[] buffer;
         int index;

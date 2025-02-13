@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace R3;
 
@@ -54,7 +54,11 @@ internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, S
 
         readonly Observer<T> observer;
         readonly SynchronizationContext synchronizationContext;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         SwapListCore<Notification<T>> list;
         bool running;
 
@@ -413,7 +417,11 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
     {
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         SwapListCore<Notification<T>> list;
         bool running;
 

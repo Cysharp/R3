@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace R3;
 
@@ -37,7 +37,11 @@ internal sealed class Concat<T>(IEnumerable<Observable<T>> sources) : Observable
 
         public SerialDisposableCore disposable;
         int id = 0;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _Concat(Observer<T> observer, IEnumerable<Observable<T>> sources)
         {

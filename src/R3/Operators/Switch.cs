@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -18,7 +18,11 @@ internal sealed class Switch<T>(Observable<Observable<T>> sources) : Observable<
     sealed class _Switch(Observer<T> observer) : Observer<Observable<T>>
     {
         public Observer<T> observer = observer;
+#if NET9_0_OR_GREATER
+        public readonly System.Threading.Lock gate = new();
+#else
         public readonly object gate = new object();
+#endif
 
         SerialDisposableCore subscription;
         public ulong id;

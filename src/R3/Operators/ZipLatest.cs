@@ -239,8 +239,11 @@ internal sealed class ZipLatest<T1, T2, TResult>(
         readonly Func<T1, T2, TResult> resultSelector;
         readonly ZipLatestObserver<T1> observer1;
         readonly ZipLatestObserver<T2> observer2;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -277,7 +280,7 @@ internal sealed class ZipLatest<T1, T2, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -371,8 +374,11 @@ internal sealed class ZipLatest<T1, T2, T3, TResult>(
         readonly ZipLatestObserver<T1> observer1;
         readonly ZipLatestObserver<T2> observer2;
         readonly ZipLatestObserver<T3> observer3;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -413,7 +419,7 @@ internal sealed class ZipLatest<T1, T2, T3, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -511,8 +517,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, TResult>(
         readonly ZipLatestObserver<T2> observer2;
         readonly ZipLatestObserver<T3> observer3;
         readonly ZipLatestObserver<T4> observer4;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -557,7 +566,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -659,8 +668,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, TResult>(
         readonly ZipLatestObserver<T3> observer3;
         readonly ZipLatestObserver<T4> observer4;
         readonly ZipLatestObserver<T5> observer5;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -709,7 +721,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -815,8 +827,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, TResult>(
         readonly ZipLatestObserver<T4> observer4;
         readonly ZipLatestObserver<T5> observer5;
         readonly ZipLatestObserver<T6> observer6;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -869,7 +884,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -979,8 +994,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
         readonly ZipLatestObserver<T5> observer5;
         readonly ZipLatestObserver<T6> observer6;
         readonly ZipLatestObserver<T7> observer7;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -1037,7 +1055,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -1151,8 +1169,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
         readonly ZipLatestObserver<T6> observer6;
         readonly ZipLatestObserver<T7> observer7;
         readonly ZipLatestObserver<T8> observer8;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -1213,7 +1234,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -1331,8 +1352,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
         readonly ZipLatestObserver<T7> observer7;
         readonly ZipLatestObserver<T8> observer8;
         readonly ZipLatestObserver<T9> observer9;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -1397,7 +1421,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -1519,8 +1543,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult
         readonly ZipLatestObserver<T8> observer8;
         readonly ZipLatestObserver<T9> observer9;
         readonly ZipLatestObserver<T10> observer10;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -1589,7 +1616,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue(), observer10.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted || observer10.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -1715,8 +1742,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TR
         readonly ZipLatestObserver<T9> observer9;
         readonly ZipLatestObserver<T10> observer10;
         readonly ZipLatestObserver<T11> observer11;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -1789,7 +1819,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TR
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue(), observer10.GetValue(), observer11.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted || observer10.IsCompleted || observer11.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -1919,8 +1949,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
         readonly ZipLatestObserver<T10> observer10;
         readonly ZipLatestObserver<T11> observer11;
         readonly ZipLatestObserver<T12> observer12;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -1997,7 +2030,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue(), observer10.GetValue(), observer11.GetValue(), observer12.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted || observer10.IsCompleted || observer11.IsCompleted || observer12.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -2131,8 +2164,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
         readonly ZipLatestObserver<T11> observer11;
         readonly ZipLatestObserver<T12> observer12;
         readonly ZipLatestObserver<T13> observer13;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -2213,7 +2249,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue(), observer10.GetValue(), observer11.GetValue(), observer12.GetValue(), observer13.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted || observer10.IsCompleted || observer11.IsCompleted || observer12.IsCompleted || observer13.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -2351,8 +2387,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
         readonly ZipLatestObserver<T12> observer12;
         readonly ZipLatestObserver<T13> observer13;
         readonly ZipLatestObserver<T14> observer14;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -2437,7 +2476,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue(), observer10.GetValue(), observer11.GetValue(), observer12.GetValue(), observer13.GetValue(), observer14.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted || observer10.IsCompleted || observer11.IsCompleted || observer12.IsCompleted || observer13.IsCompleted || observer14.IsCompleted)
                 {
                     observer.OnCompleted();
@@ -2579,8 +2618,11 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
         readonly ZipLatestObserver<T13> observer13;
         readonly ZipLatestObserver<T14> observer14;
         readonly ZipLatestObserver<T15> observer15;
-        
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -2669,7 +2711,7 @@ internal sealed class ZipLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T1
             {
                 var result = resultSelector(observer1.GetValue(), observer2.GetValue(), observer3.GetValue(), observer4.GetValue(), observer5.GetValue(), observer6.GetValue(), observer7.GetValue(), observer8.GetValue(), observer9.GetValue(), observer10.GetValue(), observer11.GetValue(), observer12.GetValue(), observer13.GetValue(), observer14.GetValue(), observer15.GetValue());
                 observer.OnNext(result);
-                
+
                 if (observer1.IsCompleted || observer2.IsCompleted || observer3.IsCompleted || observer4.IsCompleted || observer5.IsCompleted || observer6.IsCompleted || observer7.IsCompleted || observer8.IsCompleted || observer9.IsCompleted || observer10.IsCompleted || observer11.IsCompleted || observer12.IsCompleted || observer13.IsCompleted || observer14.IsCompleted || observer15.IsCompleted)
                 {
                     observer.OnCompleted();

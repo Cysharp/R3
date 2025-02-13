@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -37,7 +37,11 @@ internal sealed class ThrottleFirst<T>(Observable<T> source, TimeSpan timeSpan, 
         readonly Observer<T> observer;
         readonly ITimer timer;
         readonly TimeSpan timeSpan;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool closing;
 
         public _ThrottleFirst(Observer<T> observer, TimeSpan timeSpan, TimeProvider timeProvider)
@@ -95,7 +99,11 @@ internal sealed class ThrottleFirstAsyncSampler<T>(Observable<T> source, Func<T,
 
     sealed class _ThrottleFirst(Observer<T> observer, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observer<T>
     {
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         readonly CancellationTokenSource cancellationTokenSource = new();
         bool closing;
 
@@ -163,7 +171,11 @@ internal sealed class ThrottleFirstObservableSampler<T, TSample>(Observable<T> s
     sealed class _ThrottleFirst : Observer<T>
     {
         readonly Observer<T> observer;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         readonly IDisposable samplerSubscription;
         bool closing;
 

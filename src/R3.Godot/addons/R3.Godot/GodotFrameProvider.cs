@@ -19,7 +19,11 @@ public class GodotFrameProvider : FrameProvider
     public static readonly GodotFrameProvider PhysicsProcess = new GodotFrameProvider(PlayerLoopTiming.PhysicsProcess);
 
     FreeListCore<IFrameRunnerWorkItem> list;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
 
     PlayerLoopTiming PlayerLoopTiming { get; }
 

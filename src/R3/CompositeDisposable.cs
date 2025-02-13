@@ -7,7 +7,11 @@ namespace R3;
 public sealed class CompositeDisposable : ICollection<IDisposable>, IDisposable
 {
     List<IDisposable?> list; // when removed, set null
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
     bool isDisposed;
     int count;
 

@@ -25,7 +25,11 @@ internal sealed class ThrottleFirstLastFrame<T>(Observable<T> source, int frameC
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
         readonly int frameCount;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         T? lastValue;
         bool hasValue;
         int currentFrame;

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using R3.Collections;
 
 namespace R3;
@@ -8,7 +8,11 @@ public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
 
     EventHandler messageLoop;
 

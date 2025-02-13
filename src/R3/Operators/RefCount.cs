@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -10,7 +10,11 @@ public static partial class ObservableExtensions
 
 internal sealed class RefCount<T>(ConnectableObservable<T> source) : Observable<T>
 {
+    #if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new object();
+#endif
     int refCount = 0;
     IDisposable? connection;
 

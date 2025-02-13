@@ -6,7 +6,11 @@ namespace R3;
 public class MauiTickerFrameProvider : FrameProvider, IDisposable
 {
     readonly ITicker ticker;
+#if NET9_0_OR_GREATER
+    readonly System.Threading.Lock gate = new();
+#else
     readonly object gate = new();
+#endif
     readonly Action timerTick;
 
     FreeListCore<IFrameRunnerWorkItem> runners;

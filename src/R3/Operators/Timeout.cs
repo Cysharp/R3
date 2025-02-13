@@ -27,7 +27,11 @@ internal sealed class Timeout<T>(Observable<T> source, TimeSpan dueTime, TimePro
         readonly Observer<T> observer;
         readonly TimeSpan timeSpan;
         readonly ITimer timer;
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         int timerId;
 
         public _Timeout(Observer<T> observer, TimeSpan timeSpan, TimeProvider timeProvider)

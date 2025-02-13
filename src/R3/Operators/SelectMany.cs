@@ -1,4 +1,4 @@
-﻿namespace R3;
+namespace R3;
 
 public static partial class ObservableExtensions
 {
@@ -40,7 +40,11 @@ internal sealed class SelectMany<TSource, TCollection, TResult>(Observable<TSour
         readonly Func<TSource, Observable<TCollection>> collectionSelector = collectionSelector;
         readonly Func<TSource, TCollection, TResult> resultSelector = resultSelector;
         readonly CompositeDisposable compositeDisposable = new();
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool isStopped;
 
         protected override bool AutoDisposeOnCompleted => false;
@@ -161,7 +165,11 @@ internal sealed class SelectManyIndexed<TSource, TCollection, TResult>(Observabl
         readonly Func<TSource, int, Observable<TCollection>> collectionSelector = collectionSelector;
         readonly Func<TSource, int, TCollection, int, TResult> resultSelector = resultSelector;
         readonly CompositeDisposable compositeDisposable = new();
+#if NET9_0_OR_GREATER
+        readonly System.Threading.Lock gate = new();
+#else
         readonly object gate = new object();
+#endif
         bool isStopped;
         int index = 0;
 
