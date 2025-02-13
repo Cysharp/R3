@@ -10,10 +10,10 @@ public class SubscribeOnTest
     public async Task ThreadPool()
     {
         var values = await Observable.Range(1, 10)
-            .Do(onSubscribe: () => Thread.CurrentThread.IsThreadPoolThread.Should().BeTrue())
+            .Do(onSubscribe: () => Thread.CurrentThread.IsThreadPoolThread.ShouldBeTrue())
             .SubscribeOnThreadPool()
             .ToArrayAsync();
-        values.Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        values.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
     [Fact]
@@ -23,20 +23,20 @@ public class SubscribeOnTest
         var values = await Observable.Range(1, 10)
             .SubscribeOnSynchronize(gate)
             .ToArrayAsync();
-        values.Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        values.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
     [Fact]
     public async Task SyncContext()
     {
         var syncContext = new CustomSyncContext();
-        syncContext.IsInSyncContext.Should().BeFalse();
+        syncContext.IsInSyncContext.ShouldBeFalse();
         var values = await Observable.Range(1, 10)
-            .Do(onSubscribe: () => syncContext.IsInSyncContext.Should().BeTrue())
+            .Do(onSubscribe: () => syncContext.IsInSyncContext.ShouldBeTrue())
             .SubscribeOn(syncContext)
             .ToArrayAsync();
-        values.Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-        syncContext.PostCount.Should().Be(1);
+        values.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        syncContext.PostCount.ShouldBe(1);
     }
 
     [Fact]
@@ -50,10 +50,10 @@ public class SubscribeOnTest
             .ToLiveList();
 
 
-        subscribed.Should().BeFalse();
+        subscribed.ShouldBeFalse();
 
         fakeTime.Advance();
-        subscribed.Should().BeTrue();
+        subscribed.ShouldBeTrue();
 
         list.AssertEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
@@ -71,10 +71,10 @@ public class SubscribeOnTest
             .ToLiveList();
 
 
-        subscribed.Should().BeFalse();
+        subscribed.ShouldBeFalse();
 
         fakeTime.Advance();
-        subscribed.Should().BeTrue();
+        subscribed.ShouldBeTrue();
 
         list.AssertEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }

@@ -33,8 +33,8 @@ public class AsObservableTest
             p.OnNext(3);
             p.OnCompleted();
 
-            l.Should().Equal([1, 2, 3]);
-            completed.Should().BeTrue();
+            l.ShouldBe([1, 2, 3]);
+            completed.ShouldBeTrue();
         }
         {
             // error complete
@@ -49,9 +49,9 @@ public class AsObservableTest
             p.OnNext(3);
             p.OnCompleted(new Exception("aaa"));
 
-            l.Should().Equal([1, 2, 3]);
-            ex!.Message.Should().Be("aaa");
-            completed.Should().BeFalse();
+            l.ShouldBe([1, 2, 3]);
+            ex!.Message.ShouldBe("aaa");
+            completed.ShouldBeFalse();
         }
         {
             // error resume
@@ -66,9 +66,9 @@ public class AsObservableTest
             p.OnNext(3);
             p.OnErrorResume(new Exception("bbb"));
 
-            l.Should().Equal([1, 2, 3]);
-            ex!.Message.Should().Be("bbb");
-            completed.Should().BeFalse();
+            l.ShouldBe([1, 2, 3]);
+            ex!.Message.ShouldBe("bbb");
+            completed.ShouldBeFalse();
         }
     }
 }

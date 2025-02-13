@@ -9,14 +9,14 @@ public class ObserveOnTest
         var l = new List<int>();
         await Observable.Range(1, 10).ObserveOn((SynchronizationContext?)null).ForEachAsync(x =>
         {
-            Thread.CurrentThread.IsThreadPoolThread.Should().BeTrue();
+            Thread.CurrentThread.IsThreadPoolThread.ShouldBeTrue();
             lock (l)
             {
                 l.Add(x);
             }
         });
 
-        l.Order().Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        l.Order().ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class ObserveOnTest
         var syncContext = new CustomSyncContext();
         var list = Observable.Range(1, 10).ObserveOn(syncContext).ToLiveList();
 
-        syncContext.PostCount.Should().Be(11); // OnNext + OnCompleted
+        syncContext.PostCount.ShouldBe(11); // OnNext + OnCompleted
         list.AssertEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
         list.AssertIsCompleted();
     }

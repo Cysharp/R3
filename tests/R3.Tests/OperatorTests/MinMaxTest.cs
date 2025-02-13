@@ -1,4 +1,4 @@
-namespace R3.Tests.OperatorTests;
+﻿namespace R3.Tests.OperatorTests;
 
 public class MinMaxTest
 {
@@ -13,37 +13,37 @@ public class MinMaxTest
     [Fact]
     public async Task One()
     {
-        (await Observable.Return(999).MinMaxAsync()).Should().Be((999, 999));
-        (await Observable.Return(999).MinMaxAsync(x => 777)).Should().Be((777, 777));
+        (await Observable.Return(999).MinMaxAsync()).ShouldBe((999, 999));
+        (await Observable.Return(999).MinMaxAsync(x => 777)).ShouldBe((777, 777));
     }
 
     [Fact]
     public async Task MultipleValues()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        (await source.MinMaxAsync()).Should().Be((1, 10));
-        (await source.MinMaxAsync(x => x * 10)).Should().Be((10, 100));
+        (await source.MinMaxAsync()).ShouldBe((1, 10));
+        (await source.MinMaxAsync(x => x * 10)).ShouldBe((10, 100));
     }
 
     [Fact]
     public async Task First()
     {
         var minMax = await new[] { 1, 5, 3, 4, 6, 7, 10 }.ToObservable().MinMaxAsync();
-        minMax.Should().Be((1, 10));
+        minMax.ShouldBe((1, 10));
     }
 
     [Fact]
     public async Task Last()
     {
         var minMax = await new[] { 10, 2, 3, 4, 6, 7, 1 }.ToObservable().MinMaxAsync();
-        minMax.Should().Be((1, 10));
+        minMax.ShouldBe((1, 10));
     }
 
     [Fact]
     public async Task Midway()
     {
         var minMax = await new[] { 2, 4, 10, 3, 1, 6, 7, 5 }.ToObservable().MinMaxAsync();
-        minMax.Should().Be((1, 10));
+        minMax.ShouldBe((1, 10));
     }
 
     [Fact]

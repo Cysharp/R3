@@ -14,7 +14,7 @@ public class SynchronizationTest(ITestOutputHelper output)
 
         Parallel.For(0, 100, x => subject.OnNext(x));
 
-        count.Should().Be(100);
+        count.ShouldBe(100);
         output.WriteLine($"Count: {count}, no_sync: {no_sync}");
     }
 }

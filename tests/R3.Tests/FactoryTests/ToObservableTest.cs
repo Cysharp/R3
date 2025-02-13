@@ -58,7 +58,7 @@ public class ToObservableTest
         var l2 = new FaileObservable().ToObservable().ToLiveList();
         l2.AssertEqual([1, 2, 3]);
         l2.AssertIsCompleted();
-        l2.Result.IsFailure.Should().BeTrue();
+        l2.Result.IsFailure.ShouldBeTrue();
     }
 
     [Fact]
@@ -118,8 +118,8 @@ public class ToObservableTest
         list.AssertIsNotCompleted();
         fakeTime.Advance(TimeSpan.FromSeconds(1));
 
-        list.Result.IsFailure.Should().BeTrue();
-        list.Result.Exception!.Message.Should().Be("foo");
+        list.Result.IsFailure.ShouldBeTrue();
+        list.Result.Exception!.Message.ShouldBe("foo");
     }
 
     async IAsyncEnumerable<int> AsyncOne(TimeProvider timeProvider, [EnumeratorCancellation] CancellationToken cancellationToken = default)

@@ -13,11 +13,11 @@ public class ToDictionaryTest
         publisher.OnNext((2, "b"));
         publisher.OnNext((3, "c"));
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        task.Status.Should().Be(TaskStatus.RanToCompletion);
+        task.Status.ShouldBe(TaskStatus.RanToCompletion);
 
         var expected = new Dictionary<int, (int, string)>
         {
@@ -26,7 +26,7 @@ public class ToDictionaryTest
             [3] = (3, "c")
         };
 
-        (await task).Should().Equal(expected);
+        (await task).ShouldBe(expected);
     }
 
     [Fact]
@@ -40,11 +40,11 @@ public class ToDictionaryTest
         publisher.OnNext((2, "b"));
         publisher.OnNext((3, "c"));
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        task.Status.Should().Be(TaskStatus.RanToCompletion);
+        task.Status.ShouldBe(TaskStatus.RanToCompletion);
 
         var expected = new Dictionary<int, string>
         {
@@ -53,6 +53,6 @@ public class ToDictionaryTest
             [3] = "C"
         };
 
-        (await task).Should().Equal(expected);
+        (await task).ShouldBe(expected);
     }
 }

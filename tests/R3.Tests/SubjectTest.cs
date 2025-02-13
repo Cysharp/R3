@@ -16,7 +16,7 @@ public class SubjectTest
 
             l.AssertEqual([1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
         // already OnCompleted(Success), Dispose
@@ -31,7 +31,7 @@ public class SubjectTest
 
             l.AssertEqual([1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
         // already OnCompleted(Failure), Dispose
@@ -46,7 +46,7 @@ public class SubjectTest
 
             l.AssertEqual([1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
 
@@ -81,7 +81,7 @@ public class SubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.Result.IsSuccess.Should().BeTrue();
+            l.Result.IsSuccess.ShouldBeTrue();
         }
         {
             // after Failure
@@ -91,8 +91,8 @@ public class SubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.Result.IsFailure.Should().BeTrue();
-            l.Result.Exception!.Message.Should().Be("foo");
+            l.Result.IsFailure.ShouldBeTrue();
+            l.Result.Exception!.Message.ShouldBe("foo");
         }
     }
 
@@ -106,7 +106,7 @@ public class SubjectTest
             s.OnNext(1);
             s.OnNext(2);
             s.OnNext(3);
-            l.Should().Equal(1, 2, 3);
+            l.ShouldBe([1, 2, 3]);
 
             s.OnCompleted();
             l.AssertIsCompleted();
@@ -131,7 +131,7 @@ public class SubjectTest
 
             l.AssertEqual([1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
         // already OnCompleted(Success), Dispose
@@ -146,7 +146,7 @@ public class SubjectTest
 
             l.AssertEqual([1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
         // already OnCompleted(Failure), Dispose
@@ -161,7 +161,7 @@ public class SubjectTest
 
             l.AssertEqual([1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
 
@@ -193,7 +193,7 @@ public class SubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.Result.IsSuccess.Should().BeTrue();
+            l.Result.IsSuccess.ShouldBeTrue();
         }
         {
             // after Failure
@@ -203,8 +203,8 @@ public class SubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.Result.IsFailure.Should().BeTrue();
-            l.Result.Exception!.Message.Should().Be("foo");
+            l.Result.IsFailure.ShouldBeTrue();
+            l.Result.Exception!.Message.ShouldBe("foo");
         }
     }
 }

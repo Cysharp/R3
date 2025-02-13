@@ -30,12 +30,12 @@ public class EveryValueChangedTest
 
         list.AssertEqual([99, 100, 1000]);
 
-        frameProvider.GetRegisteredCount().Should().Be(1);
+        frameProvider.GetRegisteredCount().ShouldBe(1);
 
         list.Dispose();
         frameProvider.Advance();
 
-        frameProvider.GetRegisteredCount().Should().Be(0);
+        frameProvider.GetRegisteredCount().ShouldBe(0);
     }
 }
 

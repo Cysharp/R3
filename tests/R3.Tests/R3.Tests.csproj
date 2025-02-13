@@ -10,20 +10,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="FluentAssertions.Analyzers" Version="0.27.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="Shouldly" Version="4.3.0" />
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="System.Reactive.Linq" Version="6.0.0" />
         <PackageReference Include="xunit" Version="2.6.3" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.5">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="6.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -37,7 +29,7 @@
         <Using Include="R3" />
         <Using Include="Xunit" />
         <Using Include="Xunit.Abstractions" />
-        <Using Include="FluentAssertions" />
+        <Using Include="Shouldly" />
         <Using Include="Microsoft.Extensions.Time.Testing" />
     </ItemGroup>
 

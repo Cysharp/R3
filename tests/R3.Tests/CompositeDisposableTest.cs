@@ -15,14 +15,14 @@ public class CompositeDisposableTest
         composite.Add(d2);
         composite.Add(d3);
 
-        d1.CalledCount.Should().Be(0);
+        d1.CalledCount.ShouldBe(0);
 
         composite.Remove(d2);
-        d2.CalledCount.Should().Be(1);
+        d2.CalledCount.ShouldBe(1);
 
         composite.Clear();
-        d1.CalledCount.Should().Be(1);
-        d3.CalledCount.Should().Be(1);
+        d1.CalledCount.ShouldBe(1);
+        d3.CalledCount.ShouldBe(1);
 
         composite.Add(d1);
         composite.Add(d2);
@@ -30,12 +30,12 @@ public class CompositeDisposableTest
 
         composite.Dispose();
 
-        d1.CalledCount.Should().Be(2);
-        d2.CalledCount.Should().Be(2);
-        d3.CalledCount.Should().Be(2);
+        d1.CalledCount.ShouldBe(2);
+        d2.CalledCount.ShouldBe(2);
+        d3.CalledCount.ShouldBe(2);
 
         composite.Add(d1);
-        d1.CalledCount.Should().Be(3);
+        d1.CalledCount.ShouldBe(3);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class CompositeDisposableTest
 
         foreach (var item in disposables)
         {
-            item.CalledCount.Should().Be(1);
+            item.CalledCount.ShouldBe(1);
         }
     }
 

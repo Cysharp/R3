@@ -10,8 +10,8 @@ public class ThrowTest
             var e = new Exception();
             using var list = Observable.Throw<int>(e).ToLiveList();
             list.AssertEqual([]);
-            list.Result.IsFailure.Should().BeTrue();
-            list.Result.Exception.Should().Be(e);
+            list.Result.IsFailure.ShouldBeTrue();
+            list.Result.Exception.ShouldBe(e);
         }
         {
             var fakeTime = new FakeTimeProvider();
@@ -25,8 +25,8 @@ public class ThrowTest
 
             fakeTime.Advance(TimeSpan.FromSeconds(1));
             list.AssertEqual([]);
-            list.Result.IsFailure.Should().BeTrue();
-            list.Result.Exception.Should().Be(e);
+            list.Result.IsFailure.ShouldBeTrue();
+            list.Result.Exception.ShouldBe(e);
         }
     }
 }

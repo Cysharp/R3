@@ -20,7 +20,7 @@ public class ToAsyncEnumerableTest
             l.Add(item);
         }
 
-        l.Should().Equal([1, 10, 100]);
+        l.ShouldBe([1, 10, 100]);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class ToAsyncEnumerableTest
             }
         });
 
-        l.Should().Equal([1, 10, 100]);
-        disposed.Should().BeTrue();
+        l.ShouldBe([1, 10, 100]);
+        disposed.ShouldBeTrue();
     }
 }

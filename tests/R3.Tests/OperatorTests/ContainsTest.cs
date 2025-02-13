@@ -7,7 +7,7 @@ public class ContainsTest
     {
         var range = Observable.Range(1, 10);
         var task = range.ContainsAsync(5);
-        (await task).Should().BeTrue();
+        (await task).ShouldBeTrue();
     }
 
     [Fact]
@@ -15,6 +15,6 @@ public class ContainsTest
     {
         var range = Observable.Range(1, 10);
         var task = range.ContainsAsync(0);
-        (await task).Should().BeFalse();
+        (await task).ShouldBeFalse();
     }
 }

@@ -15,11 +15,11 @@ public class AggregateTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        (await task).Should().Be(15);
+        (await task).ShouldBe(15);
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class AggregateTest
         var publisher = new Subject<int>();
 
         var task = publisher.AggregateAsync((result, x) => result + x);
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
@@ -41,12 +41,12 @@ public class AggregateTest
         var publisher = new Subject<int>();
 
         var task = publisher.AggregateAsync((result, x) => result + x);
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnNext(100);
         publisher.OnCompleted();
 
-        (await task).Should().Be(100);
+        (await task).ShouldBe(100);
     }
 
     [Fact]
@@ -62,11 +62,11 @@ public class AggregateTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
+        listTask.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        (await listTask).Should().Equal(1, 2, 3, 4, 5);
+        (await listTask).ShouldBe([1, 2, 3, 4, 5]);
     }
 
     [Fact]
@@ -82,11 +82,11 @@ public class AggregateTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        (await task).Should().Be("5");
+        (await task).ShouldBe("5");
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class AggregateTest
     {
         var range = Observable.Range(1, 5);
         var listTask = range.AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x);
-        (await listTask).Should().Equal(1, 2, 3, 4, 5);
+        (await listTask).ShouldBe([1, 2, 3, 4, 5]);
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class AggregateTest
             .AggregateAsync(new List<int>(), (x, i) => { x.Add(i); return x; }, (x) => x, cts.Token);
 
 
-        isDisposed.Should().BeTrue();
+        isDisposed.ShouldBeTrue();
 
         await Assert.ThrowsAsync<TaskCanceledException>(async () => await listTask);
     }

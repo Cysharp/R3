@@ -19,20 +19,20 @@ public class AmbTest
             subject3.Do(onDispose: () => d3Called = true)
             ).ToLiveList();
 
-        d1Called.Should().BeFalse();
+        d1Called.ShouldBeFalse();
 
         subject2.OnNext(2);
         list.AssertEqual([2]);
 
-        d1Called.Should().BeTrue();
-        d3Called.Should().BeTrue();
+        d1Called.ShouldBeTrue();
+        d3Called.ShouldBeTrue();
 
         subject2.OnNext(20);
         list.AssertEqual([2, 20]);
 
         subject2.OnCompleted();
 
-        d2Called.Should().BeTrue();
+        d2Called.ShouldBeTrue();
         list.AssertIsCompleted();
     }
 }

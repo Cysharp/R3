@@ -15,7 +15,7 @@ public class OnErrorResumeAsFailureTest
 
         list.AssertEqual([10]);
         list.AssertIsCompleted();
-        list.Result.Exception!.Message.Should().Be("foo");
+        list.Result.Exception!.Message.ShouldBe("foo");
 
     }
 }

@@ -9,7 +9,7 @@ public class SequenceEqualTest
         var range2 = Observable.Range(1, 10);
 
         var task = range1.SequenceEqualAsync(range2);
-        (await task).Should().BeTrue();
+        (await task).ShouldBeTrue();
     }
 
     [Fact]
@@ -19,6 +19,6 @@ public class SequenceEqualTest
         var range2 = Observable.Range(1, 11);
 
         var task = range1.SequenceEqualAsync(range2);
-        (await task).Should().BeFalse();
+        (await task).ShouldBeFalse();
     }
 }

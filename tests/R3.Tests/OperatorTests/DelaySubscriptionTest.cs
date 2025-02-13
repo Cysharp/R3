@@ -14,19 +14,19 @@ public class DelaySubscriptionTest
             .DelaySubscription(TimeSpan.FromSeconds(3), provider)
             .ToLiveList();
 
-        subscribed.Should().BeFalse();
+        subscribed.ShouldBeFalse();
         publisher.OnNext(1);
         list.AssertEqual([]);
 
         provider.Advance(TimeSpan.FromSeconds(2));
 
-        subscribed.Should().BeFalse();
+        subscribed.ShouldBeFalse();
         publisher.OnNext(2);
         list.AssertEqual([]);
 
         provider.Advance(TimeSpan.FromSeconds(1));
 
-        subscribed.Should().BeTrue();
+        subscribed.ShouldBeTrue();
         publisher.OnNext(3);
         list.AssertEqual([3]);
 
@@ -47,19 +47,19 @@ public class DelaySubscriptionTest
             .DelaySubscriptionFrame(3, provider)
             .ToLiveList();
 
-        subscribed.Should().BeFalse();
+        subscribed.ShouldBeFalse();
         publisher.OnNext(1);
         list.AssertEqual([]);
 
         provider.Advance(2);
 
-        subscribed.Should().BeFalse();
+        subscribed.ShouldBeFalse();
         publisher.OnNext(2);
         list.AssertEqual([]);
 
         provider.Advance(1);
 
-        subscribed.Should().BeTrue();
+        subscribed.ShouldBeTrue();
         publisher.OnNext(3);
         list.AssertEqual([3]);
 

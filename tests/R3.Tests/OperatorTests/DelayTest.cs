@@ -24,11 +24,11 @@ public class DelayTest
         list.AssertEqual([]);
         provider.Advance(TimeSpan.FromSeconds(1));
         list.AssertEqual([]);
-        e.Should().BeEmpty();
+        e.ShouldBeEmpty();
         provider.Advance(TimeSpan.FromSeconds(1));
 
         list.AssertEqual([1, 2, 3, 4, 5]);
-        e[0].Message.Should().Be("a");
+        e[0].Message.ShouldBe("a");
 
         list.Clear();
 
@@ -74,11 +74,11 @@ public class DelayTest
         list.AssertEqual([]);
         provider.Advance((1));
         list.AssertEqual([]);
-        e.Should().BeEmpty();
+        e.ShouldBeEmpty();
         provider.Advance((1));
 
         list.AssertEqual([1, 2, 3, 4, 5]);
-        e[0].Message.Should().Be("a");
+        e[0].Message.ShouldBe("a");
 
         list.Clear();
 

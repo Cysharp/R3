@@ -18,7 +18,7 @@ public class TakeUntilTest
         list.AssertEqual([1, 2, 3]);
 
         publisher2.OnNext(10000);
-        isDisposed.Should().BeTrue();
+        isDisposed.ShouldBeTrue();
 
         list.AssertEqual([1, 2, 3]);
         list.AssertIsCompleted();

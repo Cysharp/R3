@@ -18,7 +18,7 @@ public class SkipUntilTest
         list.AssertEqual([]);
 
         publisher2.OnNext(10000);
-        isDisposed.Should().BeTrue();
+        isDisposed.ShouldBeTrue();
 
         publisher1.OnNext(999999);
         publisher1.OnNext(9999990);

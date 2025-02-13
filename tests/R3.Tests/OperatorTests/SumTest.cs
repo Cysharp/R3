@@ -9,15 +9,15 @@ public class SumTest
     [Fact]
     public async Task Empty()
     {
-        (await Observable.Empty<int>().SumAsync()).Should().Be(0);
-        (await Observable.Empty<TestNumber>().SumAsync()).Value.Should().Be(0);
+        (await Observable.Empty<int>().SumAsync()).ShouldBe(0);
+        (await Observable.Empty<TestNumber>().SumAsync()).Value.ShouldBe(0);
     }
 
     [Fact]
     public async Task One()
     {
-        (await Observable.Return(999).SumAsync()).Should().Be(999);
-        (await Observable.Return(new TestNumber(999)).SumAsync()).Value.Should().Be(999);
+        (await Observable.Return(999).SumAsync()).ShouldBe(999);
+        (await Observable.Return(new TestNumber(999)).SumAsync()).Value.ShouldBe(999);
     }
 
     [Fact]
@@ -37,10 +37,10 @@ public class SumTest
     public async Task MultipleValues()
     {
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
-        (await source.SumAsync()).Should().Be(36);
+        (await source.SumAsync()).ShouldBe(36);
 
         var source2 = source.Select(x => new TestNumber(x));
-        (await source2.SumAsync()).Value.Should().Be(36);
+        (await source2.SumAsync()).Value.ShouldBe(36);
     }
 
     [Fact]
@@ -48,8 +48,8 @@ public class SumTest
     {
         var source = new[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
 
-        (await source.SumAsync(x => x * 10f)).Should().Be(360f);
-        // (await source.SumAsync(x => new TestNumber(x))).Value.Should().Be(36);
+        (await source.SumAsync(x => x * 10f)).ShouldBe(360f);
+        // (await source.SumAsync(x => new TestNumber(x))).Value.ShouldBe(36);
     }
 
     [Fact]

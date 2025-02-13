@@ -27,24 +27,24 @@ public class SubscribeAwaitTest
         subject.OnNext(1);
         subject.OnNext(2);
 
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100]);
+        liveList.ShouldBe([100]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([100]);
+        liveList.ShouldBe([100]);
 
         subject.OnNext(3);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100, 200]);
+        liveList.ShouldBe([100, 200]);
 
         timeProvider.Advance(3);
-        liveList.Should().Equal([100, 200, 300]);
+        liveList.ShouldBe([100, 200, 300]);
 
         subject.OnCompleted();
     }
@@ -68,24 +68,24 @@ public class SubscribeAwaitTest
         subject.OnNext(1);
         subject.OnNext(2);
 
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100]);
+        liveList.ShouldBe([100]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([100]);
+        liveList.ShouldBe([100]);
 
         subject.OnNext(3);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100]);
+        liveList.ShouldBe([100]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([100, 300]);
+        liveList.ShouldBe([100, 300]);
 
         subject.OnCompleted();
     }
@@ -109,24 +109,24 @@ public class SubscribeAwaitTest
         subject.OnNext(1);
         subject.OnNext(2);
 
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100, 200]);
+        liveList.ShouldBe([100, 200]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([100, 200]);
+        liveList.ShouldBe([100, 200]);
 
         subject.OnNext(3);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100, 200]);
+        liveList.ShouldBe([100, 200]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([100, 200, 300]);
+        liveList.ShouldBe([100, 200, 300]);
 
         subject.OnCompleted();
     }
@@ -150,24 +150,24 @@ public class SubscribeAwaitTest
         subject.OnNext(1);
         subject.OnNext(2); // disposed 1
 
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([200]);
+        liveList.ShouldBe([200]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([200]);
+        liveList.ShouldBe([200]);
 
         subject.OnNext(3);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([200]);
+        liveList.ShouldBe([200]);
 
         timeProvider.Advance(3);
-        liveList.Should().Equal([200, 300]);
+        liveList.ShouldBe([200, 300]);
 
         subject.OnCompleted();
     }
@@ -192,16 +192,16 @@ public class SubscribeAwaitTest
         subject.OnNext(2);
         subject.OnNext(3);
 
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(1); // start 3
-        liveList.Should().Equal([100, 200]);
+        liveList.ShouldBe([100, 200]);
 
         timeProvider.Advance(3);
-        liveList.Should().Equal([100, 200, 300]);
+        liveList.ShouldBe([100, 200, 300]);
 
         subject.OnCompleted();
     }
@@ -228,16 +228,16 @@ public class SubscribeAwaitTest
         subject.OnNext(4);
         subject.OnNext(5);
 
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(2);
-        liveList.Should().Equal([]);
+        liveList.ShouldBe([]);
 
         timeProvider.Advance(1);
-        liveList.Should().Equal([100]);
+        liveList.ShouldBe([100]);
 
         timeProvider.Advance(3);
-        liveList.Should().Equal([100,500]);
+        liveList.ShouldBe([100,500]);
 
         subject.OnNext(6);
         subject.OnNext(7);
@@ -245,10 +245,10 @@ public class SubscribeAwaitTest
         subject.OnNext(9);
 
         timeProvider.Advance(3);
-        liveList.Should().Equal([100,500,600]);
+        liveList.ShouldBe([100,500,600]);
 
         timeProvider.Advance(3);
-        liveList.Should().Equal([100,500,600,900]);
+        liveList.ShouldBe([100,500,600,900]);
 
         subject.OnCompleted();
     }

@@ -16,7 +16,7 @@ public class BehaviorSubjectTest
 
             l.AssertEqual([100, 1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
         // already OnCompleted(Success), Dispose
@@ -31,7 +31,7 @@ public class BehaviorSubjectTest
 
             l.AssertEqual([100, 1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
         // already OnCompleted(Failure), Dispose
@@ -46,7 +46,7 @@ public class BehaviorSubjectTest
 
             l.AssertEqual([100, 1, 2, 3]);
             l.AssertIsCompleted();
-            s.IsDisposed.Should().BeTrue();
+            s.IsDisposed.ShouldBeTrue();
         }
 
 
@@ -87,11 +87,11 @@ public class BehaviorSubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.Result.IsSuccess.Should().BeTrue();
-            l.Count.Should().Be(0); // doesnt publish on subscribe
+            l.Result.IsSuccess.ShouldBeTrue();
+            l.Count.ShouldBe(0); // doesnt publish on subscribe
 
             // get value is ok, latest
-            s.Value.Should().Be(100);
+            s.Value.ShouldBe(100);
         }
         {
             // after Failure
@@ -101,10 +101,10 @@ public class BehaviorSubjectTest
             using var l = s.ToLiveList();
 
             l.AssertIsCompleted();
-            l.Result.IsFailure.Should().BeTrue();
-            l.Result.Exception!.Message.Should().Be("foo");
+            l.Result.IsFailure.ShouldBeTrue();
+            l.Result.Exception!.Message.ShouldBe("foo");
 
-            Assert.Throws<Exception>(() => _ = s.Value).Message.Should().Be("foo");
+            Assert.Throws<Exception>(() => _ = s.Value).Message.ShouldBe("foo");
         }
     }
 }

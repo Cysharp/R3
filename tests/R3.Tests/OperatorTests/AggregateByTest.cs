@@ -15,13 +15,13 @@ public class AggregateByTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
         var result = await task;
-        result.FirstOrDefault(x => x.Key).Value.Should().Be(106);
-        result.FirstOrDefault(x => !x.Key).Value.Should().Be(109);
+        result.FirstOrDefault(x => x.Key).Value.ShouldBe(106);
+        result.FirstOrDefault(x => !x.Key).Value.ShouldBe(109);
     }
 
     [Fact]
@@ -31,10 +31,10 @@ public class AggregateByTest
 
         var task = publisher.AggregateByAsync(x => x % 2 == 0, 100, (sum, x) => x + sum);
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
         publisher.OnCompleted();
 
-        (await task).Should().BeEmpty();
+        (await task).ShouldBeEmpty();
     }
 
     [Fact]
@@ -46,12 +46,12 @@ public class AggregateByTest
 
         publisher.OnNext(2);
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
         publisher.OnCompleted();
 
         var result = await task;
-        result.Count().Should().Be(1);
-        result.First().Value.Should().Be(102);
+        result.Count().ShouldBe(1);
+        result.First().Value.ShouldBe(102);
     }
 
     [Fact]
@@ -70,12 +70,12 @@ public class AggregateByTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
         var result = await task;
-        result.FirstOrDefault(x => x.Key).Value.Should().Be(106);
-        result.FirstOrDefault(x => !x.Key).Value.Should().Be(9);
+        result.FirstOrDefault(x => x.Key).Value.ShouldBe(106);
+        result.FirstOrDefault(x => !x.Key).Value.ShouldBe(9);
     }
 }
