@@ -53,4 +53,38 @@ public class TimeoutTest
         list.AssertIsCompleted();
         list.Result.Exception!.ShouldBeOfType<TimeoutException>();
     }
+
+    [Fact]
+    public void Timeout2()
+    {
+        var fakeTimeProvider = new FakeTimeProvider();
+        using var subject = new R3.Subject<int>();
+
+        var results =
+            subject.Timeout(TimeSpan.FromSeconds(3), fakeTimeProvider)
+                .Materialize()
+                .ToLiveList();
+
+        // Timeout
+        fakeTimeProvider.Advance(5);
+
+        results.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void TimeoutFrame2()
+    {
+        var fakeFrameProvider = new FakeFrameProvider();
+        using var subject = new R3.Subject<int>();
+
+        var results =
+            subject.TimeoutFrame(3, fakeFrameProvider)
+                .Materialize()
+                .ToLiveList();
+
+        // Timeout
+        fakeFrameProvider.Advance(5);
+
+        results.ShouldBeEmpty();
+    }
 }

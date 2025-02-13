@@ -23,15 +23,17 @@ internal sealed class TimeoutFrame<T>(Observable<T> source, int frameCount, Fram
     sealed class _TimeoutFrame : Observer<T>, IFrameRunnerWorkItem
     {
         readonly Observer<T> observer;
-        readonly int frameCount;
+        readonly FrameProvider frameProvider;
+        readonly int periodFrame;
         readonly object gate = new object();
         int currentFrame;
+        bool running;
 
         public _TimeoutFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {
             this.observer = observer;
-            this.frameCount = frameCount;
-            frameProvider.Register(this);
+            this.periodFrame = frameCount;
+            this.frameProvider = frameProvider;
         }
 
         protected override void OnNextCore(T value)
@@ -39,7 +41,12 @@ internal sealed class TimeoutFrame<T>(Observable<T> source, int frameCount, Fram
             lock (gate)
             {
                 observer.OnNext(value);
-                currentFrame = 0;
+                currentFrame = 0; // reset current frame
+                if (!running)
+                {
+                    running = true;
+                    frameProvider.Register(this);
+                }
             }
         }
 
@@ -59,9 +66,10 @@ internal sealed class TimeoutFrame<T>(Observable<T> source, int frameCount, Fram
 
             lock (gate)
             {
-                if (++currentFrame == frameCount)
+                if (++currentFrame == periodFrame)
                 {
                     this.OnCompleted(new TimeoutException());
+                    running = false;
                     return false;
                 }
             }
