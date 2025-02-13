@@ -602,6 +602,8 @@ Interoperability with `async/await`
 ---
 R3 has special integration with `async/await`. First, all methods that return a single asynchronous operation have now become ***Async methods, returning `Task<T>`.
 
+Methods that convert to such `Task` (for example `FirstAsync`, `LastAsync`) transform OnErrorResume's Exception into a Faulted Task, similar to OnCompleted(Exception). Note that since the Catch operator does not capture OnErrorResume, if you want integrated error handling, please use `OnErrorResumeAsFailure()` to convert `OnErrorResume(Exception)` to `OnCompleted(Exception)`.
+
 Furthermore, you can specify special behaviors when asynchronous methods are provided to Where/Select/Subscribe.
 
 | Name | ReturnType |
