@@ -63,13 +63,13 @@ public static class _TestHelper
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void ShouldNotBe<T>(this T? actual, T? expected, string? customMessage = null)
+    public static void IsNot<T>(this T? actual, T? expected, string? customMessage = null)
     {
         actual.ShouldNotBe(expected, customMessage);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void ShouldNotBe<T>(this T? actual, T? expected, IEqualityComparer<T> comparer, string? customMessage = null)
+    public static void IsNot<T>(this T? actual, T? expected, IEqualityComparer<T> comparer, string? customMessage = null)
     {
         actual.ShouldNotBe(expected, comparer, customMessage);
     }
