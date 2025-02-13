@@ -1,4 +1,6 @@
-﻿namespace R3.Tests.OperatorTests;
+﻿using R3.Collections;
+
+namespace R3.Tests.OperatorTests;
 
 public class ChunkTest
 {
@@ -458,37 +460,47 @@ public class ChunkTest
         list[1].ShouldBe([3]);
     }
 
-    // ChunkWhile
+    // ChunkUntil
 
     [Fact]
-    public void ChunkWhile1()
+    public void ChunkUntil()
     {
         var publisher = new Subject<int>();
-        var list =  publisher.ChunkWhile(x => x % 3 == 0).ToLiveList();
+        var list = publisher.ChunkUntil(x => x % 3 == 0).ToLiveList();
 
         publisher.OnNext(1);
         publisher.OnNext(2);
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        // list.Count.Should()
+        list.Count.Is(0);
         publisher.OnNext(3); // true
 
+        list.ShouldBe([[1, 2, 4, 5, 3]]);
 
+        publisher.OnNext(8);
+        publisher.OnNext(9); // true
 
+        list.ShouldBe([[1, 2, 4, 5, 3], [8, 9]]);
 
+        publisher.OnNext(10);
+        publisher.OnCompleted();
+        list.ShouldBe([[1, 2, 4, 5, 3], [8, 9], [10]]);
+        list.IsCompleted.ShouldBeTrue();
+    }
 
+    [Fact]
+    public void ChunkUntilIndex()
+    {
+        var publisher = new Subject<int>();
+        var list = publisher.ChunkUntil((x, i) => i % 3 == 0).ToLiveList();
 
-        var xs = Observable.Range(1, 10).TakeWhile(x => x <= 3).ToLiveList();
-        xs.AssertEqual([1, 2, 3]);
-        xs.AssertIsCompleted();
+        publisher.OnNext(1); // 0
+        publisher.OnNext(2); // 1
+        publisher.OnNext(4); // 2
+        publisher.OnNext(5); // 3
 
-        var ys = Observable.Range(100, 10).TakeWhile((x, i) => i < 3).ToLiveList();
-        ys.AssertEqual([100, 101, 102]);
-        ys.AssertIsCompleted();
-
-
-
+        list.ShouldBe([[1], [2, 4, 5]]);
     }
 }
 

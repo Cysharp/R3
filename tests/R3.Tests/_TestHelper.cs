@@ -1,8 +1,8 @@
 ﻿using R3.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace R3.Tests;
-
-
 
 public static class _TestHelper
 {
@@ -39,5 +39,68 @@ public static class _TestHelper
     public static void Advance(this FakeTimeProvider timeProvider, int seconds)
     {
         timeProvider.Advance(TimeSpan.FromSeconds(seconds));
+    }
+
+    // ShouldBe -> Is
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void Is<T>(
+       [NotNullIfNotNull(nameof(expected))] this T? actual,
+       [NotNullIfNotNull(nameof(actual))] T? expected,
+       string? customMessage = null)
+    {
+        actual.ShouldBe(expected, customMessage);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void Is<T>(
+        [NotNullIfNotNull(nameof(expected))] this T? actual,
+        [NotNullIfNotNull(nameof(actual))] T? expected,
+        IEqualityComparer<T> comparer,
+        string? customMessage = null)
+    {
+        actual.ShouldBe(expected, comparer, customMessage);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void ShouldNotBe<T>(this T? actual, T? expected, string? customMessage = null)
+    {
+        actual.ShouldNotBe(expected, customMessage);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void ShouldNotBe<T>(this T? actual, T? expected, IEqualityComparer<T> comparer, string? customMessage = null)
+    {
+        actual.ShouldNotBe(expected, comparer, customMessage);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void Is<T>(
+        [NotNullIfNotNull(nameof(expected))] this IEnumerable<T>? actual,
+        [NotNullIfNotNull(nameof(actual))] IEnumerable<T>? expected,
+        bool ignoreOrder = false)
+    {
+        actual.ShouldBe(expected, ignoreOrder);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void Is<T>(
+        [NotNullIfNotNull(nameof(expected))] this IEnumerable<T>? actual,
+        [NotNullIfNotNull(nameof(actual))] IEnumerable<T>? expected,
+        bool ignoreOrder,
+        string? customMessage)
+    {
+        actual.ShouldBe(expected, ignoreOrder, customMessage);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void Is<T>(
+        [NotNullIfNotNull(nameof(expected))] this IEnumerable<T>? actual,
+        [NotNullIfNotNull(nameof(actual))] IEnumerable<T>? expected,
+        IEqualityComparer<T> comparer,
+        bool ignoreOrder = false,
+        string? customMessage = null)
+    {
+        actual.ShouldBe(expected, comparer, ignoreOrder, customMessage);
     }
 }
