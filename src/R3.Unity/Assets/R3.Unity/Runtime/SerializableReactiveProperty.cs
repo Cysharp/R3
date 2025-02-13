@@ -66,9 +66,7 @@ namespace R3
                 var paths = property.propertyPath.Split('.'); // X.Y.Z...
                 var attachedComponent = property.serializedObject.targetObject;
 
-                var targetProp = (paths.Length == 1)
-                    ? fieldInfo.GetValue(attachedComponent)
-                    : GetValueRecursive(attachedComponent, 0, paths);
+                var targetProp = GetValueRecursive(attachedComponent, 0, paths);
                 if (targetProp == null) return;
 
                 property.serializedObject.ApplyModifiedProperties(); // deserialize to field
