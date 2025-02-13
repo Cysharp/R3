@@ -20,6 +20,7 @@ internal sealed class WinUI3DispatcherTimerProviderTimer : ITimer
     object? state;
     EventHandler<object> timerTick;
     TimeSpan? period;
+    short timerId;
 
     public WinUI3DispatcherTimerProviderTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
@@ -43,6 +44,8 @@ internal sealed class WinUI3DispatcherTimerProviderTimer : ITimer
             this.period = period;
             timer.Interval = dueTime;
 
+            // when start, change timerId.
+            unchecked { timerId++; }
             timer.Start();
             return true;
         }
@@ -51,19 +54,27 @@ internal sealed class WinUI3DispatcherTimerProviderTimer : ITimer
 
     void Timer_Tick(object? sender, object e)
     {
+        var id = timerId;
         callback(state);
+        if (id != timerId)
+        {
+            // called new timer status, do nothing.
+            return;
+        }
 
         if (timer != null && period != null)
         {
             if (period.Value == Timeout.InfiniteTimeSpan)
             {
                 period = null;
+                unchecked { timerId++; }
                 timer.Stop();
             }
             else
             {
                 timer.Interval = period.Value;
                 period = null;
+                unchecked { timerId++; }
                 timer.Start();
             }
         }
@@ -73,6 +84,7 @@ internal sealed class WinUI3DispatcherTimerProviderTimer : ITimer
     {
         if (timer != null)
         {
+            unchecked { timerId++; }
             timer.Stop();
             timer.Tick -= timerTick;
             timer = null;

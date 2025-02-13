@@ -25,8 +25,6 @@ public partial class MainWindow : Window
 
 
 
-
-
         //Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => textBlock.Text = x.ToString());
         // this.ObserveEveryValueChanged(x => x.Height).Subscribe(x => HeightText.Text = x.ToString());
 
@@ -47,6 +45,21 @@ public partial class MainWindow : Window
         //{
         //    textBlock.Text = "Hello World:" + ObservableSystem.DefaultFrameProvider.GetFrameCount();
         //});
+    }
+
+    protected override void OnActivated(EventArgs e)
+    {
+        base.OnActivated(e);
+
+        //Observable.Return(Unit.Default)
+        //    .Delay(TimeSpan.FromSeconds(1), TimeProvider.System)
+        //    .Subscribe(_ => Debug.WriteLine("This works fine"));
+
+        Observable.Return(Unit.Default)
+            .Delay(TimeSpan.FromSeconds(1), new SynchronizationContextTimeProvider())
+            .Subscribe(_ => Debug.WriteLine("but here is not reached"));
+
+
     }
 
     protected override void OnClosed(EventArgs e)

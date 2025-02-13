@@ -8,8 +8,7 @@ using ThreadingTimer = System.Threading.Timer;
 
 namespace R3.WinForms;
 
-public sealed class WinFormsTimerProvider(ISynchronizeInvoke? marshalingControl) :
-    TimeProvider
+public sealed class WinFormsTimerProvider(ISynchronizeInvoke? marshalingControl) : TimeProvider
 {
     public WinFormsTimerProvider()
         : this(null)
@@ -29,8 +28,7 @@ public sealed class WinFormsTimerProvider(ISynchronizeInvoke? marshalingControl)
     }
 }
 
-internal sealed class WinFormsTimerProviderTimer :
-    ITimer
+internal sealed class WinFormsTimerProviderTimer : ITimer
 {
     public WinFormsTimerProviderTimer(
         ISynchronizeInvoke? marshalingControl,
@@ -68,7 +66,7 @@ internal sealed class WinFormsTimerProviderTimer :
                     callback(state);
                 }
             }
-            else if(syncCtx is not null)
+            else if (syncCtx is not null)
             {
                 syncCtx.Send(new SendOrPostCallback(callback), state);
             }
