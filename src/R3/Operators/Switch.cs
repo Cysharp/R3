@@ -38,7 +38,9 @@ internal sealed class Switch<T>(Observable<Observable<T>> sources) : Observable<
             }
 
             // subscribe new inner with id token
-            subscription.Disposable = value.Subscribe(new SwitchObserver(this, innerId));
+            var observer = new SwitchObserver(this, innerId);
+            subscription.Disposable = observer; // dispose before observer first(set to SerialiDisposable).
+            value.Subscribe(observer);
         }
 
         protected override void OnErrorResumeCore(Exception error)
