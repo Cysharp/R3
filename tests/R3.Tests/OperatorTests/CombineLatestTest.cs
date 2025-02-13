@@ -159,4 +159,14 @@ public class CombineLatestTest
         source3.OnCompleted();
         list.AssertIsCompleted(); // all completed
     }
+
+    [Fact]
+    public void CombineLatestFactoryAndEmpty()
+    {
+        var empty = Enumerable.Empty<Observable<int>>();
+        var liveList = Observable.CombineLatest(empty).ToLiveList();
+
+        // not never, return empty
+        liveList.IsCompleted.ShouldBeTrue();
+    }
 }
