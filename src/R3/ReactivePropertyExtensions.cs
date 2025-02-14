@@ -78,6 +78,7 @@ internal sealed class ConnectedReactiveProperty<T> : ReactiveProperty<T>
 internal sealed class ReadOnlyBindableReactiveProperty<T>(BindableReactiveProperty<T> property) : IReadOnlyBindableReactiveProperty<T>
 {
     public T Value => ((IReadOnlyBindableReactiveProperty<T>)property).Value;
+    public bool EnableNotifyError => ((IReadOnlyBindableReactiveProperty<T>)property).EnableNotifyError;
 
     public bool HasErrors => ((INotifyDataErrorInfo)property).HasErrors;
 
