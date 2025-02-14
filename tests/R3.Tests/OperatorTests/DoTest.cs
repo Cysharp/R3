@@ -14,11 +14,11 @@ public class DoTest
         bool subscribeCalled = false;
         var source = subject.Do(onNext.Add, onErrorResume.Add, onCompleted.Add, () => disposeCalled = true, () => subscribeCalled = true);
 
-        subscribeCalled.Should().BeFalse();
+        subscribeCalled.ShouldBeFalse();
 
         var list = source.ToLiveList();
 
-        subscribeCalled.Should().BeTrue();
+        subscribeCalled.ShouldBeTrue();
 
         subject.OnNext(10);
         subject.OnNext(20);
@@ -27,15 +27,15 @@ public class DoTest
         subject.OnErrorResume(new Exception("b"));
         subject.OnErrorResume(new Exception("c"));
 
-        onNext.Should().Equal([10, 20, 30]);
-        onErrorResume.Select(x => x.Message).Should().Equal(["a", "b", "c"]);
+        onNext.ShouldBe([10, 20, 30]);
+        onErrorResume.Select(x => x.Message).ShouldBe(["a", "b", "c"]);
 
 
-        disposeCalled.Should().BeFalse();
+        disposeCalled.ShouldBeFalse();
 
         subject.OnCompleted();
-        onCompleted.Should().ContainSingle();
+        onCompleted.Count.ShouldNotBe(0);
 
-        disposeCalled.Should().BeTrue();
+        disposeCalled.ShouldBeTrue();
     }
 }

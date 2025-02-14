@@ -13,11 +13,10 @@ public class ToLookupTest
         publisher.OnNext(new (2, "b"));
         publisher.OnNext(new (3, "c"));
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
-
-        task.Status.Should().Be(TaskStatus.RanToCompletion);
+        task.Status.ShouldBe(TaskStatus.RanToCompletion);
 
         var expected = new Dictionary<int, string>
         {
@@ -27,7 +26,7 @@ public class ToLookupTest
         }
         .ToLookup(static x => x.Key);
 
-        (await task).Should().BeEquivalentTo(expected);
+        (await task).ShouldBe(expected);
     }
 
     [Fact]
@@ -41,11 +40,11 @@ public class ToLookupTest
         publisher.OnNext((2, "b"));
         publisher.OnNext((3, "c"));
 
-        task.Status.Should().Be(TaskStatus.WaitingForActivation);
+        task.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        task.Status.Should().Be(TaskStatus.RanToCompletion);
+        task.Status.ShouldBe(TaskStatus.RanToCompletion);
 
         var expected = new Dictionary<int, string>
         {
@@ -55,6 +54,6 @@ public class ToLookupTest
         }
         .ToLookup(static x => x.Key, static x => x.Value);
 
-        (await task).Should().BeEquivalentTo(expected);
+        (await task).ShouldBe(expected);
     }
 }

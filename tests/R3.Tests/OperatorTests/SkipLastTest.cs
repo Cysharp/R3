@@ -8,7 +8,7 @@ public class SkipLastTest
     public async Task Skip()
     {
         var xs = await Observable.Range(1, 10).SkipLast(3).ToArrayAsync();
-        xs.Should().Equal([1, 2, 3, 4, 5, 6, 7]);
+        xs.ShouldBe([1, 2, 3, 4, 5, 6, 7]);
     }
 
     [Fact]

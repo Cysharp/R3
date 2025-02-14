@@ -1,11 +1,11 @@
-using Microsoft.Maui.Dispatching;
+﻿using Microsoft.Maui.Dispatching;
 
 namespace R3;
 
 public class MauiDispatcherTimerProvider(IDispatcher dispatcher) : TimeProvider
 {
     public IDispatcher Dispatcher => dispatcher;
-    
+
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         var dispatcherTimer = dispatcher.CreateTimer();
@@ -20,6 +20,7 @@ sealed class MauiDispatcherTimerProviderTimer : ITimer
     readonly EventHandler timerTick;
     IDispatcherTimer? timer;
     TimeSpan? period;
+    short timerId;
 
     public MauiDispatcherTimerProviderTimer(IDispatcherTimer timer, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
@@ -57,6 +58,8 @@ sealed class MauiDispatcherTimerProviderTimer : ITimer
         {
             this.period = period;
             timer.Interval = dueTime;
+            // when start, change timerId.
+            unchecked { timerId++; }
             timer.Start();
             return true;
         }
@@ -65,13 +68,20 @@ sealed class MauiDispatcherTimerProviderTimer : ITimer
 
     void Tick(object? sender, EventArgs _)
     {
+        var id = timerId;
         callback(state);
+        if (id != timerId)
+        {
+            // called new timer status, do nothing.
+            return;
+        }
 
         if (timer != null && period != null)
         {
             if (period.Value == Timeout.InfiniteTimeSpan)
             {
                 period = null;
+                unchecked { timerId++; }
                 timer.Stop();
             }
             else

@@ -1,4 +1,4 @@
-# R3
+﻿# R3
 
 The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame), [Blazor](#blazor).
 
@@ -532,7 +532,7 @@ var list = Observable.EveryUpdate(frameProvider, cts.Token)
     .Select(_ => frameProvider.GetFrameCount())
     .ToLiveList();
 
-list.AssertEqual([]); // list.Should().Equal(expected);
+list.AssertEqual([]); // list.ShouldBe(expected);
 
 frameProvider.Advance();
 list.AssertEqual([0]);
@@ -541,7 +541,7 @@ frameProvider.Advance(3);
 list.AssertEqual([0, 1, 2, 3]);
 
 cts.Cancel();
-list.AssertIsCompleted(); // list.IsCompleted.Should().BeTrue();
+list.AssertIsCompleted(); // list.IsCompleted.ShouldBeTrue();
 
 frameProvider.Advance();
 list.AssertEqual([0, 1, 2, 3]);
@@ -553,35 +553,35 @@ list.AssertIsCompleted();
 ```csharp
 public static class LiveListExtensions
 {
-    // Should() is xUnit + FluentAssertions
+    // Shouldbe() is xUnit + Shouldly
     public static void AssertEqual<T>(this LiveList<T> list, params T[] expected)
     {
-        list.Should().Equal(expected);
+        list.ShouldBe(expected);
     }
 
     public static void AssertEqual<T>(this LiveList<T[]> list, params T[][] expected)
     {
-        list.Count.Should().Be(expected.Length);
+        list.Count.ShouldBe(expected.Length);
 
         for (int i = 0; i < expected.Length; i++)
         {
-            list[i].Should().Equal(expected[i]);
+            list[i].ShouldBe(expected[i]);
         }
     }
 
     public static void AssertEmpty<T>(this LiveList<T> list)
     {
-        list.Count.Should().Be(0);
+        list.Count.ShouldBe(0);
     }
 
     public static void AssertIsCompleted<T>(this LiveList<T> list)
     {
-        list.IsCompleted.Should().BeTrue();
+        list.IsCompleted.ShouldBeTrue();
     }
 
     public static void AssertIsNotCompleted<T>(this LiveList<T> list)
     {
-        list.IsCompleted.Should().BeFalse();
+        list.IsCompleted.ShouldBeFalse();
     }
 
     public static void Advance(this FakeTimeProvider timeProvider, int seconds)
@@ -601,6 +601,8 @@ Interoperability with `IObservable<T>`
 Interoperability with `async/await`
 ---
 R3 has special integration with `async/await`. First, all methods that return a single asynchronous operation have now become ***Async methods, returning `Task<T>`.
+
+Methods that convert to such `Task` (for example `FirstAsync`, `LastAsync`) transform OnErrorResume's Exception into a Faulted Task, similar to OnCompleted(Exception). Note that since the Catch operator does not capture OnErrorResume, if you want integrated error handling, please use `OnErrorResumeAsFailure()` to convert `OnErrorResume(Exception)` to `OnCompleted(Exception)`.
 
 Furthermore, you can specify special behaviors when asynchronous methods are provided to Where/Select/Subscribe.
 

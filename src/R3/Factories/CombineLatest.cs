@@ -42,6 +42,13 @@ internal sealed class CombineLatest<T>(IEnumerable<Observable<T>> sources) : Obs
                 this.sources = sources.ToArray();
             }
 
+            // empty should return as Empty.
+            if (this.sources.Length == 0)
+            {
+                this.observers = [];
+                return;
+            }
+
             var observers = new CombineLatestObserver[this.sources.Length];
             for (int i = 0; i < observers.Length; i++)
             {
@@ -52,6 +59,12 @@ internal sealed class CombineLatest<T>(IEnumerable<Observable<T>> sources) : Obs
 
         public IDisposable Run()
         {
+            if (observers.Length == 0)
+            {
+                observer.OnCompleted();
+                return Disposable.Empty;
+            }
+
             try
             {
                 for (int i = 0; i < sources.Length; i++)

@@ -12,11 +12,11 @@ public class DeferTest
             return Observable.Range(1, 10);
         });
 
-        called.Should().BeFalse();
+        called.ShouldBeFalse();
 
         var list = def.ToLiveList();
 
-        called.Should().BeTrue();
+        called.ShouldBeTrue();
 
         list.AssertEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }

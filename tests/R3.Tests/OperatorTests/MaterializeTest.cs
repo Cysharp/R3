@@ -14,11 +14,11 @@ public class MaterializeTest
         publisher.OnErrorResume(new Exception("foo"));
         publisher.OnCompleted(new Exception("comp"));
 
-        list[0].Value.Should().Be(10);
-        list[1].Value.Should().Be(20);
-        list[2].Value.Should().Be(30);
-        list[3].Error!.Message.Should().Be("foo");
-        list[4].Result!.Exception!.Message.Should().Be("comp");
+        list[0].Value.ShouldBe(10);
+        list[1].Value.ShouldBe(20);
+        list[2].Value.ShouldBe(30);
+        list[3].Error!.Message.ShouldBe("foo");
+        list[4].Result!.Exception!.Message.ShouldBe("comp");
 
         list.AssertIsCompleted();
     }
@@ -36,7 +36,7 @@ public class MaterializeTest
         publisher.OnCompleted(new Exception("comp"));
 
         list.AssertEqual([10, 20, 30]);
-        list.Result.IsFailure.Should().BeTrue();
+        list.Result.IsFailure.ShouldBeTrue();
         list.AssertIsCompleted();
     }
 }

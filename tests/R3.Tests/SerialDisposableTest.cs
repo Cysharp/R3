@@ -10,23 +10,23 @@ public class SerialDisposableTest
         var d = new SerialDisposableCore();
         d.Disposable = Disposable.Create(() => l.Add(1));
 
-        l.Should().Equal([]);
+        l.ShouldBe([]);
 
         d.Disposable = Disposable.Create(() => l.Add(2));
-        l.Should().Equal([1]);
+        l.ShouldBe([1]);
 
         d.Disposable = Disposable.Create(() => l.Add(3));
-        l.Should().Equal([1, 2]);
+        l.ShouldBe([1, 2]);
 
         d.Disposable = Disposable.Create(() => l.Add(4));
-        l.Should().Equal([1, 2, 3]);
+        l.ShouldBe([1, 2, 3]);
 
         d.Dispose();
 
-        l.Should().Equal([1, 2, 3, 4]);
+        l.ShouldBe([1, 2, 3, 4]);
 
         d.Disposable = Disposable.Create(() => l.Add(5));
 
-        l.Should().Equal([1, 2, 3, 4, 5]);
+        l.ShouldBe([1, 2, 3, 4, 5]);
     }
 }

@@ -11,11 +11,11 @@ public class SkipTest
     {
         var xs = await Observable.Range(1, 10).Skip(3).ToArrayAsync();
 
-        xs.Should().Equal([4, 5, 6, 7, 8, 9, 10]);
+        xs.ShouldBe([4, 5, 6, 7, 8, 9, 10]);
 
         // skip zero
         var ys = await Observable.Range(1, 10).Skip(0).ToArrayAsync();
-        ys.Should().Equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        ys.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
     [Fact]

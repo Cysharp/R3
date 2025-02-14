@@ -15,11 +15,11 @@ public class ToListTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
+        listTask.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted();
 
-        (await listTask).Should().Equal(1, 2, 3, 4, 5);
+        (await listTask).ShouldBe([1, 2, 3, 4, 5]);
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public class ToListTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
+        listTask.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         publisher.OnCompleted(Result.Failure(new Exception("foo")));
 
@@ -58,12 +58,12 @@ public class ToListTest
         publisher.OnNext(4);
         publisher.OnNext(5);
 
-        listTask.Status.Should().Be(TaskStatus.WaitingForActivation);
+        listTask.Status.ShouldBe(TaskStatus.WaitingForActivation);
 
         cts.Cancel();
 
         await Assert.ThrowsAsync<TaskCanceledException>(async () => await listTask);
 
-        isDisposed.Should().BeTrue();
+        isDisposed.ShouldBeTrue();
     }
 }

@@ -16,13 +16,13 @@ public class FirstLastSingleTest
         var publisher = new Subject<int>();
         var task = publisher.FirstAsync();
         publisher.OnNext(10);
-        (await task).Should().Be(10);
+        (await task).ShouldBe(10);
 
         var task2 = publisher.FirstAsync();
         publisher.OnNext(15);
         publisher.OnNext(25);
 
-        (await task2).Should().Be(15);
+        (await task2).ShouldBe(15);
 
         var task3 = publisher.FirstAsync();
 
@@ -32,10 +32,10 @@ public class FirstLastSingleTest
         publisher = new Subject<int>();
         var task4 = publisher.FirstAsync(x => x % 3 == 0);
         publisher.OnNext(5);
-        task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
+        task4.Status.ShouldNotBe(TaskStatus.RanToCompletion);
 
         publisher.OnNext(99);
-        (await task4).Should().Be(99);
+        (await task4).ShouldBe(99);
     }
 
     [Fact]
@@ -44,26 +44,26 @@ public class FirstLastSingleTest
         var publisher = new Subject<int>();
         var task = publisher.FirstOrDefaultAsync();
         publisher.OnNext(10);
-        (await task).Should().Be(10);
+        (await task).ShouldBe(10);
 
         var task2 = publisher.FirstOrDefaultAsync();
         publisher.OnNext(15);
         publisher.OnNext(25);
 
-        (await task2).Should().Be(15);
+        (await task2).ShouldBe(15);
 
         var task3 = publisher.FirstOrDefaultAsync(9999);
 
         publisher.OnCompleted(default);
-        (await task3).Should().Be(9999);
+        (await task3).ShouldBe(9999);
 
         publisher = new Subject<int>();
         var task4 = publisher.FirstOrDefaultAsync(x => x % 3 == 0);
         publisher.OnNext(5);
-        task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
+        task4.Status.ShouldNotBe(TaskStatus.RanToCompletion);
 
         publisher.OnNext(99);
-        (await task4).Should().Be(99);
+        (await task4).ShouldBe(99);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class FirstLastSingleTest
         var task = publisher.LastAsync();
         publisher.OnNext(10);
         publisher.OnCompleted(default);
-        (await task).Should().Be(10);
+        (await task).ShouldBe(10);
 
         publisher = new Subject<int>();
         var task2 = publisher.LastAsync();
@@ -81,7 +81,7 @@ public class FirstLastSingleTest
         publisher.OnNext(25);
         publisher.OnCompleted(default);
 
-        (await task2).Should().Be(25);
+        (await task2).ShouldBe(25);
 
         publisher = new Subject<int>();
         var task3 = publisher.LastAsync();
@@ -92,12 +92,12 @@ public class FirstLastSingleTest
         publisher = new Subject<int>();
         var task4 = publisher.LastAsync(x => x % 3 == 0);
         publisher.OnNext(5);
-        task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
+        task4.Status.ShouldNotBe(TaskStatus.RanToCompletion);
 
         publisher.OnNext(99);
         publisher.OnNext(11);
         publisher.OnCompleted();
-        (await task4).Should().Be(99);
+        (await task4).ShouldBe(99);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class FirstLastSingleTest
         var task = publisher.LastOrDefaultAsync();
         publisher.OnNext(10);
         publisher.OnCompleted(default);
-        (await task).Should().Be(10);
+        (await task).ShouldBe(10);
 
         publisher = new Subject<int>();
         var task2 = publisher.LastOrDefaultAsync();
@@ -115,23 +115,23 @@ public class FirstLastSingleTest
         publisher.OnNext(25);
         publisher.OnCompleted(default);
 
-        (await task2).Should().Be(25);
+        (await task2).ShouldBe(25);
 
         publisher = new Subject<int>();
         var task3 = publisher.LastOrDefaultAsync(9999);
 
         publisher.OnCompleted(default);
-        (await task3).Should().Be(9999);
+        (await task3).ShouldBe(9999);
 
         publisher = new Subject<int>();
         var task4 = publisher.LastOrDefaultAsync(x => x % 3 == 0);
         publisher.OnNext(5);
-        task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
+        task4.Status.ShouldNotBe(TaskStatus.RanToCompletion);
 
         publisher.OnNext(99);
         publisher.OnNext(11);
         publisher.OnCompleted();
-        (await task4).Should().Be(99);
+        (await task4).ShouldBe(99);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class FirstLastSingleTest
         var task = publisher.SingleAsync();
         publisher.OnNext(10);
         publisher.OnCompleted();
-        (await task).Should().Be(10);
+        (await task).ShouldBe(10);
 
         publisher = new Subject<int>();
         var task2 = publisher.SingleAsync();
@@ -158,11 +158,11 @@ public class FirstLastSingleTest
         publisher = new Subject<int>();
         var task4 = publisher.SingleAsync(x => x % 3 == 0);
         publisher.OnNext(5);
-        task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
+        task4.Status.ShouldNotBe(TaskStatus.RanToCompletion);
 
         publisher.OnNext(99);
         publisher.OnCompleted();
-        (await task4).Should().Be(99);
+        (await task4).ShouldBe(99);
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class FirstLastSingleTest
         var task = publisher.SingleOrDefaultAsync(9999);
         publisher.OnNext(10);
         publisher.OnCompleted();
-        (await task).Should().Be(10);
+        (await task).ShouldBe(10);
 
         publisher = new Subject<int>();
         var task2 = publisher.SingleOrDefaultAsync(9999);
@@ -184,16 +184,16 @@ public class FirstLastSingleTest
         var task3 = publisher.SingleOrDefaultAsync(9999);
 
         publisher.OnCompleted(default);
-        (await task3).Should().Be(9999);
+        (await task3).ShouldBe(9999);
 
         publisher = new Subject<int>();
         var task4 = publisher.SingleOrDefaultAsync(x => x % 3 == 0);
         publisher.OnNext(5);
-        task4.Status.Should().NotBe(TaskStatus.RanToCompletion);
+        task4.Status.ShouldNotBe(TaskStatus.RanToCompletion);
 
         publisher.OnNext(99);
         publisher.OnCompleted();
-        (await task4).Should().Be(99);
+        (await task4).ShouldBe(99);
     }
 
     [Fact]

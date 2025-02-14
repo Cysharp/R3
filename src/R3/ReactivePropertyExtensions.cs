@@ -14,11 +14,6 @@ public static class ReactivePropertyExtensions
 
     public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
     {
-        if (source is ReadOnlyReactiveProperty<T> rrp)
-        {
-            return rrp;
-        }
-
         // allow to cast ReactiveProperty<T>
         return new ConnectedReactiveProperty<T>(source, initialValue, equalityComparer);
     }
@@ -83,6 +78,7 @@ internal sealed class ConnectedReactiveProperty<T> : ReactiveProperty<T>
 internal sealed class ReadOnlyBindableReactiveProperty<T>(BindableReactiveProperty<T> property) : IReadOnlyBindableReactiveProperty<T>
 {
     public T Value => ((IReadOnlyBindableReactiveProperty<T>)property).Value;
+    public bool IsValidationEnabled => ((IReadOnlyBindableReactiveProperty<T>)property).IsValidationEnabled;
 
     public bool HasErrors => ((INotifyDataErrorInfo)property).HasErrors;
 

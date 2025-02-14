@@ -1,4 +1,6 @@
-﻿namespace R3.Tests.OperatorTests;
+﻿using R3.Collections;
+
+namespace R3.Tests.OperatorTests;
 
 public class ChunkTest
 {
@@ -312,36 +314,36 @@ public class ChunkTest
         {
             var xs = await Observable.Range(1, 10).Chunk(3, 1).ToArrayAsync();
 
-            xs[0].Should().Equal(1, 2, 3);
-            xs[1].Should().Equal(2, 3, 4);
-            xs[2].Should().Equal(3, 4, 5);
-            xs[3].Should().Equal(4, 5, 6);
-            xs[4].Should().Equal(5, 6, 7);
-            xs[5].Should().Equal(6, 7, 8);
-            xs[6].Should().Equal(7, 8, 9);
-            xs[7].Should().Equal(8, 9, 10);
-            xs[8].Should().Equal(9, 10);
-            xs[9].Should().Equal(10);
+            xs[0].ShouldBe([1, 2, 3]);
+            xs[1].ShouldBe([2, 3, 4]);
+            xs[2].ShouldBe([3, 4, 5]);
+            xs[3].ShouldBe([4, 5, 6]);
+            xs[4].ShouldBe([5, 6, 7]);
+            xs[5].ShouldBe([6, 7, 8]);
+            xs[6].ShouldBe([7, 8, 9]);
+            xs[7].ShouldBe([8, 9, 10]);
+            xs[8].ShouldBe([9, 10]);
+            xs[9].ShouldBe([10]);
         }
 
         // count == skip
         {
             var xs = await Observable.Range(1, 10).Chunk(3, 3).ToArrayAsync();
 
-            xs[0].Should().Equal(1, 2, 3);
-            xs[1].Should().Equal(4, 5, 6);
-            xs[2].Should().Equal(7, 8, 9);
-            xs[3].Should().Equal(10);
+            xs[0].ShouldBe([1, 2, 3]);
+            xs[1].ShouldBe([4, 5, 6]);
+            xs[2].ShouldBe([7, 8, 9]);
+            xs[3].ShouldBe([10]);
         }
 
         // count < skip
         {
             var xs = await Observable.Range(1, 20).Chunk(3, 5).ToArrayAsync();
 
-            xs[0].Should().Equal(1, 2, 3);
-            xs[1].Should().Equal(6, 7, 8);
-            xs[2].Should().Equal(11, 12, 13);
-            xs[3].Should().Equal(16, 17, 18);
+            xs[0].ShouldBe([1, 2, 3]);
+            xs[1].ShouldBe([6, 7, 8]);
+            xs[2].ShouldBe([11, 12, 13]);
+            xs[3].ShouldBe([16, 17, 18]);
         }
     }
 
@@ -367,7 +369,7 @@ public class ChunkTest
 
         provider.Advance(3);
 
-        list[0].Should().Equal(1, 2, 3);
+        list[0].ShouldBe([1, 2, 3]);
 
         provider.Advance(4); // timer is stopping
 
@@ -375,13 +377,13 @@ public class ChunkTest
 
         provider.Advance(1);
 
-        list.Count.Should().Be(1);
+        list.Count.ShouldBe(1);
 
         publisher.OnNext(5);
 
         provider.Advance(4);
 
-        list[1].Should().Equal(4, 5);
+        list[1].ShouldBe([4, 5]);
 
         publisher.OnCompleted();
 
@@ -408,7 +410,7 @@ public class ChunkTest
 
         provider.Advance(3);
 
-        list[0].Should().Equal(1, 2, 3);
+        list[0].ShouldBe([1, 2, 3]);
 
         provider.Advance(4); // timer is stopping
 
@@ -416,13 +418,13 @@ public class ChunkTest
 
         provider.Advance(1);
 
-        list.Count.Should().Be(1);
+        list.Count.ShouldBe(1);
 
         publisher.OnNext(5);
 
         provider.Advance(4);
 
-        list[1].Should().Equal(4, 5);
+        list[1].ShouldBe([4, 5]);
 
         publisher.OnCompleted();
 
@@ -445,17 +447,60 @@ public class ChunkTest
 
         publisher.OnNext(2); // count full, timer reset
 
-        list[0].Should().Equal(1, 2);
+        list[0].ShouldBe([1, 2]);
 
         publisher.OnNext(3);
 
         provider.Advance(2);
 
-        list.Count().Should().Be(1);
+        list.Count().ShouldBe(1);
 
         provider.Advance(3);
 
-        list[1].Should().Equal(3);
+        list[1].ShouldBe([3]);
+    }
+
+    // ChunkUntil
+
+    [Fact]
+    public void ChunkUntil()
+    {
+        var publisher = new Subject<int>();
+        var list = publisher.ChunkUntil(x => x % 3 == 0).ToLiveList();
+
+        publisher.OnNext(1);
+        publisher.OnNext(2);
+        publisher.OnNext(4);
+        publisher.OnNext(5);
+
+        list.Count.Is(0);
+        publisher.OnNext(3); // true
+
+        list.ShouldBe([[1, 2, 4, 5, 3]]);
+
+        publisher.OnNext(8);
+        publisher.OnNext(9); // true
+
+        list.ShouldBe([[1, 2, 4, 5, 3], [8, 9]]);
+
+        publisher.OnNext(10);
+        publisher.OnCompleted();
+        list.ShouldBe([[1, 2, 4, 5, 3], [8, 9], [10]]);
+        list.IsCompleted.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ChunkUntilIndex()
+    {
+        var publisher = new Subject<int>();
+        var list = publisher.ChunkUntil((x, i) => i % 3 == 0).ToLiveList();
+
+        publisher.OnNext(1); // 0
+        publisher.OnNext(2); // 1
+        publisher.OnNext(4); // 2
+        publisher.OnNext(5); // 3
+
+        list.ShouldBe([[1], [2, 4, 5]]);
     }
 }
 

@@ -9,7 +9,7 @@ public class TakeTest
     {
         var xs = await Observable.Range(1, 10).Take(3).ToArrayAsync();
 
-        xs.Should().Equal([1, 2, 3]);
+        xs.ShouldBe([1, 2, 3]);
 
         var timeProvider = new FakeTimeProvider();
 

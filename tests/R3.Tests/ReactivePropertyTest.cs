@@ -10,7 +10,7 @@ public class ReactivePropertyTest
     public void Test()
     {
         var rp = new ReactiveProperty<int>(100);
-        rp.Value.Should().Be(100);
+        rp.Value.ShouldBe(100);
 
         var list = rp.ToLiveList();
         list.AssertEqual([100]);
@@ -39,7 +39,7 @@ public class ReactivePropertyTest
     public void DefaultValueTest()
     {
         using var rp = new ReactiveProperty<int>();
-        rp.Value.Should().Be(default);
+        rp.Value.ShouldBe(default);
     }
 
     [Fact]
@@ -308,7 +308,7 @@ public class ReactivePropertyTest
 
         var actual = string.Join(Environment.NewLine, log);
 
-        actual.Should().Be("""
+        actual.ShouldBe("""
 A = 0
 B = 0
 C = 0
@@ -347,7 +347,7 @@ A = 2
 
         var actual = string.Join(Environment.NewLine, log);
 
-        actual.Should().Be("""
+        actual.ShouldBe("""
 [P1]1
 [P3]1
 [P1]2
@@ -377,7 +377,7 @@ A = 2
 
         var actual = string.Join(Environment.NewLine, log);
 
-        actual.Should().Be("""
+        actual.ShouldBe("""
 [P2_1]1
 [P2_2]1
 [P3]1
@@ -406,7 +406,7 @@ A = 2
 
         var actual = string.Join(Environment.NewLine, log);
 
-        actual.Should().Be("""
+        actual.ShouldBe("""
 [P1]1
 [P2]1
 [P2]1

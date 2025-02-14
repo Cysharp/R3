@@ -7,7 +7,7 @@ public class AnyTest
     {
         var range = Observable.Range(1, 10);
         var task = range.AnyAsync(static x => x is 5);
-        (await task).Should().BeTrue();
+        (await task).ShouldBeTrue();
     }
 
     [Fact]
@@ -15,6 +15,6 @@ public class AnyTest
     {
         var range = Observable.Range(1, 10);
         var task = range.AnyAsync(static x => x is 11);
-        (await task).Should().BeFalse();
+        (await task).ShouldBeFalse();
     }
 }

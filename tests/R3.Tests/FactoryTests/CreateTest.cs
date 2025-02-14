@@ -77,7 +77,7 @@ public class CreateTest
 
         list.AssertEqual([1]);
         list.Dispose();
-        gate.Task.Status.Should().Be(TaskStatus.Canceled);
+        gate.Task.Status.ShouldBe(TaskStatus.Canceled);
     }
 
     [Fact]
@@ -131,7 +131,7 @@ public class CreateTest
 
         list.AssertEqual([1]);
         list.Dispose();
-        gate.Task.Status.Should().Be(TaskStatus.Canceled);
+        gate.Task.Status.ShouldBe(TaskStatus.Canceled);
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public class CreateTest
         using var list = source.ToLiveList();
         list.AssertEqual([1]);
         gate.SetException(new Exception("foo"));
-        list.Result!.Exception!.Message.Should().Be("foo");
+        list.Result!.Exception!.Message.ShouldBe("foo");
 
         async IAsyncEnumerable<int> Seq([EnumeratorCancellation] CancellationToken ct)
         {

@@ -1,9 +1,9 @@
 ﻿namespace R3.Tests.OperatorTests;
 
-public class AmbTest
+public class RaceTest
 {
     [Fact]
-    public void Amb3()
+    public void Race3()
     {
         var subject1 = new Subject<int>();
         var subject2 = new Subject<int>();
@@ -13,26 +13,26 @@ public class AmbTest
         var d2Called = false;
         var d3Called = false;
 
-        var list = Observable.Amb(
+        var list = Observable.Race(
             subject1.Do(onDispose: () => d1Called = true),
             subject2.Do(onDispose: () => d2Called = true),
             subject3.Do(onDispose: () => d3Called = true)
             ).ToLiveList();
 
-        d1Called.Should().BeFalse();
+        d1Called.ShouldBeFalse();
 
         subject2.OnNext(2);
         list.AssertEqual([2]);
 
-        d1Called.Should().BeTrue();
-        d3Called.Should().BeTrue();
+        d1Called.ShouldBeTrue();
+        d3Called.ShouldBeTrue();
 
         subject2.OnNext(20);
         list.AssertEqual([2, 20]);
 
         subject2.OnCompleted();
 
-        d2Called.Should().BeTrue();
+        d2Called.ShouldBeTrue();
         list.AssertIsCompleted();
     }
 }

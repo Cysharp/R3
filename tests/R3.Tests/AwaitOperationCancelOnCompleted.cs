@@ -43,7 +43,7 @@ public class AwaitOperationCancelOnCompleted
         subject.OnCompleted();
 
         Thread.Sleep(TimeSpan.FromSeconds(1)); // CI failed?
-        canceled.Should().BeTrue();
+        canceled.ShouldBeTrue();
         list.AssertIsCompleted();
     }
 
@@ -80,7 +80,7 @@ public class AwaitOperationCancelOnCompleted
 
         subject.OnCompleted();
 
-        canceled.Should().BeFalse();
+        canceled.ShouldBeFalse();
 
         list.AssertEqual([]);
         list.AssertIsNotCompleted();

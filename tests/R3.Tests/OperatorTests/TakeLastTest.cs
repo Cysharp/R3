@@ -8,7 +8,7 @@ public class TakeLastTest(ITestOutputHelper helper)
     public async Task Take()
     {
         var xs = await Observable.Range(1, 10).TakeLast(3).ToArrayAsync();
-        xs.Should().Equal([8, 9, 10]);
+        xs.ShouldBe([8, 9, 10]);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class TakeLastTest(ITestOutputHelper helper)
     //        await end.Task;
     //        await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-    //        exception!.Should().BeNull();
+    //        exception!.ShouldBeNull();
     //        // helper.WriteLine(exception!.Message);
     //    }
     //    finally

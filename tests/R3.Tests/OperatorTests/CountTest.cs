@@ -5,10 +5,10 @@ public class CountTest
     [Fact]
     public async Task Empty()
     {
-        (await Observable.Empty<int>().CountAsync()).Should().Be(0);
-        (await Observable.Empty<int>().CountAsync(_ => true)).Should().Be(0);
-        (await Observable.Empty<long>().LongCountAsync()).Should().Be(0);
-        (await Observable.Empty<long>().LongCountAsync(_ => true)).Should().Be(0);
+        (await Observable.Empty<int>().CountAsync()).ShouldBe(0);
+        (await Observable.Empty<int>().CountAsync(_ => true)).ShouldBe(0);
+        (await Observable.Empty<long>().LongCountAsync()).ShouldBe(0);
+        (await Observable.Empty<long>().LongCountAsync(_ => true)).ShouldBe(0);
     }
 
     [Fact]
@@ -16,11 +16,11 @@ public class CountTest
     {
         var source = new [] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
 
-        (await source.CountAsync()).Should().Be(8);
-        (await source.Select(x => (long)x).CountAsync()).Should().Be(8);
+        (await source.CountAsync()).ShouldBe(8);
+        (await source.Select(x => (long)x).CountAsync()).ShouldBe(8);
 
-        (await source.CountAsync(x => x % 2 == 0)).Should().Be(4);
-        (await source.Select(x => (long)x).CountAsync(x => x % 2== 0)).Should().Be(4);
+        (await source.CountAsync(x => x % 2 == 0)).ShouldBe(4);
+        (await source.Select(x => (long)x).CountAsync(x => x % 2== 0)).ShouldBe(4);
     }
 
     [Fact]
@@ -28,8 +28,8 @@ public class CountTest
     {
         var source = new [] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
 
-        (await source.CountAsync(x => x % 2 == 0)).Should().Be(4);
-        (await source.Select(x => (long)x).CountAsync(x => x % 2== 0)).Should().Be(4);
+        (await source.CountAsync(x => x % 2 == 0)).ShouldBe(4);
+        (await source.Select(x => (long)x).CountAsync(x => x % 2== 0)).ShouldBe(4);
     }
 
     [Fact]

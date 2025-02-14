@@ -32,7 +32,7 @@ public partial class MainPage : ContentPage
             .Subscribe(x =>
             {
                 throw new InvalidOperationException("oppeke");
-                Label1.Text = $"Timer: {(DateTime.Now - startDate).TotalMilliseconds}";
+                // Label1.Text = $"Timer: {(DateTime.Now - startDate).TotalMilliseconds}";
             });
 
         var frameCount = 0;

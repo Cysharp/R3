@@ -248,7 +248,7 @@ public class DebounceThrottleFirstThrottleLastTest
         var fakeTime = new FakeTimeProvider();
         var list = publisher.ThrottleFirst(async (x, ct) =>
         {
-            await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
+            await Task.Delay(TimeSpan.FromSeconds(x),fakeTime, ct);
         }).ToLiveList();
 
         publisher.OnNext(1); // gate close
@@ -287,7 +287,7 @@ public class DebounceThrottleFirstThrottleLastTest
         var fakeTime = new FakeTimeProvider();
         var list = publisher.ThrottleLast(async (x, ct) =>
         {
-            await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
+            await Task.Delay(TimeSpan.FromSeconds(x), fakeTime, ct);
         }).ToLiveList();
 
         publisher.OnNext(1); // gate close

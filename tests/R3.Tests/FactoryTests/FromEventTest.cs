@@ -1,4 +1,6 @@
-﻿namespace R3.Tests.FactoryTests;
+﻿using Shouldly;
+
+namespace R3.Tests.FactoryTests;
 
 public class FromEventTest
 {
@@ -19,16 +21,16 @@ public class FromEventTest
         ev.Raise(10, 20);
         ev.Raise(100, 200);
 
-        l1.Should().HaveCount(2);
-        l3.Should().HaveCount(2);
-        l5.Should().HaveCount(2);
+        l1.Count.ShouldBe(2);
+        l3.Count.ShouldBe(2);
+        l5.Count.ShouldBe(2);
 
-        l2.Select(x => x.e).Should().Equal([10, 100]);
+        l2.Select(x => x.e).ShouldBe([10, 100]);
         l4.AssertEqual([10, 100]);
         l6.AssertEqual([10, 100]);
         l7.AssertEqual([(10, 20), (100, 200)]);
 
-        ev.InvocationListCount().Should().Be((1, 1, 1, 1, 1, 1, 1));
+        ev.InvocationListCount().ShouldBe((1, 1, 1, 1, 1, 1, 1));
 
         l1.Dispose();
         l2.Dispose();
@@ -38,7 +40,7 @@ public class FromEventTest
         l6.Dispose();
         l7.Dispose();
 
-        ev.InvocationListCount().Should().Be((0, 0, 0, 0, 0, 0, 0));
+        ev.InvocationListCount().ShouldBe((0, 0, 0, 0, 0, 0, 0));
     }
 
     [Fact]
@@ -59,20 +61,20 @@ public class FromEventTest
         ev.Raise(10, 20);
         ev.Raise(100, 200);
 
-        l1.Should().HaveCount(2);
-        l3.Should().HaveCount(2);
-        l5.Should().HaveCount(2);
+        l1.Count.ShouldBe(2);
+        l3.Count.ShouldBe(2);
+        l5.Count.ShouldBe(2);
 
-        l2.Select(x => x.e).Should().Equal([10, 100]);
+        l2.Select(x => x.e).ShouldBe([10, 100]);
         l4.AssertEqual([10, 100]);
         l6.AssertEqual([10, 100]);
         l7.AssertEqual([(10, 20), (100, 200)]);
 
-        ev.InvocationListCount().Should().Be((1, 1, 1, 1, 1, 1, 1));
+        ev.InvocationListCount().ShouldBe((1, 1, 1, 1, 1, 1, 1));
 
         cts.Cancel();
 
-        ev.InvocationListCount().Should().Be((0, 0, 0, 0, 0, 0, 0));
+        ev.InvocationListCount().ShouldBe((0, 0, 0, 0, 0, 0, 0));
     }
 
 

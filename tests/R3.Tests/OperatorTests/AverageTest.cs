@@ -30,10 +30,10 @@ public class AverageTest
     [Fact]
     public async Task One()
     {
-        (await Observable.Return(7).AverageAsync()).Should().Be(7.0);
-        (await Observable.Return(7).AverageAsync(x => x * 10)).Should().Be(70.0);
-        //(await Observable.Return(new TestNumber(7)).AverageAsync()).Should().Be(7.0);
-        //(await Observable.Return(new TestNumber(7)).AverageAsync(x => x)).Should().Be(7.0);
+        (await Observable.Return(7).AverageAsync()).ShouldBe(7.0);
+        (await Observable.Return(7).AverageAsync(x => x * 10)).ShouldBe(70.0);
+        //(await Observable.Return(new TestNumber(7)).AverageAsync()).ShouldBe(7.0);
+        //(await Observable.Return(new TestNumber(7)).AverageAsync(x => x)).ShouldBe(7.0);
     }
 
     [Fact]
@@ -42,10 +42,10 @@ public class AverageTest
         var values = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 };
 
         var result = await values.ToObservable().AverageAsync();
-        result.Should().Be(values.Average());
+        result.ShouldBe(values.Average());
 
         result = await values.ToObservable().AverageAsync(x => x * 2);
-        result.Should().Be(values.Average(x => x * 2));
+        result.ShouldBe(values.Average(x => x * 2));
     }
 
     [Fact]

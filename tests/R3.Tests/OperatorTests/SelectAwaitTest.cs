@@ -85,13 +85,13 @@ public class SelectAwaitTest
         timeProvider.Advance(3);
         liveList.AssertEqual([100]);
 
-        canceled.Should().BeFalse();
+        canceled.ShouldBeFalse();
 
         liveList.Dispose();
 
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        canceled.Should().BeTrue();
+        canceled.ShouldBeTrue();
     }
 
     [Fact]
@@ -180,13 +180,13 @@ public class SelectAwaitTest
 
         subject.OnNext(3);
 
-        canceled.Should().BeFalse();
+        canceled.ShouldBeFalse();
 
         liveList.Dispose();
 
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        canceled.Should().BeTrue();
+        canceled.ShouldBeTrue();
     }
 
     [Fact]
@@ -273,12 +273,12 @@ public class SelectAwaitTest
 
         subject.OnNext(3);
 
-        canceled.Should().BeFalse();
+        canceled.ShouldBeFalse();
         liveList.Dispose();
 
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        canceled.Should().BeTrue();
+        canceled.ShouldBeTrue();
     }
 
 
@@ -581,12 +581,12 @@ public class SelectAwaitTest
         timeProvider.Advance(3);
         liveList.AssertEqual([100]);
 
-        canceled.Should().BeFalse();
+        canceled.ShouldBeFalse();
 
         liveList.Dispose();
 
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        canceled.Should().BeTrue();
+        canceled.ShouldBeTrue();
     }
 }

@@ -33,7 +33,7 @@ public class TrampolineTest
 
         var msg = string.Join(Environment.NewLine, log);
 
-        msg.Should().Be("""
+        msg.ShouldBe("""
 A : OnPlayerJoined
 A : OnPlayerAddTeam
 B : OnPlayerAddTeam
@@ -68,7 +68,7 @@ C : OnPlayerJoined
 
         var msg = string.Join(Environment.NewLine, log);
 
-        msg.Should().Be("""
+        msg.ShouldBe("""
 A : OnPlayerJoined
 B : OnPlayerJoined
 C : OnPlayerJoined
@@ -98,7 +98,7 @@ C : OnPlayerAddTeam
 
         var msg = string.Join(Environment.NewLine, log);
 
-        msg.Should().Be("""
+        msg.ShouldBe("""
                         OnPlayerJoined
                         OnPlayerAddTeam
                         """);
@@ -110,7 +110,7 @@ C : OnPlayerAddTeam
         sender.OnNext("OnPlayerJoined");
 
         msg = string.Join(Environment.NewLine, log);
-        msg.Should().Be("""
+        msg.ShouldBe("""
                         OnPlayerJoined
                         OnPlayerAddTeam
                         """);

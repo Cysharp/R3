@@ -43,10 +43,10 @@ public class LiveListTest
 
         list.AssertEqual([20, 30, 40, 50, 60]);
 
-        list[0].Should().Be(20);
-        list[1].Should().Be(30);
-        list[2].Should().Be(40);
-        list[3].Should().Be(50);
-        list[4].Should().Be(60);
+        list[0].ShouldBe(20);
+        list[1].ShouldBe(30);
+        list[2].ShouldBe(40);
+        list[3].ShouldBe(50);
+        list[4].ShouldBe(60);
     }
 }

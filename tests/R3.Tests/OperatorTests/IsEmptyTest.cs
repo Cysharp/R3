@@ -7,7 +7,7 @@ public class IsEmptyTest
     {
         var range = Observable.Empty<int>();
         var task = range.IsEmptyAsync();
-        (await task).Should().BeTrue();
+        (await task).ShouldBeTrue();
     }
 
     [Fact]
@@ -15,6 +15,6 @@ public class IsEmptyTest
     {
         var range = Observable.Return(0);
         var task = range.IsEmptyAsync();
-        (await task).Should().BeFalse();
+        (await task).ShouldBeFalse();
     }
 }

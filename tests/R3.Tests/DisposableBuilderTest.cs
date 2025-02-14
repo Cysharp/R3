@@ -20,18 +20,18 @@ public class DisposableBuilderTest
 
             if (i == 1)
             {
-                disposable.GetType().Name.Should().Be("AnonymousDisposable");
+                disposable.GetType().Name.ShouldBe("AnonymousDisposable");
             }
             else
             {
-                disposable.GetType().Name.Should().StartWith("CombinedDisposable");
+                disposable.GetType().Name.ShouldStartWith("CombinedDisposable");
             }
 
-            l.Should().BeEmpty();
+            l.ShouldBeEmpty();
 
             disposable.Dispose();
 
-            l.Should().HaveCount(i);
+            l.Count.ShouldBe(i);
         }
     }
 
@@ -63,13 +63,13 @@ public class DisposableBuilderTest
 
         var disposable = builder.Build();
 
-        disposable.GetType().Name.Should().Be("CombinedDisposable");
+        disposable.GetType().Name.ShouldBe("CombinedDisposable");
 
-        l.Should().BeEmpty();
+        l.ShouldBeEmpty();
 
         disposable.Dispose();
 
-        l.Should().Equal([
+        l.ShouldBe([
             1,
             2,
             3,

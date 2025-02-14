@@ -1,4 +1,4 @@
-namespace R3.Tests.OperatorTests;
+﻿namespace R3.Tests.OperatorTests;
 
 public class ToHashSetTest
 {
@@ -8,7 +8,7 @@ public class ToHashSetTest
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var set = await source.ToHashSetAsync();
 
-        set.Should().BeEquivalentTo([1, 10, 3, 4, 6, 7]);
+        set.ShouldBe(new int[] { 1, 10, 3, 4, 6, 7 });
     }
 
     [Fact]
@@ -17,8 +17,8 @@ public class ToHashSetTest
         var source = new int[] { 1, 10, 1, 3, 4, 6, 7, 4 }.ToObservable();
         var set = await source.ToHashSetAsync(new TestComparer());
 
-        set.Should().BeEquivalentTo([1, 10, 3, 4, 6, 7]);
-        set.Comparer.GetType().Should().Be(typeof(TestComparer));
+        set.ShouldBe((int[])[1, 10, 3, 4, 6, 7]);
+        set.Comparer.GetType().ShouldBe(typeof(TestComparer));
     }
 
     class TestComparer : IEqualityComparer<int>

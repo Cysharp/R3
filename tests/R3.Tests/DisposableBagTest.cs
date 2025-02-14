@@ -23,10 +23,10 @@ public class DisposableBagTest
         subject.Do(onDispose: () => disposed[4] = true).Subscribe().AddTo(ref bag);
         subject.Do(onDispose: () => disposed[5] = true).Subscribe().AddTo(ref bag);
 
-        disposed.Should().Equal([false, false, false, false, false, false]);
+        disposed.ShouldBe([false, false, false, false, false, false]);
 
         bag.Dispose();
 
-        disposed.Should().Equal([true, true, true, true, true, true]);
+        disposed.ShouldBe([true, true, true, true, true, true]);
     }
 }
