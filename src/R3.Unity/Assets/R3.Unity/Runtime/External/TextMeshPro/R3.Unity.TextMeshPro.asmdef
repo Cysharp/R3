@@ -1,0 +1,28 @@
+{
+    "name": "R3.Unity.TextMeshPro",
+    "rootNamespace": "",
+    "references": [
+        "R3.Unity",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "",
+            "define": "R3_TEXTMESHPRO_SUPPORT"
+        },
+        {
+            "name": "com.unity.ugui",
+            "expression": "2.0.0",
+            "define": "R3_TEXTMESHPRO_SUPPORT"
+        }
+    ],
+    "noEngineReferences": false
+}

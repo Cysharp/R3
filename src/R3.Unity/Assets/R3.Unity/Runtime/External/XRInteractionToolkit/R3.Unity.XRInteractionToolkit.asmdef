@@ -1,0 +1,23 @@
+{
+    "name": "R3.Unity.XRInteractionToolkit",
+    "rootNamespace": "R3.Unity.XRInteractionToolkit",
+    "references": [
+        "R3.Unity",
+        "Unity.XR.Interaction.Toolkit"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.interaction.toolkit",
+            "expression": "",
+            "define": "R3_XRI_SUPPORT"
+        }
+    ],
+    "noEngineReferences": false
+}
