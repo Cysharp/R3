@@ -14,11 +14,6 @@ public static class ReactivePropertyExtensions
 
     public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, IEqualityComparer<T>? equalityComparer, T initialValue = default!)
     {
-        if (source is ReadOnlyReactiveProperty<T> rrp)
-        {
-            return rrp;
-        }
-
         // allow to cast ReactiveProperty<T>
         return new ConnectedReactiveProperty<T>(source, initialValue, equalityComparer);
     }
