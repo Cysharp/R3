@@ -1,9 +1,9 @@
 ﻿namespace R3.Tests.OperatorTests;
 
-public class AmbTest
+public class RaceTest
 {
     [Fact]
-    public void Amb3()
+    public void Race3()
     {
         var subject1 = new Subject<int>();
         var subject2 = new Subject<int>();
@@ -13,7 +13,7 @@ public class AmbTest
         var d2Called = false;
         var d3Called = false;
 
-        var list = Observable.Amb(
+        var list = Observable.Race(
             subject1.Do(onDispose: () => d1Called = true),
             subject2.Do(onDispose: () => d2Called = true),
             subject3.Do(onDispose: () => d3Called = true)
