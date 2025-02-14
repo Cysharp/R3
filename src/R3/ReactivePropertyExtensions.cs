@@ -168,4 +168,9 @@ internal sealed class ReadOnlyBindableReactiveProperty<T>(BindableReactiveProper
     {
         return property.ToString();
     }
+
+    public IReadOnlyBindableReactiveProperty<T> ForceValidate()
+    {
+        return property.ForceValidate();
+    }
 }

@@ -9,18 +9,20 @@ using R3;
 // Observable.Range(1,10).MinBy(
 // Enumerable.Range(1,10).MinBy(
 
-var x = new BindableReactiveProperty<string>().EnableValidation(x =>
+var subject = new Subject<string>();
+
+var x = subject!.ToReadOnlyBindableReactiveProperty().EnableValidation(x =>
 {
     return string.IsNullOrEmpty(x) ? new InvalidDataException("Invalid X") : null;
-});
+}).ForceValidate();
 
 x.HasErrors.Dump("After initialized");  // (1) False
 
-x.Value = string.Empty;
-x.HasErrors.Dump("Assign empty");  // (2) True
+//x.Value = string.Empty;
+//x.HasErrors.Dump("Assign empty");  // (2) True
 
-x.Value = "xx";
-x.HasErrors.Dump("Assign not null");  // (3) False
+//x.Value = "xx";
+//x.HasErrors.Dump("Assign not null");  // (3) False
 
 
 public static class Ext

@@ -915,6 +915,14 @@ public class ValidationViewModel : IDisposable
 
 ![image](https://github.com/Cysharp/R3/assets/46207/f80149e6-1573-46b5-9a77-b78776dd3527)
 
+Validation using `EnableValidation` does not trigger for initial values by default. This means that even if you don't allow empty strings, the validation error won't appear for an initially empty value. If you want to perform validation on initial values, you can call `ForceValidate()` after `EnableValidation`.
+
+```csharp
+Weight = new BindableReactiveProperty<double>()
+    .EnableValidation(() => Weight)
+    .ForceValidate();
+```
+
 There is also `IReadOnlyBindableReactiveProperty<T>`, which is preferable when ReadOnly is required in binding, can create from `IObservable<T>.ToReadOnlyBindableReactiveProperty<T>`.
 
 ### ReactiveCommand
@@ -2213,6 +2221,7 @@ In dotnet/reactive, methods that return a single `IObservable<T>` (such as `Firs
 
 Class/Method name changes from dotnet/reactive and neuecc/UniRx
 ---
+* `Amb` -> `Race`
 * `Buffer` -> `Chunk`
 * `BatchFrame` -> `ChunkFrame`
 * `Throttle` -> `Debounce`

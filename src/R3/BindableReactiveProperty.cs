@@ -23,6 +23,7 @@ public interface IReadOnlyBindableReactiveProperty<T> : IReadOnlyBindableReactiv
     IReadOnlyBindableReactiveProperty<T> EnableValidation<TClass>([CallerMemberName] string? propertyName = null!);
     IReadOnlyBindableReactiveProperty<T> EnableValidation(Expression<Func<IReadOnlyBindableReactiveProperty<T>?>> selfSelector);
     Observable<T> AsObservable();
+    IReadOnlyBindableReactiveProperty<T> ForceValidate();
 }
 
 public interface IBindableReactiveProperty : IReadOnlyBindableReactiveProperty
@@ -39,6 +40,7 @@ public interface IBindableReactiveProperty<T> : IBindableReactiveProperty, IRead
     new IBindableReactiveProperty<T> EnableValidation(Func<T, Exception?> validator);
     new IBindableReactiveProperty<T> EnableValidation<TClass>([CallerMemberName] string? propertyName = null!);
     IBindableReactiveProperty<T> EnableValidation(Expression<Func<IBindableReactiveProperty<T>?>> selfSelector);
+    new IBindableReactiveProperty<T> ForceValidate();
 }
 
 // all operators need to call from UI Thread(not thread-safe)
@@ -111,6 +113,12 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
 
     protected override void OnValueChanged(T value)
     {
+        Validate(value);
+        PropertyChanged?.Invoke(this, ValueChangedEventArgs.PropertyChanged);
+    }
+
+    void Validate(T value)
+    {
         if (IsValidationEnabled)
         {
             // comes new value, require to clear error.
@@ -154,8 +162,6 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
                 }
             }
         }
-
-        PropertyChanged?.Invoke(this, ValueChangedEventArgs.PropertyChanged);
     }
 
     // for INotifyDataErrorInfo
@@ -330,6 +336,17 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
     public Observable<T> AsObservable()
     {
         return this;
+    }
+
+    public IBindableReactiveProperty<T> ForceValidate()
+    {
+        Validate(Value);
+        return this;
+    }
+
+    IReadOnlyBindableReactiveProperty<T> IReadOnlyBindableReactiveProperty<T>.ForceValidate()
+    {
+        return ForceValidate();
     }
 }
 
