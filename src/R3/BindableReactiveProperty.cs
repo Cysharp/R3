@@ -12,7 +12,7 @@ namespace R3;
 public interface IReadOnlyBindableReactiveProperty : INotifyPropertyChanged, INotifyDataErrorInfo, IDisposable
 {
     object? Value { get; }
-    bool EnableNotifyError { get; }
+    bool IsValidationEnabled { get; }
 }
 
 public interface IReadOnlyBindableReactiveProperty<T> : IReadOnlyBindableReactiveProperty
@@ -111,7 +111,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
 
     protected override void OnValueChanged(T value)
     {
-        if (EnableNotifyError)
+        if (IsValidationEnabled)
         {
             // comes new value, require to clear error.
             var previouslyHasErrors = (errors != null && errors.Count != 0);
@@ -162,7 +162,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
 
     PropertyValidationContext? validationContext;
     Func<T, Exception?>? validator;
-    public bool EnableNotifyError { get; private set; } = false; // default is false
+    public bool IsValidationEnabled { get; private set; } = false; // default is false
     List<ValidationResult>? errors;
 
     public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
@@ -184,7 +184,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
 
     protected override void OnReceiveError(Exception exception)
     {
-        if (!EnableNotifyError) return;
+        if (!IsValidationEnabled) return;
 
         var aggregateException = exception as AggregateException;
 
@@ -218,7 +218,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
 
     public BindableReactiveProperty<T> EnableValidation()
     {
-        EnableNotifyError = true;
+        IsValidationEnabled = true;
         return this;
     }
 
@@ -226,7 +226,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
     {
         this.validator = validator;
 
-        EnableNotifyError = true;
+        IsValidationEnabled = true;
         return this;
     }
 
@@ -235,7 +235,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
         var propertyInfo = typeof(TClass).GetProperty(propertyName!, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
         SetValidationContext(propertyInfo!);
 
-        EnableNotifyError = true;
+        IsValidationEnabled = true;
         return this;
     }
 
@@ -245,7 +245,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
         var propertyInfo = (PropertyInfo)memberExpression.Member;
         SetValidationContext(propertyInfo);
 
-        EnableNotifyError = true;
+        IsValidationEnabled = true;
         return this;
     }
 
@@ -300,7 +300,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
         var propertyInfo = (PropertyInfo)memberExpression.Member;
         SetValidationContext(propertyInfo);
 
-        EnableNotifyError = true;
+        IsValidationEnabled = true;
         return this;
     }
 
@@ -323,7 +323,7 @@ public class BindableReactiveProperty<T> : ReactiveProperty<T>, IBindableReactiv
         var propertyInfo = (PropertyInfo)memberExpression.Member;
         SetValidationContext(propertyInfo);
 
-        EnableNotifyError = true;
+        IsValidationEnabled = true;
         return this;
     }
 
