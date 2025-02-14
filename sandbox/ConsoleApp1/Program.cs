@@ -1,45 +1,32 @@
 ﻿//using R3;
-using System.Reactive.Linq;
+//using System.Reactive.Linq;
 using System.Diagnostics;
 using System.Threading.Channels;
 using System.Xml.Serialization;
+using R3;
 
 
 // Observable.Range(1,10).MinBy(
 // Enumerable.Range(1,10).MinBy(
 
-var a = new System.Reactive.Subjects.BehaviorSubject<int>(0);
-
-//var d = Disposable.CreateBuilder();
-
-// a.OnNext(
-
-
-
-
-a.Do(v => Debug.Log($"a {v}")).Do(v =>
+var x = new BindableReactiveProperty<string>().EnableValidation(x =>
 {
-    if (v < 20)
-    {
-        a.OnNext(v + 1);
-    }
-}).Subscribe(); //.AddTo(ref d);
+    return string.IsNullOrEmpty(x) ? new InvalidDataException("Invalid X") : null;
+});
+
+x.HasErrors.Dump("After initialized");  // (1) False
+
+x.Value = string.Empty;
+x.HasErrors.Dump("Assign empty");  // (2) True
+
+x.Value = "xx";
+x.HasErrors.Dump("Assign not null");  // (3) False
 
 
-
-Debug.Log($"a == 1: {a.Value == 1}"); // this should be 20, not 1!
-
-a.OnNext(0); // this 
-
-Debug.Log($"a == 20: {a.Value == 20}"); // this is correct
-
-
-
-
-public static class Debug
+public static class Ext
 {
-    public static void Log(string msg)
+    public static void Dump(this object o, string msg)
     {
-        Console.WriteLine(msg);
+        Console.WriteLine(o + ":" + msg);
     }
 }
