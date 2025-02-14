@@ -1,11 +1,7 @@
-﻿using R3.Collections;
-using System.Reactive.Concurrency;
-
-namespace R3.Tests.FactoryTests;
+﻿namespace R3.Tests.FactoryTests;
 
 public class FromAsyncTest
 {
-
     [Fact]
     public void FromAsync()
     {
@@ -14,7 +10,7 @@ public class FromAsyncTest
         var fakeTime = new FakeTimeProvider();
         var list = Observable.FromAsync(async (ct) =>
         {
-            await fakeTime.Delay(TimeSpan.FromSeconds(1), ct);
+            await Task.Delay(TimeSpan.FromSeconds(1), fakeTime, ct);
             return 1000;
         }).ToLiveList();
 
@@ -27,17 +23,16 @@ public class FromAsyncTest
     }
 
     [Fact]
-    public async void FromAsyncCancel()
+    public async Task FromAsyncCancel()
     {
         SynchronizationContext.SetSynchronizationContext(null);
-
         var fakeTime = new FakeTimeProvider();
         var cancelled = new TaskCompletionSource();
         var list = Observable.FromAsync(async (ct) =>
         {
             try
             {
-                await fakeTime.Delay(TimeSpan.FromSeconds(1), ct);
+                await Task.Delay(TimeSpan.FromSeconds(1), fakeTime, ct);
             }
             catch (OperationCanceledException)
             {

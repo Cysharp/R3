@@ -3,7 +3,7 @@
 public class ToAsyncEnumerableTest
 {
     [Fact]
-    async void Test()
+    async Task Test()
     {
         var publisher = new Subject<int>();
         var cts = new CancellationTokenSource();
@@ -24,7 +24,7 @@ public class ToAsyncEnumerableTest
     }
 
     [Fact]
-    async void Cancel()
+    async Task Cancel()
     {
         var publisher = new Subject<int>();
         var cts = new CancellationTokenSource();

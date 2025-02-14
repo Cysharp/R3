@@ -52,7 +52,7 @@ public class ThrottleFirstLastTest
         var fakeTime = new FakeTimeProvider();
         var list = publisher.ThrottleFirstLast(async (x, ct) =>
         {
-            await fakeTime.Delay(TimeSpan.FromSeconds(x), ct);
+            await Task.Delay(TimeSpan.FromSeconds(x), fakeTime, ct);
         }).ToLiveList();
 
         publisher.OnNext(1); // gate close
