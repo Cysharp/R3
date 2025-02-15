@@ -1,0 +1,15 @@
+﻿global using System.Collections.Immutable;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Localization;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using UnoSampleApp.Models;
+global using UnoSampleApp.Presentation;
+global using UnoSampleApp.DataContracts;
+global using UnoSampleApp.DataContracts.Serialization;
+global using UnoSampleApp.Services.Caching;
+global using UnoSampleApp.Services.Endpoints;
+global using ApplicationExecutionState = Windows.ApplicationModel.Activation.ApplicationExecutionState;
+global using CommunityToolkit.Mvvm.ComponentModel;
+global using CommunityToolkit.Mvvm.Input;
