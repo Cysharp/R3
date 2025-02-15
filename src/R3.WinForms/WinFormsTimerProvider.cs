@@ -10,6 +10,8 @@ namespace R3.WinForms;
 
 public sealed class WinFormsTimerProvider(ISynchronizeInvoke? marshalingControl) : TimeProvider
 {
+    public static readonly TimeProvider Default = new WinFormsTimerProvider();
+
     public WinFormsTimerProvider()
         : this(null)
     {

@@ -4,6 +4,8 @@ namespace R3;
 
 public sealed class AvaloniaDispatcherTimerProvider : TimeProvider
 {
+    public static readonly TimeProvider Default = new AvaloniaDispatcherTimerProvider();
+
     readonly DispatcherPriority? priority;
 
     public AvaloniaDispatcherTimerProvider()

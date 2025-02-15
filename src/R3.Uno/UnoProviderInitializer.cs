@@ -9,7 +9,7 @@ public static class UnoProviderInitializer
             ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
         }
 
-        ObservableSystem.DefaultTimeProvider = new UnoDispatcherTimerProvider();
-        ObservableSystem.DefaultFrameProvider = new UnoRenderingFrameProvider();
+        ObservableSystem.DefaultTimeProvider = UnoDispatcherTimerProvider.Default;
+        ObservableSystem.DefaultFrameProvider = UnoRenderingFrameProvider.Default;
     }
 }

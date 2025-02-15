@@ -5,12 +5,21 @@ namespace R3;
 
 public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
 {
+    public static readonly FrameProvider Default = new WpfRenderingFrameProvider(true);
+
+    bool isDefaultProvider = false;
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
     readonly object gate = new object();
 
     EventHandler messageLoop;
+
+    WpfRenderingFrameProvider(bool _)
+        : this()
+    {
+        isDefaultProvider = true;
+    }
 
     public WpfRenderingFrameProvider()
     {
@@ -33,6 +42,8 @@ public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
 
     public void Dispose()
     {
+        if (isDefaultProvider) return;
+
         disposed = true;
         System.Windows.Media.CompositionTarget.Rendering -= messageLoop;
         list.Dispose();

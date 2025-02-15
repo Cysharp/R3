@@ -4,6 +4,8 @@ namespace R3;
 
 public sealed class WpfDispatcherTimerProvider : TimeProvider
 {
+    public static readonly TimeProvider Default = new WpfDispatcherTimerProvider();
+
     readonly DispatcherPriority? priority;
     readonly Dispatcher? dispatcher;
 

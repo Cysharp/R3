@@ -6,12 +6,21 @@ namespace R3;
 
 public sealed class UnoRenderingFrameProvider : FrameProvider, IDisposable
 {
+    public static readonly FrameProvider Default = new UnoRenderingFrameProvider(isDefaultFrameProvider: true);
+
+    readonly bool isDefaultFrameProvider = false;
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
     readonly object gate = new object();
 
     EventHandler<object> messageLoop;
+
+    UnoRenderingFrameProvider(bool isDefaultFrameProvider) // ctor for default
+        : this()
+    {
+        this.isDefaultFrameProvider = isDefaultFrameProvider;
+    }
 
     public UnoRenderingFrameProvider()
     {
@@ -34,6 +43,8 @@ public sealed class UnoRenderingFrameProvider : FrameProvider, IDisposable
 
     public void Dispose()
     {
+        if (isDefaultFrameProvider) return; // default don't dispose
+
         disposed = true;
         Microsoft.UI.Xaml.Media.CompositionTarget.Rendering -= messageLoop;
         list.Dispose();

@@ -24,7 +24,7 @@ public static class WinFormsProviderInitializer
         MessageFilter? isStepFrame)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
-        ObservableSystem.DefaultFrameProvider = new WinFormsFrameProvider(isStepFrame);
-        ObservableSystem.DefaultTimeProvider = new WinFormsTimerProvider(marshalingControl);
+        ObservableSystem.DefaultTimeProvider = (marshalingControl == null) ? WinFormsTimerProvider.Default : new WinFormsTimerProvider(marshalingControl);
+        ObservableSystem.DefaultFrameProvider = (isStepFrame == null) ? WinFormsFrameProvider.Default : new WinFormsFrameProvider(isStepFrame);
     }
 }

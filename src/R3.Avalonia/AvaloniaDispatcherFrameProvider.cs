@@ -10,8 +10,11 @@ namespace R3;
 
 public sealed class AvaloniaDispatcherFrameProvider : FrameProvider, IDisposable
 {
+    public static readonly FrameProvider Default = new AvaloniaDispatcherFrameProvider(isDefaultFrameProvider: true);
+
     bool disposed;
     long frameCount;
+    readonly bool isDefaultFrameProvider = false;
     FreeListCore<IFrameRunnerWorkItem> list;
     readonly object gate = new object();
     readonly DispatcherTimer timer;
@@ -19,6 +22,12 @@ public sealed class AvaloniaDispatcherFrameProvider : FrameProvider, IDisposable
 
     // frame loop is delayed until first register
     bool running;
+
+    private AvaloniaDispatcherFrameProvider(bool isDefaultFrameProvider) // ctor for default
+        : this()
+    {
+        this.isDefaultFrameProvider = isDefaultFrameProvider;
+    }
 
     public AvaloniaDispatcherFrameProvider()
         : this(60, null)
@@ -63,6 +72,8 @@ public sealed class AvaloniaDispatcherFrameProvider : FrameProvider, IDisposable
 
     public void Dispose()
     {
+        if (isDefaultFrameProvider) return; // default frameprovider don't dispose
+
         lock (gate)
         {
             disposed = true;

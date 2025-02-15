@@ -1,6 +1,6 @@
 ﻿# R3
 
-The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame), [Blazor](#blazor).
+The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame), [Blazor](#blazor), [Uno](#uno).
 
 I have over 10 years of experience with Rx, experience in implementing a custom Rx runtime ([UniRx](https://github.com/neuecc/UniRx)) for game engine, and experience in implementing an asynchronous runtime ([UniTask](https://github.com/Cysharp/UniTask/)) for game engine. Based on those experiences, I came to believe that there is a need to implement a new Reactive Extensions for .NET, one that reflects modern C# and returns to the core values of Rx.
 
@@ -1091,7 +1091,7 @@ R3Extensions.Avalonia package has these providers.
 
 Calling `AvaloniaProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `AvaloniaDispatcherTimerProvider` and `AvaloniaDispatcherFrameProvider`.
 
-Additionally, calling `UseR3()` in `ApplicationBuilder` sets the default providers, making it a recommended approach.
+Additionally, calling `UseR3()` in `AppBuilder` sets the default providers, making it a recommended approach.
 
 ```csharp
 public static AppBuilder BuildAvaloniaApp()
@@ -1148,6 +1148,46 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 * ObserveOnUIThreadDispatcher
 * SubscribeOnDispatcher
 * SubscribeOnUIThreadDispatcher
+
+### Uno
+
+> PM> Install-Package [R3Extensions.Uno](https://www.nuget.org/packages/R3Extensions.Uno)
+
+R3Extensions.Uno package has two providers.
+
+* UnoDispatcherTimerProvider
+* UnoRenderingFrameProvider
+
+Calling `UnoProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `UnoDispatcherTimerProvider` and `UnoRenderingFrameProvider`.
+
+Additionally, calling `UseR3()` in `ApplicationBuilder` sets the default providers, making it a recommended approach.
+
+```csharp
+public partial class App : Application
+{
+    protected async override void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        var builder = this.CreateBuilder(args)
+            .UseR3() // add this line
+            ...
+    }
+}
+```
+
+As a result, time based operations are replaced with `DispatcherTimer`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+
+In the case of methods without arguments, integrate the following method into `ObservableSystem.RegisterUnhandledExceptionHandler`. Please customize this as necessary.
+
+```csharp
+ex => builder.Log().LogError("R3 Unhandled Exception {0}", ex));
+```
+
+In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have been added.
+
+* ObserveOnDispatcher
+* ObserveOnCurrentWindowDispatcher
+* SubscribeOnDispatcher
+* SubscribeOnCurrentWindowDispatcher
 
 ### MAUI
 

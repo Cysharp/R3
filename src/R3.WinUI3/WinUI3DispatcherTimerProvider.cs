@@ -7,6 +7,8 @@ namespace R3;
 
 public sealed class WinUI3DispatcherTimerProvider : TimeProvider
 {
+    public static readonly TimeProvider Default = new WinUI3DispatcherTimerProvider();
+
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         return new WinUI3DispatcherTimerProviderTimer(callback, state, dueTime, period);

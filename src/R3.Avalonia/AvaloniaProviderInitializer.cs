@@ -13,8 +13,8 @@ public static class AvaloniaProviderInitializer
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
-        ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
-        ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider();
+        ObservableSystem.DefaultTimeProvider = AvaloniaDispatcherTimerProvider.Default;
+        ObservableSystem.DefaultFrameProvider = AvaloniaDispatcherFrameProvider.Default;
     }
 
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, DispatcherPriority priority)
@@ -27,7 +27,7 @@ public static class AvaloniaProviderInitializer
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler, int framesPerSecond)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
-        ObservableSystem.DefaultTimeProvider = new AvaloniaDispatcherTimerProvider();
+        ObservableSystem.DefaultTimeProvider = AvaloniaDispatcherTimerProvider.Default;
         ObservableSystem.DefaultFrameProvider = new AvaloniaDispatcherFrameProvider(framesPerSecond);
     }
 

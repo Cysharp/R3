@@ -6,12 +6,20 @@ namespace R3;
 
 public sealed class WinUI3RenderingFrameProvider : FrameProvider, IDisposable
 {
+    public static readonly FrameProvider Default = new WinUI3RenderingFrameProvider(true);
+
+    readonly bool isDefaultProvider;
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
     readonly object gate = new object();
 
     EventHandler<object> messageLoop;
+
+    WinUI3RenderingFrameProvider(bool _) : this()
+    {
+        isDefaultProvider = true;
+    }
 
     public WinUI3RenderingFrameProvider()
     {
@@ -34,6 +42,8 @@ public sealed class WinUI3RenderingFrameProvider : FrameProvider, IDisposable
 
     public void Dispose()
     {
+        if (isDefaultProvider) return;
+
         disposed = true;
         Microsoft.UI.Xaml.Media.CompositionTarget.Rendering -= messageLoop;
         list.Dispose();

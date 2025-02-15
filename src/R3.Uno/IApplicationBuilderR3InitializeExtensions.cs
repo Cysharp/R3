@@ -1,4 +1,6 @@
-﻿using R3;
+﻿using Microsoft.Extensions.Logging;
+using R3;
+using Uno.Extensions;
 using Uno.Extensions.Hosting;
 
 namespace Uno; // Uno namespace
@@ -7,7 +9,7 @@ public static class IApplicationBuilderR3InitializeExtensions
 {
     public static IApplicationBuilder UseR3(this IApplicationBuilder builder)
     {
-        UnoProviderInitializer.SetDefaultObservableSystem();
+        UnoProviderInitializer.SetDefaultObservableSystem(ex => builder.Log().LogError("R3 Unhandled Exception {0}", ex));
         return builder;
     }
 

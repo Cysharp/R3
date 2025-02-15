@@ -7,6 +7,8 @@ namespace R3;
 
 public sealed class UnoDispatcherTimerProvider : TimeProvider
 {
+    public static readonly TimeProvider Default = new UnoDispatcherTimerProvider();
+
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         return new UnoDispatcherTimerProviderTimer(callback, state, dueTime, period);

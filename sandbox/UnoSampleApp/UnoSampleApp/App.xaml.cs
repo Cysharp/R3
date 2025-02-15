@@ -81,6 +81,7 @@ public partial class App : Application
                 })
                 .UseNavigation(RegisterRoutes)
             );
+
         MainWindow = builder.Window;
 
 #if DEBUG

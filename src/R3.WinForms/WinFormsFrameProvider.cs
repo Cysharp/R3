@@ -11,12 +11,20 @@ public sealed class WinFormsFrameProvider :
     FrameProvider,
     IDisposable
 {
+    public static readonly FrameProvider Default = new WinFormsFrameProvider(true);
+
+    bool isDefaultFrameProvider = false;
     private bool disposed;
     private long frameCount;
     private FreeListCore<IFrameRunnerWorkItem> list;
     private readonly object gate = new object();
     private readonly MessageHook filter;
     private readonly MessageFilter? predicate;
+
+     WinFormsFrameProvider(bool _) : this()
+    {
+        isDefaultFrameProvider = true;
+    }
 
     public WinFormsFrameProvider()
         : this(null)
@@ -47,6 +55,8 @@ public sealed class WinFormsFrameProvider :
 
     public void Dispose()
     {
+        if (isDefaultFrameProvider) return;
+
         disposed = true;
         Application.RemoveMessageFilter(this.filter);
         list.Dispose();
