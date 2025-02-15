@@ -1,6 +1,7 @@
 ﻿using Windows.UI.Core;
 using Microsoft.UI.Xaml;
 using R3.Collections;
+using Windows.Foundation;
 
 namespace R3; // using R3
 
@@ -11,9 +12,9 @@ public static class ObserveOnExtensions
         return new ObserveOnDispatcher<T>(source, dispatcher, dispatcherPriority);
     }
 
-    public static Observable<T> ObserveOnUIThreadDispatcher<T>(this Observable<T> source, CoreDispatcherPriority? dispatcherPriority = null)
+    public static Observable<T> ObserveOnCurrentWindowDispatcher<T>(this Observable<T> source, CoreDispatcherPriority? dispatcherPriority = null)
     {
-        return ObserveOnDispatcher(source, Window.Current.Dispatcher, dispatcherPriority);
+        return ObserveOnDispatcher(source, Window.Current!.Dispatcher, dispatcherPriority);
     }
 
     public static Observable<T> SubscribeOnDispatcher<T>(this Observable<T> source, CoreDispatcher dispatcher, CoreDispatcherPriority? dispatcherPriority = null)
@@ -21,9 +22,9 @@ public static class ObserveOnExtensions
         return new SubscribeOnDispatcher<T>(source, dispatcher, dispatcherPriority);
     }
 
-    public static Observable<T> SubscribeOnUIThreadDispatcher<T>(this Observable<T> source, CoreDispatcherPriority? dispatcherPriority = null)
+    public static Observable<T> SubscribeOnCurrentWindowDispatcher<T>(this Observable<T> source, CoreDispatcherPriority? dispatcherPriority = null)
     {
-        return SubscribeOnDispatcher(source, Window.Current.Dispatcher, dispatcherPriority);
+        return SubscribeOnDispatcher(source, Window.Current!.Dispatcher, dispatcherPriority);
     }
 }
 
