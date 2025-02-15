@@ -83,11 +83,11 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, CoreDispatche
                     running = true;
                     if (dispatcherPriority == null)
                     {
-                        dispatcher.RunAsync(CoreDispatcherPriority.Normal, postCallback);
+                        _ = dispatcher.RunAsync(CoreDispatcherPriority.Normal, postCallback);
                     }
                     else
                     {
-                        dispatcher.RunAsync(dispatcherPriority.Value, postCallback);
+                        _ = dispatcher.RunAsync(dispatcherPriority.Value, postCallback);
                     }
                 }
             }
@@ -168,11 +168,11 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, CoreDispatche
                     // post again
                     if (dispatcherPriority == null)
                     {
-                        dispatcher.RunAsync(CoreDispatcherPriority.Normal, postCallback);
+                        _ = dispatcher.RunAsync(CoreDispatcherPriority.Normal, postCallback);
                     }
                     else
                     {
-                        dispatcher.RunAsync(dispatcherPriority.Value, postCallback);
+                        _ = dispatcher.RunAsync(dispatcherPriority.Value, postCallback);
                     }
                     return;
                 }
@@ -216,11 +216,11 @@ internal sealed class SubscribeOnDispatcher<T>(Observable<T> source, CoreDispatc
         {
             if (dispatcherPriority == null)
             {
-                dispatcher.RunAsync(CoreDispatcherPriority.Normal, postCallback);
+                _ = dispatcher.RunAsync(CoreDispatcherPriority.Normal, postCallback);
             }
             else
             {
-                dispatcher.RunAsync(dispatcherPriority.Value, postCallback);
+                _ = dispatcher.RunAsync(dispatcherPriority.Value, postCallback);
             }
             return this;
         }

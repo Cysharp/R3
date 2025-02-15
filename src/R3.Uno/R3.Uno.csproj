@@ -5,7 +5,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;CS8002</NoWarn>
+
+        <!-- NuGet Packaging -->
+        <PackageId>R3Extensions.Uno</PackageId>
+        <PackageTags>rx</PackageTags>
+        <Description>Uno Provider and Methods for R3.</Description>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Uno.Extensions.Hosting.WinUI" Version="5.2.7" />
