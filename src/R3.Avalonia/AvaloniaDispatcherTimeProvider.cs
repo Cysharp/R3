@@ -1,35 +1,51 @@
-﻿using Microsoft.UI.Xaml;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
+﻿using Avalonia.Threading;
 
 namespace R3;
 
-public sealed class UnoDispatcherTimerProvider : TimeProvider
+public sealed class AvaloniaDispatcherTimeProvider : TimeProvider
 {
-    public static readonly TimeProvider Default = new UnoDispatcherTimerProvider();
+    public static readonly TimeProvider Default = new AvaloniaDispatcherTimeProvider();
+
+    readonly DispatcherPriority? priority;
+
+    public AvaloniaDispatcherTimeProvider()
+    {
+        this.priority = null;
+    }
+
+    public AvaloniaDispatcherTimeProvider(DispatcherPriority priority)
+    {
+        this.priority = priority;
+    }
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        return new UnoDispatcherTimerProviderTimer(callback, state, dueTime, period);
+        return new AvaloniaDispatcherTimeProviderTimer(priority, callback, state, dueTime, period);
     }
 }
 
-internal sealed class UnoDispatcherTimerProviderTimer : ITimer
+internal sealed class AvaloniaDispatcherTimeProviderTimer : ITimer
 {
     DispatcherTimer? timer;
     TimerCallback callback;
     object? state;
-    EventHandler<object> timerTick;
+    EventHandler timerTick;
     TimeSpan? period;
     short timerId;
 
-    public UnoDispatcherTimerProviderTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+    public AvaloniaDispatcherTimeProviderTimer(DispatcherPriority? priority, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         this.timerTick = Timer_Tick;
         this.callback = callback;
         this.state = state;
-        this.timer = new DispatcherTimer();
+        if (priority == null)
+        {
+            this.timer = new DispatcherTimer();
+        }
+        else
+        {
+            this.timer = new DispatcherTimer(priority!.Value);
+        }
 
         timer.Tick += timerTick;
 
@@ -54,7 +70,7 @@ internal sealed class UnoDispatcherTimerProviderTimer : ITimer
         return false;
     }
 
-    void Timer_Tick(object? sender, object e)
+    void Timer_Tick(object? sender, EventArgs e)
     {
         var id = timerId;
         callback(state);
@@ -76,8 +92,6 @@ internal sealed class UnoDispatcherTimerProviderTimer : ITimer
             {
                 timer.Interval = period.Value;
                 period = null;
-                unchecked { timerId++; }
-                timer.Start();
             }
         }
     }

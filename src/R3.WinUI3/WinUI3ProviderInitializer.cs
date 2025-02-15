@@ -8,7 +8,7 @@ public static class WinUI3ProviderInitializer
     public static void SetDefaultObservableSystem(Action<Exception> unhandledExceptionHandler)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(unhandledExceptionHandler);
-        ObservableSystem.DefaultTimeProvider = WinUI3DispatcherTimerProvider.Default;
+        ObservableSystem.DefaultTimeProvider = WinUI3DispatcherTimeProvider.Default;
         ObservableSystem.DefaultFrameProvider = WinUI3RenderingFrameProvider.Default;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace R3;
 
-public sealed class LogicLooperTimerProvider(LogicLooperFrameProvider frameProvider) : TimeProvider
+public sealed class LogicLooperTimeProvider(LogicLooperFrameProvider frameProvider) : TimeProvider
 {
     public override long GetTimestamp()
     {

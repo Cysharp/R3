@@ -2,18 +2,18 @@
 
 namespace R3;
 
-public class MauiDispatcherTimerProvider(IDispatcher dispatcher) : TimeProvider
+public class MauiDispatcherTimeProvider(IDispatcher dispatcher) : TimeProvider
 {
     public IDispatcher Dispatcher => dispatcher;
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         var dispatcherTimer = dispatcher.CreateTimer();
-        return new MauiDispatcherTimerProviderTimer(dispatcherTimer, callback, state, dueTime, period);
+        return new MauiDispatcherTimeProviderTimer(dispatcherTimer, callback, state, dueTime, period);
     }
 }
 
-sealed class MauiDispatcherTimerProviderTimer : ITimer
+sealed class MauiDispatcherTimeProviderTimer : ITimer
 {
     readonly TimerCallback callback;
     readonly object? state;
@@ -22,7 +22,7 @@ sealed class MauiDispatcherTimerProviderTimer : ITimer
     TimeSpan? period;
     short timerId;
 
-    public MauiDispatcherTimerProviderTimer(IDispatcherTimer timer, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+    public MauiDispatcherTimeProviderTimer(IDispatcherTimer timer, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         this.timer = timer;
         this.timerTick = Tick;

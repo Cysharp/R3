@@ -1,4 +1,4 @@
-using Microsoft.Maui.Animations;
+﻿using Microsoft.Maui.Animations;
 using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Hosting;
 using R3.Maui;
@@ -13,7 +13,7 @@ public class R3MauiInitializeService(
     public void Initialize(IServiceProvider services)
     {
         ObservableSystem.RegisterUnhandledExceptionHandler(exceptionHandler.HandleException);
-        ObservableSystem.DefaultTimeProvider = new MauiDispatcherTimerProvider(dispatcher);
+        ObservableSystem.DefaultTimeProvider = new MauiDispatcherTimeProvider(dispatcher);
         ObservableSystem.DefaultFrameProvider = new MauiTickerFrameProvider(ticker);
     }
 }

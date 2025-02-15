@@ -1,35 +1,64 @@
-﻿using Microsoft.UI.Xaml;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
+﻿using System.Windows.Threading;
 
 namespace R3;
 
-public sealed class WinUI3DispatcherTimerProvider : TimeProvider
+public sealed class WpfDispatcherTimeProvider : TimeProvider
 {
-    public static readonly TimeProvider Default = new WinUI3DispatcherTimerProvider();
+    public static readonly TimeProvider Default = new WpfDispatcherTimeProvider();
+
+    readonly DispatcherPriority? priority;
+    readonly Dispatcher? dispatcher;
+
+    public WpfDispatcherTimeProvider()
+    {
+        this.priority = null;
+        this.dispatcher = null;
+    }
+
+    public WpfDispatcherTimeProvider(DispatcherPriority priority)
+    {
+        this.priority = priority;
+        this.dispatcher = null;
+    }
+
+    public WpfDispatcherTimeProvider(DispatcherPriority priority, Dispatcher dispatcher)
+    {
+        this.priority = priority;
+        this.dispatcher = dispatcher;
+    }
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
-        return new WinUI3DispatcherTimerProviderTimer(callback, state, dueTime, period);
+        return new WpfDispatcherTimeProviderTimer(priority, dispatcher, callback, state, dueTime, period);
     }
 }
 
-internal sealed class WinUI3DispatcherTimerProviderTimer : ITimer
+internal sealed class WpfDispatcherTimeProviderTimer : ITimer
 {
     DispatcherTimer? timer;
     TimerCallback callback;
     object? state;
-    EventHandler<object> timerTick;
+    EventHandler timerTick;
     TimeSpan? period;
     short timerId;
 
-    public WinUI3DispatcherTimerProviderTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+    public WpfDispatcherTimeProviderTimer(DispatcherPriority? priority, Dispatcher? dispatcher, TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
         this.timerTick = Timer_Tick;
         this.callback = callback;
         this.state = state;
-        this.timer = new DispatcherTimer();
+        if (priority == null && dispatcher == null)
+        {
+            this.timer = new DispatcherTimer();
+        }
+        else if (dispatcher == null) // priority is not null
+        {
+            this.timer = new DispatcherTimer(priority!.Value);
+        }
+        else
+        {
+            this.timer = new DispatcherTimer(priority!.Value, dispatcher);
+        }
 
         timer.Tick += timerTick;
 
@@ -54,7 +83,7 @@ internal sealed class WinUI3DispatcherTimerProviderTimer : ITimer
         return false;
     }
 
-    void Timer_Tick(object? sender, object e)
+    void Timer_Tick(object? sender, EventArgs e)
     {
         var id = timerId;
         callback(state);

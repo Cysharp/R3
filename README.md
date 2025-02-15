@@ -113,7 +113,7 @@ While TimeProvider is an abstraction for asynchronous operations, excluding the 
 
 In R3, anything that requires synchronous execution (like Range) is treated as Immediate, and everything else is considered asynchronous and handled through TimeProvider.
 
-As for the implementation of TimeProvider, the standard TimeProvider.System using the ThreadPool is the default. For unit testing, FakeTimeProvider (Microsoft.Extensions.TimeProvider.Testing) is available. Additionally, many TimeProvider implementations are provided for different platforms, such as DispatcherTimerProvider for WPF and UpdateTimerProvider for Unity, enhancing ease of use tailored to each platform.
+As for the implementation of TimeProvider, the standard TimeProvider.System using the ThreadPool is the default. For unit testing, FakeTimeProvider (Microsoft.Extensions.TimeProvider.Testing) is available. Additionally, many TimeProvider implementations are provided for different platforms, such as DispatcherTimeProvider for WPF and UpdateTimeProvider for Unity, enhancing ease of use tailored to each platform.
 
 Frame based operations
 ---
@@ -1026,7 +1026,7 @@ Although standard support is provided for the following platforms, by implementi
 
 R3Extensions.WPF package has two providers.
 
-* WpfDispatcherTimerProvider
+* WpfDispatcherTimeProvider
 * WpfRenderingFrameProvider
 
 Calling `WpfProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with the aforementioned providers.
@@ -1085,11 +1085,11 @@ ViewModel binding support, see [`BindableReactiveProperty<T>`](#xaml-platformsbi
 
 R3Extensions.Avalonia package has these providers.
 
-* AvaloniaDispatcherTimerProvider
+* AvaloniaDispatcherTimeProvider
 * AvaloniaDispatcherFrameProvider
 * AvaloniaRenderingFrameProvider
 
-Calling `AvaloniaProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `AvaloniaDispatcherTimerProvider` and `AvaloniaDispatcherFrameProvider`.
+Calling `AvaloniaProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `AvaloniaDispatcherTimeProvider` and `AvaloniaDispatcherFrameProvider`.
 
 Additionally, calling `UseR3()` in `AppBuilder` sets the default providers, making it a recommended approach.
 
@@ -1155,10 +1155,10 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 
 R3Extensions.Uno package has two providers.
 
-* UnoDispatcherTimerProvider
+* UnoDispatcherTimeProvider
 * UnoRenderingFrameProvider
 
-Calling `UnoProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `UnoDispatcherTimerProvider` and `UnoRenderingFrameProvider`.
+Calling `UnoProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `UnoDispatcherTimeProvider` and `UnoRenderingFrameProvider`.
 
 Additionally, calling `UseR3()` in `ApplicationBuilder` sets the default providers, making it a recommended approach.
 
@@ -1195,7 +1195,7 @@ In addition to the above, the following `ObserveOn`/`SubscribeOn` methods have b
 
 R3Extensions.Maui package has these providers.
 
-* MauiDispatcherTimerProvider
+* MauiDispatcherTimeProvider
 * MauiTickerFrameProvider
 
 And ViewModel binding is supported, see [`BindableReactiveProperty<T>`](#xaml-platformsbindablereactivepropertyt) section.
@@ -1258,9 +1258,9 @@ builder.Services.AddSingleton<IR3MauiExceptionHandler, YourCustomExceptionHandle
 R3Extensions.WinForms package has these providers.
 
 * WinFormsFrameProvider
-* WinFormsTimerProvider
+* WinFormsTimeProvider
 
-Calling `WinFormsProviderInitializer.SetDefaultObservableSystem()` at startup(Program.Main) will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `WinFormsFrameProvider` and `WinFormsTimerProvider`.
+Calling `WinFormsProviderInitializer.SetDefaultObservableSystem()` at startup(Program.Main) will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with `WinFormsFrameProvider` and `WinFormsTimeProvider`.
 
 
 ```csharp
@@ -1293,7 +1293,7 @@ FrameProvider is executed as one frame using the hook of MessageFilter.
 
 R3Extensions.WinUI3 package has these providers.
 
-* WinUI3DispatcherTimerProvider
+* WinUI3DispatcherTimeProvider
 * WinUI3RenderingFrameProvider
 
 Calling `WinUI3ProviderInitializer.SetDefaultObservableSystem()` at startup will replace `ObservableSystem.DefaultTimeProvider` and `ObservableSystem.DefaultFrameProvider` with the aforementioned providers.
@@ -1726,7 +1726,7 @@ R3 extensions for [LogicLooper](https://github.com/Cysharp/LogicLooper/)
 That supports two special providers.
 
 * LogicLooperFrameProvider
-* LogicLooperTimerProvider
+* LogicLooperTimeProvider
 
 ### Blazor
 

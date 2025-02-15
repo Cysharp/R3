@@ -7,7 +7,7 @@ namespace R3; // using R3
 public static class ObserveOnExtensions
 {
     static IDispatcher GetDefaultDispatcher() =>
-        (ObservableSystem.DefaultTimeProvider as MauiDispatcherTimerProvider)?.Dispatcher
+        (ObservableSystem.DefaultTimeProvider as MauiDispatcherTimeProvider)?.Dispatcher
         ?? Application.Current!.Dispatcher;
 
     public static Observable<T> ObserveOnDispatcher<T>(this Observable<T> source)
