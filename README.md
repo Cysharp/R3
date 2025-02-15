@@ -1,4 +1,4 @@
-﻿# R3
+# R3
 
 The new future of [dotnet/reactive](https://github.com/dotnet/reactive/) and [UniRx](https://github.com/neuecc/UniRx), which support many platforms including [Unity](#unity), [Godot](#godot), [Avalonia](#avalonia), [WPF](#wpf), [WinForms](#winforms), [WinUI3](#winui3), [Stride](#stride), [LogicLooper](#logiclooper), [MAUI](#maui), [MonoGame](#monogame), [Blazor](#blazor), [Uno](#uno).
 
@@ -1836,8 +1836,6 @@ Factory methods are defined as static methods in the static class `Observable`.
 
 | Name(Parameter) | ReturnType | 
 | --- | --- | 
-| **Amb**(params `Observable<T>[]` sources) | `Observable<T>` | 
-| **Amb**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **CombineLatest**(params `Observable<T>[]` sources) | `Observable<T[]>` | 
 | **CombineLatest**(`IEnumerable<Observable<T>>` sources) | `Observable<T[]>` | 
 | **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
@@ -1899,6 +1897,8 @@ Factory methods are defined as static methods in the static class `Observable`.
 | **ObservePropertyChanging**(this `T` value, `Func<T, TProperty>` propertySelector, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` expr = default) | `Observable<TProperty>` | 
 | **ObservePropertyChanging**(this `T` value, `Func<T, TProperty1>` propertySelector1, `Func<TProperty1, TProperty2>` propertySelector2, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` propertySelector1Expr = default, `String` propertySelector2Expr = default) | `Observable<TProperty2>` | 
 | **ObservePropertyChanging**(this `T` value, `Func<T, TProperty1>` propertySelector1, `Func<TProperty1, TProperty2>` propertySelector2, `Func<TProperty2, TProperty3>` propertySelector3, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` propertySelector1Expr = default, `String` propertySelector2Expr = default, `String` propertySelector3Expr = default) | `Observable<TProperty3>` | 
+| **Race**(params `Observable<T>[]` sources) | `Observable<T>` | 
+| **Race**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **Range**(`Int32` start, `Int32` count) | `Observable<Int32>` | 
 | **Range**(`Int32` start, `Int32` count, `CancellationToken` cancellationToken) | `Observable<Int32>` | 
 | **Repeat**(`T` value, `Int32` count) | `Observable<T>` | 
@@ -2015,7 +2015,6 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **AggregateByAsync**(this `Observable<TSource>` source, `Func<TSource, TKey>` keySelector, `TAccumulate` seed, `Func<TAccumulate, TSource, TAccumulate>` func, `IEqualityComparer<TKey>` keyComparer = default, `CancellationToken` cancellationToken = default) | `Task<IEnumerable<KeyValuePair<TKey, TAccumulate>>>` | 
 | **AggregateByAsync**(this `Observable<TSource>` source, `Func<TSource, TKey>` keySelector, `Func<TKey, TAccumulate>` seedSelector, `Func<TAccumulate, TSource, TAccumulate>` func, `IEqualityComparer<TKey>` keyComparer = default, `CancellationToken` cancellationToken = default) | `Task<IEnumerable<KeyValuePair<TKey, TAccumulate>>>` | 
 | **AllAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
-| **Amb**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
 | **AnyAsync**(this `Observable<T>` source, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **AnyAsync**(this `Observable<T>` source, `Func<T, Boolean>` predicate, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **Append**(this `Observable<T>` source, `T` value) | `Observable<T>` | 
@@ -2053,6 +2052,8 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `FrameProvider` frameProvider) | `Observable<T[]>` | 
 | **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `Int32` count) | `Observable<T[]>` | 
 | **ChunkFrame**(this `Observable<T>` source, `Int32` frameCount, `Int32` count, `FrameProvider` frameProvider) | `Observable<T[]>` | 
+| **ChunkUntil**(this `Observable<T>` source, `Func<T, Boolean>` predicate) | `Observable<T[]>` | 
+| **ChunkUntil**(this `Observable<T>` source, `Func<T, Int32, Boolean>` predicate) | `Observable<T[]>` | 
 | **Concat**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
 | **ContainsAsync**(this `Observable<T>` source, `T` value, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
 | **ContainsAsync**(this `Observable<T>` source, `T` value, `IEqualityComparer<T>` equalityComparer, `CancellationToken` cancellationToken = default) | `Task<Boolean>` | 
@@ -2145,6 +2146,7 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **Prepend**(this `Observable<T>` source, `TState` state, `Func<TState, T>` valueFactory) | `Observable<T>` | 
 | **Publish**(this `Observable<T>` source) | `ConnectableObservable<T>` | 
 | **Publish**(this `Observable<T>` source, `T` initialValue) | `ConnectableObservable<T>` | 
+| **Race**(this `Observable<T>` source, `Observable<T>` second) | `Observable<T>` | 
 | **RefCount**(this `ConnectableObservable<T>` source) | `Observable<T>` | 
 | **Replay**(this `Observable<T>` source) | `ConnectableObservable<T>` | 
 | **Replay**(this `Observable<T>` source, `Int32` bufferSize) | `ConnectableObservable<T>` | 
@@ -2193,6 +2195,9 @@ Operator methods are defined as extension methods to `Observable<T>` in the stat
 | **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `IDisposable` | 
 | **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `IDisposable` | 
 | **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `TState` state, `Func<T, TState, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `TState` state, `Func<T, TState, CancellationToken, ValueTask>` onNextAsync, `Action<Result, TState>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `IDisposable` | 
+| **SubscribeAwait**(this `Observable<T>` source, `TState` state, `Func<T, TState, CancellationToken, ValueTask>` onNextAsync, `Action<Exception, TState>` onErrorResume, `Action<Result, TState>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `Boolean` configureAwait = true, `Boolean` cancelOnCompleted = false, `Int32` maxConcurrent = -1) | `IDisposable` | 
 | **SubscribeOn**(this `Observable<T>` source, `SynchronizationContext` synchronizationContext) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `TimeProvider` timeProvider) | `Observable<T>` | 
 | **SubscribeOn**(this `Observable<T>` source, `FrameProvider` frameProvider) | `Observable<T>` | 

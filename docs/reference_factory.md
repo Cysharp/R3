@@ -1,7 +1,5 @@
 | Name(Parameter) | ReturnType | 
 | --- | --- | 
-| **Amb**(params `Observable<T>[]` sources) | `Observable<T>` | 
-| **Amb**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **CombineLatest**(params `Observable<T>[]` sources) | `Observable<T[]>` | 
 | **CombineLatest**(`IEnumerable<Observable<T>>` sources) | `Observable<T[]>` | 
 | **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Func<T1, T2, TResult>` resultSelector) | `Observable<TResult>` | 
@@ -63,6 +61,8 @@
 | **ObservePropertyChanging**(this `T` value, `Func<T, TProperty>` propertySelector, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` expr = default) | `Observable<TProperty>` | 
 | **ObservePropertyChanging**(this `T` value, `Func<T, TProperty1>` propertySelector1, `Func<TProperty1, TProperty2>` propertySelector2, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` propertySelector1Expr = default, `String` propertySelector2Expr = default) | `Observable<TProperty2>` | 
 | **ObservePropertyChanging**(this `T` value, `Func<T, TProperty1>` propertySelector1, `Func<TProperty1, TProperty2>` propertySelector2, `Func<TProperty2, TProperty3>` propertySelector3, `Boolean` pushCurrentValueOnSubscribe = true, `CancellationToken` cancellationToken = default, `String` propertySelector1Expr = default, `String` propertySelector2Expr = default, `String` propertySelector3Expr = default) | `Observable<TProperty3>` | 
+| **Race**(params `Observable<T>[]` sources) | `Observable<T>` | 
+| **Race**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **Range**(`Int32` start, `Int32` count) | `Observable<Int32>` | 
 | **Range**(`Int32` start, `Int32` count, `CancellationToken` cancellationToken) | `Observable<Int32>` | 
 | **Repeat**(`T` value, `Int32` count) | `Observable<T>` | 
