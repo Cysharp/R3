@@ -34,9 +34,11 @@ For those interested in learning more about the implementation philosophy and co
 
 Core Interface
 ---
-This library is distributed via NuGet, supporting .NET Standard 2.0, .NET Standard 2.1, .NET 6(.NET 7) and .NET 8 or above.
+This library is distributed via [NuGet packages/R3](https://www.nuget.org/packages/R3), supporting .NET Standard 2.0, .NET Standard 2.1, .NET 6(.NET 7) and .NET 8 or above.
 
-> PM> Install-Package [R3](https://www.nuget.org/packages/R3)
+```bash
+dotnet add package R3
+```
 
 Some platforms(WPF, Avalonia, Unity, Godot) requires additional step to install. Please see [Platform Supports](#platform-supports) section in below.
 
@@ -1548,6 +1550,32 @@ public static Observable<string> OnTextSubmittedAsObservable(this LineEdit lineE
 public static Observable<string> OnTextChangedAsObservable(this LineEdit lineEdit, CancellationToken cancellationToken = default)
 public static Observable<Unit> OnTextChangedAsObservable(this TextEdit textEdit, CancellationToken cancellationToken = default)
 public static Observable<long> OnItemSelectedAsObservable(this OptionButton optionButton, CancellationToken cancellationToken = default)
+```
+
+Also, there is support for Sigal.
+
+```csharp
+public static CancellationToken CancelOnSignal(this GodotObject obj, StringName signalName, bool oneShot = true)
+public static Observable<Unit> SignalAsObservable(this Node node, StringName signalName)
+public static Observable<T> SignalAsObservable<[MustBeVariant] T>(this Node node, StringName signalName)
+public static Observable<(T0, T1)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2, T3)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2, T3, T4)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2, T3, T4, T5)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2, T3, T4, T5, T6)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5, [MustBeVariant] T6>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2, T3, T4, T5, T6, T7)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5, [MustBeVariant] T6, [MustBeVariant] T7>(this Node node, StringName signalName)
+public static Observable<(T0, T1, T2, T3, T4, T5, T6, T7, T8)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5, [MustBeVariant] T6, [MustBeVariant] T7, [MustBeVariant] T8>(this Node node, StringName signalName)
+public static Observable<Unit> SignalAsObservable(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<T> SignalAsObservable<[MustBeVariant] T>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2, T3)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2, T3, T4)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2, T3, T4, T5)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2, T3, T4, T5, T6)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5, [MustBeVariant] T6>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2, T3, T4, T5, T6, T7)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5, [MustBeVariant] T6, [MustBeVariant] T7>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
+public static Observable<(T0, T1, T2, T3, T4, T5, T6, T7, T8)> SignalAsObservable<[MustBeVariant] T0, [MustBeVariant] T1, [MustBeVariant] T2, [MustBeVariant] T3, [MustBeVariant] T4, [MustBeVariant] T5, [MustBeVariant] T6, [MustBeVariant] T7, [MustBeVariant] T8>(this GodotObject obj, StringName signalName, CancellationToken cancellationToken = default)
 ```
 
 You can watch subscription status in `Debugger -> ObservableTracker` view.
