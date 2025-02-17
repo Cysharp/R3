@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>12</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>1701;1702;1591;1573</NoWarn>
+        <NoWarn>1701;1702;1591;1573;CS8002</NoWarn>
 
         <!-- NuGet Packaging -->
         <PackageId>R3Extensions.Maui</PackageId>

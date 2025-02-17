@@ -154,7 +154,7 @@ internal abstract class GodotSignalMapperBase<T> : ConnectableObservable<T>, IDi
         godotSignalName = signalName;
         if (cancellationToken.CanBeCanceled)
         {
-            cancellationTokenRegistration = cancellationToken.UnsafeRegister((state) => ((GodotSignalMapperBase<T>) state).Dispose(), this);
+            cancellationTokenRegistration = cancellationToken.UnsafeRegister((state) => ((GodotSignalMapperBase<T>) state!).Dispose(), this);
         }
     }
 
