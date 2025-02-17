@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <!-- xUnit1051 is async test for CancellationToken warning -->
         <NoWarn>9113;xUnit1051</NoWarn>
         <!-- Microsoft.Testing.Platform Support -->
         <OutputType>Exe</OutputType>
@@ -13,7 +14,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
         <PackageReference Include="xunit.v3" Version="1.1.0" />
         <PackageReference Include="Shouldly" Version="4.3.0" />
 
