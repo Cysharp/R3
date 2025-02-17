@@ -5,20 +5,20 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
         <NoWarn>9113;xUnit1051</NoWarn>
+        <!-- Microsoft.Testing.Platform Support -->
+        <OutputType>Exe</OutputType>
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Shouldly" Version="4.3.0" />
-        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.2.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-        <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
         <PackageReference Include="xunit.v3" Version="1.1.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+        <PackageReference Include="Shouldly" Version="4.3.0" />
+
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.2.0" />
+        <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>
