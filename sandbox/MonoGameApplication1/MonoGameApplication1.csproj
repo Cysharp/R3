@@ -6,7 +6,7 @@
         <PublishReadyToRun>false</PublishReadyToRun>
         <TieredCompilation>false</TieredCompilation>
         <IsPackable>false</IsPackable>
-
+        <NoWarn>CS8002</NoWarn>
     </PropertyGroup>
     <PropertyGroup>
         <ApplicationManifest>app.manifest</ApplicationManifest>
