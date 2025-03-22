@@ -445,4 +445,44 @@ public class DebounceThrottleFirstThrottleLastTest
 
         list.AssertIsCompleted();
     }
+
+
+    // + Publish from OnNext
+    [Fact]
+    public void DebounceFrameReentry()
+    {
+        var frameProvider = new FakeFrameProvider();
+
+        var publisher = new Subject<int>();
+        var list = publisher.DebounceFrame(3, frameProvider).Do(_ => publisher.OnNext(2)).ToLiveList();
+
+        publisher.OnNext(1);
+        list.AssertEqual([]);
+
+        frameProvider.Advance(3);
+
+        list.AssertEqual([1]);
+
+        frameProvider.Advance(3);
+        list.AssertEqual([1, 2]);
+    }
+
+    [Fact]
+    public void ThrottleLastFrameReentry()
+    {
+        var frameProvider = new FakeFrameProvider();
+
+        var publisher = new Subject<int>();
+        var list = publisher.ThrottleLastFrame(3, frameProvider).Do(_ => publisher.OnNext(2)).ToLiveList();
+
+        publisher.OnNext(1);
+        list.AssertEqual([]);
+
+        frameProvider.Advance(3);
+
+        list.AssertEqual([1]);
+
+        frameProvider.Advance(3);
+        list.AssertEqual([1, 2]);
+    }
 }
