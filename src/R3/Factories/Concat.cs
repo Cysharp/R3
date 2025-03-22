@@ -9,7 +9,7 @@ public static partial class Observable
         return new Concat<T>(sources);
     }
 
-    public static Observable<T> Concat<T>(IEnumerable<Observable<T>> sources)
+    public static Observable<T> Concat<T>(this IEnumerable<Observable<T>> sources)
     {
         return new Concat<T>(sources);
     }
