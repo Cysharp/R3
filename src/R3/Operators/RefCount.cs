@@ -10,7 +10,7 @@ public static partial class ObservableExtensions
 
 internal sealed class RefCount<T>(ConnectableObservable<T> source) : Observable<T>
 {
-    readonly object gate = new object();
+    readonly Lock gate = new();
     int refCount = 0;
     IDisposable? connection;
 

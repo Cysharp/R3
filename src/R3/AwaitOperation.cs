@@ -188,7 +188,7 @@ internal abstract class AwaitOperationSwitchObserver<T> : Observer<T>
     CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
     readonly bool cancelOnCompleted;
-    protected readonly object gate = new object();
+    protected readonly Lock gate = new();
     bool running;
     bool completed;
 
@@ -292,7 +292,7 @@ internal abstract class AwaitOperationParallelObserver<T> : Observer<T>
     readonly CancellationTokenSource cancellationTokenSource;
     readonly bool configureAwait; // continueOnCapturedContext
     readonly bool cancelOnCompleted;
-    protected readonly object gate = new object(); // need to use gate.
+    protected readonly Lock gate = new(); // need to use gate.
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
     int runningCount = 0;
@@ -459,7 +459,7 @@ internal abstract class AwaitOperationSequentialParallelObserver<T, TTaskValue> 
 internal abstract class AwaitOperationParallelConcurrentLimitObserver<T>(bool configureAwait, bool cancelOnCompleted, int maxConcurrent) : Observer<T>
 {
     readonly CancellationTokenSource cancellationTokenSource = new();
-    protected readonly object gate = new object(); // need to use gate.
+    protected readonly Lock gate = new(); // need to use gate.
 
     protected sealed override bool AutoDisposeOnCompleted => false; // disable auto-dispose
 
@@ -555,7 +555,7 @@ internal abstract class AwaitOperationSequentialParallelConcurrentLimitObserver<
     readonly bool configureAwait; // continueOnCapturedContext
     readonly bool cancelOnCompleted;
     readonly int maxConcurrent;
-    readonly object gate = new object();
+    readonly Lock gate = new();
     readonly Channel<(T, ValueTask<TTaskValue>)> channel;
     bool completed;
     int runningCount;

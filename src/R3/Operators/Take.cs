@@ -88,7 +88,7 @@ internal sealed class TakeTime<T>(Observable<T> source, TimeSpan duration, TimeP
 
         readonly Observer<T> observer;
         readonly ITimer timer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _TakeTime(Observer<T> observer, TimeSpan duration, TimeProvider timeProvider)
         {
@@ -145,7 +145,7 @@ internal sealed class TakeFrame<T>(Observable<T> source, int frameCount, FramePr
     {
         readonly Observer<T> observer;
         long remaining;
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _TakeFrame(Observer<T> observer, int frameCount, FrameProvider frameProvider)
         {

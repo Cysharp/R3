@@ -4,7 +4,7 @@ public sealed class TimerFrameProvider : FrameProvider, IDisposable
 {
     static readonly TimerCallback timerCallback = Run;
 
-    readonly object gate = new object();
+    readonly Lock gate = new();
     long frameCount;
     bool disposed;
     FreeListCore<IFrameRunnerWorkItem> list;

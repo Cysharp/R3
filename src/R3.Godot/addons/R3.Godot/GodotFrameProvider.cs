@@ -4,6 +4,7 @@ using Godot;
 using R3.Collections;
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace R3;
 
@@ -19,7 +20,7 @@ public class GodotFrameProvider : FrameProvider
     public static readonly GodotFrameProvider PhysicsProcess = new GodotFrameProvider(PlayerLoopTiming.PhysicsProcess);
 
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     PlayerLoopTiming PlayerLoopTiming { get; }
 

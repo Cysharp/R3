@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using R3.Collections;
 
 namespace R3;
@@ -12,7 +13,7 @@ public sealed class WinUI3RenderingFrameProvider : FrameProvider, IDisposable
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     EventHandler<object> messageLoop;
 

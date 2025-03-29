@@ -27,7 +27,7 @@ internal sealed class ThrottleLastFrame<T>(Observable<T> source, int frameCount,
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
         readonly int frameCount;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         T? lastValue;
         int currentFrame;
         bool running;

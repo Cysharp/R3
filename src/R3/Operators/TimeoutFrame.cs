@@ -25,7 +25,7 @@ internal sealed class TimeoutFrame<T>(Observable<T> source, int frameCount, Fram
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
         readonly int periodFrame;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         int currentFrame;
         bool running;
 

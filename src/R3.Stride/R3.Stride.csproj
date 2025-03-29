@@ -9,6 +9,7 @@
         <PackageId>R3Extensions.Stride</PackageId>
         <PackageTags>rx</PackageTags>
         <Description>Stride Provider and Methods for R3.</Description>
+        <LangVersion>13</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

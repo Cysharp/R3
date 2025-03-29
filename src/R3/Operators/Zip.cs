@@ -239,8 +239,7 @@ internal sealed class Zip<T1, T2, TResult>(
         readonly Func<T1, T2, TResult> resultSelector;
         readonly ZipObserver<T1> observer1;
         readonly ZipObserver<T2> observer2;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -368,8 +367,7 @@ internal sealed class Zip<T1, T2, T3, TResult>(
         readonly ZipObserver<T1> observer1;
         readonly ZipObserver<T2> observer2;
         readonly ZipObserver<T3> observer3;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -505,8 +503,7 @@ internal sealed class Zip<T1, T2, T3, T4, TResult>(
         readonly ZipObserver<T2> observer2;
         readonly ZipObserver<T3> observer3;
         readonly ZipObserver<T4> observer4;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -650,8 +647,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, TResult>(
         readonly ZipObserver<T3> observer3;
         readonly ZipObserver<T4> observer4;
         readonly ZipObserver<T5> observer5;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -803,8 +799,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, TResult>(
         readonly ZipObserver<T4> observer4;
         readonly ZipObserver<T5> observer5;
         readonly ZipObserver<T6> observer6;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -964,8 +959,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, TResult>(
         readonly ZipObserver<T5> observer5;
         readonly ZipObserver<T6> observer6;
         readonly ZipObserver<T7> observer7;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -1133,8 +1127,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
         readonly ZipObserver<T6> observer6;
         readonly ZipObserver<T7> observer7;
         readonly ZipObserver<T8> observer8;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -1310,8 +1303,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
         readonly ZipObserver<T7> observer7;
         readonly ZipObserver<T8> observer8;
         readonly ZipObserver<T9> observer9;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -1495,8 +1487,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
         readonly ZipObserver<T8> observer8;
         readonly ZipObserver<T9> observer9;
         readonly ZipObserver<T10> observer10;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -1688,8 +1679,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>
         readonly ZipObserver<T9> observer9;
         readonly ZipObserver<T10> observer10;
         readonly ZipObserver<T11> observer11;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -1889,8 +1879,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TRe
         readonly ZipObserver<T10> observer10;
         readonly ZipObserver<T11> observer11;
         readonly ZipObserver<T12> observer12;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -2098,8 +2087,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
         readonly ZipObserver<T11> observer11;
         readonly ZipObserver<T12> observer12;
         readonly ZipObserver<T13> observer13;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -2315,8 +2303,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
         readonly ZipObserver<T12> observer12;
         readonly ZipObserver<T13> observer13;
         readonly ZipObserver<T14> observer14;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,
@@ -2540,8 +2527,7 @@ internal sealed class Zip<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
         readonly ZipObserver<T13> observer13;
         readonly ZipObserver<T14> observer14;
         readonly ZipObserver<T15> observer15;
-        
-        readonly object gate = new object();
+        readonly Lock gate = new();
 
         public _Zip(
             Observer<TResult> observer,

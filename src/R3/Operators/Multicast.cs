@@ -77,7 +77,7 @@ public static partial class ObservableExtensions
 
 internal sealed class Multicast<T>(Observable<T> source, ISubject<T> subject) : ConnectableObservable<T>
 {
-    readonly object gate = new object();
+    readonly Lock gate = new();
     Connection? connection;
 
     public override IDisposable Connect()
