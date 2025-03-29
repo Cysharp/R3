@@ -40,7 +40,7 @@ This library is distributed via [NuGet packages/R3](https://www.nuget.org/packag
 dotnet add package R3
 ```
 
-Some platforms(WPF, Avalonia, Unity, Godot) requires additional step to install. Please see [Platform Supports](#platform-supports) section in below.
+Some platforms(WPF, Avalonia, Unity, Godot, etc...) requires additional step to install. Please see [Platform Supports](#platform-supports) section in below.
 
 R3 code is mostly the same as standard Rx. Make the Observable via factory methods(Timer, Interval, FromEvent, Subject, etc...) and chain operator via LINQ methods. Therefore, your knowledge about Rx and documentation on Rx can be almost directly applied. If you are new to Rx, the [ReactiveX](https://reactivex.io/intro.html) website and [Introduction to Rx.NET](https://introtorx.com/) would be useful resources for reference.
 
@@ -1010,6 +1010,7 @@ Although standard support is provided for the following platforms, by implementi
 
 * [WPF](#wpf)
 * [Avalonia](#avalonia)
+* [Uno](#uno)
 * [MAUI](#mau)
 * [WinForms](#winforms)
 * [WinUI3](#winui3)

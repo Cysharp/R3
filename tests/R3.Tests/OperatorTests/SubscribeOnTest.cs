@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace R3.Tests.OperatorTests;
+﻿namespace R3.Tests.OperatorTests;
 
 public class SubscribeOnTest
 {
