@@ -143,7 +143,7 @@ Observable.EveryValueChanged(this, x => x.Height).Subscribe(x => HeightText.Text
 
 `EveryValueChanged` could be interesting, as it converts properties without Push-based notifications like `INotifyPropertyChanged`.
 
-![](https://cloud.githubusercontent.com/assets/46207/15827886/1573ff16-2c48-11e6-9876-4e4455d7eced.gif)`
+![](https://cloud.githubusercontent.com/assets/46207/15827886/1573ff16-2c48-11e6-9876-4e4455d7eced.gif)
 
 Subjects(ReactiveProperty)
 ---
