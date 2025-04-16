@@ -16,7 +16,7 @@ internal abstract class TaskObserverBase<T, TTask> : Observer<T>
 
     public TaskObserverBase(CancellationToken cancellationToken)
     {
-        this.tcs = new TaskCompletionSource<TTask>();
+        this.tcs = new TaskCompletionSource<TTask>(TaskCreationOptions.RunContinuationsAsynchronously);
         this.cancellationToken = cancellationToken;
 
         if (cancellationToken.CanBeCanceled)
