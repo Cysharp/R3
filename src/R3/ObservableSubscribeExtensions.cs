@@ -13,13 +13,13 @@ public static class ObservableSubscribeExtensions
     [DebuggerStepThrough]
     public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext)
     {
-        return source.Subscribe(new AnonymousObserver<T>(onNext, ObservableSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult));
+        return source.Subscribe(new AnonymousObserver<T>(onNext, (ex) => ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex), Stubs.HandleResult));
     }
 
     [DebuggerStepThrough]
     public static IDisposable Subscribe<T>(this Observable<T> source, Action<T> onNext, Action<Result> onCompleted)
     {
-        return source.Subscribe(new AnonymousObserver<T>(onNext, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted));
+        return source.Subscribe(new AnonymousObserver<T>(onNext, (ex) => ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex), onCompleted));
     }
 
     [DebuggerStepThrough]
