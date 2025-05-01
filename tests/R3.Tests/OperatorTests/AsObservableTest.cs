@@ -18,9 +18,25 @@ public class AsObservableTest
     }
 
     [Fact]
+    public void AsObservableWithDelay()
+    {
+        var p = new Subject<int>();
+        var fakeFrameProvider = new FakeFrameProvider();
+
+        var l = p.AsObservable().DelayFrame(1, fakeFrameProvider).ToLiveList();
+        p.OnNext(1);
+        p.OnNext(2);
+        p.OnNext(3);
+        p.OnCompleted();
+        fakeFrameProvider.Advance();
+
+        l.AssertEqual([1, 2, 3]);
+        l.AssertIsCompleted();
+    }
+
+    [Fact]
     public void AsSystemObservable()
     {
-
         {
             var p = new Subject<int>();
             var l = new List<int>();
