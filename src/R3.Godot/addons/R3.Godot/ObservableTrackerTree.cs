@@ -21,6 +21,15 @@ public partial class ObservableTrackerTree : Tree
         Clear();
     }
 
+    public void ReSetupSession(ObservableTrackerDebuggerPlugin debuggerPlugin, int sessionId)
+    {
+        if (this.debuggerPlugin != null)
+        {
+            this.debuggerPlugin.UnregisterReceivedActiveTasks(this.sessionId, Reload);
+        }
+        NotifyOnSessionSetup(debuggerPlugin, sessionId);
+    }
+
     public override void _Ready()
     {
         AllowReselect = false;
@@ -51,7 +60,7 @@ public partial class ObservableTrackerTree : Tree
     {
         Clear();
         TreeItem root = CreateItem();
-        foreach(TrackingState state in states)
+        foreach (TrackingState state in states)
         {
             TreeItem row = CreateItem(root);
             var now = DateTime.Now;
@@ -61,7 +70,7 @@ public partial class ObservableTrackerTree : Tree
             row.SetText(1, (now - state.AddTime).TotalSeconds.ToString("00.00"));
             // StackTrace
             row.SetText(2, state.StackTrace);
-        };
+        }
     }
 }
 #endif
