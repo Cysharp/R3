@@ -1,26 +1,40 @@
 # top-most EditorConfig file
 root = true
 
-# Default settings:
-# A newline ending every file
-# Use 4 spaces as indentation
 [*]
-insert_final_newline = true
+charset = utf-8
+end_of_line = lf
 indent_style = space
-indent_size = 4
+indent_size = 2
+insert_final_newline = true
 trim_trailing_whitespace = true
 
-[{appsettings.json,appsettings.*.json}]
-charset = utf-8-bom
-indent_style = space
-indent_size = 4
+# Visual Studio Spell checker configs (https://learn.microsoft.com/en-us/visualstudio/ide/text-spell-checker?view=vs-2022#how-to-customize-the-spell-checker)
+spelling_exclusion_path  = ./exclusion.dic
 
-# Generated code
+[*.cs]
+indent_size = 4
+charset = utf-8-bom
+end_of_line = unset
+
+# Solution files
+[*.{sln,slnx}]
+end_of_line = unset
+
+# MSBuild project files
+[*.{csproj,props,targets}]
+end_of_line = unset
+
+# Xml config files
+[*.{ruleset,config,nuspec,resx,runsettings,DotSettings}]
+end_of_line = unset
+
 [*{_AssemblyInfo.cs,.notsupported.cs}]
 generated_code = true
+
+# C# code style settings
+[*.{cs}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
-tab_width = 4
-end_of_line = crlf
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
@@ -52,14 +66,6 @@ dotnet_style_qualification_for_method = false:none
 dotnet_style_qualification_for_property = false:none
 dotnet_style_qualification_for_field = false:none
 dotnet_style_qualification_for_event = false:none
-
-# Razor files
-[*.razor]
-charset = utf-8-bom
-
-# C# files
-[*.cs]
-charset = utf-8-bom
 
 # New line preferences
 csharp_new_line_before_open_brace = all
