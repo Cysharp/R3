@@ -13,7 +13,7 @@ public sealed class LogicLooperFrameProvider : FrameProvider, IDisposable
     Task loop;
     internal long timestamp;
     internal TimeSpan deltaTime;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     public LogicLooperFrameProvider(ILogicLooper looper)
     {

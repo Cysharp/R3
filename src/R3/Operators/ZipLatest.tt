@@ -53,8 +53,8 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
         readonly Func<<#= generateT(i) #>, TResult> resultSelector;
 <# for (var j = 1; j <= i; j++ ) { #>
         readonly ZipLatestObserver<T<#= j #>> observer<#= j #>;
-<# } #>        
-        readonly object gate = new object();
+<# } #>
+        readonly Lock gate = new();
 
         public _ZipLatest(
             Observer<TResult> observer,
@@ -95,7 +95,7 @@ internal sealed class ZipLatest<<#= generateT(i) #>, TResult>(
             {
                 var result = resultSelector(<#= generateValue(i) #>);
                 observer.OnNext(result);
-                
+
                 if (<#= generateIsCompletedOr(i) #>)
                 {
                     observer.OnCompleted();

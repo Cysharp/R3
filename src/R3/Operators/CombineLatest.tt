@@ -56,8 +56,8 @@ internal sealed class CombineLatest<<#= generateT(i) #>, TResult>(
         readonly Func<<#= generateT(i) #>, TResult> resultSelector;
 <# for (var j = 1; j <= i; j++ ) { #>
         readonly CombineLatestObserver<T<#= j #>> observer<#= j #>;
-<# } #>        
-        readonly object gate = new object();
+<# } #>
+        readonly Lock gate = new();
         bool hasValueAll;
         int completedCount;
 

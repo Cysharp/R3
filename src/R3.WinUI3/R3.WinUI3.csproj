@@ -19,6 +19,7 @@
         <PackageId>R3Extensions.WinUI3</PackageId>
         <PackageTags>rx</PackageTags>
         <Description>WinUI3 Provider and Methods for R3.</Description>
+        <LangVersion>13</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

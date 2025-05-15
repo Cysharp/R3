@@ -5,7 +5,7 @@
         <OutputType>Library</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>12</LangVersion>
+        <LangVersion>13</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;1591;1573</NoWarn>
         <RootNamespace>R3</RootNamespace>

@@ -16,7 +16,7 @@ public sealed class AvaloniaDispatcherFrameProvider : FrameProvider, IDisposable
     long frameCount;
     readonly bool isDefaultFrameProvider = false;
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
     readonly DispatcherTimer timer;
     EventHandler timerTick;
 

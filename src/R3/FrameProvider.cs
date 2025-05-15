@@ -15,7 +15,7 @@ public interface IFrameRunnerWorkItem
 public sealed class FakeFrameProvider : FrameProvider
 {
     long frameCount;
-    readonly object gate = new object();
+    readonly Lock gate = new();
     FreeListCore<IFrameRunnerWorkItem> list;
 
     public FakeFrameProvider()

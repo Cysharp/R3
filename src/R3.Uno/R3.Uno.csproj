@@ -10,6 +10,7 @@
         <PackageId>R3Extensions.Uno</PackageId>
         <PackageTags>rx</PackageTags>
         <Description>Uno Provider and Methods for R3.</Description>
+        <LangVersion>13</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

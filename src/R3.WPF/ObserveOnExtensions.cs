@@ -40,7 +40,7 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, Dispatcher di
         readonly Observer<T> observer;
         readonly Dispatcher dispatcher;
         readonly DispatcherPriority dispatcherPriority;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         SwapListCore<Notification<T>> list;
         bool running;
 

@@ -247,7 +247,7 @@ internal sealed class ChunkTimeCount<T>(Observable<T> source, TimeSpan timeSpan,
         readonly int count;
         readonly TimeSpan timeSpan;
         readonly TimeProvider timeProvider;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         ITimer? timer;
         T[] buffer;
         int index;

@@ -18,7 +18,7 @@ internal sealed class Switch<T>(Observable<Observable<T>> sources) : Observable<
     sealed class _Switch(Observer<T> observer) : Observer<Observable<T>>
     {
         public Observer<T> observer = observer;
-        public readonly object gate = new object();
+        public readonly Lock gate = new();
 
         SerialDisposableCore subscription;
         public ulong id;

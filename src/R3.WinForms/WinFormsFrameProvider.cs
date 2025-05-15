@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Forms;
 
 using R3.Collections;
@@ -17,7 +18,7 @@ public sealed class WinFormsFrameProvider :
     private bool disposed;
     private long frameCount;
     private FreeListCore<IFrameRunnerWorkItem> list;
-    private readonly object gate = new object();
+    private readonly Lock gate = new();
     private readonly MessageHook filter;
     private readonly MessageFilter? predicate;
 

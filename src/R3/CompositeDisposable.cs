@@ -7,7 +7,7 @@ namespace R3;
 public sealed class CompositeDisposable : ICollection<IDisposable>, IDisposable
 {
     List<IDisposable?> list; // when removed, set null
-    readonly object gate = new object();
+    readonly Lock gate = new();
     bool isDisposed;
     int count;
 

@@ -26,7 +26,7 @@ internal sealed class ThrottleFirstFrame<T>(Observable<T> source, int frameCount
         readonly Observer<T> observer;
         readonly int frameCount;
         readonly FrameProvider frameProvider;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         int currentFrame;
         bool closing;
 

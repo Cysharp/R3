@@ -42,7 +42,7 @@ internal sealed class ObserveOnDispatcher<T>(Observable<T> source, CoreDispatche
         readonly Observer<T> observer;
         readonly CoreDispatcher dispatcher;
         readonly CoreDispatcherPriority? dispatcherPriority;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         SwapListCore<Notification<T>> list;
         bool running;
 

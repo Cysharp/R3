@@ -106,7 +106,7 @@ internal sealed class TakeLastTime<T>(Observable<T> source, TimeSpan duration, T
     sealed class _TakeLastTime : Observer<T>, IDisposable
     {
         readonly Observer<T> observer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly Queue<(long timestamp, T value)> queue = new();
         readonly TimeSpan duration;
         readonly TimeProvider timeProvider;
@@ -188,7 +188,7 @@ internal sealed class TakeLastFrame<T>(Observable<T> source, int frameCount, Fra
     sealed class _TakeLastFrame : Observer<T>, IDisposable
     {
         readonly Observer<T> observer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly Queue<(long frameCount, T value)> queue = new();
         readonly int frameCount;
         readonly FrameProvider frameProvider;

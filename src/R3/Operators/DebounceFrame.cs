@@ -25,7 +25,7 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
     {
         readonly Observer<T> observer;
         readonly int frameCount;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly FrameProvider frameProvider;
         T? latestValue;
         bool hasvalue;

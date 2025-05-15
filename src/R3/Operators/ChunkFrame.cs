@@ -119,7 +119,7 @@ internal sealed class ChunkFrameCount<T>(Observable<T> source, int frameCount, i
         readonly Observer<T[]> observer;
         readonly int periodFrame;
         readonly int count;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly FrameProvider frameProvider;
         bool running;
         T[] buffer;

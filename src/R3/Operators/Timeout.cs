@@ -27,7 +27,7 @@ internal sealed class Timeout<T>(Observable<T> source, TimeSpan dueTime, TimePro
         readonly Observer<T> observer;
         readonly TimeSpan timeSpan;
         readonly ITimer timer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         int timerId;
 
         public _Timeout(Observer<T> observer, TimeSpan timeSpan, TimeProvider timeProvider)
