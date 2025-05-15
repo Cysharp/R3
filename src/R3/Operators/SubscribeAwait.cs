@@ -8,13 +8,13 @@ public static partial class ObservableExtensions
     /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
     public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = false, int maxConcurrent = -1)
     {
-        return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), Stubs.HandleResult, awaitOperation, configureAwait, cancelOnCompleted, maxConcurrent);
+        return SubscribeAwait(source, onNextAsync, (ex) => ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex), Stubs.HandleResult, awaitOperation, configureAwait, cancelOnCompleted, maxConcurrent);
     }
 
     /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
     public static IDisposable SubscribeAwait<T>(this Observable<T> source, Func<T, CancellationToken, ValueTask> onNextAsync, Action<Result> onCompleted, AwaitOperation awaitOperation = AwaitOperation.Sequential, bool configureAwait = true, bool cancelOnCompleted = false, int maxConcurrent = -1)
     {
-        return SubscribeAwait(source, onNextAsync, ObservableSystem.GetUnhandledExceptionHandler(), onCompleted, awaitOperation, configureAwait, cancelOnCompleted, maxConcurrent);
+        return SubscribeAwait(source, onNextAsync, (ex) => ObservableSystem.GetUnhandledExceptionHandler().Invoke(ex), onCompleted, awaitOperation, configureAwait, cancelOnCompleted, maxConcurrent);
     }
 
     /// <param name="maxConcurrent">This option is only valid for AwaitOperation.Parallel and AwaitOperation.SequentialParallel. It sets the number of concurrent executions. If set to -1, there is no limit.</param>
