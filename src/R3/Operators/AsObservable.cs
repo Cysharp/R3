@@ -22,7 +22,32 @@ internal sealed class AsObservable<T>(Observable<T> observable) : Observable<T>
 {
     protected override IDisposable SubscribeCore(Observer<T> observer)
     {
-        return observable.Subscribe(observer.Wrap());
+        return observable.Subscribe(new AsObservableObserver(observer));
+    }
+
+    sealed class AsObservableObserver(Observer<T> observer) : Observer<T>
+    {
+        protected override bool AutoDisposeOnCompleted => false;
+
+        protected override void OnNextCore(T value)
+        {
+            observer.OnNext(value);
+        }
+
+        protected override void OnErrorResumeCore(Exception error)
+        {
+            observer.OnErrorResume(error);
+        }
+
+        protected override void OnCompletedCore(Result result)
+        {
+            observer.OnCompleted(result);
+        }
+
+        protected override void DisposeCore()
+        {
+            observer.Dispose();
+        }
     }
 }
 
@@ -35,6 +60,8 @@ internal sealed class AsSystemObservable<T>(Observable<T> source) : IObservable<
 
     sealed class ObserverToObserver(IObserver<T> observer) : Observer<T>
     {
+        protected override bool AutoDisposeOnCompleted => false;
+
         protected override void OnNextCore(T value)
         {
             observer.OnNext(value);
