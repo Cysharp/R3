@@ -40,7 +40,7 @@ This library is distributed via [NuGet packages/R3](https://www.nuget.org/packag
 dotnet add package R3
 ```
 
-Some platforms(WPF, Avalonia, Unity, Godot, etc...) requires additional step to install. Please see [Platform Supports](#platform-supports) section in below.
+Some platforms (WPF, Avalonia, Unity, Godot, etc...) require additional steps to install. Please see the [Platform Supports](#platform-supports) section below.
 
 R3 code is mostly the same as standard Rx. Make the Observable via factory methods(Timer, Interval, FromEvent, Subject, etc...) and chain operator via LINQ methods. Therefore, your knowledge about Rx and documentation on Rx can be almost directly applied. If you are new to Rx, the [ReactiveX](https://reactivex.io/intro.html) website and [Introduction to Rx.NET](https://introtorx.com/) would be useful resources for reference.
 
@@ -115,7 +115,7 @@ In R3, anything that requires synchronous execution (like Range) is treated as I
 
 As for the implementation of TimeProvider, the standard TimeProvider.System using the ThreadPool is the default. For unit testing, FakeTimeProvider (Microsoft.Extensions.TimeProvider.Testing) is available. Additionally, many TimeProvider implementations are provided for different platforms, such as DispatcherTimeProvider for WPF and UpdateTimeProvider for Unity, enhancing ease of use tailored to each platform.
 
-Frame based operations
+Frame-based operations
 ---
 In GUI applications, there's the message loop, and in game engines, there's the game loop. Platforms that operate based on loops are not uncommon. The idea of executing something after a few seconds or frames fits very well with Rx. Just as time has been abstracted through TimeProvider, we introduced a layer of abstraction for frames called FrameProvider, and added frame-based operators corresponding to all methods that accept TimeProvider.
 
@@ -134,7 +134,7 @@ There are also several operators unique to frame-based processing.
 Observable.EveryUpdate().Subscribe(x => Console.WriteLine(x));
 
 // take value until next frame
-eventSoure.TakeUntil(Observable.NextFrame()).Subscribe();
+eventSource.TakeUntil(Observable.NextFrame()).Subscribe();
 
 // polling value changed
 Observable.EveryValueChanged(this, x => x.Width).Subscribe(x => WidthText.Text = x.ToString());
@@ -1011,7 +1011,7 @@ Although standard support is provided for the following platforms, by implementi
 * [WPF](#wpf)
 * [Avalonia](#avalonia)
 * [Uno](#uno)
-* [MAUI](#mau)
+* [MAUI](#maui)
 * [WinForms](#winforms)
 * [WinUI3](#winui3)
 * [Unity](#unity)
@@ -1043,7 +1043,7 @@ public partial class App : Application
 }
 ```
 
-As a result, time based operations are replaced with `DispatcherTimer`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+As a result, time-based operations are replaced with `DispatcherTimer`, allowing you to reflect time-based operations on the UI without having to use `ObserveOn`.
 
 `WpfRenderingFrameProvider` is a frame-based loop system synchronized with the `CompositionTarget.Rendering` event. This allows for writing code that, for example, reads and reflects changes in values that do not implement `INotifyPropertyChanged`.
 
@@ -1103,7 +1103,7 @@ public static AppBuilder BuildAvaloniaApp()
         .UseR3(); // add this line
 ```
 
-As a result, time based operations are replaced with `DispatcherTimer`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+As a result, time-based operations are replaced with `DispatcherTimer`, allowing you to reflect time-based operations on the UI without having to use `ObserveOn`.
 
 In the case of methods without arguments, integrate the following method into `ObservableSystem.RegisterUnhandledExceptionHandler`. Please customize this as necessary.
 
@@ -1175,7 +1175,7 @@ public partial class App : Application
 }
 ```
 
-As a result, time based operations are replaced with `DispatcherTimer`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
+As a result, time-based operations are replaced with `DispatcherTimer`, allowing you to reflect time-based operations on the UI without having to use `ObserveOn`.
 
 In the case of methods without arguments, integrate the following method into `ObservableSystem.RegisterUnhandledExceptionHandler`. Please customize this as necessary.
 
@@ -1222,8 +1222,8 @@ public static MauiApp CreateMauiApp()
 
 `UseR3()` configures the following.
 
-- Time based operations are replaced with `IDispatcher`, allowing you to reflect time based operations on the UI without having to use `ObserveOn`.
-- Frame based operations are replaced with `Ticker`.
+- Time-based operations are replaced with `IDispatcher`, allowing you to reflect time-based operations on the UI without having to use `ObserveOn`.
+- Frame-based operations are replaced with `Ticker`.
 - `ObservableSystem.RegisterUnhandledExceptionHandler` is set to `R3MauiDefaultExceptionHandler`:
     - ```csharp
       public class R3MauiDefaultExceptionHandler(IServiceProvider serviceProvider) : IR3MauiExceptionHandler
@@ -1695,8 +1695,8 @@ public class Game1 : Game
 
 ObservableSystemComponent configure the following:
 - Setup TimeProvider and FrameProvider.
-  - Time based operations are replaced with `Game.Update(GameTime)`.
-  - Frame based operations are replaced with `Game.Update(GameTime)`.
+  - Time-based operations are replaced with `Game.Update(GameTime)`.
+  - Frame-based operations are replaced with `Game.Update(GameTime)`.
 - Set UnhandledExceptionHandler. By default, the unhandled exception handler simply flows to System.Diagnostics.Trace.
   - If you want to change this, do the following:
     - ```csharp
@@ -1829,7 +1829,7 @@ The standard operators in ReactiveX follow the behavior described in the [Reacti
 
 Methods that accept a Scheduler will take a `TimeProvider`. Additionally, methods that receive a `TimeProvider` have an added method called `***Frame` that accepts a `FrameProvider`.
 
-For default time based operations that do not take a provider, `ObservableSystem.DefaultTimeProvider` is used, and for frame based operations without provider, `ObservableSystem.DefaultFrameProvider` is used.
+For default time-based operations that do not take a provider, `ObservableSystem.DefaultTimeProvider` is used, and for frame-based operations without provider, `ObservableSystem.DefaultFrameProvider` is used.
 
 ### Factory
 
