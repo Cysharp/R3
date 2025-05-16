@@ -6,7 +6,7 @@ internal static class TaskExtensions
 {
     internal static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken cancellationToken)
     {
-        var tcs = new TaskCompletionSource<T>();
+        var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
         var registration = cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
 
         task.ContinueWith(t =>
