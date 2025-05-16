@@ -1854,7 +1854,7 @@ Factory methods are defined as static methods in the static class `Observable`.
 | **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>` resultSelector) | `Observable<TResult>` | 
 | **CombineLatest**(this `Observable<T1>` source1, `Observable<T2>` source2, `Observable<T3>` source3, `Observable<T4>` source4, `Observable<T5>` source5, `Observable<T6>` source6, `Observable<T7>` source7, `Observable<T8>` source8, `Observable<T9>` source9, `Observable<T10>` source10, `Observable<T11>` source11, `Observable<T12>` source12, `Observable<T13>` source13, `Observable<T14>` source14, `Observable<T15>` source15, `Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>` resultSelector) | `Observable<TResult>` | 
 | **Concat**(params `Observable<T>[]` sources) | `Observable<T>` | 
-| **Concat**(`IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
+| **Concat**(this `IEnumerable<Observable<T>>` sources) | `Observable<T>` | 
 | **Concat**(this `Observable<Observable<T>>` sources) | `Observable<T>` | 
 | **Create**(`Func<Observer<T>, IDisposable>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
 | **Create**(`TState` state, `Func<Observer<T>, TState, IDisposable>` subscribe, `Boolean` rawObserver = false) | `Observable<T>` | 
