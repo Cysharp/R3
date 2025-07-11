@@ -117,7 +117,7 @@ namespace R3
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += (state) =>
             {
-                if (state == PlayModeStateChange.EnteredEditMode || state == PlayModeStateChange.ExitingEditMode)
+                if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.ExitingEditMode)
                 {
                     // run rest action before clear.
                     if (runner != null)
