@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFrameworks>net8.0</TargetFrameworks>
         <Nullable>enable</Nullable>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
 
         <!-- NuGet Packaging -->
         <PackageId>R3Extensions.Stride</PackageId>
@@ -18,6 +17,5 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="../../Icon.png" Pack="true" PackagePath="/" />
-        <None Include="README.md" Pack="true" PackagePath="/" />
     </ItemGroup>
 </Project>
