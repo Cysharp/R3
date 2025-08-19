@@ -17,5 +17,7 @@ jobs:
     steps:
       - uses: Cysharp/Actions/.github/actions/checkout@main
       - uses: Cysharp/Actions/.github/actions/setup-dotnet@main
-      - run: dotnet build -c Debug
-      - run: dotnet test -c Debug --no-build
+      - run: dotnet build -c Release
+      - run: dotnet test -c Release --no-build
+      # need build. don't use --no-build
+      - run: dotnet pack -c Release -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o $GITHUB_WORKSPACE/artifacts
