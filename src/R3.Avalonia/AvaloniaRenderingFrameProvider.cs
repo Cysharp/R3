@@ -10,7 +10,7 @@ public class AvaloniaRenderingFrameProvider : FrameProvider, IDisposable
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     Action<TimeSpan> messageLoop;
 

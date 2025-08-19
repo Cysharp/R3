@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using R3.Collections;
 using Stride.Games;
 
@@ -8,7 +9,7 @@ namespace R3;
 public sealed class StrideFrameProvider : FrameProvider
 {
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     internal StrongBox<double> Delta = default!; // set from Node before running process.
 

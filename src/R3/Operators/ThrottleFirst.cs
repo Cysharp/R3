@@ -37,7 +37,7 @@ internal sealed class ThrottleFirst<T>(Observable<T> source, TimeSpan timeSpan, 
         readonly Observer<T> observer;
         readonly ITimer timer;
         readonly TimeSpan timeSpan;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         bool closing;
 
         public _ThrottleFirst(Observer<T> observer, TimeSpan timeSpan, TimeProvider timeProvider)
@@ -95,7 +95,7 @@ internal sealed class ThrottleFirstAsyncSampler<T>(Observable<T> source, Func<T,
 
     sealed class _ThrottleFirst(Observer<T> observer, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observer<T>
     {
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly CancellationTokenSource cancellationTokenSource = new();
         bool closing;
 
@@ -163,7 +163,7 @@ internal sealed class ThrottleFirstObservableSampler<T, TSample>(Observable<T> s
     sealed class _ThrottleFirst : Observer<T>
     {
         readonly Observer<T> observer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly IDisposable samplerSubscription;
         bool closing;
 

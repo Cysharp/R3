@@ -44,7 +44,7 @@ internal sealed class FrameTimer : ITimer, IFrameRunnerWorkItem
     readonly TimerCallback callback;
     readonly object? state;
     readonly GodotFrameProvider frameProvider;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     TimeSpan dueTime;
     TimeSpan period;

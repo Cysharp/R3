@@ -7,9 +7,18 @@ namespace R3.Collections;
 public struct FreeListCore<T>
     where T : class
 {
+    readonly Lock? lockGate;
     readonly object gate;
     T?[]? values = null;
     int lastIndex;
+
+    public FreeListCore(Lock gate)
+    {
+        // don't create values at initialize
+        this.lockGate = gate;
+        this.gate = gate;
+        this.lastIndex = -1;
+    }
 
     public FreeListCore(object gate)
     {
@@ -30,7 +39,7 @@ public struct FreeListCore<T>
 
     public void Add(T item, out int removeKey)
     {
-        lock (gate)
+        lock (lockGate ?? gate)
         {
             ThrowHelper.ThrowObjectDisposedIf(IsDisposed, typeof(FreeListCore<T>));
 
@@ -63,7 +72,7 @@ public struct FreeListCore<T>
 
     public void Remove(int index)
     {
-        lock (gate)
+        lock (lockGate ?? gate)
         {
             if (values == null) return;
 
@@ -83,7 +92,7 @@ public struct FreeListCore<T>
 
     public bool RemoveSlow(T value)
     {
-        lock (gate)
+        lock (lockGate ?? gate)
         {
             if (values == null) return false;
             if (lastIndex < 0) return false;
@@ -110,7 +119,7 @@ public struct FreeListCore<T>
 
     public void Clear(bool removeArray)
     {
-        lock (gate)
+        lock (lockGate ?? gate)
         {
             if (lastIndex >= 0)
             {
@@ -129,7 +138,7 @@ public struct FreeListCore<T>
 
     public void Dispose()
     {
-        lock (gate)
+        lock (lockGate ?? gate)
         {
             values = null;
             lastIndex = -2; // -2 is disposed.

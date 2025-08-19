@@ -12,7 +12,7 @@ public sealed class UnoRenderingFrameProvider : FrameProvider, IDisposable
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     EventHandler<object> messageLoop;
 

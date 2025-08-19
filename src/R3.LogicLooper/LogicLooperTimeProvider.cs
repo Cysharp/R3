@@ -28,7 +28,7 @@ internal sealed class FrameTimer : ITimer, IFrameRunnerWorkItem
     readonly TimerCallback callback;
     readonly object? state;
     readonly LogicLooperFrameProvider frameProvider;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     TimeSpan dueTime;
     TimeSpan period;

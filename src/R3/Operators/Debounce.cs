@@ -32,7 +32,7 @@ internal sealed class Debounce<T>(Observable<T> source, TimeSpan timeSpan, TimeP
         readonly Observer<T> observer;
         readonly TimeSpan timeSpan;
         readonly ITimer timer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         T? latestValue;
         bool hasvalue;
         int timerId;
@@ -109,7 +109,7 @@ internal sealed class DebounceSelector<T>(Observable<T> source, Func<T, Cancella
 
     sealed class _Debounce(Observer<T> observer, Func<T, CancellationToken, ValueTask> throttleDurationSelector, bool configureAwait) : Observer<T>
     {
-        readonly object gate = new object();
+        readonly Lock gate = new();
         T? latestValue;
         bool hasValue;
         bool isRunning;

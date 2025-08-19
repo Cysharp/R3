@@ -54,7 +54,7 @@ internal sealed class ObserveOnSynchronizationContext<T>(Observable<T> source, S
 
         readonly Observer<T> observer;
         readonly SynchronizationContext synchronizationContext;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         SwapListCore<Notification<T>> list;
         bool running;
 
@@ -413,7 +413,7 @@ internal sealed class ObserveOnFrameProvider<T>(Observable<T> source, FrameProvi
     {
         readonly Observer<T> observer;
         readonly FrameProvider frameProvider;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         SwapListCore<Notification<T>> list;
         bool running;
 

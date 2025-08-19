@@ -40,7 +40,7 @@ internal sealed class SelectMany<TSource, TCollection, TResult>(Observable<TSour
         readonly Func<TSource, Observable<TCollection>> collectionSelector = collectionSelector;
         readonly Func<TSource, TCollection, TResult> resultSelector = resultSelector;
         readonly CompositeDisposable compositeDisposable = new();
-        readonly object gate = new object();
+        readonly Lock gate = new();
         bool isStopped;
 
         protected override bool AutoDisposeOnCompleted => false;
@@ -161,7 +161,7 @@ internal sealed class SelectManyIndexed<TSource, TCollection, TResult>(Observabl
         readonly Func<TSource, int, Observable<TCollection>> collectionSelector = collectionSelector;
         readonly Func<TSource, int, TCollection, int, TResult> resultSelector = resultSelector;
         readonly CompositeDisposable compositeDisposable = new();
-        readonly object gate = new object();
+        readonly Lock gate = new();
         bool isStopped;
         int index = 0;
 

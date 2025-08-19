@@ -11,7 +11,7 @@ public sealed class WpfRenderingFrameProvider : FrameProvider, IDisposable
     bool disposed;
     long frameCount;
     FreeListCore<IFrameRunnerWorkItem> list;
-    readonly object gate = new object();
+    readonly Lock gate = new();
 
     EventHandler messageLoop;
 

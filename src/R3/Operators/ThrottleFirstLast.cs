@@ -37,7 +37,7 @@ internal sealed class ThrottleFirstLast<T>(Observable<T> source, TimeSpan interv
         readonly Observer<T> observer;
         readonly TimeSpan interval;
         readonly ITimer timer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         T? lastValue;
         bool hasValue;
         bool timerIsRunning;
@@ -109,7 +109,7 @@ internal sealed class ThrottleFirstLastAsyncSampler<T>(Observable<T> source, Fun
 
     sealed class _ThrottleFirstLast(Observer<T> observer, Func<T, CancellationToken, ValueTask> sampler, bool configureAwait) : Observer<T>
     {
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly CancellationTokenSource cancellationTokenSource = new();
         T? lastValue;
         bool hasValue;
@@ -191,7 +191,7 @@ internal sealed class ThrottleFirstLastObservableSampler<T, TSample>(Observable<
     sealed class _ThrottleFirstLast : Observer<T>
     {
         readonly Observer<T> observer;
-        readonly object gate = new object();
+        readonly Lock gate = new();
         readonly IDisposable samplerSubscription;
         T? lastValue;
         bool hasValue;
