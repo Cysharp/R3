@@ -9,11 +9,10 @@
         <!-- Microsoft.Testing.Platform Support -->
         <OutputType>Exe</OutputType>
         <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="xunit.v3" Version="1.1.0" />
+        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.0" />
         <PackageReference Include="Shouldly" Version="4.3.0" />
 
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.2.0" />
