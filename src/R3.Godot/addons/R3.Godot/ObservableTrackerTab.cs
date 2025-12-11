@@ -2,7 +2,6 @@
 #nullable enable
 
 using Godot;
-using System;
 
 namespace R3;
 
@@ -12,135 +11,221 @@ public partial class ObservableTrackerTab : VBoxContainer
     public const string EnableAutoReloadKey = "ObservableTracker_EnableAutoReloadKey";
     public const string EnableTrackingKey = "ObservableTracker_EnableTrackingKey";
     public const string EnableStackTraceKey = "ObservableTracker_EnableStackTraceKey";
-    bool enableAutoReload, enableTracking, enableStackTrace;
-    ObservableTrackerTree? tree;
-    ObservableTrackerDebuggerPlugin? debuggerPlugin;
-    int interval = 0;
-    int sessionId = 0;
+    public const string HideOperatorsKey = "ObservableTracker_HideOperatorsKey";
+    public const string SimpleTraceKey = "ObservableTracker_SimpleTraceKey";
+    private const double RefreshInterval = 2.0;
 
-    public void NotifyOnSessionSetup(ObservableTrackerDebuggerPlugin debuggerPlugin, int sessionId)
-    {
-        this.debuggerPlugin = debuggerPlugin;
-        this.sessionId = sessionId;
-        tree ??= new ObservableTrackerTree();
-        tree.NotifyOnSessionSetup(debuggerPlugin!, sessionId);
-    }
+    private ObservableTrackerDebuggerPlugin? _debuggerPlugin;
 
-    public void NotifyOnSessionStart()
+    private bool _enableAutoReload;
+    private bool _enableStackTrace;
+    private bool _enableTracking;
+    private bool _hideOperators;
+
+    private double _refreshTimer;
+    private bool _simpleTrace;
+    private ObservableTrackerTree? _tree;
+
+    // Persist SessionId via Metadata
+    public int SessionId
     {
-        debuggerPlugin!.SetEnableStates(sessionId, enableTracking, enableStackTrace);
+        get
+        {
+            if (HasMeta("R3_SessionId"))
+                return (int)GetMeta("R3_SessionId");
+            return -1;
+        }
+        private set => SetMeta("R3_SessionId", value);
     }
 
     public override void _Ready()
     {
+        if (!Engine.IsEditorHint())
+            return;
+
         Name = "Observable Tracker";
+        SetProcess(false);
 
-        tree ??= new ObservableTrackerTree();
-        
-        // Head panel
-        var headPanelLayout = new HBoxContainer();
-        headPanelLayout.SetAnchor(Side.Left, 0);
-        headPanelLayout.SetAnchor(Side.Right, 0);
-        AddChild(headPanelLayout);
+        // Active Reconnection Logic
+        var plugin = GodotR3Plugin.CurrentDebuggerPlugin;
 
-        // Toggle buttons (top left)
-        var enableAutoReloadToggle = new CheckButton
-        {
-            Text = "Enable AutoReload",
-            TooltipText = "Reload automatically."
-        };
-        var enableTrackingToggle = new CheckButton
-        {
-            Text = "Enable Tracking",
-            TooltipText = "Start to track Observable subscription. Performance impact: low"
-        };
-        var enableStackTraceToggle = new CheckButton
-        {
-            Text = "Enable StackTrace",
-            TooltipText = "Capture StackTrace when subscribed. Performance impact: high"
-        };
+        if (SessionId != -1 && plugin != null)
+            // Hot Reload detected: Reconnect immediately
+            NotifyOnSessionSetup(plugin, SessionId);
+        else
+            // New Instance
+            InitializeUI(false);
+    }
 
-        // For every button: Initialize pressed state and subscribe to Toggled event.
-        EditorSettings settings = EditorInterface.Singleton.GetEditorSettings();
-        enableAutoReloadToggle.ButtonPressed = enableAutoReload = GetSettingOrDefault(settings, EnableAutoReloadKey, false).AsBool();
-        enableAutoReloadToggle.Toggled += toggledOn =>
-        {
-            settings.SetSetting(EnableAutoReloadKey, toggledOn);
-            enableAutoReload = toggledOn;
-        };
-        enableTrackingToggle.ButtonPressed = enableTracking = GetSettingOrDefault(settings, EnableTrackingKey, false).AsBool();
-        enableTrackingToggle.Toggled += toggledOn =>
-        {
-            settings.SetSetting(EnableTrackingKey, toggledOn);
-            enableTracking = toggledOn;
-            debuggerPlugin!.SetEnableStates(sessionId, enableTracking, enableStackTrace);
-        };
-        enableStackTraceToggle.ButtonPressed = enableStackTrace = GetSettingOrDefault(settings, EnableStackTraceKey, false).AsBool();
-        enableStackTraceToggle.Toggled += toggledOn =>
-        {
-            settings.SetSetting(EnableStackTraceKey, toggledOn);
-            enableStackTrace = toggledOn;
-            debuggerPlugin!.SetEnableStates(sessionId, enableTracking, enableStackTrace);
-        };
+    public void NotifyOnSessionSetup(ObservableTrackerDebuggerPlugin debuggerPlugin, int sessionId)
+    {
+        _debuggerPlugin = debuggerPlugin;
+        SessionId = sessionId;
 
-        // Regular buttons (top right)
-        var reloadButton = new Button
-        {
-            Text = "Reload",
-            TooltipText = "Reload View."
-        };
-        var GCButton = new Button
-        {
-            Text = "GC.Collect",
-            TooltipText = "Invoke GC.Collect."
-        };
+        if (!IsInGroup(ObservableTrackerDebuggerPlugin.AllTabsGroup))
+            AddToGroup(ObservableTrackerDebuggerPlugin.AllTabsGroup);
 
-        reloadButton.Pressed += () =>
-        {
-            debuggerPlugin!.UpdateTrackingStates(sessionId, true);
-        };
-        GCButton.Pressed += () =>
-        {
-            debuggerPlugin!.InvokeGCCollect(sessionId);
-        };
+        var sessionGroup = $"R3_Tracker_UI_Session_{sessionId}";
+        if (!IsInGroup(sessionGroup))
+            AddToGroup(sessionGroup);
 
-        // Button layout.
-        headPanelLayout.AddChild(enableAutoReloadToggle);
-        headPanelLayout.AddChild(enableTrackingToggle);
-        headPanelLayout.AddChild(enableStackTraceToggle);
-        // Kind of like Unity's FlexibleSpace. Pushes the first three buttons to the left, and the remaining buttons to the right.
-        headPanelLayout.AddChild(new Control()
-        {
-            SizeFlagsHorizontal = SizeFlags.Expand,
-        });
-        headPanelLayout.AddChild(reloadButton);
-        headPanelLayout.AddChild(GCButton);
+        // Force rebuild UI to fix event bindings after hot reload
+        InitializeUI(true);
 
-        // Tree goes last.
-        AddChild(tree);
+        if (_tree != null)
+        {
+            _tree.NotifyOnSessionSetup(debuggerPlugin, sessionId);
+            _tree.SetHideOperators(_hideOperators);
+            _tree.SetSimpleTrace(_simpleTrace);
+        }
+
+        NotifyOnSessionStart();
+    }
+
+    public void NotifyOnSessionStart()
+    {
+        SetProcess(true);
+        if (_debuggerPlugin == null)
+            return;
+
+        _debuggerPlugin.SetEnableStates(SessionId, _enableTracking, _enableStackTrace);
+        _debuggerPlugin.UpdateTrackingStates(SessionId, true);
+    }
+
+    public void NotifyOnSessionStop()
+    {
+        SetProcess(false);
+        if (IsInstanceValid(_tree))
+            _tree!.ClearContent();
     }
 
     public override void _Process(double delta)
     {
-        if (enableAutoReload)
+        // Use delta accumulation for consistent timing
+        if (_enableAutoReload && _debuggerPlugin != null && SessionId != -1)
         {
-            if (interval++ % 120 == 0)
+            _refreshTimer += delta;
+            if (_refreshTimer >= RefreshInterval)
             {
-                debuggerPlugin!.UpdateTrackingStates(sessionId);
+                _refreshTimer = 0;
+                _debuggerPlugin.UpdateTrackingStates(SessionId);
             }
         }
     }
 
-    static Variant GetSettingOrDefault(EditorSettings settings, string key, Variant @default)
+    private void InitializeUI(bool forceRebuild)
     {
-        if (settings.HasSetting(key))
+        // 1. Cleanup existing nodes if forcing rebuild
+        if (forceRebuild)
         {
-            return settings.GetSetting(key);
+            foreach (var child in GetChildren())
+                child.QueueFree();
+            _tree = null;
         }
         else
         {
-            return @default;
+            foreach (var child in GetChildren())
+                if (child is ObservableTrackerTree t)
+                {
+                    _tree = t;
+                    return;
+                }
         }
+
+        // 2. Build UI
+        _tree = new ObservableTrackerTree();
+
+        var headPanelLayout = new HBoxContainer();
+        AddChild(headPanelLayout);
+
+        var enableAutoReloadToggle = new CheckButton
+            { Text = "AutoReload", TooltipText = "Reload automatically every 2s." };
+        var enableTrackingToggle = new CheckButton { Text = "Tracking", TooltipText = "Enable R3 Tracking." };
+        var enableStackTraceToggle = new CheckButton
+            { Text = "StackTrace", TooltipText = "Capture StackTrace (High Cost)." };
+        var hideOperatorsToggle = new CheckButton { Text = "Hide Ops", TooltipText = "Hide intermediate operators." };
+        var simpleTraceToggle = new CheckButton
+            { Text = "Simple Trace", TooltipText = "Hide Godot/R3/System internal calls." };
+
+        var reloadButton = new Button { Text = "Refresh" };
+        var GCButton = new Button { Text = "GC" };
+
+        var settings = EditorInterface.Singleton.GetEditorSettings();
+
+        // Bind Events & Settings
+        enableAutoReloadToggle.ButtonPressed =
+            _enableAutoReload = GetSettingOrDefault(settings, EnableAutoReloadKey, false).AsBool();
+        enableAutoReloadToggle.Toggled += t =>
+        {
+            settings.SetSetting(EnableAutoReloadKey, t);
+            _enableAutoReload = t;
+        };
+
+        enableTrackingToggle.ButtonPressed =
+            _enableTracking = GetSettingOrDefault(settings, EnableTrackingKey, false).AsBool();
+        enableTrackingToggle.Toggled += t =>
+        {
+            settings.SetSetting(EnableTrackingKey, t);
+            _enableTracking = t;
+            _debuggerPlugin?.SetEnableStates(SessionId, _enableTracking, _enableStackTrace);
+        };
+
+        enableStackTraceToggle.ButtonPressed =
+            _enableStackTrace = GetSettingOrDefault(settings, EnableStackTraceKey, false).AsBool();
+        enableStackTraceToggle.Toggled += t =>
+        {
+            settings.SetSetting(EnableStackTraceKey, t);
+            _enableStackTrace = t;
+            _debuggerPlugin?.SetEnableStates(SessionId, _enableTracking, _enableStackTrace);
+        };
+
+        hideOperatorsToggle.ButtonPressed =
+            _hideOperators = GetSettingOrDefault(settings, HideOperatorsKey, true).AsBool();
+        _tree.SetHideOperators(_hideOperators);
+        hideOperatorsToggle.Toggled += t =>
+        {
+            settings.SetSetting(HideOperatorsKey, t);
+            _hideOperators = t;
+            if (IsInstanceValid(_tree))
+                _tree.SetHideOperators(_hideOperators);
+        };
+
+        simpleTraceToggle.ButtonPressed = _simpleTrace = GetSettingOrDefault(settings, SimpleTraceKey, true).AsBool();
+        _tree.SetSimpleTrace(_simpleTrace);
+        simpleTraceToggle.Toggled += t =>
+        {
+            settings.SetSetting(SimpleTraceKey, t);
+            _simpleTrace = t;
+            if (IsInstanceValid(_tree))
+                _tree.SetSimpleTrace(_simpleTrace);
+        };
+
+        reloadButton.Pressed += () => _debuggerPlugin?.UpdateTrackingStates(SessionId, true);
+        GCButton.Pressed += () => _debuggerPlugin?.InvokeGCCollect(SessionId);
+
+        headPanelLayout.AddChild(enableAutoReloadToggle);
+        headPanelLayout.AddChild(enableTrackingToggle);
+        headPanelLayout.AddChild(enableStackTraceToggle);
+        headPanelLayout.AddChild(hideOperatorsToggle);
+        headPanelLayout.AddChild(simpleTraceToggle);
+
+        headPanelLayout.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.Expand });
+        headPanelLayout.AddChild(reloadButton);
+        headPanelLayout.AddChild(GCButton);
+
+        AddChild(_tree);
+    }
+
+    public override void _ExitTree()
+    {
+        _debuggerPlugin = null;
+    }
+
+    private static Variant GetSettingOrDefault(EditorSettings settings, string key, Variant @default)
+    {
+        if (settings.HasSetting(key))
+            return settings.GetSetting(key);
+        return @default;
     }
 }
 #endif
