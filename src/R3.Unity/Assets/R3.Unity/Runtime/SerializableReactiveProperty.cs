@@ -5,6 +5,10 @@ using System.Text.RegularExpressions;
 
 #if UNITY_EDITOR
 using UnityEditor;
+#if UNITY_2022_3_OR_NEWER
+using UnityEngine.UIElements;
+using UnityEditor.UIElements;
+#endif
 #endif
 
 namespace R3
@@ -63,18 +67,7 @@ namespace R3
 
             if (EditorGUI.EndChangeCheck())
             {
-                var paths = property.propertyPath.Split('.'); // X.Y.Z...
-                var attachedComponent = property.serializedObject.targetObject;
-
-                var targetProp = GetValueRecursive(attachedComponent, 0, paths);
-                if (targetProp == null) return;
-
-                property.serializedObject.ApplyModifiedProperties(); // deserialize to field
-                var methodInfo = targetProp.GetType().GetMethod("ForceNotify", BindingFlags.IgnoreCase | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (methodInfo != null)
-                {
-                    methodInfo.Invoke(targetProp, Array.Empty<object>());
-                }
+                ForceNotify(property);
             }
         }
 
@@ -91,6 +84,23 @@ namespace R3
                 return EditorGUI.GetPropertyHeight(p);
             }
         }
+
+    #if UNITY_2022_3_OR_NEWER
+        /// <inheritdoc />
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var p = property.FindPropertyRelative(relativePropertyPath: "value");
+            var valuePropertyField = new PropertyField(property: p)
+            {
+                label   = property.displayName,
+                tooltip = property.tooltip
+            };
+
+            valuePropertyField.TrackPropertyValue(p, _ => { ForceNotify(property); });
+
+            return valuePropertyField;
+        }
+    #endif
 
         object GetValueRecursive(object obj, int index, string[] paths)
         {
@@ -147,6 +157,22 @@ namespace R3
             }
 
             return v;
+        }
+
+        private void ForceNotify(SerializedProperty property)
+        {
+            var paths             = property.propertyPath.Split('.'); // X.Y.Z...
+            var attachedComponent = property.serializedObject.targetObject;
+
+            var targetProp = GetValueRecursive(attachedComponent, 0, paths);
+            if(targetProp == null) return;
+
+            property.serializedObject.ApplyModifiedProperties(); // deserialize to field
+            var methodInfo = targetProp.GetType().GetMethod("ForceNotify", BindingFlags.IgnoreCase | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if(methodInfo != null)
+            {
+                methodInfo.Invoke(targetProp, Array.Empty<object>());
+            }
         }
     }
 
