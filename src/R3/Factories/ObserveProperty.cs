@@ -258,7 +258,7 @@ internal sealed class ObservePropertyChanged<T, TProperty>(
             if (handler != null)
             {
                 cancellationTokenRegistration.Dispose();
-                value.PropertyChanged -= eventHandler;
+                value.PropertyChanged -= handler;
             }
         }
     }
@@ -342,7 +342,7 @@ internal sealed class ObservePropertyChanging<T, TProperty>(
             if (handler != null)
             {
                 cancellationTokenRegistration.Dispose();
-                value.PropertyChanging -= eventHandler;
+                value.PropertyChanging -= handler;
             }
         }
     }
