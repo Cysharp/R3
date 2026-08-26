@@ -21,13 +21,16 @@ public static partial class ObservableExtensions
             }, disposable);
         }
 
-        return channel.Reader.ReadAllAsync(cancellationToken);
+        observer.readerEnumerable = channel.Reader.ReadAllAsync(cancellationToken);
+        return observer;
     }
 }
 
-sealed class ToAsyncEnumerable<T>(ChannelWriter<T> writer) : Observer<T>
+sealed class ToAsyncEnumerable<T>(ChannelWriter<T> writer) : Observer<T>, IAsyncEnumerable<T>
 {
     public CancellationTokenRegistration registration;
+
+    public IAsyncEnumerable<T> readerEnumerable = null!;
 
     protected override void OnNextCore(T value)
     {
@@ -54,6 +57,25 @@ sealed class ToAsyncEnumerable<T>(ChannelWriter<T> writer) : Observer<T>
     protected override void DisposeCore()
     {
         registration.Dispose();
+    }
+
+    public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+        return new AsyncEnumerator_(this, readerEnumerable.GetAsyncEnumerator(cancellationToken));
+    }
+
+    sealed class AsyncEnumerator_(ToAsyncEnumerable<T> owner, IAsyncEnumerator<T> enumerator) : IAsyncEnumerator<T>
+    {
+        public T Current => enumerator.Current;
+        public async ValueTask DisposeAsync()
+        {
+            await enumerator.DisposeAsync();
+            owner.Dispose();
+        }
+        public ValueTask<bool> MoveNextAsync()
+        {
+            return enumerator.MoveNextAsync();
+        }
     }
 }
 
