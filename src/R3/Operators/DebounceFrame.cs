@@ -28,7 +28,7 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
         readonly object gate = new object();
         readonly FrameProvider frameProvider;
         T? latestValue;
-        bool hasvalue;
+        bool hasValue;
         int currentFrame;
         bool isRunning;
 
@@ -44,7 +44,7 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
             lock (gate)
             {
                 latestValue = value;
-                hasvalue = true;
+                hasValue = true;
                 currentFrame = 0;
 
                 if (!isRunning)
@@ -64,10 +64,10 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
         {
             lock (gate)
             {
-                if (hasvalue)
+                if (hasValue)
                 {
                     observer.OnNext(latestValue!);
-                    hasvalue = false;
+                    hasValue = false;
                     latestValue = default;
                 }
             }
@@ -80,15 +80,16 @@ internal sealed class DebounceFrame<T>(Observable<T> source, int frameCount, Fra
 
             lock (gate)
             {
-                if (hasvalue)
+                if (hasValue)
                 {
                     if (++currentFrame == frameCount)
                     {
-                        observer.OnNext(latestValue!);
-                        hasvalue = false;
+                        var value = latestValue!;
+                        hasValue = false;
                         latestValue = default;
                         currentFrame = 0;
                         isRunning = false;
+                        observer.OnNext(value);
                         return false;
                     }
                 }
