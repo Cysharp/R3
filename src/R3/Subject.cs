@@ -42,7 +42,7 @@ internal struct CompleteState
             case CompletedFailure:
                 return ResultStatus.AlreadyFailed;
             case Disposed:
-                ThrowObjectDiposedException();
+                ThrowObjectDisposedException();
                 break;
         }
 
@@ -84,7 +84,7 @@ internal struct CompleteState
                 case CompletedFailure:
                     return true;
                 case Disposed:
-                    ThrowObjectDiposedException();
+                    ThrowObjectDisposedException();
                     break;
             }
 
@@ -116,7 +116,7 @@ internal struct CompleteState
             case CompletedFailure:
                 return Result.Failure(GetException());
             case Disposed:
-                ThrowObjectDiposedException();
+                ThrowObjectDisposedException();
                 break;
         }
 
@@ -139,7 +139,7 @@ internal struct CompleteState
         return error;
     }
 
-    static void ThrowObjectDiposedException()
+    static void ThrowObjectDisposedException()
     {
         throw new ObjectDisposedException("");
     }
