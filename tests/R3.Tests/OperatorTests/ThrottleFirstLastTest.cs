@@ -180,4 +180,30 @@ public class ThrottleFirstLastTest
         list.AssertEqual([1, 10000, 2, 200, 3]);
         list.AssertIsCompleted();
     }
+
+    [Fact]
+    public void ThrottleFirstLastFrame_HasValueIsResetWhenWindowCloses()
+    {
+        var frameProvider = new FakeFrameProvider();
+
+        var publisher = new Subject<int>();
+        var list = publisher.ThrottleFirstLastFrame(3, frameProvider).ToLiveList();
+
+        publisher.OnNext(1);
+        list.AssertEqual([1]);
+        publisher.OnNext(2);
+        list.AssertEqual([1]);
+
+        frameProvider.Advance(3);
+        list.AssertEqual([1, 2]);
+
+        publisher.OnNext(3);
+        list.AssertEqual([1, 2, 3]);
+
+        frameProvider.Advance(3);
+        list.AssertEqual([1, 2, 3]);
+
+        publisher.OnCompleted();
+        list.AssertIsCompleted();
+    }
 }
