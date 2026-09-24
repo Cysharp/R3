@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Runtime.InteropServices;
 
 namespace R3
 {
@@ -21,9 +20,10 @@ namespace R3.Collections
 {
     public sealed class LiveList<T> : IReadOnlyList<T>, IDisposable
     {
-        readonly IReadOnlyList<T> list; // RingBuffer<T> or List<T>
+        readonly RingBuffer<T> list; // lock object
         readonly IDisposable sourceSubscription;
-        readonly int bufferSize;
+        readonly int bufferSize; // meaningful only when isUnbounded is false
+        readonly bool isUnbounded;
 
         bool isCompleted;
         Result completedValue;
@@ -36,7 +36,11 @@ namespace R3.Collections
             {
                 lock (list)
                 {
-                    if (!isCompleted) throw new InvalidOperationException("LiveList is not completed, you should check IsCompleted.");
+                    if (!isCompleted)
+                    {
+                        throw new InvalidOperationException("LiveList is not completed, you should check IsCompleted.");
+                    }
+
                     return completedValue;
                 }
             }
@@ -44,15 +48,23 @@ namespace R3.Collections
 
         public LiveList(Observable<T> source)
         {
-            if (bufferSize == 0) bufferSize = 1;
-            this.bufferSize = -1;
-            this.list = new List<T>();
+            this.isUnbounded = true; // isUnbounded must set before Subscribe(sometimes Subscribe run immediately)
+            this.list = new RingBuffer<T>();
             this.sourceSubscription = source.Subscribe(new ListObserver(this));
         }
 
         public LiveList(Observable<T> source, int bufferSize)
         {
-            if (bufferSize == 0) bufferSize = 1;
+            if (bufferSize < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bufferSize), bufferSize, "bufferSize must be non-negative. Use the constructor without bufferSize to create a LiveList that has no size limit.");
+            }
+
+            if (bufferSize == 0)
+            {
+                bufferSize = 1;
+            }
+
             this.bufferSize = bufferSize; // bufferSize must set before Subscribe(sometimes Subscribe run immediately)
             this.list = new RingBuffer<T>(bufferSize);
             this.sourceSubscription = source.Subscribe(new ListObserver(this));
@@ -64,6 +76,13 @@ namespace R3.Collections
             {
                 lock (list)
                 {
+                    // RingBuffer<T> indexer does not validate the index, it masks the index with the internal
+                    // buffer capacity. An out-of-range index would silently return default or a stale value.
+                    if ((uint)index >= (uint)list.Count)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(index), index, $"index must be non-negative and less than Count ({list.Count}). Count changes while the source is being observed.");
+                    }
+
                     return list[index];
                 }
             }
@@ -149,20 +168,16 @@ namespace R3.Collections
             {
                 lock (parent.list)
                 {
-                    if (parent.bufferSize == -1)
-                    {
-                        ((List<T>)parent.list).Add(message);
-                    }
-                    else
-                    {
-                        var ring = (RingBuffer<T>)parent.list;
+                    var ring = parent.list;
 
-                        if (ring.Count == parent.bufferSize)
-                        {
-                            ring.RemoveFirst();
-                        }
-                        ring.AddLast(message);
+                    // when the size is limited, drop the oldest value to make room.
+                    // otherwise RingBuffer<T> grows automatically.
+                    if (!parent.isUnbounded && ring.Count == parent.bufferSize)
+                    {
+                        ring.RemoveFirst();
                     }
+
+                    ring.AddLast(message);
                 }
             }
 
@@ -178,58 +193,6 @@ namespace R3.Collections
                     parent.completedValue = complete;
                     parent.isCompleted = true;
                 }
-            }
-        }
-    }
-
-    file static class RingBufferOrListExtensions
-    {
-        public static RingBufferSpan<T> GetSpan<T>(this IReadOnlyList<T> list)
-        {
-            if (list is RingBuffer<T> r)
-            {
-                return r.GetSpan();
-            }
-            else if (list is List<T> l)
-            {
-                var span1 = CollectionsMarshal.AsSpan(l);
-                return new RingBufferSpan<T>(span1, default, span1.Length);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
-
-        public static void Clear<T>(this IReadOnlyList<T> list)
-        {
-            if (list is RingBuffer<T> r)
-            {
-                r.Clear();
-            }
-            else if (list is List<T> l)
-            {
-                l.Clear();
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
-
-        public static T[] ToArray<T>(this IReadOnlyList<T> list)
-        {
-            if (list is RingBuffer<T> r)
-            {
-                return r.ToArray();
-            }
-            else if (list is List<T> l)
-            {
-                return CollectionsMarshal.AsSpan(l).ToArray();
-            }
-            else
-            {
-                throw new NotSupportedException();
             }
         }
     }
