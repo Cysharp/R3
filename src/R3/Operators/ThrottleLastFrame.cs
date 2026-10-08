@@ -72,9 +72,10 @@ internal sealed class ThrottleLastFrame<T>(Observable<T> source, int frameCount,
             {
                 if (++currentFrame == frameCount)
                 {
-                    observer.OnNext(lastValue!);
+                    var value = lastValue!;
                     lastValue = default;
                     running = false;
+                    observer.OnNext(value);
                     return false;
                 }
             }
