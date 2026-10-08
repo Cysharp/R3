@@ -1,58 +1,74 @@
-﻿
+﻿#if TOOLS
 #nullable enable
 
-using Godot;
 using System;
+using Godot;
 using GDArray = Godot.Collections.Array;
 
 namespace R3;
 
-// Sends runtime ObservableTracker information to ObservableTrackerDebuggerPlugin.
-// Needs to be an Autoload. Should not be instantiated manually.
 public partial class ObservableTrackerRuntimeHook : Node
 {
     public override void _Ready()
     {
-#if TOOLS
-        EngineDebugger.RegisterMessageCapture(ObservableTrackerDebuggerPlugin.MessageHeader, Callable.From((string message, GDArray data) =>
-        { 
-            //GD.Print(nameof(ObservableTrackerRuntimeHook) + " received " + message);
-            switch (message)
+        // Enable tracking by default immediately on start.
+        ObservableTracker.EnableTracking = true;
+        ObservableTracker.EnableStackTrace = true;
+
+        EngineDebugger.RegisterMessageCapture(ObservableTrackerDebuggerPlugin.MessageHeader,
+            Callable.From((string message, GDArray data) =>
             {
-                case ObservableTrackerDebuggerPlugin.Message_RequestActiveTasks:
-                    // data[0]: If true, force an update anyway.
-                    if (ObservableTracker.CheckAndResetDirty() || data[0].AsBool())
-                    {
-                        GDArray states = new();
-                        ObservableTracker.ForEachActiveTask(state =>
+                var command = message.Contains(':') ? message.Substring(message.IndexOf(':') + 1) : message;
+
+                switch (command)
+                {
+                    case ObservableTrackerDebuggerPlugin.Message_RequestActiveTasks:
+                        if (ObservableTracker.CheckAndResetDirty() || (data.Count > 0 && data[0].AsBool()))
                         {
-                            // DateTime is not a Variant type, so we serialize it using Ticks instead.
-                            states.Add(new GDArray { state.TrackingId, state.FormattedType, state.AddTime.Ticks, state.StackTrace });
-                        });
-                        EngineDebugger.SendMessage(ObservableTrackerDebuggerPlugin.MessageHeader + ":" + ObservableTrackerDebuggerPlugin.Message_ReceiveActiveTasks, new () { true, states });
-                    }
-                    else
-                    {
-                        EngineDebugger.SendMessage(ObservableTrackerDebuggerPlugin.MessageHeader + ":" + ObservableTrackerDebuggerPlugin.Message_ReceiveActiveTasks, new () { false, });
-                    }
-                    break;
-                case ObservableTrackerDebuggerPlugin.Message_SetEnableStates:
-                    ObservableTracker.EnableTracking = data[0].AsBool();
-                    ObservableTracker.EnableStackTrace = data[1].AsBool();
-                    break;
-                case ObservableTrackerDebuggerPlugin.Message_InvokeGCCollect:
-                    GC.Collect(0);
-                    break;
-            }
-            return true;
-        }));
-#endif
+                            GDArray states = new();
+                            ObservableTracker.ForEachActiveTask(state =>
+                            {
+                                states.Add(new GDArray
+                                {
+                                    state.TrackingId, state.FormattedType, state.AddTime.Ticks, state.StackTrace
+                                });
+                            });
+
+                            EngineDebugger.SendMessage(
+                                ObservableTrackerDebuggerPlugin.MessageHeader + ":" +
+                                ObservableTrackerDebuggerPlugin.Message_ReceiveActiveTasks,
+                                new GDArray { true, states });
+                        }
+                        else
+                        {
+                            EngineDebugger.SendMessage(
+                                ObservableTrackerDebuggerPlugin.MessageHeader + ":" +
+                                ObservableTrackerDebuggerPlugin.Message_ReceiveActiveTasks, new GDArray { false });
+                        }
+
+                        break;
+
+                    case ObservableTrackerDebuggerPlugin.Message_SetEnableStates:
+                        if (data.Count >= 2)
+                        {
+                            ObservableTracker.EnableTracking = data[0].AsBool();
+                            ObservableTracker.EnableStackTrace = data[1].AsBool();
+                        }
+
+                        break;
+
+                    case ObservableTrackerDebuggerPlugin.Message_InvokeGCCollect:
+                        GC.Collect(0);
+                        break;
+                }
+
+                return true;
+            }));
     }
 
     public override void _ExitTree()
     {
-#if TOOLS
         EngineDebugger.UnregisterMessageCapture(ObservableTrackerDebuggerPlugin.MessageHeader);
-#endif
     }
 }
+#endif
