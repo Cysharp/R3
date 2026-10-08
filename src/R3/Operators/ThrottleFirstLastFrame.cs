@@ -78,6 +78,7 @@ internal sealed class ThrottleFirstLastFrame<T>(Observable<T> source, int frameC
                     if (hasValue)
                     {
                         observer.OnNext(lastValue!);
+                        hasValue = false;
                         lastValue = default;
                     }
                     running = false;
