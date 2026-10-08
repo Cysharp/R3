@@ -1,6 +1,8 @@
 ﻿using System.Buffers;
 using System.Collections;
+#if NET6_0_OR_GREATER
 using System.Runtime.InteropServices;
+#endif
 
 namespace R3;
 
@@ -169,7 +171,11 @@ public sealed class CompositeDisposable : ICollection<IDisposable>, IDisposable
             }
 
             var i = 0;
+#if NET6_0_OR_GREATER
             foreach (var item in CollectionsMarshal.AsSpan(list))
+#else
+            foreach (var item in list)
+#endif
             {
                 if (item != null)
                 {

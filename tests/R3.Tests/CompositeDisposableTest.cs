@@ -55,6 +55,30 @@ public class CompositeDisposableTest
         }
     }
 
+    /// <summary>
+    /// Remove nulls out the slot instead of compacting the backing list, so this guarantees
+    /// that CopyTo skips those holes and writes the surviving disposables contiguously
+    /// starting at arrayIndex.
+    /// </summary>
+    [Fact]
+    public void CopyToSkipsRemovedSlots()
+    {
+        var disposables = Enumerable.Range(0, 5).Select(x => new TestDisposable()).ToArray();
+        var composite = new CompositeDisposable(disposables);
+
+        composite.Remove(disposables[1]);
+        composite.Remove(disposables[3]);
+
+        composite.Count.ShouldBe(3);
+
+        var array = new IDisposable[4];
+        composite.CopyTo(array, 1);
+
+        array[0].ShouldBeNull();
+        array[1].ShouldBe(disposables[0]);
+        array[2].ShouldBe(disposables[2]);
+        array[3].ShouldBe(disposables[4]);
+    }
 
     class TestDisposable : IDisposable
     {
