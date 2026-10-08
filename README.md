@@ -1339,6 +1339,8 @@ https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity
 
 R3 uses the *.*.* release tag, so you can specify a version like #1.0.0. For example: `https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity#1.0.0`
 
+If you are using Unity 7, an additional step is currently required. See [Using R3 on Unity 7](#using-r3-on-unity-7).
+
 Unity's TimeProvider and FrameProvider is PlayerLoop based. Additionally, there are variations of TimeProvider that correspond to the TimeScale.
 
 ```
@@ -1523,6 +1525,17 @@ this.OnCollisionEnterAsObservable()
         Debug.Log("collision enter");
     });
 ```
+
+#### Using R3 on Unity 7
+
+On Unity 7 (confirmed with 7000.0.0a7), `Microsoft.Bcl.AsyncInterfaces`, which `Microsoft.Bcl.TimeProvider` depends on, is not available at run time. NuGetForUnity does not install it because Unity 7 provides it as a compile-time reference, but Unity 7 does not supply it to the CoreCLR-based Editor or to players. As a result, the Editor reports `Broken assembly` for `R3.dll`, `R3.Unity.dll`, and `Microsoft.Bcl.TimeProvider.dll`, R3 does not work in Play Mode, and player builds fail with `ILLink: error IL1009: Assembly reference 'Microsoft.Bcl.AsyncInterfaces' could not be resolved.` Unity 6 (confirmed with 6000.6.3f1) is not affected. See [#404](https://github.com/Cysharp/R3/issues/404) for details.
+
+To work around this, add the `Microsoft.Bcl.AsyncInterfaces.dll` that ships with the Unity Editor to your project:
+
+1. Copy `<Unity installation>/Editor/Data/BCLExtensions/runtime/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll` into `Assets/Plugins`. Use the file from the same Editor version that your project uses.
+2. Select the DLL in the Project window. In the Inspector, enable **Any Platform**, disable **Auto Reference**, and press **Apply**.
+
+Do not restrict the DLL to the Editor platform, otherwise player builds still fail. Remove the DLL once Unity supplies `Microsoft.Bcl.AsyncInterfaces` at run time.
 
 ### Godot
 
