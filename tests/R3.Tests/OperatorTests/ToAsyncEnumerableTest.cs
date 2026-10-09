@@ -55,4 +55,34 @@ public class ToAsyncEnumerableTest
         l.ShouldBe([1, 10, 100]);
         disposed.ShouldBeTrue();
     }
+
+    [Fact]
+    async Task UnsubscribeWhenBreak()
+    {
+        var publisher = new Subject<int>();
+        var cts = new CancellationTokenSource();
+
+        var disposed = false;
+        var e = publisher.Do(onDispose: () => disposed = true).ToAsyncEnumerable(cts.Token);
+
+        publisher.OnNext(1);
+        publisher.OnNext(10);
+
+        publisher.OnNext(100);
+        // publisher.OnCompleted();
+
+        var l = new List<int>();
+
+        await foreach (var item in e)
+        {
+            l.Add(item);
+            if (item == 10)
+            {
+                break;
+            }
+        }
+
+        l.ShouldBe([1, 10]);
+        disposed.ShouldBeTrue();
+    }
 }
