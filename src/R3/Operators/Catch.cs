@@ -29,7 +29,8 @@ internal sealed class Catch<T>(Observable<T> source, Observable<T> second) : Obs
 
         public IDisposable Run(Observable<T> source)
         {
-            return source.Subscribe(new FirstObserver(this));
+            firstSubscription.Disposable = source.Subscribe(new FirstObserver(this));
+            return this;
         }
 
         public void Dispose()
@@ -104,7 +105,8 @@ internal sealed class Catch<T, TException>(Observable<T> source, Func<TException
 
         public IDisposable Run(Observable<T> source)
         {
-            return source.Subscribe(new FirstObserver(this));
+            firstSubscription.Disposable = source.Subscribe(new FirstObserver(this));
+            return this;
         }
 
         public void Dispose()
