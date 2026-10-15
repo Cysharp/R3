@@ -610,11 +610,11 @@ Furthermore, you can specify special behaviors when asynchronous methods are pro
 
 | Name | ReturnType |
 | --- | --- |
-| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<TResult>` |
-| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `Observable<T>` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
-| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = true, `int` maxConcurrent = -1) | `IDisposable` |
+| **SelectAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<TResult>>` selector, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = false, `int` maxConcurrent = -1) | `Observable<TResult>` |
+| **WhereAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask<Boolean>>` predicate, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = false, `int` maxConcurrent = -1) | `Observable<T>` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = false, `int` maxConcurrent = -1) | `IDisposable` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = false, `int` maxConcurrent = -1) | `IDisposable` |
+| **SubscribeAwait**(this `Observable<T>` source, `Func<T, CancellationToken, ValueTask>` onNextAsync, `Action<Exception>` onErrorResume, `Action<Result>` onCompleted, `AwaitOperation` awaitOperation = AwaitOperation.Sequential, `bool` configureAwait = true, `bool` cancelOnCompleted = false, `int` maxConcurrent = -1) | `IDisposable` |
 
 ```csharp
 public enum AwaitOperation
@@ -648,7 +648,7 @@ button.OnClickAsObservable()
 
 `maxConcurrent` is only effective for `Parallel` and `SequentialParallel`, allowing control over the number of parallel operations. By default, it allows unlimited parallelization.
 
-`cancelOnCompleted` lets you choose whether to cancel the ongoing asynchronous method (by setting CancellationToken to Cancel) when the `OnCompleted` event is received. The default is true, meaning it will be cancelled. If set to false, it waits for the completion of the asynchronous method before calling the subsequent `OnCompleted` (potentially after issuing OnNext, depending on the case).
+`cancelOnCompleted` lets you choose whether to cancel the ongoing asynchronous method (by setting CancellationToken to Cancel) when the `OnCompleted` event is received. The default is false, meaning it waits for the completion of the asynchronous method before calling the subsequent `OnCompleted` (potentially after issuing OnNext, depending on the case). Set it to true to cancel the ongoing asynchronous method when the source completes successfully. A failed source completion cancels the ongoing asynchronous method regardless of this setting.
 
 Additionally, the following time-related filtering/aggregating methods can also accept asynchronous methods.
 
