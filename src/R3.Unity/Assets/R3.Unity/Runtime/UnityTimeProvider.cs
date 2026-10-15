@@ -135,6 +135,10 @@ namespace R3
             {
                 this.dueTime = dueTime;
                 this.period = period;
+                if (timeKind == TimeKind.Realtime)
+                {
+                    lastTimestamp = TimeProvider.System.GetTimestamp();
+                }
 
                 if (dueTime == Timeout.InfiniteTimeSpan)
                 {
