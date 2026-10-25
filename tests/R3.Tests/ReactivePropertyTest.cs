@@ -54,6 +54,48 @@ public class ReactivePropertyTest
         list.AssertEqual(["foo"]);
     }
 
+    [Fact]
+    public void ToPropertyInitialValue()
+    {
+        // initialValue is the value until the source first emits
+        var subject = new Subject<string>();
+        using var p1 = subject.ToReadOnlyReactiveProperty("init");
+        using var p2 = subject.ToBindableReactiveProperty("init");
+        using var p3 = subject.ToReadOnlyBindableReactiveProperty("init");
+        p1.CurrentValue.ShouldBe("init");
+        p2.Value.ShouldBe("init");
+        p3.Value.ShouldBe("init");
+
+        subject.OnNext("foo");
+        p1.CurrentValue.ShouldBe("foo");
+        p2.Value.ShouldBe("foo");
+        p3.Value.ShouldBe("foo");
+    }
+
+    [Fact]
+    public void ToPropertyWithoutInitialValue()
+    {
+        using var rp = new ReactiveProperty<string>("foo");
+        ReadOnlyReactiveProperty<string> p1 = rp.Select(x => x).ToReadOnlyReactiveProperty();
+        BindableReactiveProperty<string> p2 = rp.ToBindableReactiveProperty();
+        IReadOnlyBindableReactiveProperty<string> p3 = rp.ToReadOnlyBindableReactiveProperty();
+        p1.CurrentValue.ShouldBe("foo");
+        p2.Value.ShouldBe("foo");
+        p3.Value.ShouldBe("foo");
+
+        rp.Value = "bar";
+        p1.CurrentValue.ShouldBe("bar");
+        p2.Value.ShouldBe("bar");
+        p3.Value.ShouldBe("bar");
+
+        using var p4 = new Subject<int>().ToBindableReactiveProperty();
+        p4.Value.ShouldBe(0);
+
+        p1.Dispose();
+        p2.Dispose();
+        p3.Dispose();
+    }
+
     // Node Check
     [Fact]
     public void CheckNode()

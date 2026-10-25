@@ -7,7 +7,13 @@ namespace R3;
 
 public static class ReactivePropertyExtensions
 {
-    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
+    // separate overload: an omitted `initialValue = default!` makes nullable inference pick T? (CS8620)
+    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source)
+    {
+        return source.ToReadOnlyReactiveProperty(EqualityComparer<T>.Default, default!);
+    }
+
+    public static ReadOnlyReactiveProperty<T> ToReadOnlyReactiveProperty<T>(this Observable<T> source, T initialValue)
     {
         return source.ToReadOnlyReactiveProperty(EqualityComparer<T>.Default, initialValue);
     }
@@ -20,7 +26,12 @@ public static class ReactivePropertyExtensions
 
     // ToBindable
 
-    public static BindableReactiveProperty<T> ToBindableReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
+    public static BindableReactiveProperty<T> ToBindableReactiveProperty<T>(this Observable<T> source)
+    {
+        return new BindableReactiveProperty<T>(source, default!, EqualityComparer<T>.Default);
+    }
+
+    public static BindableReactiveProperty<T> ToBindableReactiveProperty<T>(this Observable<T> source, T initialValue)
     {
         return new BindableReactiveProperty<T>(source, initialValue, EqualityComparer<T>.Default);
     }
@@ -30,7 +41,12 @@ public static class ReactivePropertyExtensions
         return new BindableReactiveProperty<T>(source, initialValue, equalityComparer);
     }
 
-    public static IReadOnlyBindableReactiveProperty<T> ToReadOnlyBindableReactiveProperty<T>(this Observable<T> source, T initialValue = default!)
+    public static IReadOnlyBindableReactiveProperty<T> ToReadOnlyBindableReactiveProperty<T>(this Observable<T> source)
+    {
+        return new ReadOnlyBindableReactiveProperty<T>(new BindableReactiveProperty<T>(source, default!, EqualityComparer<T>.Default));
+    }
+
+    public static IReadOnlyBindableReactiveProperty<T> ToReadOnlyBindableReactiveProperty<T>(this Observable<T> source, T initialValue)
     {
         return new ReadOnlyBindableReactiveProperty<T>(new BindableReactiveProperty<T>(source, initialValue, EqualityComparer<T>.Default));
     }
